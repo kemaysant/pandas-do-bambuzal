@@ -680,30 +680,27 @@ async function loadGuild() {
 
     guildData = data.guild;
 
-    // Normaliza membros de todos os ranks
+    // Normaliza membros — TibiaData v4 retorna array flat
     allMembers = [];
-    const rankPriority = { 'Leader': 'leader', 'Vice-Leader': 'leader' };
 
-    for (const rankGroup of (guildData.members || [])) {
-      const rankName = rankGroup.rank_title || '';
-      // Determina categoria de rank
-      let rankCat = 'member';
+    for (const char of (guildData.members || [])) {
+      const rankName = char.rank || '';
       const rLower = rankName.toLowerCase();
-      if (rLower.includes('leader') || rLower.includes('lider') || rLower.includes('líder')) rankCat = 'leader';
-      else if (rLower.includes('veteran') || rLower.includes('veterano')) rankCat = 'veteran';
+      let rankCat = 'member';
+      // Detecta líderes pelo rank title da guild (Panda Supremo = líder)
+      if (rLower.includes('supremo') || rLower.includes('leader') || rLower.includes('lider') || rLower.includes('líder')) rankCat = 'leader';
+      else if (rLower.includes('guardiao') || rLower.includes('guardião') || rLower.includes('veteran') || rLower.includes('guerreiro')) rankCat = 'veteran';
 
-      for (const char of (rankGroup.characters || [])) {
-        allMembers.push({
-          name:     char.name,
-          voc:      char.vocation || '',
-          vocKey:   vocKey(char.vocation || ''),
-          level:    char.level || 0,
-          rank:     rankCat,
-          rankTitle: rankName,
-          status:   char.status || 'offline',
-          joined:   char.joined || '',
-        });
-      }
+      allMembers.push({
+        name:      char.name,
+        voc:       char.vocation || '',
+        vocKey:    vocKey(char.vocation || ''),
+        level:     char.level || 0,
+        rank:      rankCat,
+        rankTitle: rankName,
+        status:    char.status || 'offline',
+        joined:    char.joined || '',
+      });
     }
 
     // Ordena por level desc
