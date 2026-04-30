@@ -15,10 +15,25 @@
   --bamboo:#3d6b2e; --bamboo-light:#5a9e44; --bamboo-pale:#eaf3e4;
   --gold:#a07828; --gold-light:#c9a840; --gold-pale:#f7f0dc;
   --red:#8b1a1a; --red-pale:#fdf0f0; --accent:#2d1f5e;
+  --transition-color: background .25s, color .25s, border-color .25s;
 }
+/* ── DARK MODE ── */
+body.dark {
+  --ink:#f0ede8; --ink-2:#d4cfc8; --ink-3:#a89f94;
+  --muted:#6b6258; --rule:#2e2a24; --parchment:#1a1612;
+  --paper:#131109; --white:#1c1812;
+  --bamboo:#5a9e44; --bamboo-light:#7dc464; --bamboo-pale:#0f2009;
+  --gold:#c9a840; --gold-light:#e0c060; --gold-pale:#1a1400;
+  --red:#e87070; --red-pale:#1a0808; --accent:#8878d0;
+}
+body { transition: var(--transition-color); }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+
+/* ── DARK TOGGLE BTN ── */
+.dark-toggle{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.78rem;font-family:'DM Sans',sans-serif;transition:all .2s;display:flex;align-items:center;gap:5px}
+.dark-toggle:hover{background:rgba(255,255,255,.1);color:white}
 
 /* ─── HEADER ─── */
 .site-header{background:var(--ink);color:var(--paper);position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,0.06)}
@@ -280,6 +295,7 @@ async function tibiaFetch(path) {
     </div>
     <div style="display:flex;align-items:center;gap:10px">
       <span id="world-online-count" style="font-size:.78rem;color:rgba(255,255,255,.45);font-weight:300"></span>
+      <button class="dark-toggle" onclick="toggleDark()" id="dark-btn" title="Alternar modo escuro">☀ Claro</button>
       <span class="server-tag" id="server-display">Antigua</span>
     </div>
   </div>
@@ -290,6 +306,7 @@ async function tibiaFetch(path) {
   <div class="nav-inner">
     <button class="nav-btn active" onclick="showPage('home',this)">Início</button>
     <button class="nav-btn" onclick="showPage('members',this)">Membros</button>
+    <button class="nav-btn" onclick="showPage('bosses',this)">Bosses</button>
     <button class="nav-btn" onclick="showPage('events',this)">Eventos</button>
     <button class="nav-btn" onclick="showPage('huntfinder',this)">Hunt Finder</button>
     <button class="nav-btn" onclick="showPage('quests',this)">Guia de Quests</button>
@@ -491,6 +508,111 @@ async function tibiaFetch(path) {
     </div>
   </section>
 
+  <!-- ─── BOSSES ─── -->
+  <section class="page-section" id="bosses">
+    <h2 class="sec-title">Bosses</h2>
+    <p class="sec-sub">Boss boostado do dia + rastreador de bosses diários da guild.</p>
+
+    <!-- Boosted Boss -->
+    <div class="grid-2" style="margin-bottom:2rem">
+      <div class="card" id="boosted-creature-card">
+        <div class="tool-label" style="margin-bottom:1rem">Criatura Boostada Hoje</div>
+        <div class="api-loading" id="boosted-creature-loading"><div class="spinner"></div> Carregando...</div>
+        <div id="boosted-creature-content" style="display:none">
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+            <img id="boosted-creature-img" src="" alt="" style="width:64px;height:64px;image-rendering:pixelated;border-radius:8px;background:var(--paper);border:1px solid var(--rule);padding:4px">
+            <div>
+              <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--ink)" id="boosted-creature-name"></div>
+              <div style="font-size:.82rem;color:var(--muted);font-weight:300;margin-top:2px">+50% XP · +50% Loot · +50% Charm Points hoje</div>
+            </div>
+          </div>
+          <div style="background:var(--bamboo-pale);border-radius:6px;padding:.75rem 1rem;font-size:.85rem;color:var(--bamboo);font-weight:500">
+            Vale a pena incluir essa criatura na sua hunt hoje!
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="boosted-boss-card">
+        <div class="tool-label" style="margin-bottom:1rem">Boss Boostado Hoje</div>
+        <div class="api-loading" id="boosted-boss-loading"><div class="spinner"></div> Carregando...</div>
+        <div id="boosted-boss-content" style="display:none">
+          <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+            <img id="boosted-boss-img" src="" alt="" style="width:64px;height:64px;image-rendering:pixelated;border-radius:8px;background:var(--paper);border:1px solid var(--rule);padding:4px">
+            <div>
+              <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--ink)" id="boosted-boss-name"></div>
+              <div style="font-size:.82rem;color:var(--muted);font-weight:300;margin-top:2px">+50% drop chance hoje</div>
+            </div>
+          </div>
+          <div style="background:var(--gold-pale);border-radius:6px;padding:.75rem 1rem;font-size:.85rem;color:var(--gold);font-weight:500">
+            Avise no Discord se quiser organizar uma run!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boss Tracker -->
+    <div class="tool-label" style="margin-bottom:1rem">Tracker de Bosses Diários da Guild</div>
+    <p style="font-size:.88rem;color:var(--muted);font-weight:300;margin-bottom:1.5rem">Marque os bosses que você já fez hoje. O tracker reseta à meia-noite.</p>
+
+    <div id="boss-tracker-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.75rem"></div>
+
+    <!-- Imbuements -->
+    <div style="height:1px;background:var(--rule);margin:2.5rem 0"></div>
+    <div class="tool-label" style="margin-bottom:1rem">Calculadora de Imbuements</div>
+    <div class="grid-2">
+      <div class="card">
+        <div style="margin-bottom:1rem">
+          <label class="input-label" style="display:block;margin-bottom:.5rem">Imbuement</label>
+          <select class="tool-select" id="imbu-select" onchange="calcImbu()">
+            <option value="">Selecione...</option>
+            <optgroup label="── Tier 3 (Poderoso)">
+              <option value="vampirism3">Vampirism (Life Leech) T3</option>
+              <option value="void3">Void (Mana Leech) T3</option>
+              <option value="strike3">Strike (Critical) T3</option>
+              <option value="swiftness3">Swiftness (Speed) T3</option>
+              <option value="featherweight3">Featherweight (Cap) T3</option>
+              <option value="lich3">Lich Shroud (Death Prot.) T3</option>
+              <option value="snakeskin3">Snake Skin (Earth Prot.) T3</option>
+              <option value="dragonhide3">Dragon Hide (Fire Prot.) T3</option>
+              <option value="cloud3">Cloud Fabric (Ice Prot.) T3</option>
+              <option value="demon3">Demon Presence (Energy Prot.) T3</option>
+              <option value="blockade3">Blockade (Physical Prot.) T3</option>
+              <option value="precision3">Precision (Distance) T3</option>
+              <option value="vibrancy3">Vibrancy (Anti-Para) T3</option>
+            </optgroup>
+            <optgroup label="── Tier 2 (Forte)">
+              <option value="vampirism2">Vampirism T2</option>
+              <option value="void2">Void T2</option>
+              <option value="strike2">Strike T2</option>
+              <option value="swiftness2">Swiftness T2</option>
+            </optgroup>
+            <optgroup label="── Tier 1 (Básico)">
+              <option value="vampirism1">Vampirism T1</option>
+              <option value="void1">Void T1</option>
+              <option value="strike1">Strike T1</option>
+            </optgroup>
+          </select>
+        </div>
+        <div style="margin-bottom:1rem">
+          <label class="input-label" style="display:block;margin-bottom:.5rem">Duração (horas)</label>
+          <select class="tool-select" id="imbu-hours" onchange="calcImbu()">
+            <option value="1">1 hora (teste)</option>
+            <option value="20" selected>20 horas (normal)</option>
+          </select>
+        </div>
+        <div id="imbu-result" style="display:none;background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:1rem"></div>
+      </div>
+      <div class="card" style="background:var(--paper)">
+        <div class="tool-label" style="margin-bottom:.75rem">Como funciona</div>
+        <div style="font-size:.88rem;color:var(--ink-3);font-weight:300;line-height:1.8">
+          <p style="margin-bottom:.75rem">Imbuements custam <strong style="color:var(--ink);font-weight:500">gold + itens</strong> específicos de criaturas. O custo varia conforme a duração escolhida.</p>
+          <p style="margin-bottom:.75rem">Com <strong style="color:var(--ink);font-weight:500">proteção ativa</strong> (item na mochila), você não perde o imbue ao morrer.</p>
+          <p>Os preços dos itens mudam com o market — consulte o <a href="https://intibia.com/pt/tools/imbuements-prices" target="_blank" style="color:var(--bamboo);font-weight:500">Intibia</a> para valores atualizados.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ─── HUNT FINDER ─── -->
   <section class="page-section" id="huntfinder">
     <h2 class="sec-title">Hunt Finder</h2>
@@ -639,6 +761,44 @@ async function tibiaFetch(path) {
         <div class="input-row"><label class="input-label">Desconto suprimentos</label><input type="number" class="tool-input" id="loot-supplies" placeholder="ex: 50000" min="0"></div>
         <button class="calc-btn" onclick="calcLoot()">Calcular →</button>
         <div class="result-box" id="loot-result"></div>
+      </div>
+    </div>
+
+    <!-- Waste Split Visual -->
+    <div style="height:1px;background:var(--rule);margin:2rem 0"></div>
+    <div class="tool-label" style="margin-bottom:1rem">Waste Split — Gerador de Mensagem</div>
+    <div class="card" style="margin-bottom:0">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem">
+        <div class="input-row" style="margin-bottom:0">
+          <label class="input-label">Nome da Quest/Boss</label>
+          <input type="text" class="tool-input" id="ws-quest" placeholder="ex: Ferumbras">
+        </div>
+        <div class="input-row" style="margin-bottom:0">
+          <label class="input-label">Data</label>
+          <input type="date" class="tool-input" id="ws-date">
+        </div>
+        <div class="input-row" style="margin-bottom:0">
+          <label class="input-label">Total waste (gold)</label>
+          <input type="number" class="tool-input" id="ws-total" placeholder="ex: 200000" min="0">
+        </div>
+      </div>
+      <div id="ws-members-wrap">
+        <label class="input-label" style="display:block;margin-bottom:.5rem">Membros participantes</label>
+        <div id="ws-members-list" style="display:flex;flex-direction:column;gap:.5rem">
+          <input type="text" class="tool-input ws-member" placeholder="Nome do char 1">
+          <input type="text" class="tool-input ws-member" placeholder="Nome do char 2">
+          <input type="text" class="tool-input ws-member" placeholder="Nome do char 3">
+        </div>
+        <div style="display:flex;gap:.5rem;margin-top:.5rem">
+          <button class="calc-btn" style="background:var(--bamboo);margin-top:0;padding:6px 14px;font-size:.78rem" onclick="addWsMember()">+ Membro</button>
+          <button class="calc-btn" style="margin-top:0;padding:6px 14px;font-size:.78rem" onclick="genWasteSplit()">Gerar mensagem →</button>
+        </div>
+      </div>
+      <div id="ws-output" style="display:none;margin-top:1rem">
+        <div style="font-size:.72rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Mensagem pronta para Discord/WhatsApp</div>
+        <div id="ws-msg" style="background:var(--ink);color:var(--paper);border-radius:8px;padding:1rem 1.25rem;font-family:'DM Mono',monospace;font-size:.82rem;line-height:1.7;white-space:pre-wrap"></div>
+        <button class="calc-btn" style="margin-top:.75rem" onclick="copyWaste()">Copiar mensagem</button>
+        <span id="ws-copied" style="display:none;font-size:.78rem;color:var(--bamboo);margin-left:.75rem;font-weight:500">✓ Copiado!</span>
       </div>
     </div>
   </section>
@@ -1334,6 +1494,198 @@ function triggerReveal() {
 
 setTimeout(triggerReveal, 80);
 renderQuests('all');
+
+// ══════════════════════════════════════════════════
+//  DARK MODE
+// ══════════════════════════════════════════════════
+function toggleDark() {
+  const isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('panda-dark', isDark ? '1' : '0');
+  document.getElementById('dark-btn').textContent = isDark ? '☀ Claro' : '☾ Escuro';
+}
+// Restore preference
+if (localStorage.getItem('panda-dark') === '1') {
+  document.body.classList.add('dark');
+  const btn = document.getElementById('dark-btn');
+  if (btn) btn.textContent = '☀ Claro';
+}
+
+// ══════════════════════════════════════════════════
+//  BOOSTED BOSSES  —  /v4/boostablebosses
+// ══════════════════════════════════════════════════
+async function loadBoostedBosses() {
+  try {
+    const data = await tibiaFetch('/v4/boostablebosses');
+    const boostedCreature = data?.boostable_bosses?.boosted_creature;
+    const boostedBoss     = data?.boostable_bosses?.boosted;
+
+    // Creature
+    if (boostedCreature) {
+      document.getElementById('boosted-creature-loading').style.display = 'none';
+      document.getElementById('boosted-creature-img').src = boostedCreature.image_url || '';
+      document.getElementById('boosted-creature-img').alt = boostedCreature.name || '';
+      document.getElementById('boosted-creature-name').textContent = boostedCreature.name || '—';
+      document.getElementById('boosted-creature-content').style.display = 'block';
+    }
+
+    // Boss
+    if (boostedBoss) {
+      document.getElementById('boosted-boss-loading').style.display = 'none';
+      document.getElementById('boosted-boss-img').src = boostedBoss.image_url || '';
+      document.getElementById('boosted-boss-img').alt = boostedBoss.name || '';
+      document.getElementById('boosted-boss-name').textContent = boostedBoss.name || '—';
+      document.getElementById('boosted-boss-content').style.display = 'block';
+    }
+  } catch(e) {
+    console.error('Boosted bosses error:', e);
+    document.getElementById('boosted-creature-loading').innerHTML = '<span style="color:var(--muted);font-size:.82rem">Não disponível</span>';
+    document.getElementById('boosted-boss-loading').innerHTML = '<span style="color:var(--muted);font-size:.82rem">Não disponível</span>';
+  }
+}
+
+// ── Boss Tracker ──
+const GUILD_BOSSES = [
+  { id:'ferumbras',  name:'Ferumbras',         tipo:'Semanal',  wiki:'https://tibia.fandom.com/wiki/Ferumbras\'_Mortal_Shell' },
+  { id:'oberon',     name:'Oberon',             tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Oberon' },
+  { id:'scarlett',   name:'Scarlett Etzel',     tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Scarlett_Etzel' },
+  { id:'drume',      name:'Drume',              tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Drume' },
+  { id:'inferniach', name:'Inferniach',         tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Inferniach' },
+  { id:'lokkh',      name:'Lokkh Shaguard',     tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Lokkh_Shaguard' },
+  { id:'gravelord',  name:'Gravelord Osyran',   tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Gravelord_Osyran' },
+  { id:'zavarash',   name:'Zavarash',           tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Zavarash' },
+  { id:'morgathla',  name:'Morgathla',          tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Morgathla' },
+  { id:'lorekeeper', name:'Lore Keeper',        tipo:'15 dias',  wiki:'https://tibia.fandom.com/wiki/Lore_Keeper' },
+];
+
+function loadBossTracker() {
+  const today = new Date().toDateString();
+  const saved = JSON.parse(localStorage.getItem('panda-bosses') || '{}');
+  // Reset if new day
+  if (saved._date !== today) { localStorage.setItem('panda-bosses', JSON.stringify({ _date: today })); }
+  const done = JSON.parse(localStorage.getItem('panda-bosses') || '{}');
+
+  const grid = document.getElementById('boss-tracker-grid');
+  grid.innerHTML = GUILD_BOSSES.map(b => {
+    const isDone = !!done[b.id];
+    return `
+    <div style="background:${isDone ? 'var(--bamboo-pale)' : 'var(--white)'};border:1px solid ${isDone ? 'rgba(90,158,68,.3)' : 'var(--rule)'};border-radius:8px;padding:.9rem 1.1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;transition:all .15s" onclick="toggleBoss('${b.id}',this)">
+      <div style="width:22px;height:22px;border-radius:5px;border:2px solid ${isDone ? 'var(--bamboo)' : 'var(--rule)'};background:${isDone ? 'var(--bamboo)' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;color:white;transition:all .15s">${isDone ? '✓' : ''}</div>
+      <div style="flex:1">
+        <div style="font-weight:500;font-size:.9rem;color:${isDone ? 'var(--bamboo)' : 'var(--ink)'}">${b.name}</div>
+        <div style="font-size:.72rem;color:var(--muted);font-weight:300">${b.tipo}</div>
+      </div>
+      <a href="${b.wiki}" target="_blank" onclick="event.stopPropagation()" style="font-size:.72rem;color:var(--bamboo);font-weight:500;text-decoration:none">Wiki</a>
+    </div>`;
+  }).join('');
+}
+
+function toggleBoss(id, el) {
+  const done = JSON.parse(localStorage.getItem('panda-bosses') || '{}');
+  done[id] = !done[id];
+  localStorage.setItem('panda-bosses', JSON.stringify(done));
+  loadBossTracker();
+}
+
+// ══════════════════════════════════════════════════
+//  IMBUEMENTS CALCULATOR
+// ══════════════════════════════════════════════════
+const IMBU_DATA = {
+  // Tier 3
+  vampirism3: { name:'Vampirism T3', effect:'25% Life Leech', items:[{n:'Vampire Teeth',q:25},{n:'Bloody Pincers',q:15},{n:'Wereboar Tusks',q:5}], gold:{20:100000,1:5000} },
+  void3:      { name:'Void T3',      effect:'25% Mana Leech', items:[{n:'Rope Belt',q:25},{n:'Waspoid Wing',q:20},{n:'Demonic Skeletal Hand',q:5}], gold:{20:100000,1:5000} },
+  strike3:    { name:'Strike T3',    effect:'Critical +15% dmg, 10% chance', items:[{n:'Sabretooth',q:25},{n:'Vexclaw Talon',q:20},{n:'Shadowpelt',q:5}], gold:{20:100000,1:5000} },
+  swiftness3: { name:'Swiftness T3', effect:'+30 Speed', items:[{n:'Centipede Leg',q:25},{n:'Swan Feather',q:20},{n:'Pair of Dreamwalker\'s Boots',q:5}], gold:{20:100000,1:5000} },
+  featherweight3: { name:'Featherweight T3', effect:'+300 Capacity', items:[{n:'Piece of Scarab Shell',q:25},{n:'Spirit Container',q:20},{n:'Manticore Ear',q:5}], gold:{20:100000,1:5000} },
+  lich3:      { name:'Lich Shroud T3', effect:'5% Death Protection', items:[{n:'Pile of Grave Earth',q:25},{n:'Lich\'s Tail',q:20},{n:'Grim Reaper\'s Scythe',q:5}], gold:{20:100000,1:5000} },
+  snakeskin3: { name:'Snake Skin T3', effect:'5% Earth Protection', items:[{n:'Snake Skin',q:25},{n:'Piece of Swampling Wood',q:20},{n:'Hideous Chunk',q:5}], gold:{20:100000,1:5000} },
+  dragonhide3:{ name:'Dragon Hide T3', effect:'5% Fire Protection', items:[{n:'Dragon Scales',q:25},{n:'Magma Morel',q:20},{n:'Blazing Bone',q:5}], gold:{20:100000,1:5000} },
+  cloud3:     { name:'Cloud Fabric T3', effect:'5% Ice Protection', items:[{n:'Cloud Fabric',q:25},{n:'Frosty Heart',q:20},{n:'Pair of Old Bracers',q:5}], gold:{20:100000,1:5000} },
+  demon3:     { name:'Demon Presence T3', effect:'5% Energy Protection', items:[{n:'Demonic Essence',q:25},{n:'Orb of Destruction',q:20},{n:'Piece of Dead Brain',q:5}], gold:{20:100000,1:5000} },
+  blockade3:  { name:'Blockade T3', effect:'4% Physical Protection', items:[{n:'Rock Beetle Shell',q:25},{n:'Hardened Bone',q:20},{n:'Protective Charm',q:5}], gold:{20:100000,1:5000} },
+  precision3: { name:'Precision T3', effect:'+3% Critical Chance (Distance)', items:[{n:'Elven Hoof',q:25},{n:'Beastslayer Arrow',q:20},{n:'Flask of Warrior\'s Sweat',q:5}], gold:{20:100000,1:5000} },
+  vibrancy3:  { name:'Vibrancy T3', effect:'Cures Paralysis', items:[{n:'Rorc Feather',q:25},{n:'Rorc Egg',q:20},{n:'Divine Egg',q:5}], gold:{20:100000,1:5000} },
+  // Tier 2
+  vampirism2: { name:'Vampirism T2', effect:'15% Life Leech', items:[{n:'Vampire Teeth',q:15},{n:'Bloody Pincers',q:8}], gold:{20:50000,1:2500} },
+  void2:      { name:'Void T2',      effect:'15% Mana Leech', items:[{n:'Rope Belt',q:15},{n:'Waspoid Wing',q:10}], gold:{20:50000,1:2500} },
+  strike2:    { name:'Strike T2',    effect:'Critical +10% dmg, 8% chance', items:[{n:'Sabretooth',q:15},{n:'Vexclaw Talon',q:10}], gold:{20:50000,1:2500} },
+  swiftness2: { name:'Swiftness T2', effect:'+20 Speed', items:[{n:'Centipede Leg',q:15},{n:'Swan Feather',q:10}], gold:{20:50000,1:2500} },
+  // Tier 1
+  vampirism1: { name:'Vampirism T1', effect:'5% Life Leech', items:[{n:'Vampire Teeth',q:8}], gold:{20:25000,1:1250} },
+  void1:      { name:'Void T1',      effect:'5% Mana Leech', items:[{n:'Rope Belt',q:8}], gold:{20:25000,1:1250} },
+  strike1:    { name:'Strike T1',    effect:'Critical +5% dmg, 5% chance', items:[{n:'Sabretooth',q:8}], gold:{20:25000,1:1250} },
+};
+
+function calcImbu() {
+  const key   = document.getElementById('imbu-select').value;
+  const hours = parseInt(document.getElementById('imbu-hours').value);
+  const el    = document.getElementById('imbu-result');
+  if (!key) { el.style.display = 'none'; return; }
+  const d = IMBU_DATA[key];
+  if (!d) return;
+  const goldCost = d.gold[hours] || d.gold[20];
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div style="font-weight:500;color:var(--ink);margin-bottom:.75rem;font-family:'Playfair Display',serif">${d.name}</div>
+    <div style="font-size:.82rem;color:var(--bamboo);font-weight:500;margin-bottom:.75rem;background:var(--bamboo-pale);padding:5px 10px;border-radius:4px;display:inline-block">${d.effect}</div>
+    <div style="font-size:.8rem;color:var(--muted);font-weight:500;letter-spacing:1px;text-transform:uppercase;margin:.75rem 0 .4rem">Itens necessários</div>
+    ${d.items.map(i=>`<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--rule);font-size:.88rem"><span style="color:var(--ink-3);font-weight:300">${i.n}</span><span style="font-family:'DM Mono',monospace;font-weight:500">${i.q}x</span></div>`).join('')}
+    <div style="display:flex;justify-content:space-between;margin-top:.75rem;padding-top:.75rem;border-top:2px solid var(--rule);font-size:.92rem">
+      <span style="color:var(--muted);font-weight:300">Gold (${hours}h)</span>
+      <span style="font-family:'DM Mono',monospace;font-weight:500;color:var(--gold)">${goldCost.toLocaleString('pt-BR')} gp</span>
+    </div>
+    <div style="margin-top:.5rem;font-size:.75rem;color:var(--muted);font-weight:300">+ custo dos itens no market (varia por servidor)</div>`;
+}
+
+// ══════════════════════════════════════════════════
+//  WASTE SPLIT VISUAL
+// ══════════════════════════════════════════════════
+function addWsMember() {
+  const list = document.getElementById('ws-members-list');
+  const count = list.querySelectorAll('.ws-member').length + 1;
+  const inp = document.createElement('input');
+  inp.type = 'text'; inp.className = 'tool-input ws-member';
+  inp.placeholder = `Nome do char ${count}`;
+  list.appendChild(inp);
+}
+
+function genWasteSplit() {
+  const quest   = document.getElementById('ws-quest').value.trim() || 'Quest';
+  const dateVal = document.getElementById('ws-date').value;
+  const total   = parseInt(document.getElementById('ws-total').value) || 0;
+  const members = [...document.querySelectorAll('.ws-member')].map(i => i.value.trim()).filter(Boolean);
+
+  if (!members.length || !total) return;
+
+  const date = dateVal ? new Date(dateVal + 'T12:00:00').toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR');
+  const each = Math.ceil(total / members.length);
+
+  const msg = `🐼 WASTE ${quest.toUpperCase()} ${date}\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `Total: ${total.toLocaleString('pt-BR')} gp\n` +
+    `Participantes: ${members.length}\n` +
+    `Por pessoa: ${each.toLocaleString('pt-BR')} gp\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━\n` +
+    members.map(m => `• ${m}: ${each.toLocaleString('pt-BR')} gp`).join('\n') + '\n' +
+    `━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `⏰ Pagamento em até 48h\n` +
+    `📸 Print em #waste-hunt-prints`;
+
+  document.getElementById('ws-msg').textContent = msg;
+  document.getElementById('ws-output').style.display = 'block';
+}
+
+function copyWaste() {
+  const text = document.getElementById('ws-msg').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const copied = document.getElementById('ws-copied');
+    copied.style.display = 'inline';
+    setTimeout(() => { copied.style.display = 'none'; }, 2000);
+  });
+}
+
+// Load bosses on init
+loadBoostedBosses();
+loadBossTracker();
 </script>
 </body>
 </html>
