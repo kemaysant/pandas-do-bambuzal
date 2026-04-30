@@ -449,24 +449,42 @@ async function tibiaFetch(path) {
   <!-- ─── EVENTS ─── -->
   <section class="page-section" id="events">
     <h2 class="sec-title">Eventos</h2>
-    <p class="sec-sub">Calendário de atividades — hunts, quests e eventos sociais.</p>
-    <div class="event-list" style="margin-bottom:2.5rem">
-      <div class="event-row"><div class="event-date-box"><div class="event-day">05</div><div class="event-month">Mai</div></div><div class="event-info"><div class="event-name">GT de Aniversário 2 Anos</div><div class="event-detail">20h00 · Ferumbras Ascendant Quest · Level 250+</div></div><span class="event-type et-quest">Quest</span></div>
-      <div class="event-row"><div class="event-date-box"><div class="event-day">12</div><div class="event-month">Mai</div></div><div class="event-info"><div class="event-name">Hunt Coletiva — Feyrist</div><div class="event-detail">21h00 · Feyrist Jungle · Level 300+ · XP Share ativo</div></div><span class="event-type et-hunt">Hunt</span></div>
-      <div class="event-row"><div class="event-date-box"><div class="event-day">18</div><div class="event-month">Mai</div></div><div class="event-info"><div class="event-name">Raid Organizado — Inquisition</div><div class="event-detail">20h30 · Inquisition Quest · Level 350+</div></div><span class="event-type et-war">Raid</span></div>
-      <div class="event-row"><div class="event-date-box"><div class="event-day">20</div><div class="event-month">Mai</div></div><div class="event-info"><div class="event-name">PvP Treino Interno</div><div class="event-detail">20h00 · Arena · Aberto a todos os membros</div></div><span class="event-type et-war">PvP</span></div>
-      <div class="event-row"><div class="event-date-box"><div class="event-day">27</div><div class="event-month">Mai</div></div><div class="event-info"><div class="event-name">Noite Social do Bambuzal</div><div class="event-detail">21h00 · Roaming livre · Todos os membros</div></div><span class="event-type et-social">Social</span></div>
+    <p class="sec-sub">Calendário oficial do Tibia + eventos internos da guild.</p>
+
+    <div style="margin-bottom:2rem">
+      <div class="tool-label" style="margin-bottom:1rem">Calendário Oficial Tibia (ao vivo)</div>
+      <div class="api-loading" id="tibia-events-loading"><div class="spinner"></div> Carregando eventos do Tibia...</div>
+      <div class="api-error" id="tibia-events-error" style="display:none"><strong>Nenhum evento encontrado no momento.</strong></div>
+      <div id="tibia-events-list" style="display:none;flex-direction:column;gap:1px;background:var(--rule);border-radius:10px;overflow:hidden"></div>
     </div>
+
+    <div style="height:1px;background:var(--rule);margin:2rem 0"></div>
+
+    <div style="margin-bottom:2rem">
+      <div class="tool-label" style="margin-bottom:1rem">Eventos Internos da Guild</div>
+      <div class="card" style="margin-bottom:1rem;background:var(--gold-pale);border-color:rgba(160,120,40,.2)">
+        <p style="font-size:.88rem;color:var(--gold);font-weight:500">Datas e horários divulgados no canal <strong>#quests</strong> do Discord e no grupo de avisos do WhatsApp.</p>
+      </div>
+      <div class="event-list">
+        <div class="event-row"><div class="event-date-box"><div class="event-day">05</div><div class="event-month">Mai</div></div><div class="event-info"><div class="event-name">GT de Aniversário 2 Anos</div><div class="event-detail">20h00 · Ferumbras Ascendant · Level 250+</div></div><span class="event-type et-quest">Quest</span></div>
+        <div class="event-row"><div class="event-date-box"><div class="event-day">12</div><div class="event-month">Mai</div></div><div class="event-info"><div class="event-name">Hunt Coletiva — Feyrist</div><div class="event-detail">21h00 · Level 300+ · XP Share ativo</div></div><span class="event-type et-hunt">Hunt</span></div>
+        <div class="event-row"><div class="event-date-box"><div class="event-day">18</div><div class="event-month">Mai</div></div><div class="event-info"><div class="event-name">Last Ferumbras</div><div class="event-detail">20h30 · Level mínimo definido pela liderança</div></div><span class="event-type et-quest">Quest</span></div>
+        <div class="event-row"><div class="event-date-box"><div class="event-day">25</div><div class="event-month">Mai</div></div><div class="event-info"><div class="event-name">Lore Keeper Acesso</div><div class="event-detail">20h00 · Coordenar cooldown antes</div></div><span class="event-type et-quest">Quest</span></div>
+      </div>
+    </div>
+
     <div class="grid-2">
       <div class="card">
-        <div class="tool-label">Histórico recente</div>
-        <div class="news-item"><div class="news-item-title">Falcon Bastion Raid</div><div class="news-item-meta">22 Abr 2025 · 8 membros · Sucesso</div></div>
-        <div class="news-item"><div class="news-item-title">Hunt Feyrist</div><div class="news-item-meta">15 Abr 2025 · 5 membros · Loot 200k+</div></div>
-        <div class="news-item"><div class="news-item-title">Wrath of the Emperor</div><div class="news-item-meta">08 Abr 2025 · 6 membros · Completo</div></div>
+        <div class="tool-label" style="margin-bottom:.75rem">Regras de Participação</div>
+        <div class="rule-item" style="padding:.75rem 0"><div class="rule-num">2.2</div><div class="rule-text">Times divididos por quem está puxando. Veteranos podem ceder vaga a quem precisa completar pela primeira vez.</div></div>
+        <div class="rule-item" style="padding:.75rem 0"><div class="rule-num">2.3</div><div class="rule-text">Erros ou falta de atenção são passíveis de punição — bloqueio de participação futura.</div></div>
+        <div class="rule-item" style="padding:.75rem 0;border-bottom:none"><div class="rule-num">2.8</div><div class="rule-text">Todos os eventos têm <strong>level mínimo</strong>. Chars abaixo do recomendado não serão aceitos.</div></div>
       </div>
       <div class="card">
-        <div class="tool-label">Como participar</div>
-        <p style="font-size:.92rem;color:var(--ink-3);line-height:1.8;font-weight:300;margin-top:.5rem">Todos os eventos são anunciados no canal da guilda com <strong style="color:var(--ink);font-weight:500">mínimo 48h de antecedência</strong>. Para confirmar presença, sinalize no chat da guilda ou avise diretamente a um líder.</p>
+        <div class="tool-label" style="margin-bottom:.75rem">Waste & Loot</div>
+        <div class="rule-item" style="padding:.75rem 0"><div class="rule-num">2.4</div><div class="rule-text">Waste dividida igualmente. Use <strong>TibiaPal</strong> ou <strong>@NabBot splitloot</strong>.</div></div>
+        <div class="rule-item" style="padding:.75rem 0"><div class="rule-num">2.5</div><div class="rule-text">Pagamentos em até <strong>48h</strong> com print no canal <strong>#waste-hunt-prints</strong>.</div></div>
+        <div class="rule-item" style="padding:.75rem 0;border-bottom:none"><div class="rule-num">2.7</div><div class="rule-text">Items acima de <strong>1kk</strong>: 50% para quem dropou + 50% dividido entre todos os participantes.</div></div>
       </div>
     </div>
   </section>
@@ -566,37 +584,66 @@ async function tibiaFetch(path) {
   <!-- ─── RULES ─── -->
   <section class="page-section" id="rules">
     <h2 class="sec-title">Regras</h2>
-    <p class="sec-sub">Código de conduta dos Pandas do Bambuzal.</p>
+    <p class="sec-sub">🐼🎋 Regras oficiais dos Pandas do Bambuzal — leia com atenção.</p>
+
     <div class="rules-layout">
       <div>
+
         <div class="rule-block">
-          <div class="rule-block-title">I. Conduta & Respeito</div>
-          <div class="rule-item"><div class="rule-num">I.</div><div class="rule-text"><strong>Respeito é inegociável.</strong> Nenhuma forma de preconceito, discriminação ou assédio será tolerada.</div></div>
-          <div class="rule-item"><div class="rule-num">II.</div><div class="rule-text"><strong>Sem drama.</strong> Conflitos pessoais ficam fora da guilda. Resolva com maturidade ou acione um líder.</div></div>
-          <div class="rule-item"><div class="rule-num">III.</div><div class="rule-text"><strong>Roleplay respeitoso.</strong> Estamos aqui para nos divertir — nenhum RP deve constranger outros membros.</div></div>
-          <div class="rule-item"><div class="rule-num">IV.</div><div class="rule-text"><strong>Nome compatível com o tema.</strong> Personagens com nome aleatório podem ser convidados a criar um alter ego panda.</div></div>
+          <div class="rule-block-title">1 — Servidor & Convivência</div>
+          <div class="rule-item"><div class="rule-num">1.1</div><div class="rule-text"><strong>Somos uma guild neutra.</strong> Respeitamos e prezamos pelo bom relacionamento com as guilds do servidor que também nos respeitam.</div></div>
+          <div class="rule-item"><div class="rule-num">1.2</div><div class="rule-text"><strong>Conflitos ficam no jogo.</strong> Discussões via WhatsApp ou qualquer outro meio sem respeito mútuo acarretarão em penalização.</div></div>
+          <div class="rule-item"><div class="rule-num">1.3</div><div class="rule-text"><strong>A liderança está ao seu lado — se você estiver correto.</strong> Comprove através de prints e estaremos do seu lado.</div></div>
+          <div class="rule-item"><div class="rule-num">1.4</div><div class="rule-text"><strong>Conduta negativa será punida.</strong> Se você se meter em confusão e estiver errado, será retirado da guild sem exceções.</div></div>
+          <div class="rule-item"><div class="rule-num">1.5</div><div class="rule-text"><strong>Randoms:</strong> Priorize membros da guild. Se precisar de random, verifique o canal <strong>#blacklisted</strong> no Discord antes.</div></div>
         </div>
+
         <div class="rule-block">
-          <div class="rule-block-title">II. Participação & Atividade</div>
-          <div class="rule-item"><div class="rule-num">V.</div><div class="rule-text"><strong>Inatividade máxima: 30 dias</strong> sem aviso prévio pode resultar em remoção da guilda.</div></div>
-          <div class="rule-item"><div class="rule-num">VI.</div><div class="rule-text"><strong>Participe dos eventos.</strong> GTs e caçadas coletivas são a essência dos pandas.</div></div>
-          <div class="rule-item"><div class="rule-num">VII.</div><div class="rule-text"><strong>Quests compartilhadas.</strong> Não faça quests de cooldown coletivo sem coordenar com o grupo.</div></div>
-          <div class="rule-item"><div class="rule-num">VIII.</div><div class="rule-text"><strong>XP Share justo.</strong> Não abandone o grupo no meio da hunt sem avisar.</div></div>
+          <div class="rule-block-title">2 — Quests / Acessos / Bosses</div>
+          <div class="rule-item"><div class="rule-num">2.1</div><div class="rule-text"><strong>Datas e horários</strong> estão no canal <strong>#quests</strong> do Discord e nos eventos.</div></div>
+          <div class="rule-item"><div class="rule-num">2.2</div><div class="rule-text"><strong>Times</strong> são divididos por quem está puxando. Veteranos podem ceder vaga a quem precisa completar pela primeira vez.</div></div>
+          <div class="rule-item"><div class="rule-num">2.3</div><div class="rule-text"><strong>Erros e falta de atenção</strong> são passíveis de punição — bloqueio de participação em eventos futuros.</div></div>
+          <div class="rule-item"><div class="rule-num">2.4</div><div class="rule-text"><strong>Waste</strong> é dividida igualmente. Use TibiaPal ou @NabBot splitloot. Char secundário paga waste separadamente.</div></div>
+          <div class="rule-item"><div class="rule-num">2.5</div><div class="rule-text"><strong>Pagamentos</strong> em até 48h com print no canal <strong>#waste-hunt-prints</strong>. Formato: <em>WASTE [Quest] [Data]</em>.</div></div>
+          <div class="rule-item"><div class="rule-num">2.6</div><div class="rule-text"><strong>Loots</strong> de bosses devem ser printados e enviados no canal <strong>#loots-boss-prints</strong>. Sem borrar ou cortar a print.</div></div>
+          <div class="rule-item"><div class="rule-num">2.7</div><div class="rule-text"><strong>Loots raros (acima de 1kk):</strong> 50% para quem dropou + 50% dividido entre todos os participantes do boss.</div></div>
+          <div class="rule-item"><div class="rule-num">2.8</div><div class="rule-text"><strong>Level mínimo</strong> é definido pela liderança para cada evento. Chars abaixo não serão aceitos.</div></div>
         </div>
+
         <div class="rule-block">
-          <div class="rule-block-title">III. PvP & Loot</div>
-          <div class="rule-item"><div class="rule-num">IX.</div><div class="rule-text"><strong>Proibido PK em membros</strong> da própria guilda em qualquer circunstância.</div></div>
-          <div class="rule-item"><div class="rule-num">X.</div><div class="rule-text"><strong>Loot é dividido</strong> igualmente durante hunts coletivas, salvo acordo prévio.</div></div>
-          <div class="rule-item"><div class="rule-num">XI.</div><div class="rule-text"><strong>Raids e GTs</strong> têm líderes designados. Siga as orientações durante o evento.</div></div>
+          <div class="rule-block-title">3 — Organização da Guild</div>
+          <div class="rule-item"><div class="rule-num">3.1</div><div class="rule-text"><strong>Invites</strong> são abertos a qualquer level. Novos membros só entram com indicação de um membro atual, que repassa as regras.</div></div>
+          <div class="rule-item"><div class="rule-num">3.2</div><div class="rule-text"><strong>Leave Guild:</strong> Quem sair e quiser retornar terá situação avaliada pela liderança. Rank anterior não é garantido.</div></div>
+          <div class="rule-item"><div class="rule-num">3.3</div><div class="rule-text"><strong>Guild Bank:</strong> Sem taxas ou mensalidades. Doações voluntárias via <em>"player guild transfer [valor] gold coin to Pandas do Bambuzal"</em> em qualquer NPC Bank.</div></div>
         </div>
+
+        <div class="rule-block">
+          <div class="rule-block-title">4 — Penalizações & Punições</div>
+          <div class="rule-item"><div class="rule-num">4.1</div><div class="rule-text"><strong>Desrespeito</strong> entre membros, seja qual for a posição, é punível com bloqueio de quests/boss ou retirada da guild.</div></div>
+          <div class="rule-item"><div class="rule-num">4.2</div><div class="rule-text"><strong>Tentativa de proveito:</strong> Manipulação de waste, loot ou prints é punível com bloqueio ou expulsão.</div></div>
+          <div class="rule-item"><div class="rule-num">4.3</div><div class="rule-text"><strong>Desrespeitar qualquer regra</strong> é passível de punição — bloqueio de atividades, mute no Discord ou retirada da guild.</div></div>
+          <div class="rule-item"><div class="rule-num">4.4</div><div class="rule-text"><strong>Kick:</strong> A liderança guarda o direito de retirar membros sempre que a situação se fizer necessária.</div></div>
+        </div>
+
       </div>
+
       <div>
         <div class="punishment-card">
           <div class="punishment-title">Sistema de Punições</div>
-          <div class="punishment-step"><div class="pun-icon warn">⚠</div><div class="pun-text"><strong>1ª Infração</strong><span>Aviso formal do líder.</span></div></div>
-          <div class="punishment-step"><div class="pun-icon warn">⚠</div><div class="pun-text"><strong>2ª Infração</strong><span>Suspensão temporária de eventos.</span></div></div>
-          <div class="punishment-step"><div class="pun-icon ban">✕</div><div class="pun-text"><strong>Infração Grave</strong><span>Expulsão permanente.</span></div></div>
+          <div class="punishment-step"><div class="pun-icon warn">⚠</div><div class="pun-text"><strong>Bloqueio de Eventos</strong><span>Impedido de participar de quests/boss/acessos por tempo determinado.</span></div></div>
+          <div class="punishment-step"><div class="pun-icon warn">⚠</div><div class="pun-text"><strong>Mute no Discord</strong><span>Silenciado temporariamente nos canais da guild.</span></div></div>
+          <div class="punishment-step"><div class="pun-icon ban">✕</div><div class="pun-text"><strong>Retirada da Guild</strong><span>Expulsão permanente sem exceções para infrações graves.</span></div></div>
           <div class="code-quote"><p>"Um panda que respeita o bambuzal nunca perde seu lar."</p><p style="margin-top:6px;font-family:'DM Mono',monospace;font-size:.72rem;color:rgba(255,255,255,.25);font-style:normal">— Código dos Pandas</p></div>
+        </div>
+
+        <div class="card" style="margin-top:1.25rem">
+          <div class="tool-label" style="margin-bottom:1rem">5 — Ranks & Progressão</div>
+          <div class="hierarchy-item"><span class="hierarchy-rank">👑 Panda Queen</span><span class="hierarchy-desc">Liderança — responsabilidades administrativas e organização geral.</span></div>
+          <div class="hierarchy-item"><span class="hierarchy-rank">🐼 Panda Master</span><span class="hierarchy-desc">Vice-liderança — mesmas responsabilidades da liderança.</span></div>
+          <div class="hierarchy-item"><span class="hierarchy-rank">🎋 Guardiões das Folhas</span><span class="hierarchy-desc">Auxiliam a liderança. 90 dias + ativo em quests/boss + Discord.</span></div>
+          <div class="hierarchy-item"><span class="hierarchy-rank">🌿 Panda Leaves</span><span class="hierarchy-desc">Acesso à GH + Last GT/Ferumbras/LoreKeeper. 60 dias + ativo.</span></div>
+          <div class="hierarchy-item"><span class="hierarchy-rank">🌱 Bambuzalino Curioso</span><span class="hierarchy-desc">Acesso às Houses e quests. 30 dias de guild + level 200+.</span></div>
+          <div class="hierarchy-item" style="border-bottom:none"><span class="hierarchy-rank">🆕 Novato Bambuzeiro</span><span class="hierarchy-desc">Entrada. Acesso às Houses Abertas e quests puxadas pela liderança.</span></div>
         </div>
       </div>
     </div>
@@ -607,28 +654,28 @@ async function tibiaFetch(path) {
     <div class="about-grid">
       <div>
         <h2 class="about-headline">Quem são os<br><em>Pandas do Bambuzal?</em></h2>
-        <p class="about-body">Fundada em 2023, a guild Pandas do Bambuzal nasceu da ideia de que jogar Tibia pode ser muito mais do que uma experiência solitária. Somos um grupo de amigos que acredita no valor da comunidade, da cooperação e do respeito mútuo.</p>
-        <p class="about-body">Nosso nome carrega nossa identidade: pandas são animais associados à tranquilidade, mas capazes de se defender quando necessário. O bambuzal é o nosso lar — um espaço acolhedor para todos que compartilham nossos valores.</p>
+        <p class="about-body">Fundada em agosto de 2023 no servidor Gentebra, somos uma guild neutra focada em cooperação e respeito. Temos grupos no WhatsApp, organizamos acessos para quests e mantemos uma guild ativa com membros sempre online.</p>
+        <p class="about-body">Nosso requisito mínimo é level 150+. Se você busca um ambiente amigável para evoluir e se divertir, os Pandas do Bambuzal são o lugar certo.</p>
+        <p class="about-body">Contamos com uma Guild Hall própria — <strong style="color:var(--ink)">The Tibianic</strong> — e casas abertas para membros ativos.</p>
       </div>
       <div>
         <div class="card">
-          <div class="tool-label" style="margin-bottom:1rem">Hierarquia da Guild</div>
-          <div class="hierarchy-item"><span class="hierarchy-rank">🐼 Líder</span><span class="hierarchy-desc">Fundadores e administradores. Responsáveis por decisões estratégicas.</span></div>
-          <div class="hierarchy-item"><span class="hierarchy-rank">🎋 Veterano</span><span class="hierarchy-desc">Membros de longa data com contribuição comprovada.</span></div>
-          <div class="hierarchy-item"><span class="hierarchy-rank">🌿 Membro</span><span class="hierarchy-desc">Integrante ativo com voz nas decisões coletivas.</span></div>
-          <div class="hierarchy-item"><span class="hierarchy-rank">🌱 Recruta</span><span class="hierarchy-desc">Novos membros em período de adaptação (15 dias).</span></div>
-        </div>
-        <div class="card" style="margin-top:1.25rem">
-          <div class="tool-label" style="margin-bottom:.75rem">Líderes</div>
+          <div class="tool-label" style="margin-bottom:1rem">Líderes (ao vivo)</div>
           <div id="about-leaders">
             <div class="api-loading"><div class="spinner"></div> Carregando...</div>
           </div>
         </div>
+        <div class="card" style="margin-top:1.25rem">
+          <div class="tool-label" style="margin-bottom:.75rem">Entrar na Guild</div>
+          <p style="font-size:.88rem;color:var(--ink-3);font-weight:300;line-height:1.7;margin-bottom:.75rem">Invites abertos a qualquer level. Você precisa de indicação de um membro atual que será responsável por repassar as regras.</p>
+          <p style="font-size:.88rem;color:var(--ink-3);font-weight:300;line-height:1.7">Contate um líder in-game ou acesse a página oficial:</p>
+          <a id="tibia-guild-link-about" href="#" class="tibia-link" style="display:inline-block;margin-top:.75rem" target="_blank">Ver no Tibia.com →</a>
+        </div>
       </div>
     </div>
     <div class="tibia-banner">
-      <div class="tibia-text"><h3>Ver guild no Tibia.com</h3><p>Lista completa de membros e estatísticas oficiais</p></div>
-      <a id="tibia-guild-link-about" href="#" class="tibia-link" target="_blank">Visitar página oficial →</a>
+      <div class="tibia-text"><h3>Ver guild no Tibia.com</h3><p>Lista completa de membros, GH e estatísticas oficiais</p></div>
+      <a id="tibia-guild-link-about2" href="#" class="tibia-link" target="_blank">Visitar página oficial →</a>
     </div>
   </section>
 
@@ -654,7 +701,10 @@ let currentFilter = 'all';
   // Links do Tibia.com
   const tibiaLink = `https://www.tibia.com/community/?subtopic=guilds&guild=${encodeURIComponent(CONFIG.guildNameUrl)}`;
   document.getElementById('tibia-guild-link').href = tibiaLink;
-  document.getElementById('tibia-guild-link-about').href = tibiaLink;
+  const aAbout = document.getElementById('tibia-guild-link-about');
+  if (aAbout) aAbout.href = tibiaLink;
+  const aAbout2 = document.getElementById('tibia-guild-link-about2');
+  if (aAbout2) aAbout2.href = tibiaLink;
   document.getElementById('server-display').textContent = CONFIG.world;
   document.getElementById('stat-world').textContent = CONFIG.world;
   document.getElementById('hero-founded').textContent = CONFIG.founded;
@@ -662,7 +712,8 @@ let currentFilter = 'all';
   // Carrega em paralelo
   await Promise.allSettled([
     loadGuild(),
-    loadWorld()
+    loadWorld(),
+    loadTibiaEvents(),
   ]);
 
   triggerReveal();
@@ -920,8 +971,69 @@ function vocEmoji(voc = '') {
 }
 
 // ══════════════════════════════════════════════════
-//  CALCULADORAS
+//  TIBIA OFFICIAL EVENTS  —  /v4/news/latest
 // ══════════════════════════════════════════════════
+async function loadTibiaEvents() {
+  try {
+    const data = await tibiaFetch('/v4/events/');
+    const events = data?.events?.greenlist || [];
+
+    const container = document.getElementById('tibia-events-list');
+    const loading   = document.getElementById('tibia-events-loading');
+    const errEl     = document.getElementById('tibia-events-error');
+
+    loading.style.display = 'none';
+
+    if (!events.length) {
+      errEl.style.display = 'block';
+      errEl.innerHTML = '<strong>Nenhum evento oficial encontrado no momento.</strong>';
+      return;
+    }
+
+    const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const now = new Date();
+
+    // Filtra eventos futuros ou em andamento
+    const upcoming = events
+      .filter(e => e.startdate && new Date(e.enddate || e.startdate) >= now)
+      .slice(0, 8);
+
+    if (!upcoming.length) {
+      errEl.style.display = 'block';
+      errEl.innerHTML = '<strong>Nenhum evento próximo no momento.</strong>';
+      return;
+    }
+
+    container.innerHTML = upcoming.map(e => {
+      const start = new Date(e.startdate);
+      const day   = start.getDate();
+      const month = months[start.getMonth()];
+      const name  = e.name || 'Evento Tibia';
+      const desc  = e.description ? e.description.slice(0, 80) + (e.description.length > 80 ? '…' : '') : '';
+      const isActive = new Date(e.startdate) <= now;
+      return `
+        <div class="event-row">
+          <div class="event-date-box">
+            <div class="event-day">${day}</div>
+            <div class="event-month">${month}</div>
+          </div>
+          <div class="event-info">
+            <div class="event-name">${name}</div>
+            <div class="event-detail">${desc}</div>
+          </div>
+          <span class="event-type ${isActive ? 'et-hunt' : 'et-social'}">${isActive ? 'Ativo' : 'Em breve'}</span>
+        </div>`;
+    }).join('');
+
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+  } catch(e) {
+    console.error('Tibia events error:', e);
+    document.getElementById('tibia-events-loading').style.display = 'none';
+    const errEl = document.getElementById('tibia-events-error');
+    if (errEl) { errEl.style.display = 'block'; }
+  }
+}
 function calcXP() {
   const levels = [];
   for (let i = 1; i <= 5; i++) {
