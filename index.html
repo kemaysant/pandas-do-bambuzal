@@ -291,6 +291,8 @@ async function tibiaFetch(path) {
     <button class="nav-btn active" onclick="showPage('home',this)">Início</button>
     <button class="nav-btn" onclick="showPage('members',this)">Membros</button>
     <button class="nav-btn" onclick="showPage('events',this)">Eventos</button>
+    <button class="nav-btn" onclick="showPage('huntfinder',this)">Hunt Finder</button>
+    <button class="nav-btn" onclick="showPage('quests',this)">Guia de Quests</button>
     <button class="nav-btn" onclick="showPage('tools',this)">Ferramentas</button>
     <button class="nav-btn" onclick="showPage('rules',this)">Regras</button>
     <button class="nav-btn" onclick="showPage('about',this)">Sobre</button>
@@ -487,6 +489,66 @@ async function tibiaFetch(path) {
         <div class="rule-item" style="padding:.75rem 0;border-bottom:none"><div class="rule-num">2.7</div><div class="rule-text">Items acima de <strong>1kk</strong>: 50% para quem dropou + 50% dividido entre todos os participantes.</div></div>
       </div>
     </div>
+  </section>
+
+  <!-- ─── HUNT FINDER ─── -->
+  <section class="page-section" id="huntfinder">
+    <h2 class="sec-title">Hunt Finder</h2>
+    <p class="sec-sub">Encontre o local de caça ideal para seu nível e vocação.</p>
+
+    <div class="card" style="margin-bottom:1.5rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:1rem;align-items:end;flex-wrap:wrap">
+        <div class="input-row" style="margin-bottom:0">
+          <label class="input-label">Meu Nível</label>
+          <input type="number" class="tool-input" id="hf-level" placeholder="ex: 300" min="1">
+        </div>
+        <div class="input-row" style="margin-bottom:0">
+          <label class="input-label">Vocação</label>
+          <select class="tool-select" id="hf-voc">
+            <option value="all">Todas</option>
+            <option value="ek">Elite Knight</option>
+            <option value="ed">Elder Druid</option>
+            <option value="ms">Master Sorcerer</option>
+            <option value="rp">Royal Paladin</option>
+          </select>
+        </div>
+        <div class="input-row" style="margin-bottom:0">
+          <label class="input-label">Foco</label>
+          <select class="tool-select" id="hf-focus">
+            <option value="all">XP + Profit</option>
+            <option value="xp">Máximo XP</option>
+            <option value="profit">Máximo Profit</option>
+            <option value="quest">Acesso/Quest</option>
+          </select>
+        </div>
+        <button class="calc-btn" style="margin-top:0;height:38px" onclick="runHuntFinder()">Buscar →</button>
+      </div>
+    </div>
+
+    <div id="hf-results" style="display:none">
+      <div id="hf-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem"></div>
+    </div>
+    <div id="hf-empty" style="display:none;padding:3rem;text-align:center;color:var(--muted);font-weight:300">Nenhuma hunt encontrada para esses filtros.</div>
+    <div id="hf-initial" style="padding:2rem;text-align:center;color:var(--muted);font-size:.9rem;font-weight:300">
+      Informe seu nível e vocação para ver as melhores hunts recomendadas pela guild.
+    </div>
+  </section>
+
+  <!-- ─── QUEST GUIDE ─── -->
+  <section class="page-section" id="quests">
+    <h2 class="sec-title">Guia de Quests</h2>
+    <p class="sec-sub">Quests essenciais organizadas por faixa de nível — curado pela liderança dos Pandas.</p>
+
+    <div class="filter-bar" style="margin-bottom:2rem">
+      <button class="filter-btn active" onclick="filterQuests('all',this)">Todas</button>
+      <button class="filter-btn" onclick="filterQuests('8',this)">Nível 8–59</button>
+      <button class="filter-btn" onclick="filterQuests('60',this)">Nível 60–149</button>
+      <button class="filter-btn" onclick="filterQuests('150',this)">Nível 150–249</button>
+      <button class="filter-btn" onclick="filterQuests('250',this)">Nível 250–350</button>
+      <button class="filter-btn" onclick="filterQuests('351',this)">Nível 351–499</button>
+    </div>
+
+    <div id="quest-grid" style="display:flex;flex-direction:column;gap:2rem"></div>
   </section>
 
   <!-- ─── TOOLS ─── -->
@@ -1034,6 +1096,153 @@ async function loadTibiaEvents() {
     if (errEl) { errEl.style.display = 'block'; }
   }
 }
+
+// ══════════════════════════════════════════════════
+//  HUNT FINDER DATA
+// ══════════════════════════════════════════════════
+const HUNTS = [
+  { name:'Nomad Cave', minLvl:8, maxLvl:50, vocs:['all'], xp:'baixo', profit:'baixo', tipo:'xp', desc:'Boa para hunts solo. Requer Aristos Task Quest.', wiki:'https://tibia.fandom.com/wiki/Nomads' },
+  { name:'Frost Dragons', minLvl:60, maxLvl:120, vocs:['ek','rp'], xp:'médio', profit:'médio', tipo:'xp', desc:'Desbloqueado pela Barbarian Test Quest. Svargrond.', wiki:'https://tibia.fandom.com/wiki/Frost_Dragon' },
+  { name:'Sea Serpents', minLvl:60, maxLvl:150, vocs:['all'], xp:'médio', profit:'alto', tipo:'profit', desc:'XP e profit sólidos. Requer Hunt for the Sea Serpent Quest.', wiki:'https://tibia.fandom.com/wiki/Sea_Serpent' },
+  { name:'Deeplings', minLvl:60, maxLvl:180, vocs:['all'], xp:'médio', profit:'médio', tipo:'xp', desc:'3 bosses e possibilidade de dropa Manta Ray (rara). Liquid Black Quest.', wiki:'https://tibia.fandom.com/wiki/Deepling' },
+  { name:'Warzones 1–3', minLvl:60, maxLvl:200, vocs:['all'], xp:'médio', profit:'alto', tipo:'profit', desc:'Acesso diário para profit. Requer Bigfoot\'s Burden Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_1' },
+  { name:'Banuta', minLvl:80, maxLvl:200, vocs:['ek','ms'], xp:'alto', profit:'médio', tipo:'xp', desc:'Hunt essencial mid-level. Requer Ape City Quest.', wiki:'https://tibia.fandom.com/wiki/Banuta' },
+  { name:'Zao / Draken Walls', minLvl:100, maxLvl:250, vocs:['all'], xp:'alto', profit:'médio', tipo:'xp', desc:'New Frontier + Children of the Revolution. Ótimo XP.', wiki:'https://tibia.fandom.com/wiki/Draken_Walls' },
+  { name:'Feyrist', minLvl:150, maxLvl:350, vocs:['ed','ms','rp'], xp:'alto', profit:'alto', tipo:'xp', desc:'Ilha de Feyrist. Requer Threatened Dreams Quest. Favorita da guild!', wiki:'https://tibia.fandom.com/wiki/Feyrist' },
+  { name:'Bounac Daily', minLvl:150, maxLvl:300, vocs:['all'], xp:'médio', profit:'médio', tipo:'quest', desc:'Boss diário + área de caça. Adventures of Galthen Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Adventures_of_Galthen_Quest' },
+  { name:'Warzones 4–6', minLvl:150, maxLvl:300, vocs:['all'], xp:'médio', profit:'alto', tipo:'profit', desc:'Itens Gnome. Continuação da Bigfoot\'s Burden Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_4' },
+  { name:'Cobra Bastion', minLvl:250, maxLvl:450, vocs:['ek','rp'], xp:'muito alto', profit:'alto', tipo:'xp', desc:'Boss Scarlett Etzel, itens cobra. Order of the Cobra Quest.', wiki:'https://tibia.fandom.com/wiki/Cobra_Bastion' },
+  { name:'Falcon Bastion', minLvl:250, maxLvl:500, vocs:['ek'], xp:'muito alto', profit:'alto', tipo:'xp', desc:'Boss Oberon, itens Falcon. Order of the Falcon Quest. Organizado pela guild!', wiki:'https://tibia.fandom.com/wiki/Falcon_Bastion' },
+  { name:'Soulwar / Feaster', minLvl:250, maxLvl:500, vocs:['all'], xp:'muito alto', profit:'alto', tipo:'xp', desc:'Bosses diários + Soulwar. Feaster of Souls Quest.', wiki:'https://tibia.fandom.com/wiki/Soulwar' },
+  { name:'Dream Courts', minLvl:250, maxLvl:450, vocs:['ed','ms'], xp:'alto', profit:'alto', tipo:'xp', desc:'Imbue de bota powerful. The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Dream_Courts' },
+  { name:'Grave Danger Bosses', minLvl:250, maxLvl:500, vocs:['all'], xp:'médio', profit:'muito alto', tipo:'profit', desc:'Rotação de boss diária para profit. Grave Danger Quest.', wiki:'https://tibia.fandom.com/wiki/Grave_Danger' },
+  { name:'Heart of Destruction', minLvl:250, maxLvl:500, vocs:['all'], xp:'alto', profit:'muito alto', tipo:'profit', desc:'Imbue crítico nível 3 + profit diário alto.', wiki:'https://tibia.fandom.com/wiki/Heart_of_Destruction' },
+  { name:'Ferumbras Mortal Shell', minLvl:250, maxLvl:999, vocs:['all'], xp:'muito alto', profit:'muito alto', tipo:'quest', desc:'O boss mais cobiçado. Ferumbras Ascendant Quest. Organizado pela liderança.', wiki:'https://www.tibiawiki.com.br/wiki/Ferumbras_Ascendant_Quest' },
+  { name:'Secret Library', minLvl:350, maxLvl:999, vocs:['all'], xp:'muito alto', profit:'muito alto', tipo:'xp', desc:'Hunts metas + rotação de boss lucrativa para essa faixa.', wiki:'https://tibia.fandom.com/wiki/The_Secret_Library' },
+  { name:'No Rest for the Wicked', minLvl:350, maxLvl:999, vocs:['all'], xp:'alto', profit:'muito alto', tipo:'quest', desc:'10 vitórias no modo Difícil = item inferniach GARANTIDO.', wiki:'https://www.tibiawiki.com.br/wiki/No_Rest_for_the_Wicked_Quest' },
+  { name:'Warzones 7–9', minLvl:350, maxLvl:999, vocs:['all'], xp:'alto', profit:'alto', tipo:'profit', desc:'Itens Eldritch. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_7' },
+  { name:'20 Years a Cook Bosses', minLvl:350, maxLvl:999, vocs:['all'], xp:'médio', profit:'alto', tipo:'quest', desc:'Bulltaur, War Dragon e boss Despor.', wiki:'https://www.tibiawiki.com.br/wiki/20_Years_a_Cook_Quest' },
+];
+
+const profitOrder = { 'muito alto':4, 'alto':3, 'médio':2, 'baixo':1 };
+const xpOrder = { 'muito alto':4, 'alto':3, 'médio':2, 'baixo':1 };
+
+function runHuntFinder() {
+  const lvl = parseInt(document.getElementById('hf-level').value) || 0;
+  const voc = document.getElementById('hf-voc').value;
+  const focus = document.getElementById('hf-focus').value;
+  document.getElementById('hf-initial').style.display = 'none';
+  document.getElementById('hf-empty').style.display = 'none';
+  let results = HUNTS.filter(h => {
+    if (lvl && (lvl < h.minLvl || lvl > h.maxLvl)) return false;
+    if (voc !== 'all' && !h.vocs.includes('all') && !h.vocs.includes(voc)) return false;
+    if (focus === 'xp') return ['xp','quest'].includes(h.tipo) || xpOrder[h.xp] >= 3;
+    if (focus === 'profit') return h.tipo === 'profit' || profitOrder[h.profit] >= 3;
+    if (focus === 'quest') return h.tipo === 'quest';
+    return true;
+  });
+  if (focus === 'xp') results.sort((a,b) => xpOrder[b.xp] - xpOrder[a.xp]);
+  else if (focus === 'profit') results.sort((a,b) => profitOrder[b.profit] - profitOrder[a.profit]);
+  if (!results.length) {
+    document.getElementById('hf-empty').style.display = 'block';
+    document.getElementById('hf-results').style.display = 'none';
+    return;
+  }
+  const pColor = v => ({'muito alto':'var(--bamboo)','alto':'var(--bamboo)','médio':'var(--gold)','baixo':'var(--muted)'})[v]||'var(--muted)';
+  const xColor = v => ({'muito alto':'var(--accent)','alto':'var(--accent)','médio':'var(--gold)','baixo':'var(--muted)'})[v]||'var(--muted)';
+  document.getElementById('hf-grid').innerHTML = results.map(h => `
+    <div class="card" style="display:flex;flex-direction:column;gap:.75rem">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem">
+        <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.05rem;color:var(--ink);line-height:1.2">${h.name}</div>
+        <div style="font-size:.68rem;background:var(--paper);border:1px solid var(--rule);padding:2px 8px;border-radius:30px;white-space:nowrap;color:var(--muted)">Lv ${h.minLvl}${h.maxLvl<999?'–'+h.maxLvl:'+'}</div>
+      </div>
+      <div style="font-size:.85rem;color:var(--ink-3);font-weight:300;line-height:1.6">${h.desc}</div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;font-size:.72rem;font-weight:500">
+        <span>XP: <span style="color:${xColor(h.xp)}">${h.xp}</span></span>
+        <span>Profit: <span style="color:${pColor(h.profit)}">${h.profit}</span></span>
+        <span>Voc: <span style="color:var(--muted)">${h.vocs.includes('all')?'Todas':h.vocs.map(v=>v.toUpperCase()).join('/')}</span></span>
+      </div>
+      <a href="${h.wiki}" target="_blank" style="font-size:.78rem;color:var(--bamboo);font-weight:500;text-decoration:none;border-top:1px solid var(--rule);padding-top:.6rem">Ver no TibiaWiki →</a>
+    </div>`).join('');
+  document.getElementById('hf-results').style.display = 'block';
+}
+
+// ══════════════════════════════════════════════════
+//  QUEST GUIDE
+// ══════════════════════════════════════════════════
+const QUESTS = [
+  { tier:'8', label:'Nível 8 – 59', items:[
+    { name:'Aristos Task Quest', benefit:'Acesso à Nomad Cave — boa para hunts solo.', wiki:'https://www.tibiawiki.com.br/wiki/Arito\'s_Task_Quest' },
+    { name:'Barbarian Test Quest (Ice Islands)', benefit:'Desbloqueia Svargrond e acesso a Frost Dragons.', wiki:'https://www.tibiawiki.com.br/wiki/The_Ice_Islands_Quest' },
+    { name:'The Explorer Society Quest', benefit:'Atalhos, áreas secretas, título "Explorer" e Posto de Teleporte.', wiki:'https://www.tibiawiki.com.br/wiki/The_Explorer_Society_Quest' },
+    { name:'The Shattered Isles Quest', benefit:'Acesso a Laguna Island, Gargoyle Cave e Nargor.', wiki:'https://www.tibiawiki.com.br/wiki/The_Shattered_Isles_Quest' },
+    { name:'In Service of Yalahar', benefit:'Desbloqueia Yalahar — cidade com hunts e serviços importantes.', wiki:'https://www.tibiawiki.com.br/wiki/In_Service_of_Yalahar_Quest' },
+    { name:'Blood Brothers Quest', benefit:'Acesso à cidade de Vengoth — área com ótimos loots.', wiki:'https://www.tibiawiki.com.br/wiki/Blood_Brothers_Quest' },
+    { name:'Rashid Quest', benefit:'NPC essencial que compra a maioria dos loots.', wiki:'https://www.tibiawiki.com.br/wiki/The_Travelling_Trader_Quest' },
+  ]},
+  { tier:'60', label:'Nível 60 – 149', items:[
+    { name:'Ape City Quest', benefit:'Desbloqueia Banuta — hunt essencial para níveis altos.', wiki:'https://www.tibiawiki.com.br/wiki/The_Ape_City_Quest' },
+    { name:'The New Frontier Quest', benefit:'Abre o caminho para Lizard City e Draken Walls.', wiki:'https://www.tibiawiki.com.br/wiki/The_New_Frontier_Quest' },
+    { name:'Children of the Revolution', benefit:'Requisito para hunts e criaturas em Zao.', wiki:'https://www.tibiawiki.com.br/wiki/Children_of_the_Revolution_Quest' },
+    { name:'Cults of Tibia Quest', benefit:'Áreas novas, itens exclusivos e achievement "Cult Following".', wiki:'https://www.tibiawiki.com.br/wiki/Cults_of_Tibia_Quest' },
+    { name:'The Hunt for the Sea Serpent', benefit:'Sea Serpent — hunt de XP e profit.', wiki:'https://www.tibiawiki.com.br/wiki/The_Hunt_for_the_Sea_Serpent_Quest' },
+    { name:'Bigfoot\'s Burden Quest', benefit:'Acesso diário às Warzones 1, 2 e 3 para profit.', wiki:'https://www.tibiawiki.com.br/wiki/Bigfoot\'s_Burden_Quest' },
+    { name:'Threatened Dreams Quest', benefit:'Acesso à ilha de Feyrist.', wiki:'https://www.tibiawiki.com.br/wiki/Threatened_Dreams_Quest' },
+    { name:'Forgotten Knowledge Quest', benefit:'Portais para as hunts de Zao.', wiki:'https://www.tibiawiki.com.br/wiki/Forgotten_Knowledge_Quest' },
+    { name:'Pits of Inferno + Inquisition', benefit:'Hunts, bosses e blessings mais baratas.', wiki:'https://www.tibiawiki.com.br/wiki/The_Pits_of_Inferno_Quest' },
+    { name:'Liquid Black Quest', benefit:'Hunts de deepling, 3 bosses e chance de dropar Manta Ray (rara).', wiki:'https://www.tibiawiki.com.br/wiki/Liquid_Black_Quest' },
+  ]},
+  { tier:'150', label:'Nível 150 – 249', items:[
+    { name:'Adventures of Galthen Quest', benefit:'Galthen\'s Satchel (32 espaços) + Bounac Access com boss diário.', wiki:'https://www.tibiawiki.com.br/wiki/Adventures_of_Galthen_Quest' },
+    { name:'A Pirate\'s Tail Quest', benefit:'Ilha de caça diária, achievement "Release the Kraken" e montaria Krakoloss.', wiki:'https://www.tibiawiki.com.br/wiki/A_Pirate\'s_Tail_Quest' },
+    { name:'Between the Lines Quest', benefit:'Hunts + 4 bosses diários.', wiki:'https://www.tibiawiki.com.br/wiki/Between_the_Lines_Quest' },
+    { name:'Rathleton Quest', benefit:'Hunts, NPCs, achievements e Glooth Engineer Outfit.', wiki:'https://www.tibiawiki.com.br/wiki/Rathleton_Quest' },
+  ]},
+  { tier:'250', label:'Nível 250 – 350', items:[
+    { name:'The Dream Courts Quest', benefit:'Locais de hunt + imbue de bota powerful.', wiki:'https://www.tibiawiki.com.br/wiki/The_Dream_Courts_Quest' },
+    { name:'Order of the Cobra Quest', benefit:'Boss Scarlett Etzel + itens cobra.', wiki:'https://www.tibiawiki.com.br/wiki/The_Order_of_the_Cobra_Quest' },
+    { name:'Order of the Falcon Quest', benefit:'Boss Oberon + itens Falcon.', wiki:'https://www.tibiawiki.com.br/wiki/The_Order_of_the_Falcon_Quest' },
+    { name:'Order of the Lion Quest', benefit:'Boss Drume + itens Lion.', wiki:'https://www.tibiawiki.com.br/wiki/The_Order_of_the_Lion_Quest' },
+    { name:'The Way of the Monk Quest', benefit:'10 pontos na roda de Habilidade.', wiki:'https://www.tibiawiki.com.br/wiki/The_Way_of_the_Monk_Quest' },
+    { name:'Grave Danger Quest', benefit:'Rotação de boss diária para profit + boss final diário.', wiki:'https://www.tibiawiki.com.br/wiki/Grave_Danger_Quest' },
+    { name:'Bigfoot\'s Burden (continuação)', benefit:'Warzones 4, 5 e 6 — itens Gnome.', wiki:'https://www.tibiawiki.com.br/wiki/Bigfoot\'s_Burden_Quest' },
+    { name:'Feaster of Souls Quest', benefit:'Bosses diários, acesso a Soulwar e diversas hunts.', wiki:'https://www.tibiawiki.com.br/wiki/Feaster_of_Souls_Quest' },
+    { name:'Heart of Destruction Quest', benefit:'Imbue crítico nível 3 + profit diário mais alto.', wiki:'https://www.tibiawiki.com.br/wiki/Heart_of_Destruction_Quest' },
+    { name:'Ferumbras Ascendant Quest', benefit:'Acesso à sala do Ferumbras Mortal Shell — o boss mais cobiçado de Tibia.', wiki:'https://www.tibiawiki.com.br/wiki/Ferumbras\'_Ascendant_Quest', highlight:true },
+  ]},
+  { tier:'351', label:'Nível 351 – 499', items:[
+    { name:'20 Years a Cook Quest', benefit:'Hunts de Bulltaur, War Dragon e boss Despor.', wiki:'https://www.tibiawiki.com.br/wiki/20_Years_a_Cook_Quest' },
+    { name:'The Secret Library Quest', benefit:'Hunts metas + rotação de boss mais lucrativa para essa faixa.', wiki:'https://www.tibiawiki.com.br/wiki/The_Secret_Library_Quest' },
+    { name:'No Rest for the Wicked Quest', benefit:'10 vitórias no modo Difícil = item inferniach GARANTIDO.', wiki:'https://www.tibiawiki.com.br/wiki/No_Rest_for_the_Wicked_Quest', highlight:true },
+    { name:'Too Hot To Handle Quest', benefit:'Warzones 7, 8 e 9 — itens Eldritch.', wiki:'https://www.tibiawiki.com.br/wiki/Too_Hot_To_Handle_Quest' },
+  ]},
+];
+
+function renderQuests(filter) {
+  const container = document.getElementById('quest-grid');
+  const tiers = filter === 'all' ? QUESTS : QUESTS.filter(t => t.tier === filter);
+  container.innerHTML = tiers.map(tier => `
+    <div>
+      <div style="font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid var(--rule)">${tier.label}</div>
+      <div style="display:flex;flex-direction:column;gap:.75rem">
+        ${tier.items.map(q => `
+          <div style="background:${q.highlight?'var(--gold-pale)':'var(--white)'};border:1px solid ${q.highlight?'rgba(160,120,40,.3)':'var(--rule)'};border-radius:8px;padding:1rem 1.25rem;display:flex;justify-content:space-between;align-items:center;gap:1rem">
+            <div style="flex:1">
+              <div style="font-weight:500;color:var(--ink);font-size:.95rem;margin-bottom:3px">${q.name}${q.highlight?' <span style="font-size:.65rem;background:var(--gold);color:white;padding:1px 7px;border-radius:10px;font-weight:500;margin-left:6px;vertical-align:middle">PRIORIDADE</span>':''}</div>
+              <div style="font-size:.85rem;color:var(--ink-3);font-weight:300;line-height:1.5">${q.benefit}</div>
+            </div>
+            <a href="${q.wiki}" target="_blank" style="font-size:.75rem;color:var(--bamboo);font-weight:500;text-decoration:none;white-space:nowrap;flex-shrink:0">Wiki →</a>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function filterQuests(f, btn) {
+  document.querySelectorAll('#quests .filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderQuests(f);
+}
+
 function calcXP() {
   const levels = [];
   for (let i = 1; i <= 5; i++) {
@@ -1124,6 +1333,7 @@ function triggerReveal() {
 }
 
 setTimeout(triggerReveal, 80);
+renderQuests('all');
 </script>
 </body>
 </html>
