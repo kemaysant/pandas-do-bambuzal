@@ -133,12 +133,12 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;f
 .member-name-cell{display:flex;align-items:center;gap:.75rem}
 .member-avatar{width:36px;height:36px;border-radius:6px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .member-name{font-weight:500;color:var(--ink);font-size:.95rem}
-.voc-pill{display:inline-block;font-size:.7rem;font-weight:500;letter-spacing:.5px;padding:2px 8px;border-radius:4px}
-.voc-ek{background:#fce8e8;color:var(--red)}
-.voc-ed{background:var(--bamboo-pale);color:var(--bamboo)}
-.voc-ms{background:#e8eeff;color:var(--accent)}
-.voc-rp{background:var(--gold-pale);color:var(--gold)}
-.voc-monk{background:#f0e8ff;color:#6b21a8}
+.voc-pill{display:inline-block;font-size:.7rem;font-weight:600;letter-spacing:.5px;padding:2px 8px;border-radius:4px}
+.voc-ek{background:#c0392b;color:#fff}
+.voc-ed{background:#27ae60;color:#fff}
+.voc-ms{background:#2471a3;color:#fff}
+.voc-rp{background:#d4ac0d;color:#fff}
+.voc-monk{background:#7d3c98;color:#fff}
 .rank-pill{display:inline-block;font-size:.68rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:30px}
 .rank-leader{background:var(--gold-pale);color:var(--gold)}
 .rank-veteran{background:#e8eeff;color:var(--accent)}
@@ -184,8 +184,7 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;f
 .char-val{font-weight:500;color:var(--ink);font-family:'DM Mono',monospace;font-size:.85rem}
 
 /* ─── RULES ─── */
-.rules-layout{display:grid;grid-template-columns:2fr 1fr;gap:2rem}
-@media(max-width:768px){.rules-layout{grid-template-columns:1fr}}
+.rules-layout{display:block}
 .rule-block{margin-bottom:2rem}
 .rule-block-title{font-size:.72rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--rule)}
 .rule-item{display:grid;grid-template-columns:36px 1fr;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--rule);align-items:start}
@@ -193,7 +192,7 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;f
 .rule-num{font-family:'DM Mono',monospace;font-size:.78rem;font-weight:500;color:var(--muted);padding-top:2px;text-align:right}
 .rule-text{font-size:.93rem;color:var(--ink-3);line-height:1.65}
 .rule-text strong{color:var(--ink);font-weight:500}
-.punishment-card{background:var(--ink);color:var(--paper);border-radius:10px;padding:1.75rem;position:sticky;top:130px}
+.punishment-card{background:#1a1612;color:#f0ede8;border-radius:10px;padding:1.75rem;margin-bottom:2rem}
 .punishment-title{font-size:.7rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:1.25rem}
 .punishment-step{display:flex;gap:1rem;padding:.9rem 0;border-bottom:1px solid rgba(255,255,255,.08)}
 .punishment-step:last-of-type{border-bottom:none}
@@ -201,10 +200,10 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;f
 .pun-icon.warn{background:rgba(201,168,64,.2);color:var(--gold-light)}
 .pun-icon.ban{background:rgba(139,26,26,.3);color:#e87070}
 .pun-text{font-size:.88rem;line-height:1.55}
-.pun-text strong{color:var(--paper);font-weight:500;display:block;margin-bottom:2px}
-.pun-text span{color:rgba(255,255,255,.45);font-size:.82rem;font-weight:300}
+.pun-text strong{color:#f0ede8;font-weight:600;display:block;margin-bottom:2px}
+.pun-text span{color:rgba(255,255,255,.65);font-size:.82rem;font-weight:300}
 .code-quote{margin-top:1.5rem;padding:1rem;background:rgba(255,255,255,.04);border-left:2px solid var(--gold);border-radius:0 4px 4px 0}
-.code-quote p{font-family:'Playfair Display',serif;font-style:italic;font-size:.85rem;color:rgba(255,255,255,.55);line-height:1.7}
+.code-quote p{font-family:'Playfair Display',serif;font-style:italic;font-size:.85rem;color:rgba(255,255,255,.75);line-height:1.7}
 
 /* ─── ABOUT ─── */
 .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
@@ -437,7 +436,7 @@ async function tibiaFetch(path) {
             <button onclick="loadRecentDeaths()" style="background:none;border:1px solid var(--rule);border-radius:4px;padding:3px 10px;font-size:.68rem;color:var(--muted);cursor:pointer">↻ Atualizar</button>
           </div>
           <div id="home-deaths-loading" class="api-loading" style="display:none"><div class="spinner"></div> Buscando...</div>
-          <div id="home-deaths" style="font-size:.82rem;color:var(--muted);font-weight:300">Clique em Atualizar para carregar mortes recentes dos membros online.</div>
+          <div id="home-deaths" style="font-size:.82rem;color:var(--muted);font-weight:300"><div class="api-loading"><div class="spinner"></div> Carregando...</div></div>
         </div>
 
         <div class="card">
@@ -614,31 +613,35 @@ async function tibiaFetch(path) {
     <p class="sec-sub">Encontre as melhores hunts para o seu personagem.</p>
 
     <div class="card" style="margin-bottom:1.5rem">
-      <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end">
-        <!-- Char lookup -->
-        <div style="flex:1;min-width:200px">
+
+      <!-- Row 1: char search -->
+      <div style="display:flex;gap:.5rem;align-items:flex-end;margin-bottom:1rem">
+        <div style="flex:1;min-width:0">
           <label class="input-label" style="display:block;margin-bottom:4px">Personagem</label>
-          <div style="display:flex;gap:.5rem">
-            <input type="text" class="tool-input" id="hf-char-name" placeholder="Nome exato do char"
-                   onkeydown="if(event.key==='Enter')lookupHFChar()" style="flex:1">
-            <button class="calc-btn" style="margin-top:0;padding:0 14px" onclick="lookupHFChar()">Buscar</button>
-          </div>
-          <div class="api-loading" id="hf-char-loading" style="display:none;margin-top:6px"><div class="spinner"></div></div>
-          <div id="hf-char-result" style="display:none;margin-top:6px;padding:.5rem .75rem;background:var(--bamboo-pale);border-radius:6px;font-size:.82rem">
-            <span id="hf-char-name-out" style="font-weight:600;color:var(--bamboo)"></span>
-            <span id="hf-char-detail" style="color:var(--ink-3);margin-left:.4rem"></span>
-            <span style="float:right;color:var(--bamboo);font-weight:500;font-size:.75rem">✓ Filtros preenchidos</span>
-          </div>
-          <div id="hf-char-error" style="display:none;margin-top:6px;font-size:.8rem;color:var(--red)"></div>
+          <input type="text" class="tool-input" id="hf-char-name" placeholder="Nome exato do char"
+                 onkeydown="if(event.key==='Enter')lookupHFChar()" style="width:100%">
         </div>
+        <button class="calc-btn" style="margin-top:0;padding:0 18px;height:38px;flex-shrink:0" onclick="lookupHFChar()">Buscar</button>
+      </div>
 
-        <!-- Level -->
-        <div style="min-width:100px">
+      <!-- Char result inline badge -->
+      <div class="api-loading" id="hf-char-loading" style="display:none;margin-bottom:.75rem"><div class="spinner"></div></div>
+      <div id="hf-char-result" style="display:none;margin-bottom:.75rem;padding:.5rem .85rem;background:var(--bamboo-pale);border-radius:6px;border-left:3px solid var(--bamboo)">
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+          <span style="font-size:.85rem">🐼</span>
+          <span id="hf-char-name-out" style="font-weight:600;color:var(--bamboo);font-size:.9rem"></span>
+          <span id="hf-char-detail" style="color:var(--muted);font-size:.8rem"></span>
+        </div>
+      </div>
+      <div id="hf-char-error" style="display:none;margin-bottom:.75rem;font-size:.8rem;color:var(--red)"></div>
+
+      <!-- Row 2: filters (no Buscar button here) -->
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end;padding-top:.75rem;border-top:1px solid var(--rule)">
+        <div style="min-width:90px">
           <label class="input-label" style="display:block;margin-bottom:4px">Level</label>
-          <input type="number" class="tool-input" id="hf-level" placeholder="ex: 300" min="1">
+          <input type="number" class="tool-input" id="hf-level" placeholder="ex: 300" min="1"
+                 onchange="hfAutoSearch()">
         </div>
-
-        <!-- Mode toggle -->
         <div>
           <label class="input-label" style="display:block;margin-bottom:4px">Tamanho do time</label>
           <div style="display:flex;gap:4px">
@@ -647,11 +650,9 @@ async function tibiaFetch(path) {
             <button id="hf-mode-time" style="background:var(--paper);color:var(--muted);border:1px solid var(--rule);border-radius:6px;padding:7px 12px;font-size:.78rem;font-weight:500;cursor:pointer" onclick="setHFMode('time')">Time (x4)</button>
           </div>
         </div>
-
-        <!-- Vocation -->
-        <div style="min-width:180px">
+        <div style="min-width:170px">
           <label class="input-label" style="display:block;margin-bottom:4px">Vocação</label>
-          <select class="tool-select" id="hf-voc">
+          <select class="tool-select" id="hf-voc" onchange="hfAutoSearch()">
             <option value="all">Todas as vocações</option>
             <option value="ek">⚔ Elite Knight</option>
             <option value="ed">🌿 Elder Druid</option>
@@ -660,13 +661,11 @@ async function tibiaFetch(path) {
             <option value="monk">🥋 Monk</option>
           </select>
         </div>
-
-        <button class="calc-btn" style="margin-top:0;height:38px;padding:0 20px" onclick="runHuntFinder()">Buscar →</button>
       </div>
 
-      <!-- Focus pills -->
-      <div style="display:flex;gap:.5rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--rule);flex-wrap:wrap;align-items:center">
-        <span style="font-size:.72rem;color:var(--muted);font-weight:500">Ordenar por:</span>
+      <!-- Row 3: sort pills — always visible, trigger search immediately -->
+      <div style="display:flex;gap:.5rem;margin-top:1rem;padding-top:.75rem;border-top:1px solid var(--rule);flex-wrap:wrap;align-items:center">
+        <span style="font-size:.72rem;color:var(--muted);font-weight:500;line-height:28px">Ordenar por:</span>
         <button class="filter-btn active" id="hfpill-all"    onclick="setHFFocus('all',this)">Melhor XP/h</button>
         <button class="filter-btn"        id="hfpill-profit" onclick="setHFFocus('profit',this)">Melhor Lucro</button>
         <button class="filter-btn"        id="hfpill-quest"  onclick="setHFFocus('quest',this)">Quest/Acesso</button>
@@ -731,18 +730,20 @@ async function tibiaFetch(path) {
       <div>
         <label class="input-label" style="display:block;margin-bottom:4px;font-size:.68rem">Grupo</label>
         <select class="tool-select" id="dt-group" onchange="filterDelivery()">
-          <option value="all">Todos os grupos</option>
-          <option value="a">a · 5–10 unidades (3 itens)</option>
-          <option value="b">b · 10–20 unidades (107 itens)</option>
-          <option value="c">c · 25–50 unidades (129 itens)</option>
-          <option value="d">d · 50–100 unidades (134 itens)</option>
-          <option value="e">e · 100–200 unidades (56 itens)</option>
-          <option value="f">f · 250–500 unidades (21 itens)</option>
+          <option value="all">Todas as quantidades</option>
+          <option value="a">5–10 unidades</option>
+          <option value="b">10–20 unidades</option>
+          <option value="c">25–50 unidades</option>
+          <option value="d">50–100 unidades</option>
+          <option value="e">100–200 unidades</option>
+          <option value="f">250–500 unidades</option>
         </select>
       </div>
       <div>
         <label class="input-label" style="display:block;margin-bottom:4px;font-size:.68rem">Criatura</label>
-        <input type="text" class="tool-input" id="dt-creature" placeholder="ex: Dragon" style="min-width:160px" oninput="filterDelivery()">
+        <select class="tool-select" id="dt-creature" onchange="filterDelivery()" style="min-width:180px">
+          <option value="">Todas as criaturas</option>
+        </select>
       </div>
       <div>
         <label class="input-label" style="display:block;margin-bottom:4px;font-size:.68rem">Ordenar</label>
@@ -923,7 +924,6 @@ async function tibiaFetch(path) {
     <p class="sec-sub">🐼🎋 Regras oficiais dos Pandas do Bambuzal — leia com atenção.</p>
 
     <div class="rules-layout">
-      <div>
 
         <div class="rule-block">
           <div class="rule-block-title">1 — Servidor & Convivência</div>
@@ -961,28 +961,32 @@ async function tibiaFetch(path) {
           <div class="rule-item"><div class="rule-num">4.4</div><div class="rule-text"><strong>Kick:</strong> A liderança guarda o direito de retirar membros sempre que a situação se fizer necessária.</div></div>
         </div>
 
+    </div>
+
+    <!-- Sistema de Punições -->
+    <div class="punishment-card" style="margin-top:2rem">
+      <div class="punishment-title">Sistema de Punições</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:.75rem">
+        <div class="punishment-step"><div class="pun-icon warn">⚠</div><div class="pun-text"><strong>Bloqueio de Eventos</strong><span>Impedido de participar de quests/boss/acessos por tempo determinado.</span></div></div>
+        <div class="punishment-step"><div class="pun-icon warn">⚠</div><div class="pun-text"><strong>Mute no Discord</strong><span>Silenciado temporariamente nos canais da guild.</span></div></div>
+        <div class="punishment-step"><div class="pun-icon ban">✕</div><div class="pun-text"><strong>Retirada da Guild</strong><span>Expulsão permanente sem exceções para infrações graves.</span></div></div>
       </div>
+      <div class="code-quote" style="margin-top:1rem"><p>"Um panda que respeita o bambuzal nunca perde seu lar."</p><p style="margin-top:6px;font-family:'DM Mono',monospace;font-size:.72rem;color:rgba(255,255,255,.25);font-style:normal">— Código dos Pandas</p></div>
+    </div>
 
-      <div>
-        <div class="punishment-card">
-          <div class="punishment-title">Sistema de Punições</div>
-          <div class="punishment-step"><div class="pun-icon warn">⚠</div><div class="pun-text"><strong>Bloqueio de Eventos</strong><span>Impedido de participar de quests/boss/acessos por tempo determinado.</span></div></div>
-          <div class="punishment-step"><div class="pun-icon warn">⚠</div><div class="pun-text"><strong>Mute no Discord</strong><span>Silenciado temporariamente nos canais da guild.</span></div></div>
-          <div class="punishment-step"><div class="pun-icon ban">✕</div><div class="pun-text"><strong>Retirada da Guild</strong><span>Expulsão permanente sem exceções para infrações graves.</span></div></div>
-          <div class="code-quote"><p>"Um panda que respeita o bambuzal nunca perde seu lar."</p><p style="margin-top:6px;font-family:'DM Mono',monospace;font-size:.72rem;color:rgba(255,255,255,.25);font-style:normal">— Código dos Pandas</p></div>
-        </div>
-
-        <div class="card" style="margin-top:1.25rem">
-          <div class="tool-label" style="margin-bottom:1rem">5 — Ranks & Progressão</div>
-          <div class="hierarchy-item"><span class="hierarchy-rank">👑 Panda Queen</span><span class="hierarchy-desc">Liderança — responsabilidades administrativas e organização geral.</span></div>
-          <div class="hierarchy-item"><span class="hierarchy-rank">🐼 Panda Master</span><span class="hierarchy-desc">Vice-liderança — mesmas responsabilidades da liderança.</span></div>
-          <div class="hierarchy-item"><span class="hierarchy-rank">🎋 Guardiões das Folhas</span><span class="hierarchy-desc">Auxiliam a liderança. 90 dias + ativo em quests/boss + Discord.</span></div>
-          <div class="hierarchy-item"><span class="hierarchy-rank">🌿 Panda Leaves</span><span class="hierarchy-desc">Acesso à GH + Last GT/Ferumbras/LoreKeeper. 60 dias + ativo.</span></div>
-          <div class="hierarchy-item"><span class="hierarchy-rank">🌱 Bambuzalino Curioso</span><span class="hierarchy-desc">Acesso às Houses e quests. 30 dias de guild + level 200+.</span></div>
-          <div class="hierarchy-item" style="border-bottom:none"><span class="hierarchy-rank">🆕 Novato Bambuzeiro</span><span class="hierarchy-desc">Entrada. Acesso às Houses Abertas e quests puxadas pela liderança.</span></div>
-        </div>
+    <!-- Ranks -->
+    <div class="card" style="margin-top:1.5rem">
+      <div class="tool-label" style="margin-bottom:1rem">5 — Ranks & Progressão</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+        <div class="hierarchy-item"><span class="hierarchy-rank">👑 Panda Queen</span><span class="hierarchy-desc">Liderança — responsabilidades administrativas e organização geral.</span></div>
+        <div class="hierarchy-item"><span class="hierarchy-rank">🐼 Panda Master</span><span class="hierarchy-desc">Vice-liderança — mesmas responsabilidades da liderança.</span></div>
+        <div class="hierarchy-item"><span class="hierarchy-rank">🎋 Guardiões das Folhas</span><span class="hierarchy-desc">Auxiliam a liderança. 90 dias + ativo em quests/boss + Discord.</span></div>
+        <div class="hierarchy-item"><span class="hierarchy-rank">🌿 Panda Leaves</span><span class="hierarchy-desc">Acesso à GH + Last GT/Ferumbras/LoreKeeper. 60 dias + ativo.</span></div>
+        <div class="hierarchy-item"><span class="hierarchy-rank">🌱 Bambuzalino Curioso</span><span class="hierarchy-desc">Acesso às Houses e quests. 30 dias de guild + level 200+.</span></div>
+        <div class="hierarchy-item" style="border-bottom:none"><span class="hierarchy-rank">🆕 Novato Bambuzeiro</span><span class="hierarchy-desc">Entrada. Acesso às Houses Abertas e quests puxadas pela liderança.</span></div>
       </div>
     </div>
+
   </section>
 
   <!-- ─── ABOUT ─── -->
@@ -1052,6 +1056,8 @@ let currentFilter = 'all';
     loadTibiaEvents(),
   ]);
 
+  // Auto-load deaths after guild data is available
+  loadRecentDeaths();
   triggerReveal();
 })();
 
@@ -1130,23 +1136,41 @@ async function loadGuild() {
 // ══════════════════════════════════════════════════
 async function loadWorld() {
   try {
-    const data = await tibiaFetch(`/v4/world/${encodeURIComponent(CONFIG.world)}`);
-    const w = data.world;
-    if (!w) return;
+    // /v4/worlds returns a list with players_online per world — more reliable
+    const data = await tibiaFetch('/v4/worlds');
+    const worlds = data?.worlds?.regular_worlds || data?.worlds?.worlds || [];
+    const world = worlds.find(w => w.name?.toLowerCase() === CONFIG.world.toLowerCase());
 
-    const players = w.players_online_count || 0;
-    const record  = w.record_players || 0;
+    let players = 0;
+    let record = 0;
+    let worldName = CONFIG.world;
 
-    document.getElementById('wb-world').textContent = w.name || CONFIG.world;
+    if (world) {
+      players   = world.players_online ?? 0;
+      record    = world.record_players ?? 0;
+      worldName = world.name || CONFIG.world;
+    } else {
+      // Fallback to individual world endpoint
+      const d2 = await tibiaFetch(`/v4/world/${encodeURIComponent(CONFIG.world)}`);
+      const w  = d2?.world || {};
+      worldName = w.name || CONFIG.world;
+      record    = w.record_players || 0;
+      // Try every known field name
+      players = w.players_online_count ?? w.online_count
+        ?? (Array.isArray(w.players_online) ? w.players_online.length : 0);
+    }
+
+    document.getElementById('wb-world').textContent = worldName;
     document.getElementById('wb-players').textContent = players.toLocaleString('pt-BR');
-    document.getElementById('wb-record').textContent = `Record: ${record.toLocaleString('pt-BR')}`;
+    document.getElementById('wb-record').textContent = record > 0 ? `Record: ${record.toLocaleString('pt-BR')}` : '';
 
     const onlineCountEl = document.getElementById('world-online-count');
     onlineCountEl.innerHTML = `<span class="online-dot"></span>${players.toLocaleString('pt-BR')} online`;
-
     document.getElementById('world-bar').style.display = 'flex';
+
   } catch(e) {
-    console.error('World load error:', e);
+    console.error('[World] error:', e);
+    document.getElementById('world-bar').style.display = 'flex';
   }
 }
 
@@ -1599,10 +1623,12 @@ function openImbuModal(id) {
   if (hasToken) {
     calcHtml += `
       <div style="background:var(--gold-pale);border:1px solid rgba(160,120,40,.25);border-radius:8px;padding:.9rem 1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem">
-        <span style="font-size:1.2rem">🪙</span>
+        <img src="https://tibia.fandom.com/wiki/Special:Redirect/file/Gold_Token.gif"
+             alt="Gold Token" style="width:32px;height:32px;image-rendering:pixelated;flex-shrink:0"
+             onerror="this.outerHTML='<span style=\'font-size:1.4rem\'>🪙</span>'">
         <div>
           <div style="font-size:.85rem;font-weight:500;color:var(--gold)">Disponível via Gold Token no NPC</div>
-          <div style="font-size:.78rem;color:var(--muted);font-weight:300">Basic: ${GOLD_TOKEN_IMBU[id].basic} token · Intricate: ${GOLD_TOKEN_IMBU[id].intricate} tokens · Powerful: ${GOLD_TOKEN_IMBU[id].powerful} tokens</div>
+          <div style="font-size:.78rem;color:var(--muted);font-weight:300">Basic: ${GOLD_TOKEN_IMBU[id].basic} · Intricate: ${GOLD_TOKEN_IMBU[id].intricate} · Powerful: ${GOLD_TOKEN_IMBU[id].powerful} tokens</div>
         </div>
         <div style="margin-left:auto">
           <label style="font-size:.75rem;color:var(--muted);font-weight:300;display:block;margin-bottom:4px">Preço do Gold Token (gp)</label>
@@ -1722,66 +1748,106 @@ function filterImbu(f, btn) {
 //  HUNT FINDER DATA
 // ══════════════════════════════════════════════════
 const HUNTS = [
-  { name:'Nomad Cave', creatures:['Nomad'], minLvl:8, maxLvl:60,
-    vocs:['all'], modes:['solo'], xph:'200k–500k', profit:'–50k a 0k', tipo:'xp',
-    desc:'Boa para hunts solo iniciais. Requer Aristos Task Quest.', wiki:'https://tibia.fandom.com/wiki/Nomads' },
-  { name:'Frost Dragons', creatures:['Frost Dragon'],  minLvl:60, maxLvl:130,
-    vocs:['ek','rp'], modes:['solo','duo'], xph:'500k–1kk', profit:'100k–300k', tipo:'xp',
+  // ── LOW LEVEL (8–150) ──────────────────────────────────────────────
+  { name:'Nomad Cave', creatures:['Nomad'], minLvl:8, maxLvl:80,
+    vocs:['all'], modes:['solo'], xph:'150k–400k', profit:'-50k a 0k', tipo:'xp',
+    desc:'Hunt solo inicial. Requer Aristos Task Quest.', wiki:'https://tibia.fandom.com/wiki/Nomads' },
+  { name:'Cyclopolis', creatures:['Cyclops','Cyclops Smith','Cyclops Drone'], minLvl:40, maxLvl:120,
+    vocs:['ek','rp'], modes:['solo','duo'], xph:'400k–900k', profit:'0 a 150k', tipo:'xp',
+    desc:'Acesso livre. Boa densidade, sem requisito de quest.', wiki:'https://tibia.fandom.com/wiki/Cyclopolis' },
+  { name:'Orc Fortress', creatures:['Orc Warlord','Orc Berserker'], minLvl:50, maxLvl:130,
+    vocs:['ek','rp'], modes:['solo','duo'], xph:'500k–1kk', profit:'50k–200k', tipo:'xp',
+    desc:'Hunt clássica. Bom para task de bestiary.', wiki:'https://tibia.fandom.com/wiki/Orc_Fortress' },
+  { name:'Frost Dragons', creatures:['Frost Dragon'], minLvl:60, maxLvl:140,
+    vocs:['ek','rp'], modes:['solo','duo'], xph:'500k–1.2kk', profit:'100k–300k', tipo:'xp',
     desc:'Desbloqueado pela Barbarian Test Quest. Svargrond.', wiki:'https://tibia.fandom.com/wiki/Frost_Dragon' },
-  { name:'Sea Serpents', creatures:['Sea Serpent'],  minLvl:60, maxLvl:160,
-    vocs:['all'], modes:['solo','duo'], xph:'600k–1.2kk', profit:'100k–400k', tipo:'profit',
+  { name:'Sea Serpents', creatures:['Sea Serpent'], minLvl:60, maxLvl:160,
+    vocs:['all'], modes:['solo','duo'], xph:'600k–1.3kk', profit:'150k–400k', tipo:'profit',
     desc:'XP e profit sólidos. Requer Hunt for the Sea Serpent Quest.', wiki:'https://tibia.fandom.com/wiki/Sea_Serpent' },
-  { name:'Deeplings', creatures:['Deepling Scout','Deepling Guard','Deepling Warrior'],  minLvl:60, maxLvl:200,
+  { name:'Deeplings', creatures:['Deepling Scout','Deepling Guard','Deepling Warrior'], minLvl:60, maxLvl:200,
     vocs:['all'], modes:['solo','duo'], xph:'700k–1.5kk', profit:'0 a 200k', tipo:'xp',
-    desc:'3 bosses e possibilidade de Manta Ray (rara). Liquid Black Quest.', wiki:'https://tibia.fandom.com/wiki/Deepling' },
-  { name:'Zao / Draken Walls', creatures:['Draken Warmaster','Draken Elite','Draken Spellweaver'], minLvl:100, maxLvl:250,
-    vocs:['all'], modes:['solo','duo','time'], xph:'1kk–2.5kk', profit:'100k–400k', tipo:'xp',
-    desc:'New Frontier + Children of the Revolution. Ótimo XP.', wiki:'https://tibia.fandom.com/wiki/Draken_Walls' },
-  { name:'Banuta', creatures:['Toad','Kongra','Sibang'],  minLvl:80, maxLvl:200,
+    desc:'3 bosses e chance de Manta Ray (rara). Liquid Black Quest.', wiki:'https://tibia.fandom.com/wiki/Deepling' },
+  { name:'Banuta', creatures:['Kongra','Sibang','Merlkin'], minLvl:80, maxLvl:220,
     vocs:['ek','ms'], modes:['solo','duo'], xph:'800k–2kk', profit:'50k–200k', tipo:'xp',
     desc:'Hunt essencial mid-level. Requer Ape City Quest.', wiki:'https://tibia.fandom.com/wiki/Banuta' },
-  { name:'Feyrist', creatures:['Pixie','Nymph','Swan Maiden'],  minLvl:150, maxLvl:350,
+  { name:'Draken Walls / Zao', creatures:['Draken Warmaster','Draken Elite','Draken Spellweaver'], minLvl:100, maxLvl:280,
+    vocs:['all'], modes:['solo','duo'], xph:'1kk–2.5kk', profit:'100k–400k', tipo:'xp',
+    desc:'New Frontier + Children of the Revolution. Ótimo XP mid-game.', wiki:'https://tibia.fandom.com/wiki/Draken_Walls' },
+  { name:'Warzones 1–3', creatures:['Gnomevil'], minLvl:100, maxLvl:250,
+    vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–500k', tipo:'profit',
+    desc:'Profit diário consistente. Requer Bigfoot’s Burden Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_1' },
+
+  // ── MID LEVEL (150–300) ────────────────────────────────────────────
+  { name:'Feyrist', creatures:['Pixie','Nymph','Feral Sphinx'], minLvl:150, maxLvl:350,
     vocs:['ed','ms','rp'], modes:['solo','duo'], xph:'1.5kk–3kk', profit:'200k–500k', tipo:'xp',
     desc:'Ilha de Feyrist. Threatened Dreams Quest. Favorita da guild!', wiki:'https://tibia.fandom.com/wiki/Feyrist' },
-  { name:'Cobra Bastion', creatures:['Cobra Vizier','Cobra Assassin','Cobra Scout'], minLvl:250, maxLvl:450,
-    vocs:['ek','rp'], modes:['solo','duo'], xph:'2kk–4kk', profit:'300k–700k', tipo:'xp',
-    desc:'Boss Scarlett Etzel, itens cobra. Order of the Cobra Quest.', wiki:'https://tibia.fandom.com/wiki/Cobra_Bastion' },
-  { name:'Falcon Bastion', creatures:['Falcon Knight','Falcon Paladin'], minLvl:250, maxLvl:999,
-    vocs:['ek'], modes:['solo','duo'], xph:'2kk–5kk', profit:'300k–800k', tipo:'xp',
-    desc:'Boss Oberon, itens Falcon. Order of the Falcon Quest. Organizado pela guild!', wiki:'https://tibia.fandom.com/wiki/Falcon_Bastion' },
-  { name:'Soulwar', creatures:['Cloak of Terror','Soul-Broken Harbinger','Crazed Winter Vanguard'], minLvl:250, maxLvl:999,
-    vocs:['all'], modes:['solo','duo','time'], xph:'2.5kk–6kk', profit:'200k–600k', tipo:'xp',
-    desc:'Bosses diários + múltiplas salas. Feaster of Souls Quest.', wiki:'https://tibia.fandom.com/wiki/Soulwar' },
-  { name:'Dream Courts', creatures:['Nightmare Beast','Dream Catcher'], minLvl:250, maxLvl:450,
-    vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–4kk', profit:'200k–500k', tipo:'xp',
-    desc:'Imbue de bota powerful. The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Dream_Courts' },
-  { name:'Grave Danger', creatures:['Gravelord Osyran','Lokkh Shaguard','Zavarash'], minLvl:250, maxLvl:999,
-    vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit',
-    desc:'Rotação de boss diária para profit máximo. Grave Danger Quest.', wiki:'https://tibia.fandom.com/wiki/Grave_Danger' },
-  { name:'Heart of Destruction', creatures:['Hellfire Fighter','Grimeleech','Vexclaw'], minLvl:250, maxLvl:999,
-    vocs:['all'], modes:['solo','duo','time'], xph:'2kk–5kk', profit:'500k–1.5kk', tipo:'profit',
-    desc:'Imbue crítico nível 3 + alto profit diário. Heart of Destruction Quest.', wiki:'https://tibia.fandom.com/wiki/Heart_of_Destruction' },
-  { name:'Ferumbras Mortal Shell', creatures:['Ferumbras'], minLvl:250, maxLvl:999,
-    vocs:['all'], modes:['time'], xph:'—', profit:'1kk–10kk+', tipo:'quest',
-    desc:'O boss mais cobiçado do Tibia. Organizado pela liderança da guild!', wiki:'https://www.tibiawiki.com.br/wiki/Ferumbras_Ascendant_Quest' },
-  { name:'Secret Library', creatures:['Ogre Shaman','Ogre Brute','Ogre Ruffian'], minLvl:350, maxLvl:999,
-    vocs:['all'], modes:['solo','duo','time'], xph:'3kk–8kk', profit:'400k–1.5kk', tipo:'xp',
-    desc:'Hunts metas + rotação de boss lucrativa. The Secret Library Quest.', wiki:'https://tibia.fandom.com/wiki/The_Secret_Library' },
-  { name:'No Rest for the Wicked', creatures:['Inferniach','Broodrider Inferniarch'], minLvl:350, maxLvl:999,
-    vocs:['all'], modes:['time'], xph:'2kk–5kk', profit:'1kk–3kk', tipo:'quest',
-    desc:'10 vitórias no modo Difícil = item Inferniach GARANTIDO.', wiki:'https://www.tibiawiki.com.br/wiki/No_Rest_for_the_Wicked_Quest' },
-  { name:'Kilmaresh', creatures:['Sphinx','Lamassu','Feral Sphinx'], minLvl:300, maxLvl:999,
-    vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–5kk', profit:'0 a 500k', tipo:'xp',
-    desc:'Área premium com múltiplos spawn. Bom XP para Druids e Mages.', wiki:'https://tibia.fandom.com/wiki/Kilmaresh' },
-  { name:'Roshamuul Prison', creatures:['Frazzlemaw','Guzzlemaw','Nibblemaw'], minLvl:400, maxLvl:999,
-    vocs:['ek'], modes:['solo','duo'], xph:'2.5kk–4kk', profit:'500k–1kk', tipo:'xp',
-    desc:'Alta densidade de criaturas. Ótimo para EKs de alto nível.', wiki:'https://tibia.fandom.com/wiki/Roshamuul' },
   { name:'Warzones 4–6', creatures:['Gnomevil','Sandstone Scorpion'], minLvl:150, maxLvl:300,
     vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–600k', tipo:'profit',
-    desc:'Itens Gnome. Continuação da Bigfoot\'s Burden Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_4' },
+    desc:'Itens Gnome. Continuação da Bigfoot’s Burden Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_4' },
+  { name:'Bounac', creatures:['Bulltaur Brute','Bulltaur Forgepriest','Bulltaur Alchemist'], minLvl:150, maxLvl:350,
+    vocs:['all'], modes:['solo','duo'], xph:'1kk–2.5kk', profit:'100k–400k', tipo:'xp',
+    desc:'Boss diário + área de hunt. Adventures of Galthen Quest.', wiki:'https://tibia.fandom.com/wiki/Bounac' },
+  { name:'Cobra Bastion', creatures:['Cobra Vizier','Cobra Assassin','Cobra Scout'], minLvl:250, maxLvl:500,
+    vocs:['ek','rp'], modes:['solo','duo'], xph:'2kk–4kk', profit:'300k–700k', tipo:'xp',
+    desc:'Boss Scarlett Etzel + itens cobra. Order of the Cobra Quest.', wiki:'https://tibia.fandom.com/wiki/Cobra_Bastion' },
+  { name:'Dream Courts', creatures:['Nightmare Beast','Dream Catcher','Crazed Summer Rearguard'], minLvl:250, maxLvl:500,
+    vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–4kk', profit:'200k–500k', tipo:'xp',
+    desc:'Imbue de bota powerful T3. The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Dream_Courts' },
+  { name:'Falcon Bastion', creatures:['Falcon Knight','Falcon Paladin','Falcon Knight'], minLvl:270, maxLvl:999,
+    vocs:['ek'], modes:['solo','duo'], xph:'2kk–5kk', profit:'300k–800k', tipo:'xp',
+    desc:'Boss Oberon + itens Falcon. Order of the Falcon Quest. Organizado pela guild!', wiki:'https://tibia.fandom.com/wiki/Falcon_Bastion' },
+  { name:'Grave Danger', creatures:['Gravelord Osyran','Lokkh Shaguard','Zavarash'], minLvl:250, maxLvl:999,
+    vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit',
+    desc:'Rotação de boss diária — melhor profit da faixa 250–400. Grave Danger Quest.', wiki:'https://tibia.fandom.com/wiki/Grave_Danger' },
+  { name:'Heart of Destruction', creatures:['Hellfire Fighter','Grimeleech','Vexclaw'], minLvl:250, maxLvl:999,
+    vocs:['all'], modes:['solo','duo','time'], xph:'2kk–5kk', profit:'500k–1.5kk', tipo:'profit',
+    desc:'Imbue crítico T3 + alto profit diário. Heart of Destruction Quest.', wiki:'https://tibia.fandom.com/wiki/Heart_of_Destruction' },
+  { name:'Kilmaresh', creatures:['Sphinx','Lamassu','Lamassu'], minLvl:300, maxLvl:999,
+    vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–5kk', profit:'0 a 500k', tipo:'xp',
+    desc:'Múltiplos spawn premium. Ótimo XP para Druids e Mages.', wiki:'https://tibia.fandom.com/wiki/Kilmaresh' },
+  { name:'Ferumbras Mortal Shell', creatures:['Ferumbras'], minLvl:300, maxLvl:999,
+    vocs:['all'], modes:['time'], xph:'—', profit:'1kk–10kk+', tipo:'quest',
+    desc:'O boss mais cobiçado do Tibia. Ferumbras Ascendant Quest. Organizado pela liderança.', wiki:'https://www.tibiawiki.com.br/wiki/Ferumbras_Ascendant_Quest' },
+
+  // ── HIGH LEVEL (350–550) ───────────────────────────────────────────
+  { name:'Soulwar', creatures:['Cloak of Terror','Soul-Broken Harbinger','Crazed Winter Vanguard'], minLvl:350, maxLvl:999,
+    vocs:['all'], modes:['solo','duo','time'], xph:'2.5kk–6kk', profit:'200k–600k', tipo:'xp',
+    desc:'Bosses diários + múltiplas salas de hunt. Feaster of Souls Quest. Level real: 400+.', wiki:'https://tibia.fandom.com/wiki/Soulwar' },
   { name:'Warzones 7–9', creatures:['Hellspawn','Lava Golem'], minLvl:350, maxLvl:999,
     vocs:['all'], modes:['time'], xph:'2kk–4kk', profit:'300k–800k', tipo:'profit',
     desc:'Itens Eldritch. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_7' },
+  { name:'Secret Library', creatures:['Icecold Book','Ogre Shaman','Ogre Brute'], minLvl:350, maxLvl:999,
+    vocs:['all'], modes:['solo','duo','time'], xph:'3kk–8kk', profit:'400k–1.5kk', tipo:'xp',
+    desc:'Hunts metas + rotação de boss lucrativa para essa faixa. The Secret Library Quest.', wiki:'https://tibia.fandom.com/wiki/The_Secret_Library' },
+  { name:'No Rest for the Wicked', creatures:['Inferniach','Broodrider Inferniarch'], minLvl:400, maxLvl:999,
+    vocs:['all'], modes:['time'], xph:'2kk–5kk', profit:'1kk–3kk', tipo:'quest',
+    desc:'10 vitórias modo Difícil = item Inferniach GARANTIDO. Requer ~500+.', wiki:'https://www.tibiawiki.com.br/wiki/No_Rest_for_the_Wicked_Quest' },
+  { name:'Roshamuul Prison', creatures:['Frazzlemaw','Guzzlemaw','Frazzlemaw'], minLvl:400, maxLvl:999,
+    vocs:['ek'], modes:['solo','duo'], xph:'2.5kk–4kk', profit:'500k–1kk', tipo:'xp',
+    desc:'Alta densidade de criaturas. Hunt sólida para EKs 400+.', wiki:'https://tibia.fandom.com/wiki/Roshamuul' },
+
+  // ── ENDGAME (550+) ─────────────────────────────────────────────────
+  { name:'Netherworld', creatures:['Flimsy Lost Soul','Freakish Lost Soul','Mean Lost Soul'], minLvl:550, maxLvl:999,
+    vocs:['ms'], modes:['solo'], xph:'2.3kk–2.8kk', profit:'-10k a 10k', tipo:'xp',
+    desc:'Hunt solo para MS de alto nível. Acesso por quest específica.', wiki:'https://tibia.fandom.com/wiki/Netherworld' },
+  { name:'Court of Winter', creatures:['Crazed Winter Rearguard','Crazed Winter Vanguard','Icecold Book'], minLvl:550, maxLvl:999,
+    vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–4kk', profit:'0 a 500k', tipo:'xp',
+    desc:'Hunt premium de alto nível para casters. Requer The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Court_of_Winter' },
+  { name:'Court of Summer', creatures:['Crazed Summer Rearguard','Crazed Summer Vanguard','Animated Feather'], minLvl:550, maxLvl:999,
+    vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–3kk', profit:'200k–350k', tipo:'xp',
+    desc:'Alternativa ao Court of Winter. Mesmos requisitos.', wiki:'https://tibia.fandom.com/wiki/Court_of_Summer' },
+  { name:'Gnome Deep Hub', creatures:['Branchy Crawler','Cave Devourer','Deepworm'], minLvl:500, maxLvl:999,
+    vocs:['ed','ms'], modes:['solo','duo'], xph:'1kk–2.5kk', profit:'-300k a -150k', tipo:'xp',
+    desc:'Alta XP mas alto waste. Para chars com muito bank.', wiki:'https://tibia.fandom.com/wiki/Gnome_Deep_Hub' },
+  { name:'Nykri Delta', creatures:['Naga Archer','Naga Warrior','Naga Archer'], minLvl:500, maxLvl:999,
+    vocs:['ed','ms'], modes:['solo','duo'], xph:'1kk–1.8kk', profit:'-70k a 20k', tipo:'xp',
+    desc:'Hunt nova com criaturas Naga. Bom bestiary.', wiki:'https://tibia.fandom.com/wiki/Nykri_Delta' },
+  { name:'Hyaena Lairs', creatures:['Werehyaena','Werehyaena Shaman','Werehyaena'], minLvl:500, maxLvl:999,
+    vocs:['ed','ms'], modes:['solo','duo'], xph:'1.2kk–1.8kk', profit:'200k–450k', tipo:'profit',
+    desc:'Profit consistente. Hunt popular para druids e mages.', wiki:'https://tibia.fandom.com/wiki/Werehyaena' },
+  { name:'Oramond Western Plains', creatures:['Boar Man','Crab Man'], minLvl:500, maxLvl:999,
+    vocs:['ed','ms'], modes:['solo','duo'], xph:'900k–1.7kk', profit:'-150k a -70k', tipo:'xp',
+    desc:'XP sólida, alto waste. Popular no servidor Gentebra.', wiki:'https://tibia.fandom.com/wiki/Oramond_Western_Plains' },
 ];
 
 const profitOrder = { 'muito alto':4, 'alto':3, 'médio':2, 'baixo':1 };
@@ -1831,7 +1897,7 @@ async function lookupHFChar() {
     // Show success badge
     document.getElementById('hf-char-name-out').textContent = c.name;
     document.getElementById('hf-char-detail').textContent = `· ${voc} · Nível ${lvl}`;
-    resultEl.style.display = 'flex';
+    resultEl.style.display = 'block';
 
     // Auto-run search
     runHuntFinder();
@@ -1847,6 +1913,26 @@ async function lookupHFChar() {
 
 let hfMode  = 'solo';
 let hfFocus = 'all';
+const creatureImgCache = {};
+
+async function fetchCreatureImgs(creatures) {
+  // Fetch image_url for each creature via TibiaData API
+  const results = await Promise.allSettled(
+    creatures.map(async name => {
+      if (creatureImgCache[name]) return { name, url: creatureImgCache[name] };
+      try {
+        const data = await tibiaFetch('/v4/creature/' + encodeURIComponent(name.toLowerCase()));
+        const url = data?.creature?.image_url || '';
+        creatureImgCache[name] = url;
+        return { name, url };
+      } catch(e) {
+        creatureImgCache[name] = '';
+        return { name, url: '' };
+      }
+    })
+  );
+  return results.map(r => r.status === 'fulfilled' ? r.value : { name: '', url: '' });
+}
 
 function setHFMode(mode) {
   hfMode = mode;
@@ -1858,15 +1944,24 @@ function setHFMode(mode) {
     btn.style.color = active ? 'var(--paper)' : 'var(--muted)';
     btn.style.border = active ? 'none' : '1px solid var(--rule)';
   });
+  hfAutoSearch();
+}
+
+function hfAutoSearch() {
+  // Only auto-search if we already have results or a level filled in
+  const lvl = document.getElementById('hf-level')?.value;
+  const hasResults = document.getElementById('hf-results')?.style.display !== 'none';
+  if (lvl || hasResults) runHuntFinder();
 }
 
 function setHFFocus(focus, btn) {
   hfFocus = focus;
   document.querySelectorAll('[id^="hfpill-"]').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  hfAutoSearch();
 }
 
-function runHuntFinder() {
+async function runHuntFinder() {
   const lvl  = parseInt(document.getElementById('hf-level').value) || 0;
   const voc  = document.getElementById('hf-voc').value;
   const focus = hfFocus;
@@ -1876,7 +1971,12 @@ function runHuntFinder() {
   document.getElementById('hf-empty').style.display = 'none';
 
   let results = HUNTS.filter(h => {
-    if (lvl && lvl < h.minLvl) return false;
+    if (lvl) {
+      // Muito baixo: personagem ainda não atingiu o mínimo
+      if (lvl < h.minLvl) return false;
+      // Passou da faixa: só remove se maxLvl definido E personagem passou em 150+ níveis
+      if (h.maxLvl < 999 && lvl > h.maxLvl + 150) return false;
+    }
     if (voc !== 'all' && !h.vocs.includes('all') && !h.vocs.includes(voc)) return false;
     if (mode !== 'all' && !h.modes.includes(mode)) return false;
     if (focus === 'profit') return h.tipo === 'profit' || h.profit.includes('kk');
@@ -1894,70 +1994,87 @@ function runHuntFinder() {
     return;
   }
 
+  const grid = document.getElementById('hf-grid');
   const modeIcon = { solo:'🧍 Solo', duo:'👥 Duo', time:'👥👥 Time (x4)' };
-  const vocLabel = { ek:'⚔ EK', ed:'🌿 ED', ms:'🔮 MS', rp:'🏹 RP', monk:'🥋 Monk', all:'Todas' };
+  const vocLabel = { ek:'⚔ EK', ed:'🌿 ED', ms:'🔮 MS', rp:'🏹 RP', monk:'🥋 Monk' };
 
-  document.getElementById('hf-grid').innerHTML = results.map((h, i) => {
+  // Render cards with skeleton headers first
+  grid.innerHTML = results.map((h, i) => {
     const isBest = i === 0;
-
-    // Multiple creature images
-    const creatures = h.creatures || (h.creature ? [h.creature] : []);
-    const imgs = creatures.slice(0, 3).map(c =>
-      `<img src="https://tibiadata.bytewizards.de/static/img/creatures/${encodeURIComponent(c)}.gif"
-            alt="${c}" title="${c}"
-            style="width:52px;height:52px;image-rendering:pixelated;border-radius:6px;background:var(--paper);border:1px solid var(--rule);padding:2px"
-            onerror="this.style.display='none'">`
-    ).join('');
-
-    const vocStr = h.vocs.includes('all') ? 'Todas' : h.vocs.map(v => vocLabel[v]||v.toUpperCase()).join(' · ');
+    const vocStr  = h.vocs.includes('all') ? 'Todas' : h.vocs.map(v => vocLabel[v]||v.toUpperCase()).join(' · ');
     const modesStr = h.modes.map(m => modeIcon[m]||m).join(' · ');
+    const cardId  = 'hfc-' + i;
 
     return `
-    <div style="background:var(--white);border:${isBest?'2px solid var(--bamboo)':'1px solid var(--rule)'};border-radius:10px;overflow:hidden;position:relative;transition:transform .15s" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform='none'">
+    <div id="${cardId}" style="background:var(--white);border:${isBest?'2px solid var(--bamboo)':'1px solid var(--rule)'};border-radius:10px;overflow:hidden;position:relative;transition:transform .15s,box-shadow .15s" onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.12)'" onmouseleave="this.style.transform='none';this.style.boxShadow='none'">
       ${isBest ? '<div style="background:var(--bamboo);color:white;font-size:.62rem;font-weight:700;text-align:center;padding:3px;letter-spacing:.5px">✓ MELHOR RESULTADO</div>' : ''}
-      
-      <!-- Creature images background -->
-      <div style="background:var(--ink);padding:.75rem 1rem;display:flex;align-items:center;gap:.5rem;min-height:72px">
-        <div style="display:flex;gap:4px;flex-wrap:wrap">
-          ${imgs || '<div style="width:52px;height:52px;border-radius:6px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.5rem">🗺</div>'}
+
+      <!-- Header: dungeon floor bg with creature images -->
+      <div id="${cardId}-header" style="background:#1a1a1a;min-height:90px;display:flex;align-items:center;padding:.6rem .8rem;gap:.5rem;position:relative;overflow:hidden">
+        <!-- Tibia dungeon floor pattern: dark stone tiles -->
+        <div style="position:absolute;inset:0;background-image:
+          repeating-linear-gradient(0deg, rgba(255,255,255,.04) 0, rgba(255,255,255,.04) 1px, transparent 1px, transparent 32px),
+          repeating-linear-gradient(90deg, rgba(255,255,255,.04) 0, rgba(255,255,255,.04) 1px, transparent 1px, transparent 32px),
+          repeating-linear-gradient(0deg, rgba(0,0,0,.3) 0, rgba(0,0,0,.3) 2px, transparent 2px, transparent 32px),
+          repeating-linear-gradient(90deg, rgba(0,0,0,.3) 0, rgba(0,0,0,.3) 2px, transparent 2px, transparent 32px);
+          background-color:#2a2218;background-size:32px 32px"></div>
+        <!-- Slight vignette -->
+        <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.5) 100%)"></div>
+        <!-- Creature imgs injected by JS -->
+        <div id="${cardId}-imgs" style="display:flex;gap:3px;align-items:center;flex-shrink:0;z-index:1">
+          <div style="width:56px;height:56px;border-radius:6px;background:rgba(255,255,255,.06);animation:pulse 1.5s infinite"></div>
         </div>
-        <div style="flex:1;min-width:0">
-          <div style="font-family:\'Playfair Display\',serif;font-weight:700;font-size:1rem;color:#f0ede8;line-height:1.2">${h.name}</div>
-          <div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-top:3px">Lv ${h.minLvl}${h.maxLvl<999?'–'+h.maxLvl:'+' }</div>
+        <div style="flex:1;min-width:0;z-index:1">
+          <div style="font-weight:700;font-size:1rem;color:#fff;line-height:1.2;text-shadow:0 1px 4px rgba(0,0,0,.8)">${h.name}</div>
+          <div style="font-size:.68rem;color:rgba(255,255,255,.6);margin-top:3px">Lv ${h.minLvl}${h.maxLvl<999?'–'+h.maxLvl:'+'}</div>
         </div>
       </div>
 
-      <!-- Stats grid -->
-      <div style="padding:.9rem 1rem">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem">
-          <div style="background:var(--paper);border-radius:6px;padding:.5rem .65rem">
-            <div style="font-size:.6rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Modo</div>
-            <div style="font-size:.78rem;font-weight:500;color:var(--ink)">${modesStr}</div>
+      <!-- Stats -->
+      <div style="padding:.85rem 1rem">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.7rem">
+          <div style="background:var(--paper);border-radius:5px;padding:.45rem .6rem">
+            <div style="font-size:.58rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:1px">Modo</div>
+            <div style="font-size:.75rem;font-weight:500;color:var(--ink)">${modesStr}</div>
           </div>
-          <div style="background:var(--paper);border-radius:6px;padding:.5rem .65rem">
-            <div style="font-size:.6rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Vocação</div>
-            <div style="font-size:.78rem;font-weight:500;color:var(--ink)">${vocStr}</div>
+          <div style="background:var(--paper);border-radius:5px;padding:.45rem .6rem">
+            <div style="font-size:.58rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:1px">Vocação</div>
+            <div style="font-size:.75rem;font-weight:500;color:var(--ink)">${vocStr}</div>
           </div>
-          <div style="background:var(--paper);border-radius:6px;padding:.5rem .65rem">
-            <div style="font-size:.6rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">XP/h Estimado</div>
-            <div style="font-size:.82rem;font-weight:600;color:var(--accent)">${h.xph||'—'}</div>
+          <div style="background:var(--paper);border-radius:5px;padding:.45rem .6rem">
+            <div style="font-size:.58rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:1px">XP/h</div>
+            <div style="font-size:.8rem;font-weight:700;color:var(--accent)">${h.xph||'—'}</div>
           </div>
-          <div style="background:var(--paper);border-radius:6px;padding:.5rem .65rem">
-            <div style="font-size:.6rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Lucro/h</div>
-            <div style="font-size:.82rem;font-weight:600;color:var(--bamboo)">${h.profit||'—'}</div>
+          <div style="background:var(--paper);border-radius:5px;padding:.45rem .6rem">
+            <div style="font-size:.58rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:1px">Lucro/h</div>
+            <div style="font-size:.8rem;font-weight:700;color:var(--bamboo)">${h.profit||'—'}</div>
           </div>
         </div>
-
-        <div style="font-size:.82rem;color:var(--ink-3);font-weight:300;line-height:1.55;margin-bottom:.75rem">${h.desc}</div>
-
-        <a href="${h.wiki}" target="_blank" style="font-size:.75rem;color:var(--bamboo);font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:4px;border-top:1px solid var(--rule);padding-top:.6rem;width:100%">
-          Ver no TibiaWiki →
-        </a>
+        <div style="font-size:.8rem;color:var(--ink-3);font-weight:300;line-height:1.5;margin-bottom:.65rem">${h.desc}</div>
+        <a href="${h.wiki}" target="_blank" style="font-size:.73rem;color:var(--bamboo);font-weight:500;text-decoration:none;border-top:1px solid var(--rule);padding-top:.55rem;display:block">Ver no TibiaWiki →</a>
       </div>
     </div>`;
   }).join('');
 
   document.getElementById('hf-results').style.display = 'block';
+
+  // Fetch creature images in background and inject
+  results.forEach(async (h, i) => {
+    const creatures = (h.creatures || []).slice(0, 3);
+    if (!creatures.length) return;
+    const imgs = await fetchCreatureImgs(creatures);
+    const container = document.getElementById('hfc-' + i + '-imgs');
+    if (!container) return;
+    const hasImg = imgs.some(im => im.url);
+    container.innerHTML = imgs.map(im => {
+      if (im.url) {
+        return `<img src="${im.url}" alt="${im.name}" title="${im.name}"
+          style="width:56px;height:56px;image-rendering:pixelated;border-radius:6px;object-fit:contain;background:rgba(0,0,0,.2)"
+          onerror="this.style.display='none'">`;
+      }
+      return '';
+    }).join('') || '<div style="font-size:1.4rem;padding:.5rem">🗺</div>';
+  });
 }
 
 
@@ -1980,7 +2097,7 @@ const QUESTS = [
     { name:'Children of the Revolution', benefit:'Requisito para hunts e criaturas em Zao.', wiki:'https://www.tibiawiki.com.br/wiki/Children_of_the_Revolution_Quest' },
     { name:'Cults of Tibia Quest', benefit:'Áreas novas, itens exclusivos e achievement "Cult Following".', wiki:'https://www.tibiawiki.com.br/wiki/Cults_of_Tibia_Quest' },
     { name:'The Hunt for the Sea Serpent', benefit:'Sea Serpent — hunt de XP e profit.', wiki:'https://www.tibiawiki.com.br/wiki/The_Hunt_for_the_Sea_Serpent_Quest' },
-    { name:'Bigfoot\'s Burden Quest', benefit:'Acesso diário às Warzones 1, 2 e 3 para profit.', wiki:'https://www.tibiawiki.com.br/wiki/Bigfoot\'s_Burden_Quest' },
+    { name:'Bigfoot’s Burden Quest', benefit:'Acesso diário às Warzones 1, 2 e 3 para profit.', wiki:'https://www.tibiawiki.com.br/wiki/Bigfoot\'s_Burden_Quest' },
     { name:'Threatened Dreams Quest', benefit:'Acesso à ilha de Feyrist.', wiki:'https://www.tibiawiki.com.br/wiki/Threatened_Dreams_Quest' },
     { name:'Forgotten Knowledge Quest', benefit:'Portais para as hunts de Zao.', wiki:'https://www.tibiawiki.com.br/wiki/Forgotten_Knowledge_Quest' },
     { name:'Pits of Inferno + Inquisition', benefit:'Hunts, bosses e blessings mais baratas.', wiki:'https://www.tibiawiki.com.br/wiki/The_Pits_of_Inferno_Quest' },
@@ -1999,7 +2116,7 @@ const QUESTS = [
     { name:'Order of the Lion Quest', benefit:'Boss Drume + itens Lion.', wiki:'https://www.tibiawiki.com.br/wiki/The_Order_of_the_Lion_Quest' },
     { name:'The Way of the Monk Quest', benefit:'10 pontos na roda de Habilidade.', wiki:'https://www.tibiawiki.com.br/wiki/The_Way_of_the_Monk_Quest' },
     { name:'Grave Danger Quest', benefit:'Rotação de boss diária para profit + boss final diário.', wiki:'https://www.tibiawiki.com.br/wiki/Grave_Danger_Quest' },
-    { name:'Bigfoot\'s Burden (continuação)', benefit:'Warzones 4, 5 e 6 — itens Gnome.', wiki:'https://www.tibiawiki.com.br/wiki/Bigfoot\'s_Burden_Quest' },
+    { name:'Bigfoot’s Burden (continuação)', benefit:'Warzones 4, 5 e 6 — itens Gnome.', wiki:'https://www.tibiawiki.com.br/wiki/Bigfoot\'s_Burden_Quest' },
     { name:'Feaster of Souls Quest', benefit:'Bosses diários, acesso a Soulwar e diversas hunts.', wiki:'https://www.tibiawiki.com.br/wiki/Feaster_of_Souls_Quest' },
     { name:'Heart of Destruction Quest', benefit:'Imbue crítico nível 3 + profit diário mais alto.', wiki:'https://www.tibiawiki.com.br/wiki/Heart_of_Destruction_Quest' },
     { name:'Ferumbras Ascendant Quest', benefit:'Acesso à sala do Ferumbras Mortal Shell — o boss mais cobiçado de Tibia.', wiki:'https://www.tibiawiki.com.br/wiki/Ferumbras\'_Ascendant_Quest', highlight:true },
@@ -2109,6 +2226,7 @@ function calcLoot() {
 // ══════════════════════════════════════════════════
 //  NAVEGAÇÃO
 // ══════════════════════════════════════════════════
+let dtReady = false;
 function showPage(id, btn) {
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -2116,6 +2234,10 @@ function showPage(id, btn) {
   btn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
   triggerReveal();
+  if (id === 'delivery') {
+    // Render after section is visible in DOM
+    requestAnimationFrame(() => renderDelivery());
+  }
 }
 
 function triggerReveal() {
@@ -2157,11 +2279,19 @@ async function loadRecentDeaths() {
       const data = await tibiaFetch(`/v4/character/${encodeURIComponent(m.name)}`);
       const deaths = data?.character?.deaths || [];
       deaths.slice(0, 2).forEach(d => {
+        // TibiaData v4 death date can be string "2026-04-30T10:20:00Z"
+        // or object {date: "...", timezone: "...", timezone_type: N}
+        let rawDate = d.date || d.time || '';
+        if (rawDate && typeof rawDate === 'object') {
+          rawDate = rawDate.date || rawDate.time || '';
+        }
+        // Normalize: "2026-04-30 10:20:00.000000" → "2026-04-30T10:20:00"
+        rawDate = String(rawDate).replace(' ', 'T').replace(/\.\d+$/, '');
         allDeaths.push({
           char: m.name,
           vocKey: m.vocKey,
           level: d.level,
-          date: d.date || '',
+          date: rawDate,
           killers: d.killers?.map(k => k.name).join(', ') || '?'
         });
       });
@@ -2175,21 +2305,38 @@ async function loadRecentDeaths() {
     return;
   }
 
-  allDeaths.sort((a,b) => b.date.localeCompare(a.date));
+  allDeaths.sort((a,b) => {
+    const da = new Date(a.date||0).getTime();
+    const db = new Date(b.date||0).getTime();
+    return db - da; // newest first
+  });
 
   el.innerHTML = allDeaths.slice(0, 8).map(d => {
-    const dateStr = d.date ? new Date(d.date).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+    let dateStr = '—';
+    if (d.date) {
+      try {
+        const dt = new Date(d.date);
+        if (!isNaN(dt)) {
+          const dd = String(dt.getDate()).padStart(2,'0');
+          const mm = String(dt.getMonth()+1).padStart(2,'0');
+          const hh = String(dt.getHours()).padStart(2,'0');
+          const mi = String(dt.getMinutes()).padStart(2,'0');
+          dateStr = `${dd}/${mm} ${hh}:${mi}`;
+        }
+      } catch(e) {}
+    }
     return `
-    <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.65rem 0;border-bottom:1px solid var(--rule)">
-      <span style="font-size:.9rem;flex-shrink:0">💀</span>
+    <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.6rem 0;border-bottom:1px solid var(--rule)">
+      <span style="font-size:.85rem;flex-shrink:0;margin-top:1px">💀</span>
       <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
-          <span style="font-weight:500;font-size:.88rem;color:var(--ink)">${d.char}</span>
-          <span class="voc-pill voc-${d.vocKey}" style="font-size:.6rem">${d.vocKey.toUpperCase()}</span>
-          <span style="font-size:.75rem;color:var(--red);font-weight:500">Nv ${d.level}</span>
+        <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap">
+          <span style="font-weight:600;font-size:.87rem;color:var(--ink)">${d.char}</span>
+          <span class="voc-pill voc-${d.vocKey}" style="font-size:.58rem">${d.vocKey.toUpperCase()}</span>
+          <span style="font-size:.75rem;color:var(--red);font-weight:600">Nv ${d.level}</span>
         </div>
-        <div style="font-size:.78rem;color:var(--muted);font-weight:300;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-          por ${d.killers} · ${dateStr}
+        <div style="font-size:.76rem;color:var(--muted);font-weight:300;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          por <span style="color:var(--ink-3)">${d.killers}</span>
+          ${dateStr !== '—' ? `<span style="color:var(--muted);margin-left:.5rem">· ${dateStr}</span>` : ''}
         </div>
       </div>
     </div>`;
@@ -2314,36 +2461,51 @@ function renderHomeBoosted(creature, boss) {
 
 // ── Boss Tracker ──
 const GUILD_BOSSES = [
-  { id:'ferumbras',  name:'Ferumbras',         tipo:'Semanal',  wiki:'https://tibia.fandom.com/wiki/Ferumbras\'_Mortal_Shell' },
-  { id:'oberon',     name:'Oberon',             tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Oberon' },
-  { id:'scarlett',   name:'Scarlett Etzel',     tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Scarlett_Etzel' },
-  { id:'drume',      name:'Drume',              tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Drume' },
-  { id:'inferniach', name:'Inferniach',         tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Inferniach' },
-  { id:'lokkh',      name:'Lokkh Shaguard',     tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Lokkh_Shaguard' },
-  { id:'gravelord',  name:'Gravelord Osyran',   tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Gravelord_Osyran' },
-  { id:'zavarash',   name:'Zavarash',           tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Zavarash' },
-  { id:'morgathla',  name:'Morgathla',          tipo:'Diário',   wiki:'https://tibia.fandom.com/wiki/Morgathla' },
-  { id:'lorekeeper', name:'Lore Keeper',        tipo:'15 dias',  wiki:'https://tibia.fandom.com/wiki/Lore_Keeper' },
+  // Grave Danger (diários)
+  { id:'gravelord',  name:'Gravelord Osyran',   tipo:'Diário',   creature:'gravelord osyran',   wiki:'https://tibia.fandom.com/wiki/Gravelord_Osyran' },
+  { id:'lokkh',      name:'Lokkh Shaguard',     tipo:'Diário',   creature:'lokkh shaguard',     wiki:'https://tibia.fandom.com/wiki/Lokkh_Shaguard' },
+  { id:'zavarash',   name:'Zavarash',           tipo:'Diário',   creature:'zavarash',           wiki:'https://tibia.fandom.com/wiki/Zavarash' },
+  { id:'morgathla',  name:'Morgathla',          tipo:'Diário',   creature:'morgathla',          wiki:'https://tibia.fandom.com/wiki/Morgathla' },
+  // Ordem dos Falcões
+  { id:'oberon',     name:'Oberon',             tipo:'Diário',   creature:'oberon',             wiki:'https://tibia.fandom.com/wiki/Oberon' },
+  { id:'scarlett',   name:'Scarlett Etzel',     tipo:'Diário',   creature:'scarlett etzel',     wiki:'https://tibia.fandom.com/wiki/Scarlett_Etzel' },
+  { id:'drume',      name:'Drume',              tipo:'Diário',   creature:'drume',              wiki:'https://tibia.fandom.com/wiki/Drume' },
+  // No Rest for the Wicked
+  { id:'inferniach', name:'Inferniach',         tipo:'Diário',   creature:'inferniach',         wiki:'https://tibia.fandom.com/wiki/Inferniach' },
+  { id:'broodrider', name:'Broodrider Inferniarch', tipo:'Diário', creature:'broodrider inferniarch', wiki:'https://tibia.fandom.com/wiki/Broodrider_Inferniarch' },
+  { id:'sineater',   name:'Sineater Inferniarch', tipo:'Diário', creature:'sineater inferniarch', wiki:'https://tibia.fandom.com/wiki/Sineater_Inferniarch' },
+  // Secret Library
+  { id:'lorekeeper', name:'Lore Keeper',        tipo:'15 dias',  creature:'lore keeper',        wiki:'https://tibia.fandom.com/wiki/Lore_Keeper' },
+  // Ferumbras
+  { id:'ferumbras',  name:'Ferumbras',         tipo:'Semanal',   creature:'ferumbras',          wiki:'https://tibia.fandom.com/wiki/Ferumbras_Mortal_Shell' },
+  // Outros bosses relevantes
+  { id:'chagor',     name:'Chagorz',            tipo:'Diário',   creature:'chagorz',            wiki:'https://tibia.fandom.com/wiki/Chagorz' },
+  { id:'midnight',   name:'The Midnight Panther', tipo:'Variável', creature:'the midnight panther', wiki:'https://tibia.fandom.com/wiki/The_Midnight_Panther' },
+  { id:'furyosa',    name:'Furyosa',            tipo:'Variável', creature:'furyosa',            wiki:'https://tibia.fandom.com/wiki/Furyosa' },
+  { id:'timira',     name:'Timira the Many-Headed', tipo:'Diário', creature:'timira the many-headed', wiki:'https://tibia.fandom.com/wiki/Timira_the_Many-Headed' },
 ];
 
 function loadBossTracker() {
   const today = new Date().toDateString();
   const saved = JSON.parse(localStorage.getItem('panda-bosses') || '{}');
-  // Reset if new day
   if (saved._date !== today) { localStorage.setItem('panda-bosses', JSON.stringify({ _date: today })); }
   const done = JSON.parse(localStorage.getItem('panda-bosses') || '{}');
 
   const grid = document.getElementById('boss-tracker-grid');
   grid.innerHTML = GUILD_BOSSES.map(b => {
     const isDone = !!done[b.id];
+    const imgUrl = b.creature
+      ? `https://tibia.fandom.com/wiki/Special:Redirect/file/${encodeURIComponent(b.creature.split(' ').map(w=>w[0].toUpperCase()+w.slice(1)).join('_'))}.gif`
+      : null;
     return `
-    <div style="background:${isDone ? 'var(--bamboo-pale)' : 'var(--white)'};border:1px solid ${isDone ? 'rgba(90,158,68,.3)' : 'var(--rule)'};border-radius:8px;padding:.9rem 1.1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;transition:all .15s" onclick="toggleBoss('${b.id}',this)">
-      <div style="width:22px;height:22px;border-radius:5px;border:2px solid ${isDone ? 'var(--bamboo)' : 'var(--rule)'};background:${isDone ? 'var(--bamboo)' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;color:white;transition:all .15s">${isDone ? '✓' : ''}</div>
-      <div style="flex:1">
-        <div style="font-weight:500;font-size:.9rem;color:${isDone ? 'var(--bamboo)' : 'var(--ink)'}">${b.name}</div>
-        <div style="font-size:.72rem;color:var(--muted);font-weight:300">${b.tipo}</div>
+    <div style="background:${isDone ? 'var(--bamboo-pale)' : 'var(--white)'};border:1px solid ${isDone ? 'rgba(90,158,68,.3)' : 'var(--rule)'};border-radius:8px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;transition:all .15s" onclick="toggleBoss('${b.id}',this)">
+      <div style="width:22px;height:22px;border-radius:5px;border:2px solid ${isDone ? 'var(--bamboo)' : 'var(--rule)'};background:${isDone ? 'var(--bamboo)' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;color:white;transition:all .15s;flex-shrink:0">${isDone ? '✓' : ''}</div>
+      ${imgUrl ? `<img src="${imgUrl}" alt="${b.name}" style="width:40px;height:40px;image-rendering:pixelated;flex-shrink:0;border-radius:4px;background:var(--paper);border:1px solid var(--rule);padding:2px" onerror="this.style.display='none'">` : ''}
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:500;font-size:.87rem;color:${isDone ? 'var(--bamboo)' : 'var(--ink)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.name}</div>
+        <div style="font-size:.7rem;color:var(--muted);font-weight:300">${b.tipo}</div>
       </div>
-      <a href="${b.wiki}" target="_blank" onclick="event.stopPropagation()" style="font-size:.72rem;color:var(--bamboo);font-weight:500;text-decoration:none">Wiki</a>
+      <a href="${b.wiki}" target="_blank" onclick="event.stopPropagation()" style="font-size:.7rem;color:var(--bamboo);font-weight:500;text-decoration:none;flex-shrink:0">Wiki</a>
     </div>`;
   }).join('');
 }
@@ -2456,24 +2618,29 @@ function copyWaste() {
 loadBoostedBosses();
 loadBossTracker();
 loadHomeNews();
-renderDelivery();
+// renderDelivery() é chamado em showPage('delivery') para garantir que o DOM existe
 
 // ══════════════════════════════════════════════════
 //  DELIVERY TASKS — 450 itens
 // ══════════════════════════════════════════════════
 const DT_GROUPS = {
-  'a':'5–10', 'b':'10–20', 'c':'25–50', 'd':'50–100', 'e':'100–200', 'f':'250–500'
+  a:{label:'5–10 un.',  min:5,   max:10},
+  b:{label:'10–20 un.', min:10,  max:20},
+  c:{label:'25–50 un.', min:25,  max:50},
+  d:{label:'50–100 un.',min:50,  max:100},
+  e:{label:'100–200 un.',min:100,max:200},
+  f:{label:'250–500 un.',min:250,max:500},
 };
 
 const DELIVERY_ITEMS = [
   {n:'Afflicted Strider Head',g:'b',v:900,drops:'Afflicted Strider'},
   {n:'Afflicted Strider Worms',g:'c',v:500,drops:'Afflicted Strider'},
-  {n:'Alloy Legs',g:'b',v:11000,drops:'Bulltaur Alchemist · Metal Gargoyle · Brachiodemon'},
+  {n:'Alloy Legs',g:'b',v:11000,drops:'Bulltaur Alchemist · Metal Gargoyle · Sorcerer’s Apparition · Brachiodemon · Control Tower · Glooth Battery · Katex Blood Tongue · Yirkas Blue Scales'},
   {n:'Amber Souvenir',g:'c',v:850,drops:'Quara Looter · Quara Raider · Quara Plunderer'},
   {n:'Ancient Belt Buckle',g:'d',v:260,drops:'Broken Shaper · Twisted Shaper'},
-  {n:'Ancient Stone',g:'e',v:200,drops:'Eternal Guardian · Stone Devourer · Stone Golem'},
-  {n:'Angelic Axe',g:'b',v:5000,drops:'Humongous Fungus · Weretiger · Mutated Tiger'},
-  {n:'Badger Boots',g:'b',v:7500,drops:'Werebadger · Feroxa'},
+  {n:'Ancient Stone',g:'e',v:200,drops:'Eternal Guardian · Stone Devourer · Stone Golem · Ogre Brute · Ancient Spawn of Morgathla · The Last Lore Keeper · The Source Of Corruption'},
+  {n:'Angelic Axe',g:'b',v:5000,drops:'Humongous Fungus · Weretiger · Mutated Tiger · Feroxa (Mortal) · Weakened Shlorg'},
+  {n:'Badger Boots',g:'b',v:7500,drops:'Werebadger · Feroxa (Mortal) · Feroxa (Gloom Wolf) · Sharpclaw · The Baron from Below'},
   {n:'Banana Sash',g:'b',v:55,drops:'Merlkin · Sibang'},
   {n:'Basalt Crumbs',g:'b',v:3000,drops:'Darklight Emitter · Wandering Pillar'},
   {n:'Basalt Fetish',g:'d',v:210,drops:'Lost Basher · Lost Exile · Lost Husher · Lost Thrower'},
@@ -2481,38 +2648,38 @@ const DELIVERY_ITEMS = [
   {n:'Bashmu Fang',g:'b',v:600,drops:'Bashmu · Juvenile Bashmu'},
   {n:'Bashmu Feather',g:'c',v:350,drops:'Bashmu · Juvenile Bashmu'},
   {n:'Bashmu Tongue',g:'c',v:400,drops:'Juvenile Bashmu · Bashmu'},
-  {n:'Battle Shield',g:'c',v:95,drops:'Cyclops Smith · Dwarf Guard · Hellspawn · War Golem'},
-  {n:'Black Shield',g:'b',v:800,drops:'Gloom Maw · Magma Crawler · Lost Basher · Werehyaena Shaman'},
+  {n:'Battle Shield',g:'c',v:95,drops:'Cyclops Smith · Dwarf Guard · Elf Overseer · Hellspawn · Mutated Bat · War Golem · Assassin · Cyclops · Cyclops Drone · Demon Skeleton · Frost Giant · Frost Giantess · Gargoyle · Minotaur Guard · Pirate Buccaneer · Orc Rider · Foreman Kneebiter · General Murius · Memory of a Dwarf · Memory of a Pirate · Rukor Zad · The Horned Fox'},
+  {n:'Black Shield',g:'b',v:800,drops:'Candy Horror · Gloom Maw · Lost Basher · Magma Crawler · Sandstone Scorpion · Thanatursus · Werehyaena Shaman · Wiggler · Lost Berserker · Mummy · Mutated Bat · Priestess · Bruise Payne · Furious Scorpion'},
   {n:'Blemished Spawn Abdomen',g:'d',v:550,drops:'Blemished Spawn'},
   {n:'Blemished Spawn Head',g:'c',v:800,drops:'Blemished Spawn'},
   {n:'Blemished Spawn Tail',g:'b',v:1000,drops:'Blemished Spawn'},
   {n:'Bloated Maggot',g:'b',v:5200,drops:'Bloated Man-Maggot'},
   {n:'Blood Amulet',g:'c',v:1230,drops:'Dworc Shadowstalker'},
   {n:'Blood Hood',g:'c',v:1550,drops:'Norcferatu Nightweaver'},
-  {n:'Blood Preservation',g:'b',v:320,drops:'Nightfiend · Vicious Manbat · Vampire · Vampire Bride'},
-  {n:'Blood Tincture In A Vial',g:'c',v:360,drops:'Blood Hand · Blood Priest'},
+  {n:'Blood Preservation',g:'b',v:320,drops:'Nightfiend · Vicious Manbat · Vampire · Vampire Bride · Vampire Viscount · Arachir the Ancient One · Arthei · Boreth · Diblis the Fair · Lersatio · The Pale Count · Vladrukh'},
+  {n:'Blood Tincture In a Vial',g:'c',v:360,drops:'Blood Hand · Blood Priest'},
   {n:'Bloodshot Giant Eye',g:'c',v:1820,drops:'Orclops Bloodbreaker'},
   {n:'Blue Goanna Scale',g:'c',v:230,drops:'Young Goanna · Yirkas Blue Scales'},
   {n:'Boar Man Hoof',g:'c',v:600,drops:'Boar Man'},
-  {n:'Boggy Dreads',g:'c',v:200,drops:'Bog Raider'},
+  {n:'Boggy Dreads',g:'c',v:200,drops:'Bog Raider · Weakened Shlorg'},
   {n:'Bola',g:'d',v:35,drops:'Corym Charlatan · Corym Skirmisher · Corym Vanguard'},
-  {n:'Bone Club',g:'c',v:5,drops:'Orger · Bonebeast · Goblin · Pirate Skeleton'},
-  {n:'Bone Fetish',g:'d',v:150,drops:'Lost Basher · Ogre Sage · Ogre Shaman'},
+  {n:'Bone Club',g:'c',v:5,drops:'Orger · Bonebeast · Corrupted Skeleton · Goblin · Goblin Assassin · Goblin Leader · Goblin Scavenger · · Pirate Skeleton · Demon (Goblin) · Dreadbeast · Munster · Necropharus'},
+  {n:'Bone Fetish',g:'d',v:150,drops:'Lost Basher · Lost Exile · Lost Husher · Ogre Sage · Ogre Shaman · Animated Ogre Shaman'},
   {n:'Bone Fibula',g:'c',v:580,drops:'Orclops Bloodbreaker'},
   {n:'Bone Rattle',g:'c',v:790,drops:'Dworc Shadowstalker'},
   {n:'Bone Shoulderplate',g:'d',v:150,drops:'Draken Warmaster'},
-  {n:'Bone Toothpick',g:'d',v:150,drops:'Orclops Bloodbreaker · Orclops Doomhauler · Orclops Ravager'},
-  {n:'Bonebreaker',g:'b',v:10000,drops:'Armadile · War Golem · Werecrocodile · Werewolf'},
+  {n:'Bone Toothpick',g:'d',v:150,drops:'Orclops Bloodbreaker · Orclops Doomhauler · Orclops Ravager · Skeleton Elite Warrior'},
+  {n:'Bonebreaker',g:'b',v:10000,drops:'Armadile · War Golem · Werecrocodile · Diamond Servant · Diamond Servant Replica · Ogre Brute · Werewolf · Worker Golem · Ancient Spawn of Morgathla · Control Tower · Darkfang · Feroxa (Mortal) · Ghazbaran · Hemming · Leviathan · Outburst · Ragiaz · The Unarmored Voidborn · World Devourer · Zavarash'},
   {n:'Bonecarving Knife',g:'c',v:190,drops:'Lost Basher · Lost Exile · Lost Husher'},
-  {n:'Bony Tail',g:'c',v:210,drops:'Bonebeast'},
-  {n:'Book of Necromantic Rituals',g:'d',v:180,drops:'Blood Hand · Blood Priest · Floating Savant · Necromancer'},
-  {n:'Book Page',g:'f',v:640,drops:'Biting Book · Burning Book · Cursed Book · Energetic Book'},
-  {n:'Book With A Dragon',g:'c',v:1800,drops:'Bramble Wyrmling · Cinder Wyrmling · Inkwing'},
+  {n:'Bony Tail',g:'c',v:210,drops:'Bonebeast · Ribstride'},
+  {n:'Book of Necromantic Rituals',g:'d',v:180,drops:'Blood Hand · Blood Priest · Floating Savant · Necromancer · Shadow Pupil · Necromancer Servant · Necropharus'},
+  {n:'Book Page',g:'f',v:640,drops:'Biting Book · Burning Book · Cursed Book · Energetic Book · Energuardian Of Tales · Guardian Of Tales · Icecold Book · Knowledge Elemental'},
+  {n:'Book With a Dragon',g:'c',v:1800,drops:'Bramble Wyrmling · Cinder Wyrmling · Inkwing'},
   {n:'Book With An Hourglass',g:'b',v:1450,drops:'Headwalker'},
-  {n:'Bowl Of Terror Sweat',g:'d',v:500,drops:'Feversleep · Terrorsleep'},
+  {n:'Bowl of Terror Sweat',g:'d',v:500,drops:'Feversleep · Terrorsleep'},
   {n:'Brigadeiro',g:'b',v:2640,drops:'Candy Horror · Sugar Daddy'},
-  {n:'Brinébrute Claw',g:'e',v:2600,drops:'Brinebrute Inferniarch · Malvaroth'},
-  {n:'Broadsword',g:'b',v:500,drops:'Afflicted Strider · Dragon · Orc Leader'},
+  {n:'Brinebrute Claw',g:'e',v:2600,drops:'Brinebrute Inferniarch · Malvaroth'},
+  {n:'Broadsword',g:'b',v:500,drops:'Afflicted Strider · Dragon · Orc Leader · Dragon Hoard · Grand Mother Foulscale · Renegade Orc'},
   {n:'Broken Draken Mail',g:'d',v:340,drops:'Draken Elite · Paiz the Pauperizer'},
   {n:'Broken Gladiator Shield',g:'b',v:190,drops:'Undead Elite Gladiator · Undead Gladiator'},
   {n:'Broken Halberd',g:'d',v:100,drops:'Lizard Legionnaire'},
@@ -2520,142 +2687,142 @@ const DELIVERY_ITEMS = [
   {n:'Broken Slicer',g:'e',v:120,drops:'Draken Elite · Paiz the Pauperizer'},
   {n:'Broken Throwing Axe',g:'c',v:230,drops:'Lost Thrower'},
   {n:'Broodrider Saddle',g:'b',v:2800,drops:'Broodrider Inferniarch'},
-  {n:'Buckle',g:'b',v:7000,drops:'Lost Basher · Lost Exile · Lost Husher · Spiky Carnivor'},
+  {n:'Buckle',g:'b',v:7000,drops:'Lost Basher · Lost Exile · Lost Husher · Lost Thrower · Spiky Carnivor'},
   {n:'Bulltaur Armor Scrap',g:'e',v:480,drops:'Bulltaur Brute'},
   {n:'Bulltaur Hoof',g:'c',v:540,drops:'Bulltaur Brute'},
   {n:'Bulltaur Horn',g:'d',v:385,drops:'Bulltaur Alchemist · Bulltaur Brute · Bulltaur Forgepriest'},
-  {n:'Bundle Of Cursed Straw',g:'e',v:800,drops:'Blightwalker'},
+  {n:'Bundle of Cursed Straw',g:'e',v:800,drops:'Blightwalker'},
   {n:'Carnisylvan Bark',g:'f',v:230,drops:'Dark Carnisylvan · Hulking Carnisylvan · Poisonous Carnisylvan'},
   {n:'Carnisylvan Finger',g:'f',v:250,drops:'Dark Carnisylvan · Hulking Carnisylvan · Poisonous Carnisylvan'},
   {n:'Carnivostrich Feather',g:'c',v:600,drops:'Carnivostrich'},
-  {n:"Cat\'s Paw",g:'b',v:2000,drops:'Dark Torturer · Hemming · Mr. Punish'},
+  {n:'Cat’S Paw',g:'b',v:2000,drops:'Dark Torturer · Hemming · Mr. Punish · The Scourge of Oblivion'},
   {n:'Cave Devourer Eyes',g:'e',v:550,drops:'Cave Devourer'},
   {n:'Cave Devourer Legs',g:'e',v:350,drops:'Cave Devourer'},
   {n:'Cave Devourer Maw',g:'e',v:600,drops:'Cave Devourer'},
   {n:'Centipede Leg',g:'c',v:28,drops:'Centipede'},
   {n:'Chain Leash',g:'c',v:970,drops:'Gloom Maw'},
-  {n:'Chaos Mace',g:'b',v:9000,drops:'Destroyer · Infernal Phantom · Juvenile Bashmu · Lost Berserker'},
+  {n:'Chaos Mace',g:'b',v:9000,drops:'Destroyer · Infernal Phantom · Juvenile Bashmu · Lost Berserker · Moohtant · Norcferatu Heartless · Lost Basher · Nightstalker · Alptramun · Anomaly · Bretzecutioner · Duke Krule · Ferumbras · Ferumbras Mortal Shell · Gorzindel · Izcandar Champion of Summer · Izcandar Champion of Winter · Izcandar the Banished · Malofur Mangrinder · Maxxenius · Outburst · Plagueroot · Rupture · Sir Valorcrest · Shulgrax · Tarbaz · The Nightmare Beast · The Pale Count · The Percht Queen · The Scourge of Oblivion · The Shatterer · Utua Stone Sting · Weakened Shlorg'},
   {n:'Chasm Spawn Abdomen',g:'d',v:240,drops:'Chasm Spawn'},
   {n:'Chasm Spawn Head',g:'f',v:850,drops:'Chasm Spawn'},
   {n:'Chasm Spawn Tail',g:'f',v:120,drops:'Chasm Spawn'},
   {n:'Cheese Cutter',g:'d',v:50,drops:'Corym Charlatan · Corym Skirmisher · Corym Vanguard'},
-  {n:'Cheesy Figurine',g:'d',v:150,drops:'Cobra Scout · Corym Charlatan · Corym Skirmisher'},
-  {n:'Cluster Of Crystallized Death',g:'b',v:9000,drops:'Creepy Crawler · Crypt Construct · Crypt Fiend'},
-  {n:'Cobra Crest',g:'d',v:650,drops:'Cobra Assassin · Cobra Scout · Cobra Vizier'},
+  {n:'Cheesy Figurine',g:'d',v:150,drops:'Cobra Scout · Corym Vanguard · Corym Charlatan · Corym Skirmisher'},
+  {n:'Cluster of Crystallized Death',g:'b',v:9000,drops:'Creepy Crawler · Crypt Construct · Crypt Fiend'},
+  {n:'Cobra Crest',g:'d',v:650,drops:'Cobra Assassin · Cobra Scout · Cobra Vizier · Custodian · Gaffir · Guard Captain Quaid'},
   {n:'Colourful Feather',g:'b',v:110,drops:'Iks Yapunac · Terror Bird'},
   {n:'Colourful Snail Shell',g:'d',v:250,drops:'Nymph · Pixie · Swan Maiden'},
-  {n:'Combat Knife',g:'b',v:1,drops:'Ghost · Foamy Stalker · Werehyaena · Assassin'},
-  {n:'Compound Eye',g:'d',v:150,drops:'Crawler · Hive Overseer · Insectoid Worker · Kollos · Spidris'},
+  {n:'Combat Knife',g:'b',v:1,drops:'Foam Stalker · Ghost · Goggle Cake · Tarnished Spirit · Werehyaena · Assassin · Orger · Smuggler · White Lion · Ancient Lion Knight · Enraged Soul · Faceless Bane · Venerable Foam Stalker'},
+  {n:'Compound Eye',g:'d',v:150,drops:'Crawler · Hive Overseer · Insectoid Worker · Kollos · Spidris · Spidris Elite · Spitter · Swarmer · Waspoid · Chopper · Fleshslicer · Maw · Mindmasher · Rotspit · Shadowstalker · The Hungerer · The Manhunter · The Mean Masher'},
   {n:'Cookbook',g:'b',v:870,drops:'Crusader'},
   {n:'Coral Branch',g:'c',v:360,drops:'Foam Stalker · Venerable Foam Stalker'},
   {n:'Cowbell',g:'d',v:210,drops:'Minotaur Amazon · Minotaur Cult Follower · Minotaur Cult Prophet'},
-  {n:'Crab Man Claws',g:'d',v:600,drops:'Crab Man'},
+  {n:'Crab Man Claws',g:'d',v:600,drops:'Crape Man'},
   {n:'Cracked Alabaster Vase',g:'d',v:180,drops:'Broken Shaper · Shaper Matriarch · Twisted Shaper'},
-  {n:"Crawler's Essence",g:'b',v:3700,drops:'Branchy Crawler'},
+  {n:'Crawler’S Essence',g:'b',v:3700,drops:'Branchy Crawler'},
   {n:'Cry-Stal',g:'c',v:3200,drops:'Shrieking Cry-Stal'},
   {n:'Crystal Bone',g:'c',v:250,drops:'Instable Breach Brood'},
-  {n:'Crystal Crossbow',g:'b',v:35000,drops:'Cliff Strider · Haunted Hunter · Mould Phantom · Sulphur Spouter · Quara Looter'},
-  {n:'Crystal Mace',g:'b',v:12000,drops:'Squid Warden · Boar Man · Brachiodemon · Eyeless Devourer · Infernal Phantom'},
-  {n:'Crystal Of The Mitmah',g:'e',v:280,drops:'Mitmah Seer · Atab · Mitmah Vanguard'},
-  {n:'Crystal Sword',g:'c',v:600,drops:'Afflicted Strider · Energy Elemental · Pirat Cutthroat · Werelion'},
-  {n:'Crystalline Armor',g:'b',v:16000,drops:'Haunted Hunter · Icecold Book · Quara Raider · Squid Warden · Sea Serpent'},
-  {n:'Crystalline Spikes',g:'e',v:440,drops:'Armadile · Enraged Crystal Golem · Ironblight · Stone Devourer'},
-  {n:'Crystalline Sword',g:'b',v:0,drops:'Cliff Strider · Brachiodemon · Branchy Crawler · Harpy'},
-  {n:'Crystallized Death',g:'d',v:3000,drops:'Creepy Crawler · Crypt Construct · Crypt Fiend · Cyclursus · Haunted Hunter'},
-  {n:'Cuirass Plate',g:'d',v:1000,drops:'Raubritter Marksman · Raubritter Skirmisher · Adlerauge'},
-  {n:'Curious Matter',g:'d',v:430,drops:'Breach Brood · Anomaly · Burster · Gorzindel'},
+  {n:'Crystal Crossbow',g:'b',v:35000,drops:'Cliff Strider · Haunted Hunter · Mould Phantom · Sulphur Spouter · Branchy Crawler · Cave Chimera · Crazed Summer Rearguard · Freakish Lost Soul · Gorerilla · Naga Archer · Orewalker · Quara Looter · Abyssador · Deathstrike · Deep Terror · Gnomevil · Guard Captain Quaid · Vok the Freakish'},
+  {n:'Crystal Mace',g:'b',v:12000,drops:'Squid Warden · Animated Feather · Boar Man · Brachiodemon · Eyeless Devourer · Icecold Book · Infernal Phantom · Juvenile Bashmu · Knight’s Apparition · Lavafungus · Sight of Surrender · Streaked Devourer · Tunnel Tyrant · Darklight Striker · Ironblight · Roaming Dread · Stone Devourer · Walker · White Weretiger · Eradicator · Melting Frozen Horror · Realityquake · Tamru the Black · The Baron from Below · Utua Stone Sting · Vashresamun · Yakchal · Zamulosh · Zushuka (Mortal)'},
+  {n:'Crystal of The Mitmah',g:'e',v:280,drops:'Mitmah Seer · Atab · Mitmah Vanguard'},
+  {n:'Crystal Sword',g:'c',v:600,drops:'Afflicted Strider · Energy Elemental · High Voltage Elemental · Pirat Cutthroat · Werelion · Werelioness · Boar Man · Crystal Spider · Elf Overseer · Enraged Crystal Golem · Knowledge Elemental · Menacing Carnivor · Nighthunter · Spitter · Squid Warden · Ice Golem · Barbarian Skullhunter · Ice Witch · Hirintror · Lucifuga Aranea · Madareth · Melting Frozen Horror · Rotspit · Shardhead · The Hungerer · Yakchal · Zushuka (Mortal)'},
+  {n:'Crystalline Armor',g:'b',v:16000,drops:'Haunted Hunter · Icecold Book · Quara Raider · Squid Warden · Tunnel Tyrant · Animated Feather · Armadile · Crystal Wolf · Darklight Source · Diamond Servant · Diamond Servant Replica · Orewalker · Sea Serpent · Turbulent Elemental · Blight Mariner · Eradicator · Ghazbaran · Ice Overlord · Leviathan · Mazzinor · Melting Frozen Horror · Omrafir · Prince Drazzak · Ravenous Hunger · Realityquake · Rupture · The Count of the Core · The Duke of the Depths · The Winter Bloom · World Devourer · Zamulosh'},
+  {n:'Crystalline Spikes',g:'e',v:440,drops:'Armadile · Enraged Crystal Golem · Ironblight · Stone Devourer · Crystalcrusher'},
+  {n:'Crystalline Sword',g:'b',v:0,drops:'Cliff Strider · Brachiodemon · Branchy Crawler · Harpy · Abyssador · Anomaly · Deathstrike · Deep Terror · Gnomevil · Gorzindel · Melting Frozen Horror · Outburst · The Last Lore Keeper'},
+  {n:'Crystallized Death',g:'d',v:3000,drops:'Creepy Crawler · Crypt Construct · Crypt Fiend · Crypt Mage · Cyclursus · Haunted Hunter · Roaming Dread · Walking Dread'},
+  {n:'Cuirass Plate',g:'d',v:1000,drops:'Raubritter Marksman · Raubritter Skirmisher · Adlerauge · Michael the Stalwart'},
+  {n:'Curious Matter',g:'d',v:430,drops:'Breach Brood · Anomaly · Burster · Gorzindel · The Souldespoiler'},
   {n:'Cursed Shoulder Spikes',g:'c',v:320,drops:'Lizard Chosen · The Voice of Ruin'},
-  {n:'Damaged Armor Plates',g:'b',v:280,drops:'Falcon Knight · Falcon Paladin · Grand Canon Dominus'},
+  {n:'Damaged Armor Plates',g:'b',v:280,drops:'Falcon Knight · Falcon Paladin · Grand Canon Dominus · Grand Chaplain Gaunder · Grand Commander Soeren'},
   {n:'Damselfly Eye',g:'d',v:25,drops:'Emerald Damselfly'},
   {n:'Dandelion Seeds',g:'d',v:200,drops:'Arctic Faun · Faun · Nymph · Pixie'},
   {n:'Dangerous Proto Matter',g:'d',v:300,drops:'Reality Reaver · Dreadful Disruptor'},
   {n:'Dark Obsidian Splinter',g:'c',v:4400,drops:'Darklight Construct · Darklight Source · Darklight Striker'},
   {n:'Dark Rosary',g:'c',v:48,drops:'Dark Monk · Priestess'},
-  {n:'Dark Shield',g:'c',v:400,drops:'Bellicose Orger · Grim Reaper · Silencer · Werelion · Pirate Corsair'},
+  {n:'Dark Shield',g:'c',v:400,drops:'Bellicose Orger · Grim Reaper · Silencer · Thanatursus · Werelion · Pirate Corsair · Ancient Lion Knight · Bretzecutioner · Michael the Stalwart · The Handmaiden'},
   {n:'Darklight Basalt Chunk',g:'c',v:3800,drops:'Walking Pillar'},
-  {n:'Darklight Core',g:'c',v:4100,drops:'Converter · Darklight Construct · Darklight Emitter · Darklight Source'},
+  {n:'Darklight Core',g:'c',v:4100,drops:'Converter · Darklight Construct · Darklight Emitter · Darklight Matter · Darklight Source · Darklight Striker · Walking Pillar · Wandering Pillar'},
   {n:'Darklight Matter',g:'b',v:5500,drops:'Converter · Darklight Matter'},
   {n:'Dead Weight',g:'d',v:450,drops:'Choking Fear'},
   {n:'Deadly Fangs',g:'d',v:5500,drops:'Haunted Hunter · Cyclursus'},
   {n:'Decayed Finger Bone',g:'b',v:5100,drops:'Sopping Carcass · Oozing Carcass'},
   {n:'Deepling Breaktime Snack',g:'d',v:90,drops:'Deepling Tyrant · Deepling Guard'},
   {n:'Deepling Claw',g:'c',v:430,drops:'Deepling Tyrant · Deepling Guard'},
-  {n:'Deepling Guard Belt Buckle',g:'c',v:230,drops:'Deepling Guard'},
-  {n:'Deepling Ridge',g:'e',v:360,drops:'Deathling Scout · Deepling Elite · Deepling Warrior'},
+  {n:'Deepling Guard Belt Buckle',g:'c',v:230,drops:'Deepling Tyrant · Deepling Guard'},
+  {n:'Deepling Ridge',g:'e',v:360,drops:'Deathling Scout · Deathling Spellsinger · Deepling Elite · Deepling Warrior · Neutral Deepling Warrior'},
   {n:'Deepling Scales',g:'c',v:80,drops:'Deepling Worker · Shark · Deepling Brawler'},
-  {n:'Deeptags',g:'e',v:290,drops:'Deathling Scout · Deepling Elite · Deepling Warrior'},
+  {n:'Deeptags',g:'e',v:290,drops:'Deathling Scout · Deathling Spellsinger · Deepling Elite · Deepling Warrior · Neutral Deepling Warrior'},
   {n:'Deepworm Jaws',g:'d',v:500,drops:'Deepworm'},
   {n:'Deepworm Spike Roots',g:'e',v:650,drops:'Deepworm'},
   {n:'Deepworm Spikes',g:'c',v:800,drops:'Deepworm'},
   {n:'Demon Root',g:'b',v:950,drops:'Rootthing Amber Shaper · Rootthing Bug Tracker · Rootthing Nutshell'},
-  {n:'Demonic Matter',g:'b',v:0,drops:'Brinebrute Inferniarch · Broodrider Inferniarch · Gorger Inferniarch'},
-  {n:'Diamond Sceptre',g:'d',v:3000,drops:'Cursed Book · Icecold Book · Blemished Spawn · Gore Horn · Squid Warden'},
+  {n:'Demonic Matter',g:'b',v:0,drops:'Brinebrute Inferniarch · Broodrider Inferniarch · Gorger Inferniarch · Hellhunter Inferniarch · Sineater Inferniarch · Spellreaper Inferniarch · Gralvalon · Malvaroth · Twisterror'},
+  {n:'Diamond Sceptre',g:'d',v:3000,drops:'Cursed Book · Icecold Book · Animated Feather · Blemished Spawn · Girtablilu Warrior · Gore Horn · Hulking Carnisylvan · Juvenile Bashmu · Ogre Ruffian · Poisonous Carnisylvan · Squid Warden · Varnished Diremaw · Enfeebled Silencer · Silencer · Ice Witch · Massive Earth Elemental · Nightmare Scion · Swan Maiden · Annihilon · The Blazing Time Guardian · The Freezing Time Guardian · The Time Guardian · Zavarash'},
   {n:'Diremaw Brainpan',g:'d',v:350,drops:'Diremaw'},
   {n:'Diremaw Legs',g:'d',v:270,drops:'Diremaw'},
-  {n:'Dirty Turban',g:'c',v:120,drops:'Blue Djinn · Crypt Defiler · Grave Robber · Green Djinn · Nomad'},
-  {n:'Double Axe',g:'c',v:260,drops:'Behemoth · Quara Predator · Dragon · Dwarf Guard'},
-  {n:'Dowser',g:'d',v:35,drops:'Leaf Golem · Wilting Leaf Golem'},
+  {n:'Dirty Turban',g:'c',v:120,drops:'Blue Djinn · Crypt Defiler · Grave Robber · Green Djinn · Nomad · Nomad (Blue) · Nomad (Female)'},
+  {n:'Double Axe',g:'c',v:260,drops:'Behemoth · Quara Predator Scout · Diabolic Imp · Fire Devil · Orger · Quara Predator · Cyclops Smith · Dragon · Dwarf Guard · Minotaur Guard · Valkyrie · Black Knight · Deadeye Devious · Ferumbras · General Murius · Ghazbaran · Golgordan · Grand Mother Foulscale · Latrivan · Lethal Lissy · Memory of a Dwarf · Morgaroth · Mr. Punish · Orshabaal · Ron the Ripper · Stonecracker · Tazhadur · The Horned Fox · Ushuriel'},
+  {n:'Dowser',g:'d',v:35,drops:'Leaf Golem · Wilting Leaf Golem · Dazed Leaf Golem'},
   {n:'Dragolisk Eye',g:'d',v:690,drops:'Dragolisk'},
   {n:'Dragolisk Poison Gland',g:'d',v:475,drops:'Dragolisk'},
-  {n:'Dragon Hammer',g:'b',v:2000,drops:'Bulltaur Brute · Dragon · Orc Warlord'},
-  {n:"Dragon Priest\'s Wandtip",g:'c',v:175,drops:'Lizard Dragon Priest · Flamecaller Zazrak'},
-  {n:'Dragon Slayer',g:'b',v:15000,drops:'Haunted Dragon · Undead Dragon · Albino Dragon · Dragon Lord · Frost Dragon'},
-  {n:'Dragon Tongue',g:'d',v:550,drops:'Ice Dragon · Wardragon · Gelidrazah the Frozen'},
-  {n:"Dragon\'s Tail",g:'d',v:100,drops:'Dragon · Dragolisk · Dragon Hatchling'},
+  {n:'Dragon Hammer',g:'b',v:2000,drops:'Bulltaur Brute · Dragon · Dire Penguin · Orc Warlord · Grand Mother Foulscale · Orshabaal · Tazhadur'},
+  {n:'Dragon Priest’S Wandtip',g:'c',v:175,drops:'Lizard Dragon Priest · Flamecaller Zazrak'},
+  {n:'Dragon Slayer',g:'b',v:15000,drops:'Haunted Dragon · Undead Dragon · Albino Dragon · Dragon Lord · Frost Dragon · Mega Dragon · Dragon Hoard · Inkwing · Ushuriel'},
+  {n:'Dragon Tongue',g:'d',v:550,drops:'Ice Dragon · Wardragon · Gelidrazah the Frozen · Kalyassa · Soul of Dragonking Zyrtarch · Tazhadur'},
+  {n:'Dragon’S Tail',g:'d',v:100,drops:'Dragon · Dragolisk · Dragon Hatchling'},
   {n:'Draken Wristbands',g:'d',v:430,drops:'Draken Elite · Paiz the Pauperizer'},
-  {n:'Dream Essence Egg',g:'d',v:205,drops:'Crazed Summer Rearguard · Crazed Winter Rearguard · Insane Siren'},
+  {n:'Dream Essence Egg',g:'d',v:205,drops:'Crazed Summer Rearguard · Crazed Summer Vanguard · Crazed Winter Rearguard · Crazed Winter Vanguard · Insane Siren · Soul-Broken Harbinger'},
   {n:'Dung Ball',g:'d',v:130,drops:'Insectoid Worker · Mindmasher'},
   {n:'Earflap',g:'d',v:40,drops:'Corym Charlatan · Corym Skirmisher · Corym Vanguard'},
   {n:'Elder Bonelord Tentacle',g:'d',v:150,drops:'Elder Bonelord'},
-  {n:'Elven Astral Observer',g:'f',v:90,drops:'Elf Arcanist · Crazed Summer Vanguard · Dharalion'},
+  {n:'Elven Astral Observer',g:'f',v:90,drops:'Crazed Summer Vanguard · Crazed Winter Rearguard · Elf Arcanist · Dharalion'},
   {n:'Emerald Tortoise Shell',g:'d',v:2150,drops:'Emerald Tortoise'},
   {n:'Empty Honey Glass',g:'b',v:270,drops:'Black Sphinx Acolyte · Burning Gladiator · Priestess Of The Wild Sun'},
   {n:'Encrypted Notes',g:'c',v:620,drops:'Bulltaur Alchemist'},
   {n:'Energy Ball',g:'d',v:300,drops:'Brain Squid · Dread Intruder · Energetic Book · Outburst'},
   {n:'Ensouled Essence',g:'c',v:820,drops:'Flimsy Lost Soul · Freakish Lost Soul · Mean Lost Soul'},
-  {n:'Essence Of A Bad Dream',g:'f',v:360,drops:'Arachnophobica · Nightmare · Nightmare Scion · Tormentor'},
+  {n:'Essence of a Bad Dream',g:'f',v:360,drops:'Arachnophobica · Nightmare · Nightmare Scion · Thanatursus · Tormentor'},
   {n:'Exalted Core',g:'a',v:0,drops:'—'},
   {n:'Execowtioner Mask',g:'c',v:240,drops:'Execowtioner'},
-  {n:'Eye Of A Deepling',g:'e',v:150,drops:'Deepling Elite · Deepling Tyrant · Deepling Brawler · Deepling Warrior'},
-  {n:'Eye Of A Weeper',g:'c',v:650,drops:'Weeper'},
-  {n:'Eye Of Corruption',g:'d',v:390,drops:'Draken Abomination'},
+  {n:'Eye of a Deepling',g:'e',v:150,drops:'Deepling Elite · Deepling Tyrant · Deathling Scout · Deathling Spellsinger · Deepling Brawler · Deepling Guard · Deepling Master Librarian · Deepling Scout · Deepling Spellsinger · Deepling Warrior · Shark · Deepling Worker · Reflection of Obujos'},
+  {n:'Eye of a Weeper',g:'c',v:650,drops:'Weeper'},
+  {n:'Eye of Corruption',g:'d',v:390,drops:'Draken Abomination'},
   {n:'Eyeless Devourer Legs',g:'c',v:650,drops:'Eyeless Devourer'},
   {n:'Eyeless Devourer Maw',g:'d',v:420,drops:'Eyeless Devourer'},
   {n:'Eyeless Devourer Tongue',g:'b',v:900,drops:'Eyeless Devourer'},
   {n:'Fafnar Symbol',g:'c',v:950,drops:'Burning Gladiator · Priestess Of The Wild Sun'},
-  {n:'Falcon Crest',g:'b',v:650,drops:'Falcon Knight · Falcon Paladin · Grand Canon Dominus'},
+  {n:'Falcon Crest',g:'b',v:650,drops:'Falcon Paladin · Falcon Knight · Grand Canon Dominus · Grand Chaplain Gaunder · Grand Commander Soeren'},
   {n:'Fig Leaf',g:'c',v:200,drops:'Barkless Fanatic · Barkless Devotee · Ravenous Hunger'},
-  {n:'Fir Cone',g:'d',v:25,drops:'Leaf Golem · Wilting Leaf Golem'},
-  {n:'Fire Axe',g:'b',v:8000,drops:'Rage Squid · Demon · Insane Siren · Lava Golem · Vexclaw · Weeper'},
-  {n:'Flask Of Demonic Blood',g:'f',v:0,drops:'Betrayed Wraith · Dark Torturer · Falcon Knight · Fury · Grim Reaper'},
-  {n:'Flottsam',g:'d',v:330,drops:'Foam Stalker · Venerable Foam Stalker'},
-  {n:'Focus Cape',g:'b',v:6000,drops:'Afflicted Strider · Dawnfire Asura · Draken Spellweaver · Lavafungus'},
+  {n:'Fir Cone',g:'d',v:25,drops:'Leaf Golem · Wilting Leaf Golem · Dazed Leaf Golem'},
+  {n:'Fire Axe',g:'b',v:8000,drops:'Rage Squid · Demon · Feral Sphinx · Guardian of Tales · Infernal Phantom · Insane Siren · Lava Golem · Mean Lost Soul · Sulphider · Vexclaw · Weeper · Lost Berserker · Brachiodemon · Hellfire Fighter · Lost Basher · Lost Exile · Lost Husher · Angry Demon · Arbaziloth · Custodian · Essence of Malice · Ferumbras · Furyosa · Golgordan · Latrivan · Mahrdis · Mazoran · Morgaroth · Orshabaal · The Duke of the Depths · The Imperor · Unaz the Mean · Xogixath'},
+  {n:'Flask of Demonic Blood',g:'f',v:0,drops:'Betrayed Wraith · Burning Book · Dark Torturer · Dawnfire Asura · Diabolic Imp · Falcon Knight · Fury · Grim Reaper · Hand of Cursed Fate · True Dawnfire Asura · Floating Savant · Frost Flower Asura · Grimeleech · Hellflayer · Hellhound · Juggernaut · Midnight Asura · Nightmare · True Frost Flower Asura · True Midnight Asura · Furyosa · Grand Chaplain Gaunder · Kerberos · Kusuma · Mazoran · Plagirath · Preceptor Lazare · Ragiaz · Razzagorn · Shulgrax · Tarbaz · The Blazing Rose · The Diamond Blossom · The Flaming Orchid · The Lily of Night · The Moonlight Aster · The Winter Bloom · Tormentor · Zamulosh'},
+  {n:'Flotsam',g:'d',v:330,drops:'Foam Stalker · Venerable Foam Stalker'},
+  {n:'Focus Cape',g:'b',v:6000,drops:'Afflicted Strider · Converter · Dawnfire Asura · Draken Spellweaver · Lavafungus · Pirat Cutthroat · Tremendous Tyrant · True Dawnfire Asura · Wyrm · Girtablilu Warrior · Harpy · Lizard Dragon Priest · Lumbering Carnivor · Nightmare Scion · Reality Reaver · Sea Serpent · Stabilizing Reality Reaver · Amenef the Burning · Captain Jones · Hellgorak · Raging Mage · Sister Hetai'},
   {n:'Fox Paw',g:'e',v:100,drops:'Werefox · Fox · Black Vixen'},
-  {n:'Frazzle Tongue',g:'d',v:700,drops:'Frazzlemaw · Guzzlemaw · Nibblemaw'},
+  {n:'Frazzle Tongue',g:'d',v:700,drops:'Frazzlemaw · Guzzlemaw · Nibblemaw · Weakened Frazzlemaw · Animated Guzzlemaw · Mawhawk · Reflection of Mawhawk'},
   {n:'Frozen Lightning',g:'d',v:270,drops:'Brain Squid · Dread Intruder · Anomaly · Mazzinor'},
-  {n:'Fur Armor',g:'b',v:5000,drops:'Blemished Spawn · Cave Chimera · Girtablilu Warrior · Rotten Golem'},
-  {n:'Gauze Bandage',g:'d',v:90,drops:'Elder Mummy · Mummy · Animated Mummy'},
+  {n:'Fur Armor',g:'b',v:5000,drops:'Adult Goanna · Blemished Spawn · Cave Chimera · Girtablilu Warrior · Rotten Golem · Varnished Diremaw · Capricious Phantom · Cunning Werepanther · Lumbering Carnivor · Turbulent Elemental · Werebear · Werepanther · Wereboar · Young Goanna · Bloodback · Feroxa · Feroxa (Gloom Wolf) · Owin (Creature) · Shadowpelt'},
+  {n:'Gauze Bandage',g:'d',v:90,drops:'Elder Mummy · Mummy · Animated Mummy · Mahatheb'},
   {n:'Ghastly Dragon Head',g:'c',v:700,drops:'Ghastly Dragon · Hatebreeder · Ethershreck'},
-  {n:'Giant Pacifier',g:'c',v:170,drops:'Moohtant · Animated Moohtant'},
+  {n:'Giant Pacifier',g:'c',v:170,drops:'Moohtant · Animated Moohtant · Bullwark · Moohtant Wallbreaker'},
   {n:'Giant Tusk',g:'d',v:6000,drops:'Creepy Crawler · Crypt Fiend'},
   {n:'Girlish Hair Decoration',g:'c',v:30,drops:'Amazon · Valkyrie'},
   {n:'Girtablilu Warrior Carapace',g:'b',v:520,drops:'Girtablilu Warrior'},
-  {n:'Glacier Mask',g:'d',v:2500,drops:'Animated Feather · Crazed Winter Rearguard · Icecold Book · Squid Warden'},
-  {n:'Glacier Robe',g:'b',v:11000,drops:'Crazed Winter Rearguard · Crazed Winter Vanguard · Icecold Book · Squid Warden'},
-  {n:'Glacier Shoes',g:'c',v:2500,drops:'Foam Stalker · Icecold Book · Soul-Broken Harbinger · Varnished Diremaw'},
-  {n:'Glob Of Acid Slime',g:'d',v:25,drops:'Acid Blob · Defiler · Stonerefiner'},
-  {n:'Glob Of Glooth',g:'d',v:125,drops:'Devourer · Glooth Blob · Rot Elemental'},
-  {n:'Glob Of Tar',g:'d',v:30,drops:'Death Blob · Defiler'},
-  {n:'Glooth Axe',g:'b',v:1500,drops:'Devourer · Glooth Golem · Blood Beast · Glooth Anemone'},
-  {n:'Glooth Blade',g:'b',v:1500,drops:'Devourer · Glooth Golem · Blood Beast · Glooth Anemone'},
-  {n:'Glooth Cape',g:'b',v:7000,drops:'Glooth Anemone · Glooth Bandit · Devourer'},
-  {n:'Glooth Club',g:'b',v:1500,drops:'Devourer · Blood Beast · Glooth Anemone · Glooth Blob'},
+  {n:'Glacier Mask',g:'d',v:2500,drops:'Animated Feather · Crazed Winter Rearguard · Icecold Book · Mycobiontic Beetle · Squid Warden · Animated Snowman · Ice Dragon · Paladin’s Apparition · Seacrest Serpent · Crystal Spider · Ice Golem · Earl Osam · Gelidrazah the Frozen · Hirintror · Memory of a Dwarf · Neferi the Spy · Shardhead · The Bloodweb · Zushuka'},
+  {n:'Glacier Robe',g:'b',v:11000,drops:'Crazed Winter Rearguard · Crazed Winter Vanguard · Icecold Book · Many Faces · Squid Warden · Tremendous Tyrant · Turbulent Elemental · Druid’s Apparition · Girtablilu Warrior · Goggle Cake · Quara Looter · Quara Predator · Quara Raider · Renegade Quara Predator · Schiach · Quara Pincher · Renegade Quara Pincher · Hazardous Phantom · King Zelos · Srezz Yellow Eyes · Tarbaz · The Blazing Time Guardian · The Time Guardian · The Winter Bloom · Utua Stone Sting · Yakchal · Zushuka'},
+  {n:'Glacier Shoes',g:'c',v:2500,drops:'Foam Stalker · Icecold Book · Many Faces · Seacrest Serpent · Soul-Broken Harbinger · Two-Headed Turtle · Usurper Archer · Varnished Diremaw · Bluebeak · Ice Witch · Hirintror · Neferi the Spy · Venerable Foam Stalker · Zushuka'},
+  {n:'Glob of Acid Slime',g:'d',v:25,drops:'Acid Blob · Defiler · Stonerefiner'},
+  {n:'Glob of Glooth',g:'d',v:125,drops:'Devourer · Glooth Blob · Rot Elemental'},
+  {n:'Glob of Tar',g:'d',v:30,drops:'Death Blob · Defiler'},
+  {n:'Glooth Axe',g:'b',v:1500,drops:'Devourer · Glooth Golem · Blood Beast · Glooth Anemone · Glooth Bandit · Glooth Blob · Glooth Brigand · Rot Elemental · Glooth Fairy · Lisa'},
+  {n:'Glooth Blade',g:'b',v:1500,drops:'Devourer · Glooth Golem · Blood Beast · Glooth Anemone · Glooth Bandit · Glooth Blob · Glooth Brigand · Glooth Fairy · Lisa'},
+  {n:'Glooth Cape',g:'b',v:7000,drops:'Glooth Anemone · Glooth Bandit · Devourer · Glooth Fairy · Lisa · Tremor Worm'},
+  {n:'Glooth Club',g:'b',v:1500,drops:'Devourer · Blood Beast · Glooth Anemone · Glooth Bandit · Glooth Blob · Glooth Brigand · Glooth Golem · Glooth Fairy · Lisa'},
   {n:'Glooth Injection Tube',g:'e',v:350,drops:'Glooth Golem · Glooth Fairy'},
   {n:'Glorious Axe',g:'c',v:0,drops:'—'},
   {n:'Glowing Rune',g:'f',v:0,drops:'—'},
   {n:'Goanna Claw',g:'b',v:260,drops:'Adult Goanna · Young Goanna · Sun-Marked Goanna'},
   {n:'Goanna Meat',g:'e',v:190,drops:'Adult Goanna · Young Goanna'},
-  {n:'Golden Legs',g:'a',v:30000,drops:'Rashid NPC — NÃO VENDA'},
+  {n:'Golden Legs',g:'a',v:0,drops:'—'},
   {n:'Golden Lotus Brooch',g:'d',v:0,drops:'—'},
   {n:'Golden Sickle',g:'d',v:0,drops:'—'},
   {n:'Golden Sun Coin',g:'b',v:0,drops:'—'},
@@ -2673,11 +2840,11 @@ const DELIVERY_ITEMS = [
   {n:'Headpecker Beak',g:'c',v:2800,drops:'Headpecker'},
   {n:'Headpecker Feather',g:'d',v:1300,drops:'Headpecker'},
   {n:'Heart Amphora',g:'c',v:930,drops:'Norcferatu Heartless'},
-  {n:'Heavy Machete',g:'b',v:90,drops:'Rashid NPC — NÃO VENDA'},
-  {n:'Heavy Trident',g:'b',v:2000,drops:'Rashid NPC — NÃO VENDA'},
+  {n:'Heavy Machete',g:'b',v:0,drops:'—'},
+  {n:'Heavy Trident',g:'b',v:0,drops:'—'},
   {n:'Hellhound Slobber',g:'e',v:500,drops:'Hellhound · Kerberos'},
   {n:'Hemp Rope',g:'d',v:350,drops:'Choking Fear'},
-  {n:'Hibiscus Dress',g:'b',v:3000,drops:'Rashid NPC — NÃO VENDA'},
+  {n:'Hibiscus Dress',g:'b',v:0,drops:'—'},
   {n:'Hideous Chunk',g:'c',v:510,drops:'Hideous Fungus'},
   {n:'High Guard Flag',g:'c',v:550,drops:'Lizard High Guard'},
   {n:'High Guard Shoulderplates',g:'d',v:130,drops:'Lizard High Guard'},
@@ -2688,52 +2855,60 @@ const DELIVERY_ITEMS = [
   {n:'Hydra Head',g:'c',v:600,drops:'Hydra · Lion Hydra'},
   {n:'Hydrophytes',g:'e',v:220,drops:'Two-Headed Turtle'},
   {n:'Ice Flower',g:'f',v:370,drops:'Crazed Winter Rearguard · Crazed Winter Vanguard · Soul-Broken Harbinger'},
-  {n:'Idol Of The Forge',g:'c',v:950,drops:'Bulltaur Forgepriest'},
+  {n:'Idol of The Forge',g:'c',v:950,drops:'Bulltaur Forgepriest'},
   {n:'Inkwell',g:'f',v:0,drops:'—'},
-  {n:"Kongra's Shoulderpad",g:'e',v:100,drops:'Cursed Ape · Kongra'},
+  {n:'Instable Proto Matter',g:'d',v:0,drops:'—'},
+  {n:'Ivory Carving',g:'d',v:0,drops:'—'},
+  {n:'Key To The Drowned Library',g:'c',v:0,drops:'—'},
+  {n:'Knife',g:'d',v:0,drops:'—'},
+  {n:'Knight Axe',g:'c',v:0,drops:'—'},
+  {n:'Knight Legs',g:'c',v:0,drops:'—'},
+  {n:'Kongra’S Shoulderpad',g:'e',v:100,drops:'Cursed Ape · Kongra'},
   {n:'Lamassu Hoof',g:'e',v:330,drops:'Crypt Warden · Lamassu'},
   {n:'Lamassu Horn',g:'d',v:240,drops:'Crypt Warden · Lamassu'},
   {n:'Lancer Beetle Shell',g:'d',v:80,drops:'Lancer Beetle · The Blightfather'},
+  {n:'Lancet',g:'c',v:0,drops:'—'},
   {n:'Lavafungus Head',g:'c',v:900,drops:'Lavafungus'},
   {n:'Lavafungus Ring',g:'e',v:390,drops:'Lavafungus'},
   {n:'Lavaworm Jaws',g:'b',v:1100,drops:'Lavaworm'},
   {n:'Lavaworm Spike Roots',g:'d',v:600,drops:'Lavaworm'},
   {n:'Lavaworm Spikes',g:'c',v:750,drops:'Lavaworm'},
-  {n:'Lightning Boots',g:'b',v:2500,drops:'Rashid NPC — NÃO VENDA'},
-  {n:'Lightning Headband',g:'c',v:2500,drops:'Rashid NPC — NÃO VENDA'},
-  {n:'Lightning Robe',g:'b',v:11000,drops:'Rashid NPC — NÃO VENDA'},
+  {n:'Lightning Boots',g:'b',v:0,drops:'—'},
+  {n:'Lightning Headband',g:'c',v:0,drops:'—'},
+  {n:'Lightning Robe',g:'b',v:0,drops:'—'},
+  {n:'Lime Tart',g:'b',v:0,drops:'—'},
   {n:'Liodile Fang',g:'c',v:480,drops:'Liodile'},
   {n:'Lion Cloak Patch',g:'d',v:0,drops:'—'},
   {n:'Lion Crest',g:'c',v:0,drops:'—'},
-  {n:"Lost Basher's Spike",g:'c',v:0,drops:'Lost Basher'},
-  {n:'Lost Bracers',g:'c',v:0,drops:'Lost Exile · Lost Husher'},
+  {n:'Lost Basher’S Spike',g:'c',v:0,drops:'—'},
+  {n:'Lost Bracers',g:'c',v:0,drops:'—'},
   {n:'Luminous Orb',g:'b',v:0,drops:'—'},
-  {n:'Lump Of Earth',g:'f',v:0,drops:'—'},
+  {n:'Lump of Earth',g:'f',v:0,drops:'—'},
   {n:'Mad Froth',g:'d',v:0,drops:'—'},
-  {n:'Magma Boots',g:'c',v:2500,drops:'Rashid NPC — NÃO VENDA'},
+  {n:'Magma Boots',g:'c',v:0,drops:'—'},
   {n:'Magma Clumb',g:'e',v:0,drops:'—'},
-  {n:'Magma Coat',g:'c',v:11000,drops:'Rashid NPC — NÃO VENDA'},
-  {n:'Magma Monocle',g:'b',v:2500,drops:'Rashid NPC — NÃO VENDA'},
+  {n:'Magma Coat',g:'c',v:0,drops:'—'},
+  {n:'Magma Monocle',g:'b',v:0,drops:'—'},
   {n:'Makara Fin',g:'c',v:0,drops:'—'},
   {n:'Makara Tongue',g:'c',v:0,drops:'—'},
   {n:'Mammoth Tusk',g:'d',v:0,drops:'—'},
-  {n:'Mammoth Whopper',g:'b',v:300,drops:'Rashid NPC — NÃO VENDA'},
-  {n:'Manticore Ear',g:'c',v:0,drops:'Manticore'},
-  {n:'Manticore Tail',g:'d',v:0,drops:'Manticore'},
+  {n:'Mammoth Whopper',g:'b',v:0,drops:'—'},
+  {n:'Manticore Ear',g:'c',v:0,drops:'—'},
+  {n:'Manticore Tail',g:'d',v:0,drops:'—'},
   {n:'Mantosaurus Jaw',g:'c',v:0,drops:'—'},
   {n:'Mega Dragon Heart',g:'b',v:0,drops:'—'},
-  {n:'Mercenary Sword',g:'b',v:12000,drops:'Rashid NPC — NÃO VENDA'},
+  {n:'Mercenary Sword',g:'b',v:0,drops:'—'},
   {n:'Mercurial Wing',g:'d',v:0,drops:'—'},
-  {n:'Metal Bat',g:'b',v:0,drops:'Flint NPC Oramond'},
+  {n:'Metal Bat',g:'b',v:0,drops:'—'},
   {n:'Metal Jaw',g:'d',v:0,drops:'—'},
-  {n:'Metal Spats',g:'b',v:0,drops:'Flint NPC Oramond'},
-  {n:'Mino Lance',g:'b',v:0,drops:'Flint NPC Oramond'},
-  {n:'Mino Shield',g:'e',v:0,drops:'Flint NPC Oramond'},
+  {n:'Metal Spats',g:'b',v:0,drops:'—'},
+  {n:'Mino Lance',g:'b',v:0,drops:'—'},
+  {n:'Mino Shield',g:'e',v:0,drops:'—'},
   {n:'Molten Dragon Essence',g:'c',v:0,drops:'—'},
   {n:'Mould Heart',g:'b',v:0,drops:'—'},
   {n:'Mouldy Powder',g:'d',v:0,drops:'—'},
   {n:'Mummified Demon Finger',g:'b',v:0,drops:'—'},
-  {n:'Mutated Bat Ear',g:'c',v:0,drops:'Mutated Bat · Vampire Bride'},
+  {n:'Mutated Bat Ear',g:'c',v:0,drops:'—'},
   {n:'Mutated Flesh',g:'d',v:0,drops:'—'},
   {n:'Mutated Rat Tail',g:'c',v:0,drops:'—'},
   {n:'Naga Archer Scales',g:'f',v:340,drops:'Naga Archer'},
@@ -2744,170 +2919,170 @@ const DELIVERY_ITEMS = [
   {n:'Necromantic Rust',g:'e',v:0,drops:'—'},
   {n:'Night Harpy Feathers',g:'c',v:0,drops:'—'},
   {n:'Nighthunter Wing',g:'f',v:2000,drops:'Nighthunter'},
-  {n:"Nimmersatt's Seal",g:'d',v:0,drops:'—'},
+  {n:'Nimmersatt’S Seal',g:'d',v:0,drops:'—'},
   {n:'Odd Organ',g:'d',v:0,drops:'—'},
-  {n:'Ogre Ear Stud',g:'e',v:0,drops:'Ogre Brute · Ogre Ruffian'},
-  {n:'Old Girtablilu Carapace',g:'c',v:0,drops:'Girtablilu Warrior'},
-  {n:'Orcish Axe',g:'c',v:0,drops:'Orc · Orc Leader · Orc Warlord'},
+  {n:'Ogre Ear Stud',g:'e',v:0,drops:'—'},
+  {n:'Old Girtablilu Carapace',g:'c',v:0,drops:'—'},
+  {n:'Orcish Axe',g:'c',v:0,drops:'—'},
   {n:'Orcish Gear',g:'d',v:0,drops:'—'},
   {n:'Orcish Toothbrush',g:'c',v:0,drops:'—'},
-  {n:'Ornate Crossbow',g:'b',v:0,drops:'Rock In A Hard Place NPC'},
-  {n:'Pair Of Hellflayer Horns',g:'d',v:0,drops:'Hellflayer'},
+  {n:'Ornate Crossbow',g:'b',v:0,drops:'—'},
+  {n:'Pair of Hellflayer Horns',g:'d',v:0,drops:'—'},
   {n:'Paper Boat',g:'c',v:0,drops:'—'},
   {n:'Paper Plane',g:'d',v:0,drops:'—'},
-  {n:'Piece Of Draconian Steel',g:'b',v:0,drops:'—'},
-  {n:'Piece Of Frozen Night',g:'c',v:0,drops:'—'},
-  {n:'Piece Of Hell Steel',g:'b',v:0,drops:'—'},
-  {n:'Piece Of Warrior Armor',g:'b',v:0,drops:'—'},
-  {n:"Pirat\'s Tail",g:'d',v:0,drops:'Pirat Cutthroat · Pirat Bombardier'},
-  {n:'Pirate Coin',g:'f',v:0,drops:'Pirate · Pirate Buccaneer · Pirate Corsair'},
+  {n:'Piece of Draconian Steel',g:'b',v:0,drops:'—'},
+  {n:'Piece of Frozen Night',g:'c',v:0,drops:'—'},
+  {n:'Piece of Hell Steel',g:'b',v:0,drops:'—'},
+  {n:'Piece of Warrior Armor',g:'b',v:0,drops:'—'},
+  {n:'Pirat’S Tail',g:'d',v:0,drops:'—'},
+  {n:'Pirate Coin',g:'f',v:0,drops:'—'},
   {n:'Plasma Pearls',g:'d',v:0,drops:'—'},
   {n:'Plasmatic Lightning',g:'d',v:0,drops:'—'},
-  {n:'Plate Legs',g:'e',v:0,drops:'Vários NPCs'},
+  {n:'Plate Legs',g:'e',v:0,drops:'—'},
   {n:'Poisoned Fang',g:'e',v:0,drops:'—'},
-  {n:'Pool Of Chitinous Glue',g:'d',v:0,drops:'Crawler · Spidris · Waspoid'},
-  {n:'Pot Of Orcish Warpaint',g:'c',v:0,drops:'—'},
-  {n:'Prehemoth Claw',g:'d',v:0,drops:'Prehemoth'},
-  {n:'Prehemoth Horns',g:'c',v:0,drops:'Prehemoth'},
+  {n:'Pool of Chitinous Glue',g:'d',v:0,drops:'—'},
+  {n:'Pot of Orcish Warpaint',g:'c',v:0,drops:'—'},
+  {n:'Prehemoth Claw',g:'d',v:0,drops:'—'},
+  {n:'Prehemoth Horns',g:'c',v:0,drops:'—'},
   {n:'Pressed Flower',g:'b',v:0,drops:'—'},
   {n:'Pulverized Ore',g:'d',v:0,drops:'—'},
-  {n:'Quara Bone',g:'c',v:0,drops:'Quara Looter · Quara Raider · Quara Predator'},
-  {n:'Quara Eye',g:'e',v:0,drops:'Quara Looter · Quara Raider · Quara Predator'},
-  {n:'Quara Pincers',g:'e',v:0,drops:'Quara Pincher · Quara Predator'},
-  {n:'Quara Tentacle',g:'e',v:0,drops:'Quara Raider · Quara Predator'},
-  {n:'Ratana',g:'c',v:0,drops:'Rafzan NPC Venore'},
+  {n:'Quara Bone',g:'c',v:0,drops:'—'},
+  {n:'Quara Eye',g:'e',v:0,drops:'—'},
+  {n:'Quara Pincers',g:'e',v:0,drops:'—'},
+  {n:'Quara Tentacle',g:'e',v:0,drops:'—'},
+  {n:'Ratana',g:'c',v:0,drops:'—'},
   {n:'Raw Meat',g:'e',v:0,drops:'—'},
-  {n:'Red Goanna Scale',g:'d',v:0,drops:'Adult Goanna'},
+  {n:'Red Goanna Scale',g:'d',v:0,drops:'—'},
   {n:'Red Hair Dye',g:'d',v:0,drops:'—'},
-  {n:'Relic Sword',g:'b',v:25000,drops:'Rashid NPC — NÃO VENDA'},
+  {n:'Relic Sword',g:'b',v:0,drops:'—'},
   {n:'Resin Parasite',g:'b',v:0,drops:'—'},
   {n:'Resinous Fish Fin',g:'b',v:0,drops:'—'},
-  {n:'Rhindeer Antlers',g:'c',v:0,drops:'Rhindeer'},
-  {n:'Ripper Lance',g:'b',v:0,drops:'Brengus NPC Port Hope'},
-  {n:'Riptor Claw',g:'c',v:0,drops:'Riptor'},
-  {n:'Riptor Scales',g:'c',v:0,drops:'Riptor'},
-  {n:'Ritual Bone Knife',g:'c',v:0,drops:'Yasir NPC'},
+  {n:'Rhindeer Antlers',g:'c',v:0,drops:'—'},
+  {n:'Ripper Lance',g:'b',v:0,drops:'—'},
+  {n:'Ripptor Claw',g:'c',v:0,drops:'—'},
+  {n:'Ripptor Scales',g:'c',v:0,drops:'—'},
+  {n:'Ritual Bone Knife',g:'c',v:0,drops:'—'},
   {n:'Ritual Tooth',g:'c',v:0,drops:'—'},
-  {n:'Roots',g:'c',v:0,drops:'Root Thingy'},
+  {n:'Roots',g:'c',v:0,drops:'—'},
   {n:'Rotten Feather',g:'b',v:0,drops:'—'},
-  {n:'Rotten Piece Of Cloth',g:'e',v:0,drops:'—'},
+  {n:'Rotten Piece of Cloth',g:'e',v:0,drops:'—'},
   {n:'Rotten Roots',g:'c',v:0,drops:'—'},
-  {n:'Rubber Cap',g:'b',v:0,drops:'Flint NPC Oramond'},
-  {n:'Sabretooth Fur',g:'d',v:0,drops:'Sabretooth'},
+  {n:'Rubber Cap',g:'b',v:0,drops:'—'},
+  {n:'Sabretooth Fur',g:'d',v:0,drops:'—'},
   {n:'Sandcrawler Shell',g:'b',v:0,drops:'—'},
-  {n:'Scale Of Corruption',g:'c',v:0,drops:'—'},
-  {n:'Scarab Pincers',g:'d',v:0,drops:'Ancient Scarab · Scarab'},
-  {n:'Scimitar',g:'c',v:0,drops:'Alesar Green Djinn NPC'},
+  {n:'Scale of Corruption',g:'c',v:0,drops:'—'},
+  {n:'Scarab Pincers',g:'d',v:0,drops:'—'},
+  {n:'Scimitar',g:'c',v:0,drops:'—'},
   {n:'Scorpion Charm',g:'b',v:0,drops:'—'},
-  {n:'Scroll Of Heroic Deeds',g:'c',v:0,drops:'—'},
+  {n:'Scroll of Heroic Deeds',g:'c',v:0,drops:'—'},
   {n:'Scythe Legs',g:'c',v:0,drops:'—'},
   {n:'Sealing Wax',g:'c',v:0,drops:'—'},
-  {n:'Shaggy Tail',g:'d',v:0,drops:'Wereboar · Werebear'},
+  {n:'Shaggy Tail',g:'d',v:0,drops:'—'},
   {n:'Shamanic Talisman',g:'c',v:0,drops:'—'},
-  {n:'Shark Fins',g:'d',v:0,drops:'Shark'},
+  {n:'Shark Fins',g:'d',v:0,drops:'—'},
   {n:'Shimmering Beetles',g:'e',v:0,drops:'—'},
   {n:'Shiny Stone',g:'d',v:0,drops:'—'},
-  {n:'Silencer Resonating Chamber',g:'d',v:0,drops:'Enfeebled Silencer · Silencer'},
+  {n:'Silencer Resonating Chamber',g:'d',v:0,drops:'—'},
   {n:'Silken Bookmark',g:'f',v:0,drops:'—'},
   {n:'Silver Moon Coin',g:'b',v:0,drops:'—'},
   {n:'Silver Poniard',g:'b',v:0,drops:'—'},
-  {n:'Sineater Wing',g:'b',v:0,drops:'Sineater Inferniarch'},
+  {n:'Sineater Wing',g:'b',v:0,drops:'—'},
   {n:'Single Human Eye',g:'d',v:0,drops:'—'},
   {n:'Skull Fetish',g:'d',v:0,drops:'—'},
-  {n:'Skullcracker Armor',g:'b',v:18000,drops:'Rashid NPC — NÃO VENDA'},
+  {n:'Skullcracker Armor',g:'b',v:0,drops:'—'},
   {n:'Slimy Leaf Tentacle',g:'e',v:0,drops:'—'},
   {n:'Sliver',g:'d',v:0,drops:'—'},
-  {n:'Small Flask Of Eyedrops',g:'c',v:0,drops:'—'},
+  {n:'Small Flask of Eyedrops',g:'c',v:0,drops:'—'},
   {n:'Small Notebook',g:'b',v:0,drops:'—'},
   {n:'Small Treasure Chest',g:'b',v:0,drops:'—'},
   {n:'Small Tropical Fish',g:'b',v:0,drops:'—'},
   {n:'Spark Sphere',g:'d',v:0,drops:'—'},
-  {n:'Sparkion Claw',g:'d',v:0,drops:'Sparkion'},
-  {n:'Sparkion Legs',g:'d',v:0,drops:'Sparkion'},
-  {n:'Sparkion Stings',g:'d',v:0,drops:'Sparkion'},
-  {n:'Sparkion Tail',g:'d',v:0,drops:'Sparkion'},
-  {n:'Spellbook Of Mind Control',g:'b',v:0,drops:'Alexander NPC Edron'},
-  {n:"Spellsinger\'s Seal",g:'d',v:0,drops:'Deepling Spellsinger'},
-  {n:"Spellweaver\'s Robe",g:'b',v:0,drops:'Lailene NPC Edron'},
+  {n:'Sparkion Claw',g:'d',v:0,drops:'—'},
+  {n:'Sparkion Legs',g:'d',v:0,drops:'—'},
+  {n:'Sparkion Stings',g:'d',v:0,drops:'—'},
+  {n:'Sparkion Tail',g:'d',v:0,drops:'—'},
+  {n:'Spellbook of Mind Control',g:'b',v:0,drops:'—'},
+  {n:'Spellsinger’S Seal',g:'d',v:0,drops:'—'},
+  {n:'Spellweaver’S Robe',g:'b',v:0,drops:'—'},
   {n:'Sphinx Tiara',g:'c',v:0,drops:'—'},
   {n:'Spiked Bracers',g:'c',v:0,drops:'—'},
   {n:'Spiked Gorget',g:'c',v:0,drops:'—'},
   {n:'Spiked Iron Ball',g:'c',v:0,drops:'—'},
-  {n:'Spiky Club',g:'b',v:0,drops:'Rafzan NPC Venore'},
-  {n:'Spitter Nose',g:'d',v:0,drops:'Spitter'},
+  {n:'Spiky Club',g:'b',v:0,drops:'—'},
+  {n:'Spitter Nose',g:'d',v:0,drops:'—'},
   {n:'Staff Piece',g:'c',v:0,drops:'—'},
   {n:'Stag Parchment',g:'c',v:0,drops:'—'},
   {n:'Stalking Seeds',g:'e',v:0,drops:'—'},
-  {n:'Stampor Talons',g:'c',v:0,drops:'Stampor'},
+  {n:'Stampor Talons',g:'c',v:0,drops:'—'},
   {n:'Star Ink',g:'c',v:0,drops:'—'},
   {n:'Stone Wing',g:'d',v:0,drops:'—'},
-  {n:"Stonerefine's Skull",g:'e',v:0,drops:'Stonerefiner'},
-  {n:'Strange Helmet',g:'b',v:0,drops:'Alesar Green Djinn NPC'},
+  {n:'Stonerefine’S Skull',g:'e',v:0,drops:'—'},
+  {n:'Strange Helmet',g:'b',v:0,drops:'—'},
   {n:'Strange Substance',g:'d',v:0,drops:'—'},
-  {n:'Streaked Devourer Eyes',g:'d',v:0,drops:'Streaked Devourer'},
-  {n:'Streaked Devourer Legs',g:'c',v:0,drops:'Streaked Devourer'},
-  {n:'Streaked Devourer Maw',g:'e',v:0,drops:'Streaked Devourer'},
-  {n:'Striped Fur',g:'e',v:0,drops:'Weretiger · White Weretiger'},
-  {n:'Sulphider Shell',g:'e',v:0,drops:'Sulphider'},
-  {n:'Sulphur Powder',g:'f',v:0,drops:'Sulphur Spouter'},
+  {n:'Streaked Devourer Eyes',g:'d',v:0,drops:'—'},
+  {n:'Streaked Devourer Legs',g:'c',v:0,drops:'—'},
+  {n:'Streaked Devourer Maw',g:'e',v:0,drops:'—'},
+  {n:'Striped Fur',g:'e',v:0,drops:'—'},
+  {n:'Sulphider Shell',g:'e',v:0,drops:'—'},
+  {n:'Sulphur Powder',g:'f',v:0,drops:'—'},
   {n:'Sulphurous Stone',g:'d',v:0,drops:'—'},
-  {n:'Swampling Club',g:'c',v:0,drops:'Vários NPCs'},
-  {n:'Swarmer Antenna',g:'d',v:0,drops:'Swarmer'},
-  {n:'Tail Of Corruption',g:'c',v:0,drops:'—'},
-  {n:'Taurus Mace',g:'b',v:500,drops:'Rashid NPC — NÃO VENDA'},
+  {n:'Swampling Club',g:'c',v:0,drops:'—'},
+  {n:'Swarmer Antenna',g:'d',v:0,drops:'—'},
+  {n:'Tail of Corruption',g:'c',v:0,drops:'—'},
+  {n:'Taurus Mace',g:'b',v:0,drops:'—'},
   {n:'Telescope Eye',g:'b',v:0,drops:'—'},
-  {n:'Terra Boots',g:'e',v:2500,drops:'Rashid NPC — NÃO VENDA'},
-  {n:'Terra Hood',g:'e',v:2500,drops:'Rashid NPC — NÃO VENDA'},
-  {n:'Terra Mantle',g:'b',v:11000,drops:'Rashid NPC — NÃO VENDA'},
-  {n:'Terramite Legs',g:'d',v:0,drops:'Terramite'},
+  {n:'Terra Boots',g:'e',v:0,drops:'—'},
+  {n:'Terra Hood',g:'e',v:0,drops:'—'},
+  {n:'Terra Mantle',g:'b',v:0,drops:'—'},
+  {n:'Terramite Legs',g:'d',v:0,drops:'—'},
   {n:'Thorn',g:'e',v:0,drops:'—'},
-  {n:'Titan Axe',g:'c',v:0,drops:'Alesar Green Djinn NPC'},
-  {n:'Toe Nails',g:'c',v:0,drops:'Ogre Brute · Ogre Ruffian'},
+  {n:'Titan Axe',g:'c',v:0,drops:'—'},
+  {n:'Toe Nails',g:'c',v:0,drops:'—'},
   {n:'Tooth File',g:'b',v:0,drops:'—'},
   {n:'Torn Page',g:'d',v:0,drops:'—'},
   {n:'Trapped Bad Dream Monster',g:'e',v:0,drops:'—'},
-  {n:'Tunnel Tyrant Head',g:'e',v:0,drops:'Tunnel Tyrant'},
-  {n:'Tunnel Tyrant Shell',g:'e',v:0,drops:'Tunnel Tyrant'},
-  {n:'Two-Headed Turtle Heads',g:'c',v:0,drops:'Two-Headed Turtle'},
+  {n:'Tunnel Tyrant Head',g:'e',v:0,drops:'—'},
+  {n:'Tunnel Tyrant Shell',g:'e',v:0,drops:'—'},
+  {n:'Two-Headed Turtle Heads',g:'c',v:0,drops:'—'},
   {n:'Undertaker Fangs',g:'e',v:2700,drops:'Undertaker'},
   {n:'Unholy Bone',g:'f',v:0,drops:'—'},
-  {n:"Vampire's Cape Chain",g:'c',v:0,drops:'Vampire · Vampire Bride'},
-  {n:'Vein Of Ore',g:'f',v:0,drops:'—'},
+  {n:'Vampire’S Cape Chain',g:'c',v:0,drops:'—'},
+  {n:'Vein of Ore',g:'f',v:0,drops:'—'},
   {n:'Venison',g:'d',v:0,drops:'—'},
-  {n:'Vile Axe',g:'a',v:30000,drops:'Rashid NPC — NÃO VENDA'},
-  {n:'Volatile Proto Matter',g:'d',v:0,drops:'Reality Reaver'},
-  {n:'War Axe',g:'b',v:12000,drops:'Rashid NPC — NÃO VENDA'},
-  {n:'Wardragon Claw',g:'d',v:0,drops:'Wardragon'},
-  {n:'Wardragon Tooth',g:'d',v:0,drops:'Wardragon'},
-  {n:'Waspoid Claw',g:'c',v:0,drops:'Waspoid'},
-  {n:"Weaver's Wandtip",g:'d',v:0,drops:'Weaver (creature)'},
-  {n:'Werebadger Claws',g:'e',v:0,drops:'Werebadger'},
-  {n:'Werebadger Skull',g:'e',v:0,drops:'Werebadger'},
-  {n:'Werebear Fur',g:'e',v:0,drops:'Werebear'},
-  {n:'Werebear Skull',g:'e',v:0,drops:'Werebear'},
-  {n:'Wereboar Loincloth',g:'b',v:0,drops:'Domizian/Gladys NPC Grimvale'},
-  {n:'Wereboar Tusks',g:'e',v:0,drops:'Wereboar'},
-  {n:'Werecrocodile Tongue',g:'e',v:0,drops:'Werecrocodile'},
-  {n:'Werefox Tail',g:'e',v:0,drops:'Werefox'},
-  {n:'Werehyaena Nose',g:'d',v:0,drops:'Werehyaena · Werehyaena Shaman'},
-  {n:'Werehyaena Talisman',g:'b',v:0,drops:'Werehyaena'},
-  {n:'Werepanther Claw',g:'d',v:0,drops:'Werepanther · Cunning Werepanther'},
-  {n:'Weretiger Tooth',g:'e',v:0,drops:'Weretiger · White Weretiger'},
-  {n:'Werewolf Fur',g:'d',v:0,drops:'Werewolf'},
-  {n:"Widow\'s Mandibles",g:'d',v:110,drops:'Wailing Widow'},
+  {n:'Vile Axe',g:'a',v:0,drops:'—'},
+  {n:'Volatile Proto Matter',g:'d',v:0,drops:'—'},
+  {n:'War Axe',g:'b',v:0,drops:'—'},
+  {n:'Wardragon Claw',g:'d',v:0,drops:'—'},
+  {n:'Wardragon Tooth',g:'d',v:0,drops:'—'},
+  {n:'Waspoid Claw',g:'c',v:0,drops:'—'},
+  {n:'Weaver’S Wandtip',g:'d',v:0,drops:'—'},
+  {n:'Werebadger Claws',g:'e',v:0,drops:'—'},
+  {n:'Werebadger Skull',g:'e',v:0,drops:'—'},
+  {n:'Werebear Fur',g:'e',v:0,drops:'—'},
+  {n:'Werebear Skull',g:'e',v:0,drops:'—'},
+  {n:'Wereboar Loincloth',g:'b',v:0,drops:'—'},
+  {n:'Wereboar Tusks',g:'e',v:0,drops:'—'},
+  {n:'Werecrocodile Tongue',g:'e',v:0,drops:'—'},
+  {n:'Werefox Tail',g:'e',v:0,drops:'—'},
+  {n:'Werehyaena Nose',g:'d',v:0,drops:'—'},
+  {n:'Werehyaena Talisman',g:'b',v:0,drops:'—'},
+  {n:'Werepanther Claw',g:'d',v:0,drops:'—'},
+  {n:'Weretiger Tooth',g:'e',v:0,drops:'—'},
+  {n:'Werewolf Fur',g:'d',v:0,drops:'—'},
+  {n:'Widow’S Mandibles',g:'d',v:110,drops:'Wailing Widow'},
   {n:'Wild Flowers',g:'d',v:0,drops:'—'},
   {n:'Wimp Tooth Chain',g:'d',v:0,drops:'—'},
   {n:'Winged Tail',g:'b',v:0,drops:'—'},
   {n:'Witch Broom',g:'d',v:60,drops:'Witch · Ekatrix'},
-  {n:'Wood Cape',g:'b',v:0,drops:'Talila/Valindara NPC Feyrist'},
-  {n:'Wooden Spellbook',g:'b',v:0,drops:'Talila/Valindara NPC Feyrist'},
+  {n:'Wood Cape',g:'b',v:0,drops:'—'},
+  {n:'Wooden Spellbook',g:'b',v:0,drops:'—'},
   {n:'Worm Sponge',g:'b',v:0,drops:'—'},
   {n:'Yapunac Dagger',g:'d',v:240,drops:'Iks Yapunac · Atab'},
-  {n:'Zaoan Armor',g:'b',v:0,drops:'Esrik NPC Farmine'},
-  {n:'Zaoan Robe',g:'b',v:0,drops:'Esrik NPC Farmine'},
-  {n:'Zaoan Shoes',g:'b',v:0,drops:'Esrik NPC Farmine'},
-  {n:'Zaogün Flag',g:'c',v:600,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'},
-  {n:'Zaogün Shoulderplates',g:'d',v:150,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'},
+  {n:'Zaoan Armor',g:'b',v:0,drops:'—'},
+  {n:'Zaoan Robe',g:'b',v:0,drops:'—'},
+  {n:'Zaoan Shoes',g:'b',v:0,drops:'—'},
+  {n:'Zaogun Flag',g:'c',v:600,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'},
+  {n:'Zaogun Shoulderplates',g:'d',v:150,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'},
 ];
 
 let dtFiltered = [...DELIVERY_ITEMS];
@@ -2915,13 +3090,13 @@ let dtFiltered = [...DELIVERY_ITEMS];
 function filterDelivery() {
   const search   = (document.getElementById('dt-search')?.value   || '').toLowerCase().trim();
   const group    = document.getElementById('dt-group')?.value     || 'all';
-  const creature = (document.getElementById('dt-creature')?.value || '').toLowerCase().trim();
+  const creature = (document.getElementById('dt-creature')?.value || '').trim();
   const sort     = document.getElementById('dt-sort')?.value      || 'name';
 
   dtFiltered = DELIVERY_ITEMS.filter(item => {
     if (search   && !item.n.toLowerCase().includes(search))     return false;
     if (group !== 'all' && item.g !== group)                    return false;
-    if (creature && !item.drops.toLowerCase().includes(creature)) return false;
+    if (creature && !item.drops.includes(creature)) return false;
     return true;
   });
 
@@ -2936,13 +3111,33 @@ function filterDelivery() {
 }
 
 function renderDelivery() {
-  // Populate datalist with all item names
+  // Populate item name datalist
   const dl = document.getElementById('dt-datalist');
   if (dl) {
-    dl.innerHTML = DELIVERY_ITEMS
-      .map(i => `<option value="${i.n}">`)
-      .join('');
+    dl.innerHTML = DELIVERY_ITEMS.map(i => `<option value="${i.n}">`).join('');
   }
+
+  // Populate creature dropdown from unique creature names in dataset
+  const creatureSel = document.getElementById('dt-creature');
+  if (creatureSel && creatureSel.options.length <= 1) {
+    const creatures = new Set();
+    DELIVERY_ITEMS.forEach(item => {
+      item.drops.split('·').forEach(c => {
+        const name = c.trim();
+        if (name && name !== '—' && !name.includes('NPC') && !name.includes('Rashid') && !name.includes('Flint') && !name.includes('Alesar') && !name.includes('Rafzan') && !name.includes('Esrik') && !name.includes('Brengus') && !name.includes('Yasir') && !name.includes('Talila') && !name.includes('Gladys') && !name.includes('Valindara') && !name.includes('Alexander') && !name.includes('Lailene')) {
+          creatures.add(name);
+        }
+      });
+    });
+    const sorted = [...creatures].sort();
+    sorted.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      creatureSel.appendChild(opt);
+    });
+  }
+
   dtFiltered = [...DELIVERY_ITEMS].sort((a,b) => a.n.localeCompare(b.n));
   const count = document.getElementById('dt-count');
   if (count) count.textContent = `${dtFiltered.length} itens`;
@@ -2954,7 +3149,9 @@ function renderDeliveryTable() {
   if (!tbody) return;
 
   tbody.innerHTML = dtFiltered.map((item, i) => {
-    const groupLabel = DT_GROUPS[item.g] || '?';
+    const grp = DT_GROUPS[item.g] || {label:'?',min:0,max:0};
+    const groupLabel = grp.label;
+    const qtyMid = grp.min ? `${grp.min}–${grp.max}` : '?';
     const isNPC = item.drops.includes('NPC') || item.drops.includes('Rashid');
     const valueStr = item.v > 0 ? item.v.toLocaleString('pt-BR') + ' gp' : '—';
     const groupColor = {a:'#ef4444',b:'#f97316',c:'#eab308',d:'#22c55e',e:'#3b82f6',f:'#8b5cf6'}[item.g]||'#6b7280';
@@ -2973,7 +3170,7 @@ function renderDeliveryTable() {
       <td>
         <span style="font-size:.72rem;background:${groupColor}22;color:${groupColor};border:1px solid ${groupColor}44;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap">${item.g} · ${groupLabel}</span>
       </td>
-      <td style="font-family:'DM Mono',monospace;font-size:.85rem;color:var(--ink-3)">${groupLabel} un.</td>
+      <td style="font-family:'DM Mono',monospace;font-size:.85rem;color:var(--ink-3)">${qtyMid} un.</td>
       <td id="dt-price-${i}" style="font-family:'DM Mono',monospace;font-size:.85rem;color:var(--muted)">${valueStr}</td>
       <td style="font-size:.78rem;color:var(--muted);font-weight:300;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.drops}</td>
     </tr>`;
@@ -3019,94 +3216,87 @@ function showDeliveryPrice(row, data) {
 
 
 
-// HOME LATEST NEWS — /v4/news/latest + Claude translation
-async function translateWithClaude(titles) {
-  try {
-    const prompt = `Traduza estes títulos de notícias do Tibia do inglês para o português brasileiro.
-Retorne APENAS um array JSON com as traduções na mesma ordem, sem explicações.
-Títulos: ${JSON.stringify(titles)}`;
-    
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 500,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await response.json();
-    const text = data.content?.[0]?.text || '[]';
-    const clean = text.replace(/```json|```/g, '').trim();
-    return JSON.parse(clean);
-  } catch(e) {
-    return titles; // fallback to original if translation fails
-  }
-}
-
+// HOME LATEST NEWS — /v4/news/latest
+// O campo "news" de cada item já é um preview do conteúdo
+// O endpoint /v4/news/id/:id retorna {content, content_html} completo
 async function loadHomeNews() {
   const container = document.getElementById('home-news-container');
   const loading   = document.getElementById('home-news-loading');
   if (!container) return;
+
   try {
     const data = await tibiaFetch('/v4/news/latest');
-    const news = data?.news || [];
+    // Prefer type=news/article over tickers, take top 5
+    const all  = data?.news || [];
+    const important = all.filter(n => n.type === 'news' || n.type === 'article' || n.type === 'featured article');
+    const news = (important.length >= 5 ? important : all).slice(0, 5);
+
     if (loading) loading.style.display = 'none';
     if (!news.length) {
       container.innerHTML = '<p style="font-size:.85rem;color:var(--muted);font-weight:300">Nenhuma notícia no momento.</p>';
       return;
     }
 
-    const typeLabel = { 'news':'Notícia', 'ticker':'Ticker', 'article':'Artigo', 'featured article':'⭐ Destaque', 'cipsoft':'CipSoft' };
-    const typeClass = { 'featured article':'gold', 'article':'', 'news':'', 'ticker':'' };
+    const typeLabel = { 'news':'Notícia','ticker':'Aviso','article':'Artigo','featured article':'⭐ Destaque','cipsoft':'CipSoft' };
+    const catIcon   = { development:'⚙', community:'🌍', technical:'🔧', support:'💬' };
 
     const fmtDate = (d) => {
       if (!d) return '';
       const dt = new Date(d);
       if (isNaN(dt)) return d;
-      const dias = ['dom','seg','ter','qua','qui','sex','sáb'];
+      const dias  = ['dom','seg','ter','qua','qui','sex','sáb'];
       const meses = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
       return `${dias[dt.getDay()]}, ${dt.getDate()} ${meses[dt.getMonth()]} ${dt.getFullYear()}`;
     };
 
-    const items = news.slice(0, 7);
-    
-    // Show with original titles first
-    const renderNews = (titles) => {
-      const [first, ...rest] = items;
-      let h = `<div class="news-featured">
-        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem">
-          <span class="news-tag ${typeClass[first.type]||''}">${typeLabel[first.type]||'Tibia'}</span>
-          <span class="news-date" style="margin-bottom:0">${fmtDate(first.date)}</span>
-        </div>
-        <h2 class="news-title" style="font-size:1.15rem">${titles[0]||first.title||''}</h2>
-        <p style="font-size:.82rem;color:var(--muted);font-weight:300;margin:.5rem 0 .75rem;line-height:1.5">Notícia oficial do Tibia — <a href="${first.url||'#'}" target="_blank" style="color:var(--bamboo);font-weight:500;text-decoration:none">ler texto completo em inglês →</a></p>
-      </div>`;
-      h += rest.map((n,i) => `
-        <div class="news-item">
-          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:3px">
-            <span class="news-tag ${typeClass[n.type]||''}" style="margin-bottom:0">${typeLabel[n.type]||'Tibia'}</span>
+    // Render immediately with preview text (news field = truncated content)
+    const renderItems = (items) => {
+      container.innerHTML = items.map((n, i) => {
+        // "news" field is already a preview snippet (truncated with "...")
+        const preview = (n.news || '').replace(/<[^>]+>/g,' ').trim();
+        const isFirst = i === 0;
+        return `
+        <div style="padding-bottom:.9rem;margin-bottom:.9rem;${i < items.length-1 ? 'border-bottom:1px solid var(--rule)' : ''}">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.35rem;flex-wrap:wrap">
+            <span class="news-tag">${catIcon[n.category]||''} ${typeLabel[n.type]||'Notícia'}</span>
             <span class="news-date" style="margin-bottom:0">${fmtDate(n.date)}</span>
           </div>
-          <div class="news-item-title">${titles[i+1]||n.title||''}</div>
-          <div class="news-item-meta">
-            <a href="${n.url||'#'}" target="_blank" style="color:var(--bamboo);font-size:.75rem;font-weight:500;text-decoration:none">Ler no Tibia.com →</a>
-          </div>
-        </div>`).join('');
-      container.innerHTML = h;
+          ${n.title ? `<div style="font-family:'Playfair Display',serif;font-weight:700;font-size:${isFirst?'1.05rem':'.9rem'};color:var(--ink);line-height:1.3;margin-bottom:.3rem">${n.title}</div>` : ''}
+          ${preview ? `<p style="font-size:.8rem;color:var(--muted);font-weight:300;line-height:1.55;margin-bottom:.4rem">${preview}</p>` : ''}
+          <a href="${n.url||'#'}" target="_blank" style="font-size:.75rem;color:var(--bamboo);font-weight:500;text-decoration:none">Ler no Tibia.com →</a>
+        </div>`;
+      }).join('');
     };
 
-    // Show immediately with originals
-    renderNews(items.map(n => n.title));
+    renderItems(news);
 
-    // Then translate in background
-    const translated = await translateWithClaude(items.map(n => n.title));
-    renderNews(translated);
+    // Fetch full content for top 3 to get complete text + title
+    const detailed = await Promise.allSettled(
+      news.slice(0, 3).map(async n => {
+        try {
+          const d = await tibiaFetch(`/v4/news/id/${n.id}`);
+          const entry = d?.news;
+          return {
+            ...n,
+            title:   entry?.title || n.news?.split('!')[0] || '',
+            content: (entry?.content || '').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().slice(0, 200)
+          };
+        } catch(e) { return n; }
+      })
+    );
+
+    // Merge detailed into news array
+    const enriched = news.map((n, i) => {
+      if (i < 3 && detailed[i]?.status === 'fulfilled') return detailed[i].value;
+      return n;
+    });
+
+    renderItems(enriched);
 
   } catch(err) {
-    console.warn('Home news error:', err);
+    console.warn('News error:', err);
     if (loading) loading.style.display = 'none';
-    if (container) container.innerHTML = '<p style="font-size:.85rem;color:var(--muted);font-weight:300;padding:.5rem 0">Não foi possível carregar as notícias do Tibia.</p>';
+    if (container) container.innerHTML = '<p style="font-size:.85rem;color:var(--muted);font-weight:300">Não foi possível carregar as notícias.</p>';
   }
 }
 </script>
@@ -3127,7 +3317,7 @@ async function loadHomeNews() {
     <div id="imbu-modal-calc"></div>
     <!-- Footer -->
     <div style="padding:.75rem 1.75rem 1.25rem;font-size:.75rem;color:var(--muted);font-weight:300;border-top:1px solid var(--rule)">
-      Preços de gold são base do NPC de imbuimento — o custo real dos itens varia conforme o market de <strong style="color:var(--ink);font-weight:500">Gentebra</strong>. Consulte o <a href="https://intibia.com/pt/tools/imbuements-prices" target="_blank" style="color:var(--bamboo);font-weight:500">Intibia</a> para preços ao vivo.
+      Preços de gold são base do NPC de imbuimento. O custo real inclui o valor dos itens no market de <strong style="color:var(--ink);font-weight:500">Gentebra</strong> — use a calculadora acima para calcular.
     </div>
   </div>
 </div>
