@@ -1748,104 +1748,97 @@ function filterImbu(f, btn) {
 //  HUNT FINDER DATA
 // ══════════════════════════════════════════════════
 const HUNTS = [
-  // ── LOW LEVEL (8–150) ──────────────────────────────────────────────
-  { name:'Nomad Cave', creatures:['Nomad'], minLvl:8, maxLvl:80,
+  { name:'Nomad Cave', creatures:[{n:'Nomad',u:'https://tibiadata.com/img/creatures/nomad.gif'}], minLvl:8, maxLvl:80,
     vocs:['all'], modes:['solo'], xph:'150k–400k', profit:'-50k a 0k', tipo:'xp',
     desc:'Hunt solo inicial. Requer Aristos Task Quest.', wiki:'https://tibia.fandom.com/wiki/Nomads' },
-  { name:'Cyclopolis', creatures:['Cyclops','Cyclops Smith','Cyclops Drone'], minLvl:40, maxLvl:120,
+  { name:'Cyclopolis', creatures:[{n:'Cyclops',u:'https://tibiadata.com/img/creatures/cyclops.gif'},{n:'Cyclops Smith',u:'https://tibiadata.com/img/creatures/cyclops-smith.gif'}], minLvl:40, maxLvl:120,
     vocs:['ek','rp'], modes:['solo','duo'], xph:'400k–900k', profit:'0 a 150k', tipo:'xp',
     desc:'Acesso livre. Boa densidade, sem requisito de quest.', wiki:'https://tibia.fandom.com/wiki/Cyclopolis' },
-  { name:'Orc Fortress', creatures:['Orc Warlord','Orc Berserker'], minLvl:50, maxLvl:130,
+  { name:'Orc Fortress', creatures:[{n:'Orc Warlord',u:'https://tibiadata.com/img/creatures/orc-warlord.gif'},{n:'Orc Berserker',u:'https://tibiadata.com/img/creatures/orc-berserker.gif'}], minLvl:50, maxLvl:130,
     vocs:['ek','rp'], modes:['solo','duo'], xph:'500k–1kk', profit:'50k–200k', tipo:'xp',
     desc:'Hunt clássica. Bom para task de bestiary.', wiki:'https://tibia.fandom.com/wiki/Orc_Fortress' },
-  { name:'Frost Dragons', creatures:['Frost Dragon'], minLvl:60, maxLvl:140,
+  { name:'Frost Dragons', creatures:[{n:'Frost Dragon',u:'https://tibiadata.com/img/creatures/frost-dragon.gif'}], minLvl:60, maxLvl:140,
     vocs:['ek','rp'], modes:['solo','duo'], xph:'500k–1.2kk', profit:'100k–300k', tipo:'xp',
     desc:'Desbloqueado pela Barbarian Test Quest. Svargrond.', wiki:'https://tibia.fandom.com/wiki/Frost_Dragon' },
-  { name:'Sea Serpents', creatures:['Sea Serpent'], minLvl:60, maxLvl:160,
+  { name:'Sea Serpents', creatures:[{n:'Sea Serpent',u:'https://tibiadata.com/img/creatures/sea-serpent.gif'}], minLvl:60, maxLvl:160,
     vocs:['all'], modes:['solo','duo'], xph:'600k–1.3kk', profit:'150k–400k', tipo:'profit',
     desc:'XP e profit sólidos. Requer Hunt for the Sea Serpent Quest.', wiki:'https://tibia.fandom.com/wiki/Sea_Serpent' },
-  { name:'Deeplings', creatures:['Deepling Scout','Deepling Guard','Deepling Warrior'], minLvl:60, maxLvl:200,
+  { name:'Deeplings', creatures:[{n:'Deepling Scout',u:'https://tibiadata.com/img/creatures/deepling-scout.gif'},{n:'Deepling Warrior',u:'https://tibiadata.com/img/creatures/deepling-warrior.gif'}], minLvl:60, maxLvl:200,
     vocs:['all'], modes:['solo','duo'], xph:'700k–1.5kk', profit:'0 a 200k', tipo:'xp',
     desc:'3 bosses e chance de Manta Ray (rara). Liquid Black Quest.', wiki:'https://tibia.fandom.com/wiki/Deepling' },
-  { name:'Banuta', creatures:['Kongra','Sibang','Merlkin'], minLvl:80, maxLvl:220,
+  { name:'Banuta', creatures:[{n:'Kongra',u:'https://tibiadata.com/img/creatures/kongra.gif'},{n:'Sibang',u:'https://tibiadata.com/img/creatures/sibang.gif'}], minLvl:80, maxLvl:220,
     vocs:['ek','ms'], modes:['solo','duo'], xph:'800k–2kk', profit:'50k–200k', tipo:'xp',
     desc:'Hunt essencial mid-level. Requer Ape City Quest.', wiki:'https://tibia.fandom.com/wiki/Banuta' },
-  { name:'Draken Walls / Zao', creatures:['Draken Warmaster','Draken Elite','Draken Spellweaver'], minLvl:100, maxLvl:280,
+  { name:'Draken Walls / Zao', creatures:[{n:'Draken Warmaster',u:'https://tibiadata.com/img/creatures/draken-warmaster.gif'},{n:'Draken Spellweaver',u:'https://tibiadata.com/img/creatures/draken-spellweaver.gif'}], minLvl:100, maxLvl:280,
     vocs:['all'], modes:['solo','duo'], xph:'1kk–2.5kk', profit:'100k–400k', tipo:'xp',
     desc:'New Frontier + Children of the Revolution. Ótimo XP mid-game.', wiki:'https://tibia.fandom.com/wiki/Draken_Walls' },
-  { name:'Warzones 1–3', creatures:['Gnomevil'], minLvl:100, maxLvl:250,
+  { name:'Warzones 1–3', creatures:[{n:'Gnomevil',u:'https://tibiadata.com/img/creatures/gnomevil.gif'}], minLvl:100, maxLvl:250,
     vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–500k', tipo:'profit',
     desc:'Profit diário consistente. Requer Bigfoot’s Burden Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_1' },
-
-  // ── MID LEVEL (150–300) ────────────────────────────────────────────
-  { name:'Feyrist', creatures:['Pixie','Nymph','Feral Sphinx'], minLvl:150, maxLvl:350,
+  { name:'Feyrist', creatures:[{n:'Pixie',u:'https://tibiadata.com/img/creatures/pixie.gif'},{n:'Nymph',u:'https://tibiadata.com/img/creatures/nymph.gif'},{n:'Swan Maiden',u:'https://tibiadata.com/img/creatures/swan-maiden.gif'}], minLvl:150, maxLvl:350,
     vocs:['ed','ms','rp'], modes:['solo','duo'], xph:'1.5kk–3kk', profit:'200k–500k', tipo:'xp',
     desc:'Ilha de Feyrist. Threatened Dreams Quest. Favorita da guild!', wiki:'https://tibia.fandom.com/wiki/Feyrist' },
-  { name:'Warzones 4–6', creatures:['Gnomevil','Sandstone Scorpion'], minLvl:150, maxLvl:300,
+  { name:'Warzones 4–6', creatures:[{n:'Gnomevil',u:'https://tibiadata.com/img/creatures/gnomevil.gif'},{n:'Sandstone Scorpion',u:'https://tibiadata.com/img/creatures/sandstone-scorpion.gif'}], minLvl:150, maxLvl:300,
     vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–600k', tipo:'profit',
     desc:'Itens Gnome. Continuação da Bigfoot’s Burden Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_4' },
-  { name:'Bounac', creatures:['Bulltaur Brute','Bulltaur Forgepriest','Bulltaur Alchemist'], minLvl:150, maxLvl:350,
+  { name:'Bounac', creatures:[{n:'Bulltaur Brute',u:'https://tibiadata.com/img/creatures/bulltaur-brute.gif'},{n:'Bulltaur Forgepriest',u:'https://tibiadata.com/img/creatures/bulltaur-forgepriest.gif'}], minLvl:150, maxLvl:350,
     vocs:['all'], modes:['solo','duo'], xph:'1kk–2.5kk', profit:'100k–400k', tipo:'xp',
     desc:'Boss diário + área de hunt. Adventures of Galthen Quest.', wiki:'https://tibia.fandom.com/wiki/Bounac' },
-  { name:'Cobra Bastion', creatures:['Cobra Vizier','Cobra Assassin','Cobra Scout'], minLvl:250, maxLvl:500,
+  { name:'Cobra Bastion', creatures:[{n:'Cobra Vizier',u:'https://tibiadata.com/img/creatures/cobra-vizier.gif'},{n:'Cobra Assassin',u:'https://tibiadata.com/img/creatures/cobra-assassin.gif'}], minLvl:250, maxLvl:500,
     vocs:['ek','rp'], modes:['solo','duo'], xph:'2kk–4kk', profit:'300k–700k', tipo:'xp',
     desc:'Boss Scarlett Etzel + itens cobra. Order of the Cobra Quest.', wiki:'https://tibia.fandom.com/wiki/Cobra_Bastion' },
-  { name:'Dream Courts', creatures:['Nightmare Beast','Dream Catcher','Crazed Summer Rearguard'], minLvl:250, maxLvl:500,
+  { name:'Dream Courts', creatures:[{n:'Nightmare Beast',u:'https://tibiadata.com/img/creatures/nightmare-beast.gif'},{n:'Dream Catcher',u:'https://tibiadata.com/img/creatures/dream-catcher.gif'}], minLvl:250, maxLvl:500,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–4kk', profit:'200k–500k', tipo:'xp',
     desc:'Imbue de bota powerful T3. The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Dream_Courts' },
-  { name:'Falcon Bastion', creatures:['Falcon Knight','Falcon Paladin','Falcon Knight'], minLvl:270, maxLvl:999,
+  { name:'Falcon Bastion', creatures:[{n:'Falcon Knight',u:'https://tibiadata.com/img/creatures/falcon-knight.gif'},{n:'Falcon Paladin',u:'https://tibiadata.com/img/creatures/falcon-paladin.gif'}], minLvl:270, maxLvl:999,
     vocs:['ek'], modes:['solo','duo'], xph:'2kk–5kk', profit:'300k–800k', tipo:'xp',
     desc:'Boss Oberon + itens Falcon. Order of the Falcon Quest. Organizado pela guild!', wiki:'https://tibia.fandom.com/wiki/Falcon_Bastion' },
-  { name:'Grave Danger', creatures:['Gravelord Osyran','Lokkh Shaguard','Zavarash'], minLvl:250, maxLvl:999,
+  { name:'Grave Danger', creatures:[{n:'Gravelord Osyran',u:'https://tibiadata.com/img/creatures/gravelord-osyran.gif'},{n:'Lokkh Shaguard',u:'https://tibiadata.com/img/creatures/lokkh-shaguard.gif'},{n:'Zavarash',u:'https://tibiadata.com/img/creatures/zavarash.gif'}], minLvl:250, maxLvl:999,
     vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit',
     desc:'Rotação de boss diária — melhor profit da faixa 250–400. Grave Danger Quest.', wiki:'https://tibia.fandom.com/wiki/Grave_Danger' },
-  { name:'Heart of Destruction', creatures:['Hellfire Fighter','Grimeleech','Vexclaw'], minLvl:250, maxLvl:999,
+  { name:'Heart of Destruction', creatures:[{n:'Grimeleech',u:'https://tibiadata.com/img/creatures/grimeleech.gif'},{n:'Vexclaw',u:'https://tibiadata.com/img/creatures/vexclaw.gif'},{n:'Hellfire Fighter',u:'https://tibiadata.com/img/creatures/hellfire-fighter.gif'}], minLvl:250, maxLvl:999,
     vocs:['all'], modes:['solo','duo','time'], xph:'2kk–5kk', profit:'500k–1.5kk', tipo:'profit',
     desc:'Imbue crítico T3 + alto profit diário. Heart of Destruction Quest.', wiki:'https://tibia.fandom.com/wiki/Heart_of_Destruction' },
-  { name:'Kilmaresh', creatures:['Sphinx','Lamassu','Lamassu'], minLvl:300, maxLvl:999,
+  { name:'Kilmaresh', creatures:[{n:'Sphinx',u:'https://tibiadata.com/img/creatures/sphinx.gif'},{n:'Lamassu',u:'https://tibiadata.com/img/creatures/lamassu.gif'},{n:'Feral Sphinx',u:'https://tibiadata.com/img/creatures/feral-sphinx.gif'}], minLvl:300, maxLvl:999,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–5kk', profit:'0 a 500k', tipo:'xp',
     desc:'Múltiplos spawn premium. Ótimo XP para Druids e Mages.', wiki:'https://tibia.fandom.com/wiki/Kilmaresh' },
-  { name:'Ferumbras Mortal Shell', creatures:['Ferumbras'], minLvl:300, maxLvl:999,
+  { name:'Ferumbras Mortal Shell', creatures:[{n:'Ferumbras',u:'https://tibiadata.com/img/creatures/ferumbras.gif'}], minLvl:300, maxLvl:999,
     vocs:['all'], modes:['time'], xph:'—', profit:'1kk–10kk+', tipo:'quest',
     desc:'O boss mais cobiçado do Tibia. Ferumbras Ascendant Quest. Organizado pela liderança.', wiki:'https://www.tibiawiki.com.br/wiki/Ferumbras_Ascendant_Quest' },
-
-  // ── HIGH LEVEL (350–550) ───────────────────────────────────────────
-  { name:'Soulwar', creatures:['Cloak of Terror','Soul-Broken Harbinger','Crazed Winter Vanguard'], minLvl:350, maxLvl:999,
+  { name:'Soulwar', creatures:[{n:'Cloak of Terror',u:'https://tibiadata.com/img/creatures/cloak-of-terror.gif'},{n:'Soul-Broken Harbinger',u:'https://tibiadata.com/img/creatures/soul-broken-harbinger.gif'}], minLvl:350, maxLvl:999,
     vocs:['all'], modes:['solo','duo','time'], xph:'2.5kk–6kk', profit:'200k–600k', tipo:'xp',
     desc:'Bosses diários + múltiplas salas de hunt. Feaster of Souls Quest. Level real: 400+.', wiki:'https://tibia.fandom.com/wiki/Soulwar' },
-  { name:'Warzones 7–9', creatures:['Hellspawn','Lava Golem'], minLvl:350, maxLvl:999,
+  { name:'Warzones 7–9', creatures:[{n:'Hellspawn',u:'https://tibiadata.com/img/creatures/hellspawn.gif'},{n:'Lava Golem',u:'https://tibiadata.com/img/creatures/lava-golem.gif'}], minLvl:350, maxLvl:999,
     vocs:['all'], modes:['time'], xph:'2kk–4kk', profit:'300k–800k', tipo:'profit',
     desc:'Itens Eldritch. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_7' },
-  { name:'Secret Library', creatures:['Icecold Book','Ogre Shaman','Ogre Brute'], minLvl:350, maxLvl:999,
+  { name:'Secret Library', creatures:[{n:'Icecold Book',u:'https://tibiadata.com/img/creatures/icecold-book.gif'},{n:'Ogre Shaman',u:'https://tibiadata.com/img/creatures/ogre-shaman.gif'}], minLvl:350, maxLvl:999,
     vocs:['all'], modes:['solo','duo','time'], xph:'3kk–8kk', profit:'400k–1.5kk', tipo:'xp',
     desc:'Hunts metas + rotação de boss lucrativa para essa faixa. The Secret Library Quest.', wiki:'https://tibia.fandom.com/wiki/The_Secret_Library' },
-  { name:'No Rest for the Wicked', creatures:['Inferniach','Broodrider Inferniarch'], minLvl:400, maxLvl:999,
+  { name:'No Rest for the Wicked', creatures:[{n:'Inferniach',u:'https://tibiadata.com/img/creatures/inferniach.gif'},{n:'Broodrider Inferniarch',u:'https://tibiadata.com/img/creatures/broodrider-inferniarch.gif'}], minLvl:400, maxLvl:999,
     vocs:['all'], modes:['time'], xph:'2kk–5kk', profit:'1kk–3kk', tipo:'quest',
     desc:'10 vitórias modo Difícil = item Inferniach GARANTIDO. Requer ~500+.', wiki:'https://www.tibiawiki.com.br/wiki/No_Rest_for_the_Wicked_Quest' },
-  { name:'Roshamuul Prison', creatures:['Frazzlemaw','Guzzlemaw','Frazzlemaw'], minLvl:400, maxLvl:999,
+  { name:'Roshamuul Prison', creatures:[{n:'Frazzlemaw',u:'https://tibiadata.com/img/creatures/frazzlemaw.gif'},{n:'Guzzlemaw',u:'https://tibiadata.com/img/creatures/guzzlemaw.gif'}], minLvl:400, maxLvl:999,
     vocs:['ek'], modes:['solo','duo'], xph:'2.5kk–4kk', profit:'500k–1kk', tipo:'xp',
     desc:'Alta densidade de criaturas. Hunt sólida para EKs 400+.', wiki:'https://tibia.fandom.com/wiki/Roshamuul' },
-
-  // ── ENDGAME (550+) ─────────────────────────────────────────────────
-  { name:'Netherworld', creatures:['Flimsy Lost Soul','Freakish Lost Soul','Mean Lost Soul'], minLvl:550, maxLvl:999,
+  { name:'Netherworld', creatures:[{n:'Flimsy Lost Soul',u:'https://tibiadata.com/img/creatures/flimsy-lost-soul.gif'},{n:'Freakish Lost Soul',u:'https://tibiadata.com/img/creatures/freakish-lost-soul.gif'}], minLvl:550, maxLvl:999,
     vocs:['ms'], modes:['solo'], xph:'2.3kk–2.8kk', profit:'-10k a 10k', tipo:'xp',
     desc:'Hunt solo para MS de alto nível. Acesso por quest específica.', wiki:'https://tibia.fandom.com/wiki/Netherworld' },
-  { name:'Court of Winter', creatures:['Crazed Winter Rearguard','Crazed Winter Vanguard','Icecold Book'], minLvl:550, maxLvl:999,
+  { name:'Court of Winter', creatures:[{n:'Crazed Winter Rearguard',u:'https://tibiadata.com/img/creatures/crazed-winter-rearguard.gif'},{n:'Crazed Winter Vanguard',u:'https://tibiadata.com/img/creatures/crazed-winter-vanguard.gif'}], minLvl:550, maxLvl:999,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–4kk', profit:'0 a 500k', tipo:'xp',
     desc:'Hunt premium de alto nível para casters. Requer The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Court_of_Winter' },
-  { name:'Court of Summer', creatures:['Crazed Summer Rearguard','Crazed Summer Vanguard','Animated Feather'], minLvl:550, maxLvl:999,
+  { name:'Court of Summer', creatures:[{n:'Crazed Summer Rearguard',u:'https://tibiadata.com/img/creatures/crazed-summer-rearguard.gif'},{n:'Animated Feather',u:'https://tibiadata.com/img/creatures/animated-feather.gif'}], minLvl:550, maxLvl:999,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–3kk', profit:'200k–350k', tipo:'xp',
     desc:'Alternativa ao Court of Winter. Mesmos requisitos.', wiki:'https://tibia.fandom.com/wiki/Court_of_Summer' },
-  { name:'Gnome Deep Hub', creatures:['Branchy Crawler','Cave Devourer','Deepworm'], minLvl:500, maxLvl:999,
+  { name:'Gnome Deep Hub', creatures:[{n:'Branchy Crawler',u:'https://tibiadata.com/img/creatures/branchy-crawler.gif'},{n:'Cave Devourer',u:'https://tibiadata.com/img/creatures/cave-devourer.gif'}], minLvl:500, maxLvl:999,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'1kk–2.5kk', profit:'-300k a -150k', tipo:'xp',
     desc:'Alta XP mas alto waste. Para chars com muito bank.', wiki:'https://tibia.fandom.com/wiki/Gnome_Deep_Hub' },
-  { name:'Nykri Delta', creatures:['Naga Archer','Naga Warrior','Naga Archer'], minLvl:500, maxLvl:999,
+  { name:'Nykri Delta', creatures:[{n:'Naga Archer',u:'https://tibiadata.com/img/creatures/naga-archer.gif'},{n:'Naga Warrior',u:'https://tibiadata.com/img/creatures/naga-warrior.gif'}], minLvl:500, maxLvl:999,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'1kk–1.8kk', profit:'-70k a 20k', tipo:'xp',
     desc:'Hunt nova com criaturas Naga. Bom bestiary.', wiki:'https://tibia.fandom.com/wiki/Nykri_Delta' },
-  { name:'Hyaena Lairs', creatures:['Werehyaena','Werehyaena Shaman','Werehyaena'], minLvl:500, maxLvl:999,
+  { name:'Hyaena Lairs', creatures:[{n:'Werehyaena',u:'https://tibiadata.com/img/creatures/werehyaena.gif'},{n:'Werehyaena Shaman',u:'https://tibiadata.com/img/creatures/werehyaena-shaman.gif'}], minLvl:500, maxLvl:999,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'1.2kk–1.8kk', profit:'200k–450k', tipo:'profit',
     desc:'Profit consistente. Hunt popular para druids e mages.', wiki:'https://tibia.fandom.com/wiki/Werehyaena' },
-  { name:'Oramond Western Plains', creatures:['Boar Man','Crab Man'], minLvl:500, maxLvl:999,
+  { name:'Oramond Western Plains', creatures:[{n:'Boar Man',u:'https://tibiadata.com/img/creatures/boar-man.gif'},{n:'Crab Man',u:'https://tibiadata.com/img/creatures/crab-man.gif'}], minLvl:500, maxLvl:999,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'900k–1.7kk', profit:'-150k a -70k', tipo:'xp',
     desc:'XP sólida, alto waste. Popular no servidor Gentebra.', wiki:'https://tibia.fandom.com/wiki/Oramond_Western_Plains' },
 ];
@@ -1916,22 +1909,15 @@ let hfFocus = 'all';
 const creatureImgCache = {};
 
 async function fetchCreatureImgs(creatures) {
-  // Fetch image_url for each creature via TibiaData API
-  const results = await Promise.allSettled(
-    creatures.map(async name => {
-      if (creatureImgCache[name]) return { name, url: creatureImgCache[name] };
-      try {
-        const data = await tibiaFetch('/v4/creature/' + encodeURIComponent(name.toLowerCase()));
-        const url = data?.creature?.image_url || '';
-        creatureImgCache[name] = url;
-        return { name, url };
-      } catch(e) {
-        creatureImgCache[name] = '';
-        return { name, url: '' };
-      }
-    })
-  );
-  return results.map(r => r.status === 'fulfilled' ? r.value : { name: '', url: '' });
+  // Use TibiaData asset URL directly — works for creatures AND bosses
+  // Format: same as boostable bosses endpoint returns
+  return creatures.map(name => {
+    // Convert name to wiki filename format: "Gravelord Osyran" → "Gravelord_Osyran.gif"
+    const filename = name.trim().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('_');
+    // Try TibiaData assets CDN (same source as boosted boss images)
+    const url = `https://tibiadata.com/img/creatures/${filename}.gif`;
+    return { name, url };
+  });
 }
 
 function setHFMode(mode) {
@@ -2062,18 +2048,18 @@ async function runHuntFinder() {
   results.forEach(async (h, i) => {
     const creatures = (h.creatures || []).slice(0, 3);
     if (!creatures.length) return;
-    const imgs = await fetchCreatureImgs(creatures);
     const container = document.getElementById('hfc-' + i + '-imgs');
     if (!container) return;
-    const hasImg = imgs.some(im => im.url);
-    container.innerHTML = imgs.map(im => {
-      if (im.url) {
-        return `<img src="${im.url}" alt="${im.name}" title="${im.name}"
-          style="width:56px;height:56px;image-rendering:pixelated;border-radius:6px;object-fit:contain;background:rgba(0,0,0,.2)"
-          onerror="this.style.display='none'">`;
-      }
-      return '';
-    }).join('') || '<div style="font-size:1.4rem;padding:.5rem">🗺</div>';
+    // Build image elements — onerror hides failed images
+    // creatures is now [{n: name, u: imageUrl}]
+    container.innerHTML = creatures.map(c => {
+      const name = c.n || c;
+      const url  = c.u || '';
+      if (!url) return '';
+      return `<img src="${url}" alt="${name}" title="${name}"
+        style="width:56px;height:56px;image-rendering:pixelated;border-radius:6px;object-fit:contain;background:rgba(0,0,0,.15)"
+        onerror="this.style.display='none'">`;
+    }).join('');
   });
 }
 
