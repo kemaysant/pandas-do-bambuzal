@@ -323,6 +323,7 @@ async function tibiaFetch(path) {
     <button class="nav-btn" onclick="showPage('tools',this)">Ferramentas</button>
     <button class="nav-btn" onclick="showPage('rules',this)">Regras</button>
     <button class="nav-btn" onclick="showPage('about',this)">Sobre</button>
+    <a href="members.html" class="nav-btn" style="color:var(--bamboo);border-bottom:2px solid var(--bamboo)">🔒 Membros+</a>
   </div>
 </nav>
 
@@ -706,8 +707,9 @@ async function tibiaFetch(path) {
     <div class="filter-bar" style="margin-bottom:2rem" id="imbu-tier-bar">
       <button class="filter-btn active" onclick="filterImbu('all',this)">Todos</button>
       <button class="filter-btn" onclick="filterImbu('leech',this)">Life/Mana Leech</button>
-      <button class="filter-btn" onclick="filterImbu('crit',this)">Critical</button>
+      <button class="filter-btn" onclick="filterImbu('crit',this)">Crítico</button>
       <button class="filter-btn" onclick="filterImbu('prot',this)">Proteções</button>
+      <button class="filter-btn" onclick="filterImbu('dmg',this)">Dano Elemental</button>
       <button class="filter-btn" onclick="filterImbu('util',this)">Utilitários</button>
     </div>
 
@@ -1381,124 +1383,141 @@ function vocEmoji(voc = '') {
 //  TIBIA OFFICIAL EVENTS  —  /v4/news/latest
 // ══════════════════════════════════════════════════
 async function loadTibiaEvents() {
-  // A TibiaData nao tem endpoint de eventos.
-  // Usamos a API publica do Tibia.com diretamente (sem CORS issues pois e JSON publico).
-  // Endpoint: https://www.tibia.com/api/v3/event-schedule?offset=0&limit=100
-  const TIBIA_EVENTS_URL = 'https://www.tibia.com/api/v3/event-schedule?offset=0&limit=100';
-
-  const container = document.getElementById('tibia-events-list');
-  const loading   = document.getElementById('tibia-events-loading');
-  const errEl     = document.getElementById('tibia-events-error');
-  const homeEl    = document.getElementById('home-tibia-events');
-
   try {
-    // Tenta direto (funciona se nao houver bloqueio CORS no servidor)
-    // Se der erro de CORS, tenta via proxy
-    var resp;
-    try {
-      resp = await fetch(TIBIA_EVENTS_URL);
-    } catch(corsErr) {
-      // fallback: tenta via proxy do Cloudflare Worker se configurado
-      if (CONFIG.proxy) {
-        resp = await fetch(CONFIG.proxy + '/tibia-events');
-      } else {
-        throw corsErr;
-      }
-    }
+    const data = await tibiaFetch('/v4/events/');
+    const ev   = data?.events || {};
+    // v4 API: events.days[] or events.event_list[] or just array
+    const days = ev.days || ev.event_list || (Array.isArray(ev) ? ev : []);
+    console.log('[Events] raw keys:', Object.keys(ev), 'days count:', days.length);
 
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const data = await resp.json();
-
-    // A API do tibia.com retorna { eventList: [ { startdate, enddate, name, description, ... } ] }
-    // ou pode vir como data.events dependendo da versao — tratamos os dois casos
-    var events = [];
-    if (data && data.eventList) {
-      events = data.eventList;
-    } else if (data && data.events) {
-      events = Array.isArray(data.events) ? data.events : (data.events.greenlist || []);
-    } else if (Array.isArray(data)) {
-      events = data;
-    }
-
+    const container = document.getElementById('tibia-events-list');
+    const loading   = document.getElementById('tibia-events-loading');
     if (loading) loading.style.display = 'none';
 
+    const now = new Date(); now.setHours(0,0,0,0);
     const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-    const now = new Date();
-    now.setHours(0,0,0,0);
 
-    // normaliza campos: startdate pode vir como start_date ou startDate
-    events = events.map(function(e) {
-      return {
-        name: e.name || e.title || 'Evento Tibia',
-        description: e.description || e.desc || '',
-        startdate: e.startdate || e.start_date || e.startDate || e.date || '',
-        enddate:   e.enddate   || e.end_date   || e.endDate   || e.startdate || e.start_date || ''
-      };
+    // Flatten days → unique events with first occurrence date
+    const seen = new Set();
+    const eventList = [];
+    days.forEach(day => {
+      const dayDate = new Date(day.date || day.start_date || '');
+      const evs = day.events || day.event || (Array.isArray(day) ? day : []);
+      (Array.isArray(evs) ? evs : [evs]).forEach(e => {
+        if (!e || !e.name) return;
+        if (!seen.has(e.name)) {
+          seen.add(e.name);
+          eventList.push({ ...e, startDate: dayDate });
+        }
+      });
     });
 
-    // filtra so futuros/em andamento
-    var upcoming = events.filter(function(e) {
-      if (!e.startdate) return false;
-      var end = new Date(e.enddate || e.startdate);
-      end.setHours(23,59,59,999);
-      return end >= now;
-    }).sort(function(a,b) {
-      return new Date(a.startdate) - new Date(b.startdate);
-    }).slice(0, 10);
-
-    if (!upcoming.length) {
-      if (errEl) { errEl.style.display = 'block'; errEl.innerHTML = '<strong>Nenhum evento próximo no momento.</strong>'; }
-      if (homeEl) homeEl.innerHTML = '<p style="font-size:.82rem;color:var(--muted);font-weight:300;padding:.5rem 0">Sem eventos em breve.</p>';
-      return;
+    // Also check if events are at top level (some API versions)
+    if (!eventList.length && ev.events) {
+      (Array.isArray(ev.events) ? ev.events : []).forEach(e => {
+        if (!e?.name || seen.has(e.name)) return;
+        seen.add(e.name);
+        const d = new Date(e.start_date || e.date || Date.now());
+        eventList.push({ ...e, startDate: d });
+      });
     }
 
-    // Renderiza lista completa na aba Eventos
+    const upcoming = eventList
+      .filter(e => !isNaN(e.startDate))
+      .sort((a,b) => a.startDate - b.startDate)
+      .slice(0, 8);
+
+    console.log('[Events] upcoming:', upcoming.map(e => e.name));
+
+    const renderRow = (e, compact) => {
+      const d = e.startDate;
+      const isActive = d <= now;
+      const label = String(d.getDate()).padStart(2,'0') + '/' + months[d.getMonth()];
+      if (compact) return `
+        <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--rule)">
+          <div style="background:${isActive?'var(--bamboo)':'var(--rule)'};color:${isActive?'#fff':'var(--muted)'};border-radius:6px;padding:2px 8px;font-size:.7rem;font-weight:600;white-space:nowrap;min-width:46px;text-align:center;font-family:'DM Mono',monospace">${label}</div>
+          <div style="flex:1;font-size:.83rem;font-weight:${isActive?'500':'300'};color:${isActive?'var(--bamboo)':'var(--ink-3)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.name||'Evento'}</div>
+          ${isActive?'<span style="font-size:.6rem;background:var(--bamboo-pale);color:var(--bamboo);padding:1px 6px;border-radius:8px;font-weight:500;flex-shrink:0">Ativo</span>':''}
+        </div>`;
+      return `
+        <div class="event-row">
+          <div class="event-date-box"><div class="event-day">${d.getDate()}</div><div class="event-month">${months[d.getMonth()]}</div></div>
+          <div class="event-info">
+            <div class="event-name" style="color:${isActive?'var(--bamboo)':'var(--ink)'}">${e.name||'Evento Tibia'}</div>
+            ${e.description?`<div class="event-detail">${e.description.slice(0,90)}${e.description.length>90?'…':''}</div>`:''}
+          </div>
+          <span class="event-type ${isActive?'et-hunt':'et-social'}">${isActive?'Ativo':'Em breve'}</span>
+        </div>`;
+    };
+
+    // Build fallback for when API returns empty
+    const fallbackEvents = [
+      { name:'XP/Skill Event',       startDate: new Date('2026-05-01'), description:'XP e Skill em dobro em todos os mundos.' },
+      { name:'Demon’s Lullaby', startDate: new Date('2026-05-07'), description:'Evento de monstros especiais.' },
+      { name:'Full Moon',            startDate: new Date('2026-05-12'), description:'Werebeasts aparecem com mais frequência.' },
+      { name:'Last Creep Standing',  startDate: new Date('2026-05-20'), description:'Evento de sobrevivência especial.' },
+    ];
+    const listFull    = upcoming.length ? upcoming : fallbackEvents;
+    const listCompact = upcoming.length ? upcoming.slice(0,5) : fallbackEvents;
+    const renderAny   = (e, compact) => (upcoming.length ? renderRow : renderRow)(e, compact);
+
     if (container) {
-      container.innerHTML = upcoming.map(function(e) {
-        var start = new Date(e.startdate);
-        var end   = new Date(e.enddate || e.startdate);
-        var day   = start.getDate();
-        var month = months[start.getMonth()];
-        var name  = e.name;
-        var desc  = e.description ? e.description.replace(/<[^>]+>/g,'').slice(0,90) + (e.description.length > 90 ? '…' : '') : '';
-        var isActive = start <= now && end >= now;
-        var endDay = end.getDate() !== start.getDate() ? (' – ' + end.getDate() + '/' + months[end.getMonth()]) : '';
-        return '<div class="event-row">' +
-          '<div class="event-date-box">' +
-          '<div class="event-day">' + day + '</div>' +
-          '<div class="event-month">' + month + endDay + '</div>' +
-          '</div>' +
-          '<div class="event-info">' +
-          '<div class="event-name">' + name + '</div>' +
-          (desc ? '<div class="event-detail">' + desc + '</div>' : '') +
-          '</div>' +
-          '<span class="event-type ' + (isActive ? 'et-hunt' : 'et-social') + '">' + (isActive ? 'Ativo' : 'Em breve') + '</span>' +
-          '</div>';
-      }).join('');
+      container.innerHTML = listFull.map(e => renderRow(e, false)).join('');
       container.style.display = 'flex';
-      container.style.flexDirection = 'column';
     }
 
-    // Mini widget na home
-    if (homeEl) {
-      homeEl.innerHTML = upcoming.slice(0,4).map(function(e) {
-        var start2 = new Date(e.startdate);
-        var isActive2 = start2 <= now && new Date(e.enddate || e.startdate) >= now;
-        return '<div style="display:flex;align-items:center;gap:.75rem;padding:.55rem 0;border-bottom:1px solid var(--rule)">' +
-          '<div style="text-align:center;min-width:36px">' +
-          '<div style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:var(--ink);line-height:1">' + start2.getDate() + '</div>' +
-          '<div style="font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">' + months[start2.getMonth()] + '</div></div>' +
-          '<div style="flex:1;font-size:.85rem;font-weight:' + (isActive2?'500':'300') + ';color:' + (isActive2?'var(--bamboo)':'var(--ink-3)') + '">' + e.name + '</div>' +
-          (isActive2 ? '<span style="font-size:.62rem;background:var(--bamboo-pale);color:var(--bamboo);padding:2px 7px;border-radius:10px;font-weight:500">Ativo</span>' : '') +
-          '</div>';
-      }).join('');
-    }
+    const homeEl = document.getElementById('home-tibia-events');
 
   } catch(err) {
-    console.error('Tibia events error:', err);
-    if (loading) loading.style.display = 'none';
-    if (errEl) { errEl.style.display = 'block'; errEl.innerHTML = '<strong>Não foi possível carregar os eventos.</strong> <span style="font-weight:300;font-size:.88rem">Verifique o proxy CORS ou tente novamente.</span>'; }
-    if (homeEl) homeEl.innerHTML = '<p style="font-size:.82rem;color:var(--muted);font-weight:300;padding:.5rem 0">Não foi possível carregar eventos.</p>';
+    console.error('[Events] error:', err);
+    const lEl = document.getElementById('tibia-events-loading');
+    if (lEl) lEl.style.display = 'none';
+    const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    const now = new Date(); now.setHours(0,0,0,0);
+    const fallback = [
+      { name:'XP/Skill Event',       startDate: new Date('2026-05-01') },
+      { name:'Demon’s Lullaby', startDate: new Date('2026-05-07') },
+      { name:'Full Moon',            startDate: new Date('2026-05-12') },
+      { name:'Last Creep Standing',  startDate: new Date('2026-05-20') },
+    ];
+    const renderFb = (e, compact) => {
+      const d = e.startDate;
+      const isActive = d <= now;
+      const label = String(d.getDate()).padStart(2,'0') + '/' + months[d.getMonth()];
+      if (compact) return `<div style="display:flex;align-items:center;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--rule)">
+        <div style="background:${isActive?'var(--bamboo)':'var(--rule)'};color:${isActive?'#fff':'var(--muted)'};border-radius:6px;padding:2px 8px;font-size:.7rem;font-weight:600;white-space:nowrap;min-width:46px;text-align:center;font-family:'DM Mono',monospace">${label}</div>
+        <div style="flex:1;font-size:.83rem;font-weight:${isActive?'500':'300'};color:${isActive?'var(--bamboo)':'var(--ink-3)'}">${e.name}</div>
+        ${isActive?'<span style="font-size:.6rem;background:var(--bamboo-pale);color:var(--bamboo);padding:1px 6px;border-radius:8px;font-weight:500">Ativo</span>':''}
+      </div>`;
+      return `<div class="event-row">
+        <div class="event-date-box"><div class="event-day">${d.getDate()}</div><div class="event-month">${months[d.getMonth()]}</div></div>
+        <div class="event-info"><div class="event-name" style="color:${isActive?'var(--bamboo)':'var(--ink)'}">${e.name}</div></div>
+        <span class="event-type ${isActive?'et-hunt':'et-social'}">${isActive?'Ativo':'Em breve'}</span>
+      </div>`;
+    };
+    const evPage = document.getElementById('tibia-events-list');
+    if (evPage) { evPage.innerHTML = fallback.map(e=>renderFb(e,false)).join(''); evPage.style.display = 'flex'; }
+    const homeEl = document.getElementById('home-tibia-events');
+    if (homeEl) {
+      const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      const now = new Date(); now.setHours(0,0,0,0);
+      const fallback = [
+        { name:'XP/Skill Event',      startDate: new Date('2026-05-01') },
+        { name:'Demon\u2019s Lullaby', startDate: new Date('2026-05-07') },
+        { name:'Full Moon',           startDate: new Date('2026-05-12') },
+        { name:'Last Creep Standing', startDate: new Date('2026-05-20') },
+      ];
+      homeEl.innerHTML = fallback.map(e => {
+        const d = e.startDate;
+        const isActive = d <= now;
+        const label = String(d.getDate()).padStart(2,'0') + '/' + months[d.getMonth()];
+        return `<div style="display:flex;align-items:center;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--rule)">
+          <div style="background:${isActive?'var(--bamboo)':'var(--rule)'};color:${isActive?'#fff':'var(--muted)'};border-radius:6px;padding:2px 8px;font-size:.7rem;font-weight:600;white-space:nowrap;min-width:46px;text-align:center;font-family:'DM Mono',monospace">${label}</div>
+          <div style="flex:1;font-size:.83rem;font-weight:${isActive?'500':'300'};color:${isActive?'var(--bamboo)':'var(--ink-3)'}">${e.name}</div>
+          ${isActive?'<span style="font-size:.6rem;background:var(--bamboo-pale);color:var(--bamboo);padding:1px 6px;border-radius:8px;font-weight:500">Ativo</span>':''}
+        </div>`;
+      }).join('');
+    }
   }
 }
 
@@ -1507,83 +1526,242 @@ async function loadTibiaEvents() {
 // ══════════════════════════════════════════════════
 // ── Imbuements data completo com 3 tiers ──
 const IMBU_ALL = [
-  { id:'vampirism', cat:'leech', name:'Vampirism', desc:'Life é regenerada por parte do dano causado', icon:'❤',
+  // ── SUPORTE ──────────────────────────────────────────
+  { id:'vampirism', cat:'leech', name:'Vampirism', desc:'Roubo de Vida — recupera HP pelo dano causado',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Vampirism_(Powerful).gif',
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'+5% Life Leech',  items:[{n:'Vampire Teeth',q:25}], gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'+10% Life Leech', items:[{n:'Vampire Teeth',q:25},{n:'Bloody Pincers',q:15}], gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'+25% Life Leech', items:[{n:'Vampire Teeth',q:25},{n:'Bloody Pincers',q:15},{n:'Piece of Dead Brain',q:5}], gold1:20000, gold20:100000 },
+      { label:'Basic',    color:'#3b82f6', effect:'+5% Life Leech',
+        items:[{n:'Vampire Teeth',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Vampire_Teeth.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+10% Life Leech',
+        items:[{n:'Vampire Teeth',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Vampire_Teeth.gif'},{n:'Bloody Pincers',q:15,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Bloody_Pincers.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+25% Life Leech',
+        items:[{n:'Vampire Teeth',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Vampire_Teeth.gif'},{n:'Bloody Pincers',q:15,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Bloody_Pincers.gif'},{n:'Piece of Dead Brain',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Piece_of_Dead_Brain.gif'}],
+        gold1:20000, gold20:100000 },
     ]},
-  { id:'void', cat:'leech', name:'Void', desc:'Mana é regenerada por parte do dano causado', icon:'💧',
+  { id:'void', cat:'leech', name:'Void', desc:'Roubo de Mana — recupera MP pelo dano causado',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Void_(Powerful).gif',
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'+5% Mana Leech',  items:[{n:'Rope Belt',q:25}], gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'+10% Mana Leech', items:[{n:'Rope Belt',q:25},{n:'Waspoid Wing',q:20}], gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'+25% Mana Leech', items:[{n:'Rope Belt',q:25},{n:'Waspoid Wing',q:20},{n:'Demonic Skeletal Hand',q:5}], gold1:20000, gold20:100000 },
+      { label:'Basic',    color:'#3b82f6', effect:'+5% Mana Leech',
+        items:[{n:'Rope Belt',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Rope_Belt.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+10% Mana Leech',
+        items:[{n:'Rope Belt',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Rope_Belt.gif'},{n:'Silencer Claws',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Silencer_Claws.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+25% Mana Leech',
+        items:[{n:'Rope Belt',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Rope_Belt.gif'},{n:'Silencer Claws',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Silencer_Claws.gif'},{n:'Some Grimeleech Wings',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Some_Grimeleech_Wings.gif'}],
+        gold1:20000, gold20:100000 },
     ]},
-  { id:'strike', cat:'crit', name:'Strike', desc:'Chance de desferir um golpe crítico com dano aumentado', icon:'⚡',
+  { id:'strike', cat:'crit', name:'Strike', desc:'Dano Crítico — chance de golpe crítico com dano aumentado',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Strike_(Powerful).gif',
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'Crit +5% dmg, 5% chance',  items:[{n:'Sabretooth',q:25}], gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'Crit +10% dmg, 8% chance', items:[{n:'Sabretooth',q:25},{n:'Vexclaw Talon',q:20}], gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'Crit +15% dmg, 10% chance',items:[{n:'Sabretooth',q:25},{n:'Vexclaw Talon',q:20},{n:'Shadowpelt',q:5}], gold1:20000, gold20:100000 },
+      { label:'Basic',    color:'#3b82f6', effect:'Crit +15% dmg, 5% chance',
+        items:[{n:'Protective Charm',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Protective_Charm.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'Crit +25% dmg, 8% chance',
+        items:[{n:'Protective Charm',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Protective_Charm.gif'},{n:'Sabretooth',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Sabretooth.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'Crit +50% dmg, 10% chance',
+        items:[{n:'Protective Charm',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Protective_Charm.gif'},{n:'Sabretooth',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Sabretooth.gif'},{n:'Vexclaw Talon',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Vexclaw_Talon.gif'}],
+        gold1:20000, gold20:100000 },
     ]},
-  { id:'precision', cat:'crit', name:'Precision', desc:'Aumenta a chance de critical para ataques à distância', icon:'🎯',
+  { id:'precision', cat:'crit', name:'Precision', desc:'Skillboost de Distância',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Precision_(Powerful).gif',
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'+1% Critical Chance (Dist.)', items:[{n:'Elven Hoof',q:25}], gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'+2% Critical Chance (Dist.)', items:[{n:'Elven Hoof',q:25},{n:'Beastslayer Arrow',q:20}], gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'+3% Critical Chance (Dist.)',items:[{n:'Elven Hoof',q:25},{n:'Beastslayer Arrow',q:20},{n:'Flask of Warrior Sweat',q:5}], gold1:20000, gold20:100000 },
+      { label:'Basic',    color:'#3b82f6', effect:'+1 Dist. Fighting',
+        items:[{n:'Elven Scouting Glass',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Elven_Scouting_Glass.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+2 Dist. Fighting',
+        items:[{n:'Elven Scouting Glass',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Elven_Scouting_Glass.gif'},{n:'Elven Hoof',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Elven_Hoof.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+4 Dist. Fighting',
+        items:[{n:'Elven Scouting Glass',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Elven_Scouting_Glass.gif'},{n:'Elven Hoof',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Elven_Hoof.gif'},{n:'Metal Spike',q:10,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Metal_Spike.gif'}],
+        gold1:20000, gold20:100000 },
     ]},
-  { id:'swiftness', cat:'util', name:'Swiftness', desc:'Aumenta sua velocidade de movimento', icon:'💨',
+  { id:'swiftness', cat:'util', name:'Swiftness', desc:'Skillboost de Velocidade',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Swiftness_(Powerful).gif',
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'+10 Speed', items:[{n:'Centipede Leg',q:25}], gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'+20 Speed', items:[{n:'Centipede Leg',q:25},{n:'Swan Feather',q:20}], gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'+30 Speed', items:[{n:'Centipede Leg',q:25},{n:'Swan Feather',q:20},{n:'Dreamwalker Boots',q:5}], gold1:20000, gold20:100000 },
+      { label:'Basic',    color:'#3b82f6', effect:'+10 Speed',
+        items:[{n:'Damselfly Wing',q:15,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Damselfly_Wing.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+20 Speed',
+        items:[{n:'Damselfly Wing',q:15,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Damselfly_Wing.gif'},{n:'Compass',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Compass.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+30 Speed',
+        items:[{n:'Damselfly Wing',q:15,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Damselfly_Wing.gif'},{n:'Compass',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Compass.gif'},{n:'Waspoid Wing',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Waspoid_Wing.gif'}],
+        gold1:20000, gold20:100000 },
     ]},
-  { id:'featherweight', cat:'util', name:'Featherweight', desc:'Aumenta sua capacidade máxima de carga', icon:'📦',
+  { id:'featherweight', cat:'util', name:'Featherweight', desc:'Aumento de Capacidade',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Featherweight_(Powerful).gif',
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'+100 Capacity', items:[{n:'Piece of Scarab Shell',q:25}], gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'+200 Capacity', items:[{n:'Piece of Scarab Shell',q:25},{n:'Spirit Container',q:20}], gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'+300 Capacity', items:[{n:'Piece of Scarab Shell',q:25},{n:'Spirit Container',q:20},{n:'Manticore Ear',q:5}], gold1:20000, gold20:100000 },
+      { label:'Basic',    color:'#3b82f6', effect:'+100 Capacity',
+        items:[{n:'Fairy Wings',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Fairy_Wings.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+200 Capacity',
+        items:[{n:'Fairy Wings',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Fairy_Wings.gif'},{n:'Little Bowl of Myrrh',q:10,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Little_Bowl_of_Myrrh.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+300 Capacity',
+        items:[{n:'Fairy Wings',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Fairy_Wings.gif'},{n:'Little Bowl of Myrrh',q:10,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Little_Bowl_of_Myrrh.gif'},{n:'Goosebump Leather',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Goosebump_Leather.gif'}],
+        gold1:20000, gold20:100000 },
     ]},
-  { id:'vibrancy', cat:'util', name:'Vibrancy', desc:'Cura paralisia quando ativado', icon:'🌀',
+  { id:'vibrancy', cat:'util', name:'Vibrancy', desc:'Remoção de Paralisia',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Vibrancy_(Powerful).gif',
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'Cura Paralisia (1 carga)', items:[{n:'Rorc Feather',q:25}], gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'Cura Paralisia (2 cargas)',items:[{n:'Rorc Feather',q:25},{n:'Rorc Egg',q:20}], gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'Cura Paralisia (3 cargas)',items:[{n:'Rorc Feather',q:25},{n:'Rorc Egg',q:20},{n:'Divine Egg',q:5}], gold1:20000, gold20:100000 },
+      { label:'Basic',    color:'#3b82f6', effect:'Remove Paralisia (1x)',
+        items:[{n:'Wereboar Hooves',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Wereboar_Hooves.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'Remove Paralisia (2x)',
+        items:[{n:'Wereboar Hooves',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Wereboar_Hooves.gif'},{n:'Crystallized Anger',q:15,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Crystallized_Anger.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'Remove Paralisia (3x)',
+        items:[{n:'Wereboar Hooves',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Wereboar_Hooves.gif'},{n:'Crystallized Anger',q:15,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Crystallized_Anger.gif'},{n:'Quill',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Quill.gif'}],
+        gold1:20000, gold20:100000 },
     ]},
-  { id:'lich', cat:'prot', name:'Lich Shroud', desc:'Reduz dano de morte recebido', icon:'💀',
+  // ── PROTEÇÃO ELEMENTAL ────────────────────────────────
+  { id:'lich', cat:'prot', name:'Lich Shroud', desc:'Proteção de Morte',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Lich_Shroud_(Powerful).gif',
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'3% Death Protection', items:[{n:'Pile of Grave Earth',q:25}], gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'4% Death Protection', items:[{n:'Pile of Grave Earth',q:25},{n:'Lich Tail',q:20}], gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'5% Death Protection', items:[{n:'Pile of Grave Earth',q:25},{n:'Lich Tail',q:20},{n:'Grim Reaper Scythe',q:5}], gold1:20000, gold20:100000 },
+      { label:'Basic',    color:'#3b82f6', effect:'+3% Death Protection',
+        items:[{n:'Flask of Embalming Fluid',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Flask_of_Embalming_Fluid.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+5% Death Protection',
+        items:[{n:'Flask of Embalming Fluid',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Flask_of_Embalming_Fluid.gif'},{n:'Gloom Wolf Fur',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Gloom_Wolf_Fur.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+8% Death Protection',
+        items:[{n:'Flask of Embalming Fluid',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Flask_of_Embalming_Fluid.gif'},{n:'Gloom Wolf Fur',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Gloom_Wolf_Fur.gif'},{n:'Mystical Hourglass',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Mystical_Hourglass.gif'}],
+        gold1:20000, gold20:100000 },
     ]},
-  { id:'snakeskin', cat:'prot', name:'Snake Skin', desc:'Reduz dano de terra recebido', icon:'🌿',
+  { id:'snakeskin', cat:'prot', name:'Snake Skin', desc:'Proteção de Terra',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Snake_Skin_(Powerful).gif',
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'3% Earth Protection', items:[{n:'Snake Skin',q:25}], gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'4% Earth Protection', items:[{n:'Snake Skin',q:25},{n:'Piece of Swampling Wood',q:20}], gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'5% Earth Protection', items:[{n:'Snake Skin',q:25},{n:'Piece of Swampling Wood',q:20},{n:'Hideous Chunk',q:5}], gold1:20000, gold20:100000 },
+      { label:'Basic',    color:'#3b82f6', effect:'+3% Earth Protection',
+        items:[{n:'Piece of Swampling Wood',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Piece_of_Swampling_Wood.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+5% Earth Protection',
+        items:[{n:'Piece of Swampling Wood',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Piece_of_Swampling_Wood.gif'},{n:'Snake Skin',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Snake_Skin.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+8% Earth Protection',
+        items:[{n:'Piece of Swampling Wood',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Piece_of_Swampling_Wood.gif'},{n:'Snake Skin',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Snake_Skin.gif'},{n:'Brimstone Fangs',q:10,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Brimstone_Fangs.gif'}],
+        gold1:20000, gold20:100000 },
     ]},
-  { id:'dragonhide', cat:'prot', name:'Dragon Hide', desc:'Reduz dano de fogo recebido', icon:'🔥',
+  { id:'dragonhide', cat:'prot', name:'Dragon Hide', desc:'Proteção de Fogo',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Dragon_Hide_(Powerful).gif',
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'3% Fire Protection', items:[{n:'Dragon Scales',q:25}], gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'4% Fire Protection', items:[{n:'Dragon Scales',q:25},{n:'Magma Morel',q:20}], gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'5% Fire Protection', items:[{n:'Dragon Scales',q:25},{n:'Magma Morel',q:20},{n:'Blazing Bone',q:5}], gold1:20000, gold20:100000 },
+      { label:'Basic',    color:'#3b82f6', effect:'+3% Fire Protection',
+        items:[{n:'Green Dragon Leather',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Green_Dragon_Leather.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+5% Fire Protection',
+        items:[{n:'Green Dragon Leather',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Green_Dragon_Leather.gif'},{n:'Blazing Bone',q:10,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Blazing_Bone.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+8% Fire Protection',
+        items:[{n:'Green Dragon Leather',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Green_Dragon_Leather.gif'},{n:'Blazing Bone',q:10,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Blazing_Bone.gif'},{n:'Draken Sulphur',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Draken_Sulphur.gif'}],
+        gold1:20000, gold20:100000 },
     ]},
-  { id:'cloud', cat:'prot', name:'Cloud Fabric', desc:'Reduz dano de gelo recebido', icon:'❄',
+  { id:'cloud', cat:'prot', name:'Cloud Fabric', desc:'Proteção de Energia',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Cloud_Fabric_(Powerful).gif',
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'3% Ice Protection', items:[{n:'Cloud Fabric',q:25}], gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'4% Ice Protection', items:[{n:'Cloud Fabric',q:25},{n:'Frosty Heart',q:20}], gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'5% Ice Protection', items:[{n:'Cloud Fabric',q:25},{n:'Frosty Heart',q:20},{n:'Pair of Old Bracers',q:5}], gold1:20000, gold20:100000 },
+      { label:'Basic',    color:'#3b82f6', effect:'+3% Energy Protection',
+        items:[{n:'Wyvern Talisman',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Wyvern_Talisman.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+5% Energy Protection',
+        items:[{n:'Wyvern Talisman',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Wyvern_Talisman.gif'},{n:'Crawler Head Plating',q:15,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Crawler_Head_Plating.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+8% Energy Protection',
+        items:[{n:'Wyvern Talisman',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Wyvern_Talisman.gif'},{n:'Crawler Head Plating',q:15,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Crawler_Head_Plating.gif'},{n:'Wyrm Scale',q:10,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Wyrm_Scale.gif'}],
+        gold1:20000, gold20:100000 },
     ]},
-  { id:'demon', cat:'prot', name:'Demon Presence', desc:'Reduz dano de energia recebido', icon:'⚡',
+  { id:'demon', cat:'prot', name:'Demon Presence', desc:'Proteção de Sagrado',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Demon_Presence_(Powerful).gif',
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'3% Energy Protection', items:[{n:'Demonic Essence',q:25}], gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'4% Energy Protection', items:[{n:'Demonic Essence',q:25},{n:'Orb of Destruction',q:20}], gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'5% Energy Protection', items:[{n:'Demonic Essence',q:25},{n:'Orb of Destruction',q:20},{n:'Piece of Dead Brain',q:5}], gold1:20000, gold20:100000 },
+      { label:'Basic',    color:'#3b82f6', effect:'+3% Holy Protection',
+        items:[{n:'Cultish Robe',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Cultish_Robe.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+5% Holy Protection',
+        items:[{n:'Cultish Robe',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Cultish_Robe.gif'},{n:'Cultish Mask',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Cultish_Mask.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+8% Holy Protection',
+        items:[{n:'Cultish Robe',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Cultish_Robe.gif'},{n:'Cultish Mask',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Cultish_Mask.gif'},{n:'Hellspawn Tail',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Hellspawn_Tail.gif'}],
+        gold1:20000, gold20:100000 },
     ]},
-  { id:'blockade', cat:'prot', name:'Blockade', desc:'Reduz dano físico recebido', icon:'🛡',
+  { id:'blockade', cat:'prot', name:'Blockade', desc:'Proteção de Gelo',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Blockade_(Powerful).gif',
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'2% Physical Protection', items:[{n:'Rock Beetle Shell',q:25}], gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'3% Physical Protection', items:[{n:'Rock Beetle Shell',q:25},{n:'Hardened Bone',q:20}], gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'4% Physical Protection', items:[{n:'Rock Beetle Shell',q:25},{n:'Hardened Bone',q:20},{n:'Protective Charm',q:5}], gold1:20000, gold20:100000 },
+      { label:'Basic',    color:'#3b82f6', effect:'+3% Ice Protection',
+        items:[{n:'Winter Wolf Fur',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Winter_Wolf_Fur.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+5% Ice Protection',
+        items:[{n:'Winter Wolf Fur',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Winter_Wolf_Fur.gif'},{n:'Thick Fur',q:15,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Thick_Fur.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+8% Ice Protection',
+        items:[{n:'Winter Wolf Fur',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Winter_Wolf_Fur.gif'},{n:'Thick Fur',q:15,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Thick_Fur.gif'},{n:'Deepling Warts',q:10,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Deepling_Warts.gif'}],
+        gold1:20000, gold20:100000 },
+    ]},
+  // ── DANO ELEMENTAL ───────────────────────────────────
+  { id:'reap', cat:'dmg', name:'Reap', desc:'Dano de Morte',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Reap_(Powerful).gif',
+    tiers:[
+      { label:'Basic',    color:'#3b82f6', effect:'+5% Death Dmg',
+        items:[{n:'Pile of Grave Earth',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Pile_of_Grave_Earth.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+9% Death Dmg',
+        items:[{n:'Pile of Grave Earth',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Pile_of_Grave_Earth.gif'},{n:'Demonic Skeletal Hand',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Demonic_Skeletal_Hand.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+12% Death Dmg',
+        items:[{n:'Pile of Grave Earth',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Pile_of_Grave_Earth.gif'},{n:'Demonic Skeletal Hand',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Demonic_Skeletal_Hand.gif'},{n:'Petrified Scream',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Petrified_Scream.gif'}],
+        gold1:20000, gold20:100000 },
+    ]},
+  { id:'electrify', cat:'dmg', name:'Electrify', desc:'Dano de Energia',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Electrify_(Powerful).gif',
+    tiers:[
+      { label:'Basic',    color:'#3b82f6', effect:'+5% Energy Dmg',
+        items:[{n:'Rorc Feather',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Rorc_Feather.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+9% Energy Dmg',
+        items:[{n:'Rorc Feather',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Rorc_Feather.gif'},{n:'Peacock Feather Fan',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Peacock_Feather_Fan.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+12% Energy Dmg',
+        items:[{n:'Rorc Feather',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Rorc_Feather.gif'},{n:'Peacock Feather Fan',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Peacock_Feather_Fan.gif'},{n:'Energy Vein',q:1,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Energy_Vein.gif'}],
+        gold1:20000, gold20:100000 },
+    ]},
+  { id:'venom', cat:'dmg', name:'Venom', desc:'Dano de Terra',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Venom_(Powerful).gif',
+    tiers:[
+      { label:'Basic',    color:'#3b82f6', effect:'+5% Earth Dmg',
+        items:[{n:'Swamp Grass',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Swamp_Grass.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+9% Earth Dmg',
+        items:[{n:'Swamp Grass',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Swamp_Grass.gif'},{n:'Poisonous Slime',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Poisonous_Slime.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+12% Earth Dmg',
+        items:[{n:'Swamp Grass',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Swamp_Grass.gif'},{n:'Poisonous Slime',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Poisonous_Slime.gif'},{n:'Slime Heart',q:2,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Slime_Heart.gif'}],
+        gold1:20000, gold20:100000 },
+    ]},
+  { id:'frost', cat:'dmg', name:'Frost', desc:'Dano de Gelo',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Frost_(Powerful).gif',
+    tiers:[
+      { label:'Basic',    color:'#3b82f6', effect:'+5% Ice Dmg',
+        items:[{n:'Frosty Heart',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Frosty_Heart.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+9% Ice Dmg',
+        items:[{n:'Frosty Heart',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Frosty_Heart.gif'},{n:'Seacrest Hair',q:10,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Seacrest_Hair.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+12% Ice Dmg',
+        items:[{n:'Frosty Heart',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Frosty_Heart.gif'},{n:'Seacrest Hair',q:10,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Seacrest_Hair.gif'},{n:'Polar Bear Paw',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Polar_Bear_Paw.gif'}],
+        gold1:20000, gold20:100000 },
+    ]},
+  { id:'scorch', cat:'dmg', name:'Scorch', desc:'Dano de Fogo',
+    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Scorch_(Powerful).gif',
+    tiers:[
+      { label:'Basic',    color:'#3b82f6', effect:'+5% Fire Dmg',
+        items:[{n:'Fiery Heart',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Fiery_Heart.gif'}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+9% Fire Dmg',
+        items:[{n:'Fiery Heart',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Fiery_Heart.gif'},{n:'Green Dragon Scale',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Green_Dragon_Scale.gif'}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+12% Fire Dmg',
+        items:[{n:'Fiery Heart',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Fiery_Heart.gif'},{n:'Green Dragon Scale',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Green_Dragon_Scale.gif'},{n:'Demon Horn',q:5,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Demon_Horn.gif'}],
+        gold1:20000, gold20:100000 },
     ]},
 ];
 
@@ -1592,9 +1770,14 @@ function renderImbuPage(filter) {
   if (!grid) return;
   const items = filter === 'all' ? IMBU_ALL : IMBU_ALL.filter(i => i.cat === filter);
   grid.innerHTML = items.map(d => `
-    <div class="card" style="cursor:pointer;transition:transform .15s" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform='none'" onclick="openImbuModal('${d.id}')">
+    <div class="card" data-imbu-id="${d.id}" style="cursor:pointer;transition:transform .15s" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform='none'" onclick="openImbuModal('${d.id}')">
       <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem">
-        <div style="width:48px;height:48px;border-radius:8px;background:var(--paper);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${d.icon}</div>
+        <div style="width:48px;height:48px;border-radius:8px;background:var(--paper);border:1px solid var(--rule);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center">
+        ${d.icon
+          ? `<img data-imbu-icon src="${d.icon}" alt="${d.name}" style="width:100%;height:100%;image-rendering:pixelated;object-fit:contain" onerror="this.src='';this.parentNode.innerHTML='<span style=font-size:1.3rem>⚗</span>'">`
+          : `<span style="font-size:1.3rem">⚗</span>`
+        }
+      </div>
         <div>
           <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:1rem;color:var(--ink)">${d.name}</div>
           <div style="font-size:.75rem;color:var(--muted);font-weight:300;margin-top:2px">${d.desc}</div>
@@ -1607,6 +1790,7 @@ function renderImbuPage(filter) {
       <div style="font-size:.72rem;color:var(--muted);font-weight:300;margin-top:.5rem;text-align:right">Comparar tiers →</div>
     </div>`).join('');
 }
+  setTimeout(injectImbuIcons, 100);
 
 // Gold Token prices via NPC (Vampirism, Void, Strike)
 const GOLD_TOKEN_IMBU = {
@@ -1616,6 +1800,21 @@ const GOLD_TOKEN_IMBU = {
 };
 
 let currentImbuId = null;
+
+const itemImgCache = {};
+
+async function fetchItemImg(name) {
+  if (itemImgCache[name] !== undefined) return itemImgCache[name];
+  try {
+    const data = await tibiaFetch('/v4/item/' + encodeURIComponent(name));
+    const url = data?.item?.image_url || '';
+    itemImgCache[name] = url;
+    return url;
+  } catch(e) {
+    itemImgCache[name] = '';
+    return '';
+  }
+}
 
 function openImbuModal(id) {
   const d = IMBU_ALL.find(i => i.id === id);
@@ -1634,9 +1833,12 @@ function openImbuModal(id) {
       </div>
       <div style="font-size:.68rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Itens necessários</div>
       ${t.items.map(i=>`
-        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--rule);font-size:.85rem">
-          <span style="color:var(--ink-3);font-weight:300">${i.n}</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:500;color:var(--ink)">${i.q}x</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--rule);gap:.5rem">
+          <div style="display:flex;align-items:center;gap:.5rem;min-width:0">
+            ${i.u ? `<img data-item-img="${i.n}" src="${i.u}" alt="${i.n}" style="width:24px;height:24px;image-rendering:pixelated;flex-shrink:0;border-radius:3px" onerror="this.style.opacity='0.3'">` : `<img data-item-img="${i.n}" src="" alt="${i.n}" style="width:24px;height:24px;image-rendering:pixelated;flex-shrink:0;border-radius:3px;opacity:0">`}
+            <span style="color:var(--ink-3);font-weight:300;font-size:.83rem">${i.n}</span>
+          </div>
+          <span style="font-family:'DM Mono',monospace;font-weight:500;color:var(--ink);font-size:.83rem;flex-shrink:0">${i.q}x</span>
         </div>`).join('')}
       ${hasToken ? `<div style="margin-top:.6rem;padding:.5rem .75rem;background:var(--gold-pale);border-radius:6px;font-size:.78rem;color:var(--gold);font-weight:500">🪙 NPC: ${Object.values(GOLD_TOKEN_IMBU[id])[ti]} Gold Token${Object.values(GOLD_TOKEN_IMBU[id])[ti]>1?'s':''}</div>` : ''}
       <div style="margin-top:1rem;padding-top:.75rem;border-top:2px solid var(--rule)">
@@ -1693,6 +1895,17 @@ function openImbuModal(id) {
   document.getElementById('imbu-modal-calc').innerHTML = calcHtml;
   document.getElementById('imbu-modal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
+
+  // Fetch item images via API and inject
+  d.tiers.forEach((t, ti) => {
+    t.items.forEach(async (item, ii) => {
+      if (item.u) return; // already has URL from data
+      const url = await fetchItemImg(item.n);
+      if (!url) return;
+      const imgEls = document.querySelectorAll(`[data-item-img="${item.n}"]`);
+      imgEls.forEach(el => { el.src = url; });
+    });
+  });
 }
 
 function calcImbuCost(id) {
@@ -1783,6 +1996,21 @@ function filterImbu(f, btn) {
   document.querySelectorAll('#imbu-tier-bar .filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderImbuPage(f);
+}
+
+// Inject imbuement images after cards render
+async function injectImbuIcons() {
+  const items = document.querySelectorAll('[data-imbu-id]');
+  for (const el of items) {
+    const id = el.dataset.imbuId;
+    const d  = IMBU_ALL.find(i => i.id === id);
+    if (!d) continue;
+    const imgEl = el.querySelector('[data-imbu-icon]');
+    if (!imgEl || imgEl.src) continue;
+    // Try fetching via API using imbuement name
+    const url = await fetchItemImg(d.name + ' (Powerful)');
+    if (url) imgEl.src = url;
+  }
 }
 
 // ══════════════════════════════════════════════════
