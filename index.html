@@ -1381,83 +1381,124 @@ function vocEmoji(voc = '') {
 //  TIBIA OFFICIAL EVENTS  —  /v4/news/latest
 // ══════════════════════════════════════════════════
 async function loadTibiaEvents() {
+  // A TibiaData nao tem endpoint de eventos.
+  // Usamos a API publica do Tibia.com diretamente (sem CORS issues pois e JSON publico).
+  // Endpoint: https://www.tibia.com/api/v3/event-schedule?offset=0&limit=100
+  const TIBIA_EVENTS_URL = 'https://www.tibia.com/api/v3/event-schedule?offset=0&limit=100';
+
+  const container = document.getElementById('tibia-events-list');
+  const loading   = document.getElementById('tibia-events-loading');
+  const errEl     = document.getElementById('tibia-events-error');
+  const homeEl    = document.getElementById('home-tibia-events');
+
   try {
-    const data = await tibiaFetch('/v4/events/');
-    const events = data?.events?.greenlist || [];
-
-    const container = document.getElementById('tibia-events-list');
-    const loading   = document.getElementById('tibia-events-loading');
-    const errEl     = document.getElementById('tibia-events-error');
-
-    loading.style.display = 'none';
-
-    if (!events.length) {
-      errEl.style.display = 'block';
-      errEl.innerHTML = '<strong>Nenhum evento oficial encontrado no momento.</strong>';
-      return;
+    // Tenta direto (funciona se nao houver bloqueio CORS no servidor)
+    // Se der erro de CORS, tenta via proxy
+    var resp;
+    try {
+      resp = await fetch(TIBIA_EVENTS_URL);
+    } catch(corsErr) {
+      // fallback: tenta via proxy do Cloudflare Worker se configurado
+      if (CONFIG.proxy) {
+        resp = await fetch(CONFIG.proxy + '/tibia-events');
+      } else {
+        throw corsErr;
+      }
     }
+
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+
+    // A API do tibia.com retorna { eventList: [ { startdate, enddate, name, description, ... } ] }
+    // ou pode vir como data.events dependendo da versao — tratamos os dois casos
+    var events = [];
+    if (data && data.eventList) {
+      events = data.eventList;
+    } else if (data && data.events) {
+      events = Array.isArray(data.events) ? data.events : (data.events.greenlist || []);
+    } else if (Array.isArray(data)) {
+      events = data;
+    }
+
+    if (loading) loading.style.display = 'none';
 
     const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     const now = new Date();
+    now.setHours(0,0,0,0);
 
-    // Filtra eventos futuros ou em andamento
-    const upcoming = events
-      .filter(e => e.startdate && new Date(e.enddate || e.startdate) >= now)
-      .slice(0, 8);
+    // normaliza campos: startdate pode vir como start_date ou startDate
+    events = events.map(function(e) {
+      return {
+        name: e.name || e.title || 'Evento Tibia',
+        description: e.description || e.desc || '',
+        startdate: e.startdate || e.start_date || e.startDate || e.date || '',
+        enddate:   e.enddate   || e.end_date   || e.endDate   || e.startdate || e.start_date || ''
+      };
+    });
+
+    // filtra so futuros/em andamento
+    var upcoming = events.filter(function(e) {
+      if (!e.startdate) return false;
+      var end = new Date(e.enddate || e.startdate);
+      end.setHours(23,59,59,999);
+      return end >= now;
+    }).sort(function(a,b) {
+      return new Date(a.startdate) - new Date(b.startdate);
+    }).slice(0, 10);
 
     if (!upcoming.length) {
-      errEl.style.display = 'block';
-      errEl.innerHTML = '<strong>Nenhum evento próximo no momento.</strong>';
+      if (errEl) { errEl.style.display = 'block'; errEl.innerHTML = '<strong>Nenhum evento próximo no momento.</strong>'; }
+      if (homeEl) homeEl.innerHTML = '<p style="font-size:.82rem;color:var(--muted);font-weight:300;padding:.5rem 0">Sem eventos em breve.</p>';
       return;
     }
 
-    container.innerHTML = upcoming.map(e => {
-      const start = new Date(e.startdate);
-      const day   = start.getDate();
-      const month = months[start.getMonth()];
-      const name  = e.name || 'Evento Tibia';
-      const desc  = e.description ? e.description.slice(0, 80) + (e.description.length > 80 ? '…' : '') : '';
-      const isActive = new Date(e.startdate) <= now;
-      return `
-        <div class="event-row">
-          <div class="event-date-box">
-            <div class="event-day">${day}</div>
-            <div class="event-month">${month}</div>
-          </div>
-          <div class="event-info">
-            <div class="event-name">${name}</div>
-            <div class="event-detail">${desc}</div>
-          </div>
-          <span class="event-type ${isActive ? 'et-hunt' : 'et-social'}">${isActive ? 'Ativo' : 'Em breve'}</span>
-        </div>`;
-    }).join('');
-
-    container.style.display = 'flex';
-    container.style.flexDirection = 'column';
+    // Renderiza lista completa na aba Eventos
+    if (container) {
+      container.innerHTML = upcoming.map(function(e) {
+        var start = new Date(e.startdate);
+        var end   = new Date(e.enddate || e.startdate);
+        var day   = start.getDate();
+        var month = months[start.getMonth()];
+        var name  = e.name;
+        var desc  = e.description ? e.description.replace(/<[^>]+>/g,'').slice(0,90) + (e.description.length > 90 ? '…' : '') : '';
+        var isActive = start <= now && end >= now;
+        var endDay = end.getDate() !== start.getDate() ? (' – ' + end.getDate() + '/' + months[end.getMonth()]) : '';
+        return '<div class="event-row">' +
+          '<div class="event-date-box">' +
+          '<div class="event-day">' + day + '</div>' +
+          '<div class="event-month">' + month + endDay + '</div>' +
+          '</div>' +
+          '<div class="event-info">' +
+          '<div class="event-name">' + name + '</div>' +
+          (desc ? '<div class="event-detail">' + desc + '</div>' : '') +
+          '</div>' +
+          '<span class="event-type ' + (isActive ? 'et-hunt' : 'et-social') + '">' + (isActive ? 'Ativo' : 'Em breve') + '</span>' +
+          '</div>';
+      }).join('');
+      container.style.display = 'flex';
+      container.style.flexDirection = 'column';
+    }
 
     // Mini widget na home
-    const homeEl = document.getElementById('home-tibia-events');
-    const homeLoad = document.getElementById('home-boosted-loading');
     if (homeEl) {
-      homeEl.innerHTML = upcoming.slice(0,4).map(e => {
-        const start2 = new Date(e.startdate);
-        const isActive2 = new Date(e.startdate) <= now;
+      homeEl.innerHTML = upcoming.slice(0,4).map(function(e) {
+        var start2 = new Date(e.startdate);
+        var isActive2 = start2 <= now && new Date(e.enddate || e.startdate) >= now;
         return '<div style="display:flex;align-items:center;gap:.75rem;padding:.55rem 0;border-bottom:1px solid var(--rule)">' +
-          '<div style="text-align:center;min-width:36px"><div style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:var(--ink);line-height:1">' + start2.getDate() + '</div>' +
+          '<div style="text-align:center;min-width:36px">' +
+          '<div style="font-family:Playfair Display,serif;font-size:1rem;font-weight:700;color:var(--ink);line-height:1">' + start2.getDate() + '</div>' +
           '<div style="font-size:.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px">' + months[start2.getMonth()] + '</div></div>' +
-          '<div style="flex:1;font-size:.85rem;font-weight:' + (isActive2?'500':'300') + ';color:' + (isActive2?'var(--bamboo)':'var(--ink-3)') + '">' + (e.name||'Evento') + '</div>' +
+          '<div style="flex:1;font-size:.85rem;font-weight:' + (isActive2?'500':'300') + ';color:' + (isActive2?'var(--bamboo)':'var(--ink-3)') + '">' + e.name + '</div>' +
           (isActive2 ? '<span style="font-size:.62rem;background:var(--bamboo-pale);color:var(--bamboo);padding:2px 7px;border-radius:10px;font-weight:500">Ativo</span>' : '') +
           '</div>';
       }).join('');
     }
-  } catch(e) {
-    console.error('Tibia events error:', e);
-    const lEl = document.getElementById('tibia-events-loading');
-    if (lEl) lEl.style.display = 'none';
-    const errEl = document.getElementById('tibia-events-error');
-    if (errEl) { errEl.style.display = 'block'; }
-    const homeEl2 = document.getElementById('home-tibia-events');
-    if (homeEl2) homeEl2.innerHTML = '<p style="font-size:.82rem;color:var(--muted);font-weight:300;padding:.5rem 0">Não foi possível carregar eventos.</p>';
+
+  } catch(err) {
+    console.error('Tibia events error:', err);
+    if (loading) loading.style.display = 'none';
+    if (errEl) { errEl.style.display = 'block'; errEl.innerHTML = '<strong>Não foi possível carregar os eventos.</strong> <span style="font-weight:300;font-size:.88rem">Verifique o proxy CORS ou tente novamente.</span>'; }
+    if (homeEl) homeEl.innerHTML = '<p style="font-size:.82rem;color:var(--muted);font-weight:300;padding:.5rem 0">Não foi possível carregar eventos.</p>';
   }
 }
 
