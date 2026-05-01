@@ -1525,10 +1525,31 @@ async function loadTibiaEvents() {
 //  IMBUEMENTS PAGE
 // ══════════════════════════════════════════════════
 // ── Imbuements data completo com 3 tiers ──
+const IMBU_ICONS = {
+  'vampirism': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzFhMDUwNSIvPjxwYXRoIGQ9Ik0yMCA4Yy00IDAtOCAzLTggOCAwIDMgMiA1IDQgNmwtMiAxMGgxMmwtMi0xMGMyLTEgNC0zIDQtNiAwLTUtNC04LTgtOHoiIGZpbGw9IiNjYzIyMjIiLz48Y2lyY2xlIGN4PSIxNyIgY3k9IjE4IiByPSIxLjUiIGZpbGw9IiNmZjY2NjYiLz48Y2lyY2xlIGN4PSIyMyIgY3k9IjE4IiByPSIxLjUiIGZpbGw9IiNmZjY2NjYiLz48L3N2Zz4=',
+  'void': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MDUxYSIvPjxlbGxpcHNlIGN4PSIyMCIgY3k9IjIwIiByeD0iMTAiIHJ5PSIxMiIgZmlsbD0iIzIyMzNhYSIvPjxlbGxpcHNlIGN4PSIyMCIgY3k9IjE4IiByeD0iNiIgcnk9IjciIGZpbGw9IiM0NDU1Y2MiLz48ZWxsaXBzZSBjeD0iMjAiIGN5PSIxNiIgcng9IjMiIHJ5PSI0IiBmaWxsPSIjODg5OWZmIi8+PGNpcmNsZSBjeD0iMjAiIGN5PSIxNCIgcj0iMS41IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==',
+  'strike': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzFhMGEwMCIvPjxwb2x5Z29uIHBvaW50cz0iMjAsNiAyNiwxOCAzOCwxOCAyOCwyNiAzMiwzOCAyMCwzMCA4LDM4IDEyLDI2IDIsMTggMTQsMTgiIGZpbGw9IiNmZjg4MDAiIHN0cm9rZT0iI2ZmYWEzMyIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9zdmc+',
+  'precision': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MTAwYSIvPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjEyIiBmaWxsPSJub25lIiBzdHJva2U9IiMzM2FhNTUiIHN0cm9rZS13aWR0aD0iMiIvPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjciIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ0Y2M2NiIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIgZmlsbD0iIzU1ZmY3NyIvPjxsaW5lIHgxPSIyMCIgeTE9IjgiIHgyPSIyMCIgeTI9IjEzIiBzdHJva2U9IiM0NGNjNjYiIHN0cm9rZS13aWR0aD0iMS41Ii8+PGxpbmUgeDE9IjIwIiB5MT0iMjciIHgyPSIyMCIgeTI9IjMyIiBzdHJva2U9IiM0NGNjNjYiIHN0cm9rZS13aWR0aD0iMS41Ii8+PGxpbmUgeDE9IjgiIHkxPSIyMCIgeDI9IjEzIiB5Mj0iMjAiIHN0cm9rZT0iIzQ0Y2M2NiIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48bGluZSB4MT0iMjciIHkxPSIyMCIgeDI9IjMyIiB5Mj0iMjAiIHN0cm9rZT0iIzQ0Y2M2NiIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48L3N2Zz4=',
+  'swiftness': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MGExYSIvPjxwYXRoIGQ9Ik0yOCAxMGwtMTQgOCA2IDItOCAxMCAxNC04LTYtMnoiIGZpbGw9IiNhYWJiZmYiLz48cGF0aCBkPSJNMTAgMjBoNk0xMCAxNmg0TTEwIDI0aDQiIHN0cm9rZT0iIzY2NzdjYyIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==',
+  'featherweight': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzBhMDgwNSIvPjxwYXRoIGQ9Ik0yMCA4YzAgMC0xMCA4LTEwIDE2IDAgNSA0IDggMTAgOHMxMC0zIDEwLThjMC04LTEwLTE2LTEwLTE2eiIgZmlsbD0iIzhCNjkxNCIgc3Ryb2tlPSIjYzQ5YTI4IiBzdHJva2Utd2lkdGg9IjEiLz48cGF0aCBkPSJNMjAgMTJjMCAwLTYgNS02IDEyIDAgMyAyIDUgNiA1czYtMiA2LTVjMC03LTYtMTItNi0xMnoiIGZpbGw9IiNjNDlhMjgiLz48L3N2Zz4=',
+  'vibrancy': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzBhMDUxMiIvPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjExIiBmaWxsPSIjNjYyMmFhIi8+PHBhdGggZD0iTTEzIDIwIFExNyAxNCAyMCAyMCBRMjMgMjYgMjcgMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NjODhmZiIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==',
+  'lich': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MDUwYSIvPjxwYXRoIGQ9Ik0yMCA3IEwxMyAxNiBMOSAxNSBMMTQgMjIgTDExIDMxIEwyMCAyNyBMMjkgMzEgTDI2IDIyIEwzMSAxNSBMMjcgMTYgWiIgZmlsbD0iIzQ0NDQ1NSIgc3Ryb2tlPSIjNjY2NmFhIiBzdHJva2Utd2lkdGg9IjEiLz48Y2lyY2xlIGN4PSIxNiIgY3k9IjE5IiByPSIyIiBmaWxsPSIjYWFhYWZmIi8+PGNpcmNsZSBjeD0iMjQiIGN5PSIxOSIgcj0iMiIgZmlsbD0iI2FhYWFmZiIvPjwvc3ZnPg==',
+  'snakeskin': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MTAwNSIvPjxwYXRoIGQ9Ik0yMCA4Yy01IDAtOSA0LTkgOSAwIDMgMiA2IDUgOGwtMyA3aDE0bC0zLTdjMy0yIDUtNSA1LTggMC01LTQtOS05LTl6IiBmaWxsPSIjMjI4ODIyIiBzdHJva2U9IiM0NGFhNDQiIHN0cm9rZS13aWR0aD0iMSIvPjxwYXRoIGQ9Ik0xNSAyMCBRMjAgMTYgMjUgMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzg4Y2M4OCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48L3N2Zz4=',
+  'dragonhide': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzFhMDUwMCIvPjxwYXRoIGQ9Ik0yMCA3IEwyOSAxMyBMMzIgMjIgTDI3IDMxIEwyMCAzMyBMMTMgMzEgTDggMjIgTDExIDEzIFoiIGZpbGw9IiNjYzMzMDAiIHN0cm9rZT0iI2ZmNTUyMiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHBhdGggZD0iTTIwIDcgTDI5IDEzIE0yMCA3IEwxMSAxMyIgc3Ryb2tlPSIjZmY4ODY2IiBzdHJva2Utd2lkdGg9IjEiLz48cGF0aCBkPSJNMTYgMTggTDIwIDE1IEwyNCAxOCBMMjIgMjQgTDE4IDI0IFoiIGZpbGw9IiNmZjc3NDQiLz48L3N2Zz4=',
+  'cloud': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MDUxYSIvPjxwYXRoIGQ9Ik0xNCAyMiBRMTIgMjIgMTIgMTkgUTEyIDE1IDE2IDE1IFExNyAxMSAyMSAxMSBRMjYgMTEgMjcgMTUgUTMwIDE1IDMwIDE5IFEzMCAyMiAyOCAyMiBaIiBmaWxsPSIjMzM0NGJiIiBzdHJva2U9IiM1NTY2ZGQiIHN0cm9rZS13aWR0aD0iMSIvPjxwYXRoIGQ9Ik0xNyAyOCBMMTQgMjIgTTIwIDI4IEwyMCAyMiBNMjMgMjggTDI2IDIyIiBzdHJva2U9IiNhYWJiZmYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=',
+  'demon': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzFhMTAwMCIvPjxwYXRoIGQ9Ik0yMCA4IEwyOCAxNCBMMjggMjQgTDIwIDMwIEwxMiAyNCBMMTIgMTQgWiIgZmlsbD0iI2FhYWEwMCIgc3Ryb2tlPSIjZGRkZDIyIiBzdHJva2Utd2lkdGg9IjEiLz48cGF0aCBkPSJNMTUgMTIgTDE0IDggTTI1IDEyIEwyNiA4IiBzdHJva2U9IiNmZmZmNDQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iMTciIGN5PSIxOSIgcj0iMiIgZmlsbD0iI2ZmZmY4OCIvPjxjaXJjbGUgY3g9IjIzIiBjeT0iMTkiIHI9IjIiIGZpbGw9IiNmZmZmODgiLz48L3N2Zz4=',
+  'blockade': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwMTAyMCIvPjxyZWN0IHg9IjEwIiB5PSIxMiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjE4IiByeD0iMyIgZmlsbD0iIzExNzdhYSIgc3Ryb2tlPSIjMzNhYWRkIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxsaW5lIHgxPSIxNiIgeTE9IjEyIiB4Mj0iMTYiIHkyPSIzMCIgc3Ryb2tlPSIjMzNhYWRkIiBzdHJva2Utd2lkdGg9IjEiLz48bGluZSB4MT0iMjQiIHkxPSIxMiIgeDI9IjI0IiB5Mj0iMzAiIHN0cm9rZT0iIzMzYWFkZCIgc3Ryb2tlLXdpZHRoPSIxIi8+PGxpbmUgeDE9IjEwIiB5MT0iMjEiIHgyPSIzMCIgeTI9IjIxIiBzdHJva2U9IiMzM2FhZGQiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==',
+  'reap': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MDUwNSIvPjxwYXRoIGQ9Ik0yOCA4IFEyMiAxNCAyMCAyMCBRMTggMjYgMjIgMzIgTDI0IDMwIFEyMSAyNSAyMyAyMCBRMjUgMTUgMzEgMTAgWiIgZmlsbD0iIzU1NTU2NiIvPjxwYXRoIGQ9Ik0xMCAzMiBMMjAgMjAiIHN0cm9rZT0iIzg4ODhhYSIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48Y2lyY2xlIGN4PSIxMCIgY3k9IjMyIiByPSIzIiBmaWxsPSIjYWFhYWNjIi8+PC9zdmc+',
+  'electrify': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MDUxYSIvPjxwYXRoIGQ9Ik0yMiA2IEwxNCAyMiBMMjAgMjIgTDE4IDM0IEwyNiAxOCBMMjAgMTggWiIgZmlsbD0iI2JiNDRmZiIgc3Ryb2tlPSIjZGQ4OGZmIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=',
+  'venom': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MTAwNSIvPjxwYXRoIGQ9Ik0yMCA4IFEyNiAxMiAyOCAyMCBRMjYgMjggMjAgMzIgUTE0IDI4IDEyIDIwIFExNCAxMiAyMCA4WiIgZmlsbD0iIzMzODgzMyIgc3Ryb2tlPSIjNTVjYzU1IiBzdHJva2Utd2lkdGg9IjEiLz48cGF0aCBkPSJNMTYgMjAgUTE4IDE2IDIwIDIwIFEyMiAyNCAyNCAyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYWFmZmFhIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==',
+  'frost': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwMGExNCIvPjxsaW5lIHgxPSIyMCIgeTE9IjgiIHgyPSIyMCIgeTI9IjMyIiBzdHJva2U9IiM0NGNjZmYiIHN0cm9rZS13aWR0aD0iMi41Ii8+PGxpbmUgeDE9IjgiIHkxPSIyMCIgeDI9IjMyIiB5Mj0iMjAiIHN0cm9rZT0iIzQ0Y2NmZiIgc3Ryb2tlLXdpZHRoPSIyLjUiLz48bGluZSB4MT0iMTEiIHkxPSIxMSIgeDI9IjI5IiB5Mj0iMjkiIHN0cm9rZT0iIzQ0Y2NmZiIgc3Ryb2tlLXdpZHRoPSIyLjUiLz48bGluZSB4MT0iMjkiIHkxPSIxMSIgeDI9IjExIiB5Mj0iMjkiIHN0cm9rZT0iIzQ0Y2NmZiIgc3Ryb2tlLXdpZHRoPSIyLjUiLz48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIzIiBmaWxsPSIjYWFlZWZmIi8+PC9zdmc+',
+  'scorch': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzFhMDUwMCIvPjxwYXRoIGQ9Ik0yMCAzMiBRMTIgMjQgMTIgMTggUTEyIDEwIDIwIDggUTE4IDE0IDIyIDE2IFEyMCAxMCAyNiA4IFEzMiAxNCAyOCAyMCBRMjYgMjQgMjggMjggUTI0IDI2IDIyIDI4IFEyMiAyNCAyMCAyMiBRMTggMjYgMjAgMzJaIiBmaWxsPSIjZmY0NDAwIiBzdHJva2U9IiNmZjg4NDQiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg=='
+};
+
 const IMBU_ALL = [
   // ── SUPORTE ──────────────────────────────────────────
   { id:'vampirism', cat:'leech', name:'Vampirism', desc:'Roubo de Vida — recupera HP pelo dano causado',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Vampirism_(Powerful).gif',
+    icon:IMBU_ICONS['vampirism'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Life Leech',
         items:[{n:'Vampire Teeth',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Vampire_Teeth.gif'}],
@@ -1541,7 +1562,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'void', cat:'leech', name:'Void', desc:'Roubo de Mana — recupera MP pelo dano causado',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Void_(Powerful).gif',
+    icon:IMBU_ICONS['void'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Mana Leech',
         items:[{n:'Rope Belt',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Rope_Belt.gif'}],
@@ -1554,7 +1575,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'strike', cat:'crit', name:'Strike', desc:'Dano Crítico — chance de golpe crítico com dano aumentado',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Strike_(Powerful).gif',
+    icon:IMBU_ICONS['strike'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'Crit +15% dmg, 5% chance',
         items:[{n:'Protective Charm',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Protective_Charm.gif'}],
@@ -1567,7 +1588,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'precision', cat:'crit', name:'Precision', desc:'Skillboost de Distância',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Precision_(Powerful).gif',
+    icon:IMBU_ICONS['precision'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+1 Dist. Fighting',
         items:[{n:'Elven Scouting Glass',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Elven_Scouting_Glass.gif'}],
@@ -1580,7 +1601,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'swiftness', cat:'util', name:'Swiftness', desc:'Skillboost de Velocidade',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Swiftness_(Powerful).gif',
+    icon:IMBU_ICONS['swiftness'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+10 Speed',
         items:[{n:'Damselfly Wing',q:15,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Damselfly_Wing.gif'}],
@@ -1593,7 +1614,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'featherweight', cat:'util', name:'Featherweight', desc:'Aumento de Capacidade',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Featherweight_(Powerful).gif',
+    icon:IMBU_ICONS['featherweight'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+100 Capacity',
         items:[{n:'Fairy Wings',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Fairy_Wings.gif'}],
@@ -1606,7 +1627,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'vibrancy', cat:'util', name:'Vibrancy', desc:'Remoção de Paralisia',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Vibrancy_(Powerful).gif',
+    icon:IMBU_ICONS['vibrancy'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'Remove Paralisia (1x)',
         items:[{n:'Wereboar Hooves',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Wereboar_Hooves.gif'}],
@@ -1620,7 +1641,7 @@ const IMBU_ALL = [
     ]},
   // ── PROTEÇÃO ELEMENTAL ────────────────────────────────
   { id:'lich', cat:'prot', name:'Lich Shroud', desc:'Proteção de Morte',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Lich_Shroud_(Powerful).gif',
+    icon:IMBU_ICONS['lich'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+3% Death Protection',
         items:[{n:'Flask of Embalming Fluid',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Flask_of_Embalming_Fluid.gif'}],
@@ -1633,7 +1654,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'snakeskin', cat:'prot', name:'Snake Skin', desc:'Proteção de Terra',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Snake_Skin_(Powerful).gif',
+    icon:IMBU_ICONS['snakeskin'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+3% Earth Protection',
         items:[{n:'Piece of Swampling Wood',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Piece_of_Swampling_Wood.gif'}],
@@ -1646,7 +1667,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'dragonhide', cat:'prot', name:'Dragon Hide', desc:'Proteção de Fogo',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Dragon_Hide_(Powerful).gif',
+    icon:IMBU_ICONS['dragonhide'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+3% Fire Protection',
         items:[{n:'Green Dragon Leather',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Green_Dragon_Leather.gif'}],
@@ -1659,7 +1680,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'cloud', cat:'prot', name:'Cloud Fabric', desc:'Proteção de Energia',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Cloud_Fabric_(Powerful).gif',
+    icon:IMBU_ICONS['cloud'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+3% Energy Protection',
         items:[{n:'Wyvern Talisman',q:20,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Wyvern_Talisman.gif'}],
@@ -1672,7 +1693,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'demon', cat:'prot', name:'Demon Presence', desc:'Proteção de Sagrado',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Demon_Presence_(Powerful).gif',
+    icon:IMBU_ICONS['demon'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+3% Holy Protection',
         items:[{n:'Cultish Robe',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Cultish_Robe.gif'}],
@@ -1685,7 +1706,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'blockade', cat:'prot', name:'Blockade', desc:'Proteção de Gelo',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Blockade_(Powerful).gif',
+    icon:IMBU_ICONS['blockade'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+3% Ice Protection',
         items:[{n:'Winter Wolf Fur',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Winter_Wolf_Fur.gif'}],
@@ -1699,7 +1720,7 @@ const IMBU_ALL = [
     ]},
   // ── DANO ELEMENTAL ───────────────────────────────────
   { id:'reap', cat:'dmg', name:'Reap', desc:'Dano de Morte',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Reap_(Powerful).gif',
+    icon:IMBU_ICONS['reap'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Death Dmg',
         items:[{n:'Pile of Grave Earth',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Pile_of_Grave_Earth.gif'}],
@@ -1712,7 +1733,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'electrify', cat:'dmg', name:'Electrify', desc:'Dano de Energia',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Electrify_(Powerful).gif',
+    icon:IMBU_ICONS['electrify'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Energy Dmg',
         items:[{n:'Rorc Feather',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Rorc_Feather.gif'}],
@@ -1725,7 +1746,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'venom', cat:'dmg', name:'Venom', desc:'Dano de Terra',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Venom_(Powerful).gif',
+    icon:IMBU_ICONS['venom'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Earth Dmg',
         items:[{n:'Swamp Grass',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Swamp_Grass.gif'}],
@@ -1738,7 +1759,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'frost', cat:'dmg', name:'Frost', desc:'Dano de Gelo',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Frost_(Powerful).gif',
+    icon:IMBU_ICONS['frost'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Ice Dmg',
         items:[{n:'Frosty Heart',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Frosty_Heart.gif'}],
@@ -1751,7 +1772,7 @@ const IMBU_ALL = [
         gold1:20000, gold20:100000 },
     ]},
   { id:'scorch', cat:'dmg', name:'Scorch', desc:'Dano de Fogo',
-    icon:'https://tibia.fandom.com/wiki/Special:Redirect/file/Scorch_(Powerful).gif',
+    icon:IMBU_ICONS['scorch'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Fire Dmg',
         items:[{n:'Fiery Heart',q:25,u:'https://tibia.fandom.com/wiki/Special:Redirect/file/Fiery_Heart.gif'}],
