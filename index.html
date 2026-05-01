@@ -611,66 +611,74 @@ async function tibiaFetch(path) {
   <!-- ─── HUNT FINDER ─── -->
   <section class="page-section" id="huntfinder">
     <h2 class="sec-title">Hunt Finder</h2>
-    <p class="sec-sub">Encontre o local de caça ideal — busque pelo nome do personagem ou preencha manualmente.</p>
+    <p class="sec-sub">Encontre as melhores hunts para o seu personagem.</p>
 
-    <!-- Char lookup row -->
-    <div class="card" style="margin-bottom:1rem">
-      <div class="tool-label" style="margin-bottom:.6rem">Buscar por personagem</div>
-      <div style="display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap">
-        <div style="flex:1;min-width:180px">
-          <input type="text" class="tool-input" id="hf-char-name" placeholder="Nome exato do personagem" onkeydown="if(event.key==='Enter')lookupHFChar()">
-        </div>
-        <button class="calc-btn" style="margin-top:0;flex-shrink:0" onclick="lookupHFChar()">Buscar char →</button>
-        <div class="api-loading" id="hf-char-loading" style="display:none"><div class="spinner"></div></div>
-      </div>
-      <div id="hf-char-result" style="display:none;margin-top:.75rem;padding:.75rem 1rem;background:var(--bamboo-pale);border-radius:8px;border:1px solid rgba(90,158,68,.25);display:none;align-items:center;gap:.75rem;flex-wrap:wrap">
-        <span style="font-size:1.1rem">🐼</span>
-        <div style="flex:1">
-          <span id="hf-char-name-out" style="font-weight:500;color:var(--ink);font-size:.95rem"></span>
-          <span id="hf-char-detail" style="font-size:.82rem;color:var(--bamboo);font-weight:300;margin-left:.5rem"></span>
-        </div>
-        <span style="font-size:.78rem;color:var(--bamboo);font-weight:500">✓ Filtros preenchidos automaticamente</span>
-      </div>
-      <div id="hf-char-error" style="display:none;margin-top:.6rem;font-size:.82rem;color:var(--red)"></div>
-    </div>
-
-    <!-- Filters -->
     <div class="card" style="margin-bottom:1.5rem">
-      <div class="tool-label" style="margin-bottom:.75rem">Ou preencha manualmente</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:1rem;align-items:end">
-        <div class="input-row" style="margin-bottom:0">
-          <label class="input-label">Nível</label>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:flex-end">
+        <!-- Char lookup -->
+        <div style="flex:1;min-width:200px">
+          <label class="input-label" style="display:block;margin-bottom:4px">Personagem</label>
+          <div style="display:flex;gap:.5rem">
+            <input type="text" class="tool-input" id="hf-char-name" placeholder="Nome exato do char"
+                   onkeydown="if(event.key==='Enter')lookupHFChar()" style="flex:1">
+            <button class="calc-btn" style="margin-top:0;padding:0 14px" onclick="lookupHFChar()">Buscar</button>
+          </div>
+          <div class="api-loading" id="hf-char-loading" style="display:none;margin-top:6px"><div class="spinner"></div></div>
+          <div id="hf-char-result" style="display:none;margin-top:6px;padding:.5rem .75rem;background:var(--bamboo-pale);border-radius:6px;font-size:.82rem">
+            <span id="hf-char-name-out" style="font-weight:600;color:var(--bamboo)"></span>
+            <span id="hf-char-detail" style="color:var(--ink-3);margin-left:.4rem"></span>
+            <span style="float:right;color:var(--bamboo);font-weight:500;font-size:.75rem">✓ Filtros preenchidos</span>
+          </div>
+          <div id="hf-char-error" style="display:none;margin-top:6px;font-size:.8rem;color:var(--red)"></div>
+        </div>
+
+        <!-- Level -->
+        <div style="min-width:100px">
+          <label class="input-label" style="display:block;margin-bottom:4px">Level</label>
           <input type="number" class="tool-input" id="hf-level" placeholder="ex: 300" min="1">
         </div>
-        <div class="input-row" style="margin-bottom:0">
-          <label class="input-label">Vocação</label>
+
+        <!-- Mode toggle -->
+        <div>
+          <label class="input-label" style="display:block;margin-bottom:4px">Tamanho do time</label>
+          <div style="display:flex;gap:4px">
+            <button id="hf-mode-solo" style="background:var(--ink);color:var(--paper);border:none;border-radius:6px;padding:7px 12px;font-size:.78rem;font-weight:500;cursor:pointer" onclick="setHFMode('solo')">Solo</button>
+            <button id="hf-mode-duo"  style="background:var(--paper);color:var(--muted);border:1px solid var(--rule);border-radius:6px;padding:7px 12px;font-size:.78rem;font-weight:500;cursor:pointer" onclick="setHFMode('duo')">Duo</button>
+            <button id="hf-mode-time" style="background:var(--paper);color:var(--muted);border:1px solid var(--rule);border-radius:6px;padding:7px 12px;font-size:.78rem;font-weight:500;cursor:pointer" onclick="setHFMode('time')">Time (x4)</button>
+          </div>
+        </div>
+
+        <!-- Vocation -->
+        <div style="min-width:180px">
+          <label class="input-label" style="display:block;margin-bottom:4px">Vocação</label>
           <select class="tool-select" id="hf-voc">
-            <option value="all">Todas</option>
-            <option value="ek">Elite Knight</option>
-            <option value="ed">Elder Druid</option>
-            <option value="ms">Master Sorcerer</option>
-            <option value="rp">Royal Paladin</option>
+            <option value="all">Todas as vocações</option>
+            <option value="ek">⚔ Elite Knight</option>
+            <option value="ed">🌿 Elder Druid</option>
+            <option value="ms">🔮 Master Sorcerer</option>
+            <option value="rp">🏹 Royal Paladin</option>
+            <option value="monk">🥋 Monk</option>
           </select>
         </div>
-        <div class="input-row" style="margin-bottom:0">
-          <label class="input-label">Foco</label>
-          <select class="tool-select" id="hf-focus">
-            <option value="all">XP + Profit</option>
-            <option value="xp">Máximo XP</option>
-            <option value="profit">Máximo Profit</option>
-            <option value="quest">Acesso/Quest</option>
-          </select>
-        </div>
-        <button class="calc-btn" style="margin-top:0;height:38px" onclick="runHuntFinder()">Buscar →</button>
+
+        <button class="calc-btn" style="margin-top:0;height:38px;padding:0 20px" onclick="runHuntFinder()">Buscar →</button>
+      </div>
+
+      <!-- Focus pills -->
+      <div style="display:flex;gap:.5rem;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--rule);flex-wrap:wrap;align-items:center">
+        <span style="font-size:.72rem;color:var(--muted);font-weight:500">Ordenar por:</span>
+        <button class="filter-btn active" id="hfpill-all"    onclick="setHFFocus('all',this)">Melhor XP/h</button>
+        <button class="filter-btn"        id="hfpill-profit" onclick="setHFFocus('profit',this)">Melhor Lucro</button>
+        <button class="filter-btn"        id="hfpill-quest"  onclick="setHFFocus('quest',this)">Quest/Acesso</button>
       </div>
     </div>
 
     <div id="hf-results" style="display:none">
-      <div id="hf-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem"></div>
+      <div id="hf-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1rem"></div>
     </div>
     <div id="hf-empty" style="display:none;padding:3rem;text-align:center;color:var(--muted);font-weight:300">Nenhuma hunt encontrada para esses filtros.</div>
-    <div id="hf-initial" style="padding:2rem;text-align:center;color:var(--muted);font-size:.9rem;font-weight:300">
-      Busque pelo nome do personagem ou preencha o nível e vocação para ver as melhores hunts.
+    <div id="hf-initial" style="padding:2.5rem;text-align:center;color:var(--muted);font-size:.9rem;font-weight:300">
+      Busque pelo personagem ou preencha o nível e vocação para ver as hunts disponíveis.
     </div>
   </section>
 
@@ -716,7 +724,9 @@ async function tibiaFetch(path) {
     <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:flex-end">
       <div>
         <label class="input-label" style="display:block;margin-bottom:4px;font-size:.68rem">Buscar item</label>
-        <input type="text" class="tool-input" id="dt-search" placeholder="ex: Crystal Mace" style="min-width:200px" oninput="filterDelivery()">
+        <input type="text" class="tool-input" id="dt-search" placeholder="ex: Crystal Mace" style="min-width:220px" 
+               list="dt-datalist" oninput="filterDelivery()" autocomplete="off">
+        <datalist id="dt-datalist"></datalist>
       </div>
       <div>
         <label class="input-label" style="display:block;margin-bottom:4px;font-size:.68rem">Grupo</label>
@@ -1712,27 +1722,66 @@ function filterImbu(f, btn) {
 //  HUNT FINDER DATA
 // ══════════════════════════════════════════════════
 const HUNTS = [
-  { name:'Nomad Cave', creature:'Nomad', minLvl:8, maxLvl:50, vocs:['all'], xp:'baixo', profit:'baixo', tipo:'xp', desc:'Boa para hunts solo. Requer Aristos Task Quest.', wiki:'https://tibia.fandom.com/wiki/Nomads' },
-  { name:'Frost Dragons', creature:'Frost Dragon', minLvl:60, maxLvl:120, vocs:['ek','rp'], xp:'médio', profit:'médio', tipo:'xp', desc:'Desbloqueado pela Barbarian Test Quest. Svargrond.', wiki:'https://tibia.fandom.com/wiki/Frost_Dragon' },
-  { name:'Sea Serpents', creature:'Sea Serpent', minLvl:60, maxLvl:150, vocs:['all'], xp:'médio', profit:'alto', tipo:'profit', desc:'XP e profit sólidos. Requer Hunt for the Sea Serpent Quest.', wiki:'https://tibia.fandom.com/wiki/Sea_Serpent' },
-  { name:'Deeplings', creature:'Deepling Scout', minLvl:60, maxLvl:180, vocs:['all'], xp:'médio', profit:'médio', tipo:'xp', desc:'3 bosses e possibilidade de dropa Manta Ray (rara). Liquid Black Quest.', wiki:'https://tibia.fandom.com/wiki/Deepling' },
-  { name:'Warzones 1–3', creature:'Gnomevil', minLvl:60, maxLvl:200, vocs:['all'], xp:'médio', profit:'alto', tipo:'profit', desc:'Acesso diário para profit. Requer Bigfoot\'s Burden Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_1' },
-  { name:'Banuta', creature:'Toad', minLvl:80, maxLvl:200, vocs:['ek','ms'], xp:'alto', profit:'médio', tipo:'xp', desc:'Hunt essencial mid-level. Requer Ape City Quest.', wiki:'https://tibia.fandom.com/wiki/Banuta' },
-  { name:'Zao / Draken Walls', creature:'Draken Warmaster', minLvl:100, maxLvl:250, vocs:['all'], xp:'alto', profit:'médio', tipo:'xp', desc:'New Frontier + Children of the Revolution. Ótimo XP.', wiki:'https://tibia.fandom.com/wiki/Draken_Walls' },
-  { name:'Feyrist', creature:'Pixie', minLvl:150, maxLvl:350, vocs:['ed','ms','rp'], xp:'alto', profit:'alto', tipo:'xp', desc:'Ilha de Feyrist. Requer Threatened Dreams Quest. Favorita da guild!', wiki:'https://tibia.fandom.com/wiki/Feyrist' },
-  { name:'Bounac Daily', creature:'Bulltaur', minLvl:150, maxLvl:300, vocs:['all'], xp:'médio', profit:'médio', tipo:'quest', desc:'Boss diário + área de caça. Adventures of Galthen Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Adventures_of_Galthen_Quest' },
-  { name:'Warzones 4–6', creature:'Gnomevil', minLvl:150, maxLvl:300, vocs:['all'], xp:'médio', profit:'alto', tipo:'profit', desc:'Itens Gnome. Continuação da Bigfoot\'s Burden Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_4' },
-  { name:'Cobra Bastion', creature:'Cobra Vizier', minLvl:250, maxLvl:450, vocs:['ek','rp'], xp:'muito alto', profit:'alto', tipo:'xp', desc:'Boss Scarlett Etzel, itens cobra. Order of the Cobra Quest.', wiki:'https://tibia.fandom.com/wiki/Cobra_Bastion' },
-  { name:'Falcon Bastion', creature:'Falcon Knight', minLvl:250, maxLvl:500, vocs:['ek'], xp:'muito alto', profit:'alto', tipo:'xp', desc:'Boss Oberon, itens Falcon. Order of the Falcon Quest. Organizado pela guild!', wiki:'https://tibia.fandom.com/wiki/Falcon_Bastion' },
-  { name:'Soulwar / Feaster', creature:'Cloak of Terror', minLvl:250, maxLvl:500, vocs:['all'], xp:'muito alto', profit:'alto', tipo:'xp', desc:'Bosses diários + Soulwar. Feaster of Souls Quest.', wiki:'https://tibia.fandom.com/wiki/Soulwar' },
-  { name:'Dream Courts', creature:'Nightmare Beast', minLvl:250, maxLvl:450, vocs:['ed','ms'], xp:'alto', profit:'alto', tipo:'xp', desc:'Imbue de bota powerful. The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Dream_Courts' },
-  { name:'Grave Danger Bosses', creature:'Gravelord Osyran', minLvl:250, maxLvl:500, vocs:['all'], xp:'médio', profit:'muito alto', tipo:'profit', desc:'Rotação de boss diária para profit. Grave Danger Quest.', wiki:'https://tibia.fandom.com/wiki/Grave_Danger' },
-  { name:'Heart of Destruction', creature:'Hellfire Fighter', minLvl:250, maxLvl:500, vocs:['all'], xp:'alto', profit:'muito alto', tipo:'profit', desc:'Imbue crítico nível 3 + profit diário alto.', wiki:'https://tibia.fandom.com/wiki/Heart_of_Destruction' },
-  { name:'Ferumbras Mortal Shell', creature:'Ferumbras', minLvl:250, maxLvl:999, vocs:['all'], xp:'muito alto', profit:'muito alto', tipo:'quest', desc:'O boss mais cobiçado. Ferumbras Ascendant Quest. Organizado pela liderança.', wiki:'https://www.tibiawiki.com.br/wiki/Ferumbras_Ascendant_Quest' },
-  { name:'Secret Library', creature:'Ogre Shaman', minLvl:350, maxLvl:999, vocs:['all'], xp:'muito alto', profit:'muito alto', tipo:'xp', desc:'Hunts metas + rotação de boss lucrativa para essa faixa.', wiki:'https://tibia.fandom.com/wiki/The_Secret_Library' },
-  { name:'No Rest for the Wicked', creature:'Inferniach', minLvl:350, maxLvl:999, vocs:['all'], xp:'alto', profit:'muito alto', tipo:'quest', desc:'10 vitórias no modo Difícil = item inferniach GARANTIDO.', wiki:'https://www.tibiawiki.com.br/wiki/No_Rest_for_the_Wicked_Quest' },
-  { name:'Warzones 7–9', creature:'Hellspawn', minLvl:350, maxLvl:999, vocs:['all'], xp:'alto', profit:'alto', tipo:'profit', desc:'Itens Eldritch. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_7' },
-  { name:'20 Years a Cook Bosses', creature:'Bulltaur', minLvl:350, maxLvl:999, vocs:['all'], xp:'médio', profit:'alto', tipo:'quest', desc:'Bulltaur, War Dragon e boss Despor.', wiki:'https://www.tibiawiki.com.br/wiki/20_Years_a_Cook_Quest' },
+  { name:'Nomad Cave', creatures:['Nomad'], minLvl:8, maxLvl:60,
+    vocs:['all'], modes:['solo'], xph:'200k–500k', profit:'–50k a 0k', tipo:'xp',
+    desc:'Boa para hunts solo iniciais. Requer Aristos Task Quest.', wiki:'https://tibia.fandom.com/wiki/Nomads' },
+  { name:'Frost Dragons', creatures:['Frost Dragon'],  minLvl:60, maxLvl:130,
+    vocs:['ek','rp'], modes:['solo','duo'], xph:'500k–1kk', profit:'100k–300k', tipo:'xp',
+    desc:'Desbloqueado pela Barbarian Test Quest. Svargrond.', wiki:'https://tibia.fandom.com/wiki/Frost_Dragon' },
+  { name:'Sea Serpents', creatures:['Sea Serpent'],  minLvl:60, maxLvl:160,
+    vocs:['all'], modes:['solo','duo'], xph:'600k–1.2kk', profit:'100k–400k', tipo:'profit',
+    desc:'XP e profit sólidos. Requer Hunt for the Sea Serpent Quest.', wiki:'https://tibia.fandom.com/wiki/Sea_Serpent' },
+  { name:'Deeplings', creatures:['Deepling Scout','Deepling Guard','Deepling Warrior'],  minLvl:60, maxLvl:200,
+    vocs:['all'], modes:['solo','duo'], xph:'700k–1.5kk', profit:'0 a 200k', tipo:'xp',
+    desc:'3 bosses e possibilidade de Manta Ray (rara). Liquid Black Quest.', wiki:'https://tibia.fandom.com/wiki/Deepling' },
+  { name:'Zao / Draken Walls', creatures:['Draken Warmaster','Draken Elite','Draken Spellweaver'], minLvl:100, maxLvl:250,
+    vocs:['all'], modes:['solo','duo','time'], xph:'1kk–2.5kk', profit:'100k–400k', tipo:'xp',
+    desc:'New Frontier + Children of the Revolution. Ótimo XP.', wiki:'https://tibia.fandom.com/wiki/Draken_Walls' },
+  { name:'Banuta', creatures:['Toad','Kongra','Sibang'],  minLvl:80, maxLvl:200,
+    vocs:['ek','ms'], modes:['solo','duo'], xph:'800k–2kk', profit:'50k–200k', tipo:'xp',
+    desc:'Hunt essencial mid-level. Requer Ape City Quest.', wiki:'https://tibia.fandom.com/wiki/Banuta' },
+  { name:'Feyrist', creatures:['Pixie','Nymph','Swan Maiden'],  minLvl:150, maxLvl:350,
+    vocs:['ed','ms','rp'], modes:['solo','duo'], xph:'1.5kk–3kk', profit:'200k–500k', tipo:'xp',
+    desc:'Ilha de Feyrist. Threatened Dreams Quest. Favorita da guild!', wiki:'https://tibia.fandom.com/wiki/Feyrist' },
+  { name:'Cobra Bastion', creatures:['Cobra Vizier','Cobra Assassin','Cobra Scout'], minLvl:250, maxLvl:450,
+    vocs:['ek','rp'], modes:['solo','duo'], xph:'2kk–4kk', profit:'300k–700k', tipo:'xp',
+    desc:'Boss Scarlett Etzel, itens cobra. Order of the Cobra Quest.', wiki:'https://tibia.fandom.com/wiki/Cobra_Bastion' },
+  { name:'Falcon Bastion', creatures:['Falcon Knight','Falcon Paladin'], minLvl:250, maxLvl:999,
+    vocs:['ek'], modes:['solo','duo'], xph:'2kk–5kk', profit:'300k–800k', tipo:'xp',
+    desc:'Boss Oberon, itens Falcon. Order of the Falcon Quest. Organizado pela guild!', wiki:'https://tibia.fandom.com/wiki/Falcon_Bastion' },
+  { name:'Soulwar', creatures:['Cloak of Terror','Soul-Broken Harbinger','Crazed Winter Vanguard'], minLvl:250, maxLvl:999,
+    vocs:['all'], modes:['solo','duo','time'], xph:'2.5kk–6kk', profit:'200k–600k', tipo:'xp',
+    desc:'Bosses diários + múltiplas salas. Feaster of Souls Quest.', wiki:'https://tibia.fandom.com/wiki/Soulwar' },
+  { name:'Dream Courts', creatures:['Nightmare Beast','Dream Catcher'], minLvl:250, maxLvl:450,
+    vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–4kk', profit:'200k–500k', tipo:'xp',
+    desc:'Imbue de bota powerful. The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Dream_Courts' },
+  { name:'Grave Danger', creatures:['Gravelord Osyran','Lokkh Shaguard','Zavarash'], minLvl:250, maxLvl:999,
+    vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit',
+    desc:'Rotação de boss diária para profit máximo. Grave Danger Quest.', wiki:'https://tibia.fandom.com/wiki/Grave_Danger' },
+  { name:'Heart of Destruction', creatures:['Hellfire Fighter','Grimeleech','Vexclaw'], minLvl:250, maxLvl:999,
+    vocs:['all'], modes:['solo','duo','time'], xph:'2kk–5kk', profit:'500k–1.5kk', tipo:'profit',
+    desc:'Imbue crítico nível 3 + alto profit diário. Heart of Destruction Quest.', wiki:'https://tibia.fandom.com/wiki/Heart_of_Destruction' },
+  { name:'Ferumbras Mortal Shell', creatures:['Ferumbras'], minLvl:250, maxLvl:999,
+    vocs:['all'], modes:['time'], xph:'—', profit:'1kk–10kk+', tipo:'quest',
+    desc:'O boss mais cobiçado do Tibia. Organizado pela liderança da guild!', wiki:'https://www.tibiawiki.com.br/wiki/Ferumbras_Ascendant_Quest' },
+  { name:'Secret Library', creatures:['Ogre Shaman','Ogre Brute','Ogre Ruffian'], minLvl:350, maxLvl:999,
+    vocs:['all'], modes:['solo','duo','time'], xph:'3kk–8kk', profit:'400k–1.5kk', tipo:'xp',
+    desc:'Hunts metas + rotação de boss lucrativa. The Secret Library Quest.', wiki:'https://tibia.fandom.com/wiki/The_Secret_Library' },
+  { name:'No Rest for the Wicked', creatures:['Inferniach','Broodrider Inferniarch'], minLvl:350, maxLvl:999,
+    vocs:['all'], modes:['time'], xph:'2kk–5kk', profit:'1kk–3kk', tipo:'quest',
+    desc:'10 vitórias no modo Difícil = item Inferniach GARANTIDO.', wiki:'https://www.tibiawiki.com.br/wiki/No_Rest_for_the_Wicked_Quest' },
+  { name:'Kilmaresh', creatures:['Sphinx','Lamassu','Feral Sphinx'], minLvl:300, maxLvl:999,
+    vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–5kk', profit:'0 a 500k', tipo:'xp',
+    desc:'Área premium com múltiplos spawn. Bom XP para Druids e Mages.', wiki:'https://tibia.fandom.com/wiki/Kilmaresh' },
+  { name:'Roshamuul Prison', creatures:['Frazzlemaw','Guzzlemaw','Nibblemaw'], minLvl:400, maxLvl:999,
+    vocs:['ek'], modes:['solo','duo'], xph:'2.5kk–4kk', profit:'500k–1kk', tipo:'xp',
+    desc:'Alta densidade de criaturas. Ótimo para EKs de alto nível.', wiki:'https://tibia.fandom.com/wiki/Roshamuul' },
+  { name:'Warzones 4–6', creatures:['Gnomevil','Sandstone Scorpion'], minLvl:150, maxLvl:300,
+    vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–600k', tipo:'profit',
+    desc:'Itens Gnome. Continuação da Bigfoot's Burden Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_4' },
+  { name:'Warzones 7–9', creatures:['Hellspawn','Lava Golem'], minLvl:350, maxLvl:999,
+    vocs:['all'], modes:['time'], xph:'2kk–4kk', profit:'300k–800k', tipo:'profit',
+    desc:'Itens Eldritch. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_7' },
 ];
 
 const profitOrder = { 'muito alto':4, 'alto':3, 'médio':2, 'baixo':1 };
@@ -1795,56 +1844,122 @@ async function lookupHFChar() {
   }
 }
 
+
+let hfMode  = 'solo';
+let hfFocus = 'all';
+
+function setHFMode(mode) {
+  hfMode = mode;
+  ['solo','duo','time'].forEach(m => {
+    const btn = document.getElementById('hf-mode-' + m);
+    if (!btn) return;
+    const active = m === mode;
+    btn.style.background = active ? 'var(--ink)' : 'var(--paper)';
+    btn.style.color = active ? 'var(--paper)' : 'var(--muted)';
+    btn.style.border = active ? 'none' : '1px solid var(--rule)';
+  });
+}
+
+function setHFFocus(focus, btn) {
+  hfFocus = focus;
+  document.querySelectorAll('[id^="hfpill-"]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
 function runHuntFinder() {
-  const lvl = parseInt(document.getElementById('hf-level').value) || 0;
-  const voc = document.getElementById('hf-voc').value;
-  const focus = document.getElementById('hf-focus').value;
+  const lvl  = parseInt(document.getElementById('hf-level').value) || 0;
+  const voc  = document.getElementById('hf-voc').value;
+  const focus = hfFocus;
+  const mode  = hfMode;
+
   document.getElementById('hf-initial').style.display = 'none';
   document.getElementById('hf-empty').style.display = 'none';
+
   let results = HUNTS.filter(h => {
-    if (lvl && (lvl < h.minLvl || lvl > h.maxLvl)) return false;
+    if (lvl && lvl < h.minLvl) return false;
     if (voc !== 'all' && !h.vocs.includes('all') && !h.vocs.includes(voc)) return false;
-    if (focus === 'xp') return ['xp','quest'].includes(h.tipo) || xpOrder[h.xp] >= 3;
-    if (focus === 'profit') return h.tipo === 'profit' || profitOrder[h.profit] >= 3;
-    if (focus === 'quest') return h.tipo === 'quest';
+    if (mode !== 'all' && !h.modes.includes(mode)) return false;
+    if (focus === 'profit') return h.tipo === 'profit' || h.profit.includes('kk');
+    if (focus === 'quest')  return h.tipo === 'quest';
     return true;
   });
-  if (focus === 'xp') results.sort((a,b) => xpOrder[b.xp] - xpOrder[a.xp]);
-  else if (focus === 'profit') results.sort((a,b) => profitOrder[b.profit] - profitOrder[a.profit]);
+
+  // Sort
+  if (focus === 'profit') results.sort((a,b) => (b.profit > a.profit ? 1 : -1));
+  else results.sort((a,b) => xpOrder[b.xp||'baixo'] - xpOrder[a.xp||'baixo']);
+
   if (!results.length) {
     document.getElementById('hf-empty').style.display = 'block';
     document.getElementById('hf-results').style.display = 'none';
     return;
   }
-  const pColor = v => ({'muito alto':'var(--bamboo)','alto':'var(--bamboo)','médio':'var(--gold)','baixo':'var(--muted)'})[v]||'var(--muted)';
-  const xColor = v => ({'muito alto':'var(--accent)','alto':'var(--accent)','médio':'var(--gold)','baixo':'var(--muted)'})[v]||'var(--muted)';
-  const xpStars = v => ({'muito alto':'★★★★','alto':'★★★☆','médio':'★★☆☆','baixo':'★☆☆☆'})[v]||'';
-  document.getElementById('hf-grid').innerHTML = results.map((h,i) => {
+
+  const modeIcon = { solo:'🧍 Solo', duo:'👥 Duo', time:'👥👥 Time (x4)' };
+  const vocLabel = { ek:'⚔ EK', ed:'🌿 ED', ms:'🔮 MS', rp:'🏹 RP', monk:'🥋 Monk', all:'Todas' };
+
+  document.getElementById('hf-grid').innerHTML = results.map((h, i) => {
     const isBest = i === 0;
-    const creatureImg = h.creature
-      ? `https://tibiadata.bytewizards.de/static/img/creatures/${encodeURIComponent(h.creature)}.gif`
-      : null;
+
+    // Multiple creature images
+    const creatures = h.creatures || (h.creature ? [h.creature] : []);
+    const imgs = creatures.slice(0, 3).map(c =>
+      `<img src="https://tibiadata.bytewizards.de/static/img/creatures/${encodeURIComponent(c)}.gif"
+            alt="${c}" title="${c}"
+            style="width:52px;height:52px;image-rendering:pixelated;border-radius:6px;background:var(--paper);border:1px solid var(--rule);padding:2px"
+            onerror="this.style.display='none'">`
+    ).join('');
+
+    const vocStr = h.vocs.includes('all') ? 'Todas' : h.vocs.map(v => vocLabel[v]||v.toUpperCase()).join(' · ');
+    const modesStr = h.modes.map(m => modeIcon[m]||m).join(' · ');
+
     return `
-    <div class="card" style="display:flex;flex-direction:column;gap:.75rem;position:relative;${isBest?'border-color:var(--bamboo);border-width:2px':''}">
-      ${isBest ? '<div style="position:absolute;top:-1px;right:12px;background:var(--bamboo);color:white;font-size:.62rem;font-weight:700;padding:2px 10px;border-radius:0 0 6px 6px;letter-spacing:.5px">✓ MELHOR MATCH</div>' : ''}
-      <div style="display:flex;align-items:center;gap:.75rem">
-        ${creatureImg ? `<img src="${creatureImg}" alt="${h.name}" style="width:48px;height:48px;image-rendering:pixelated;border-radius:6px;background:var(--paper);border:1px solid var(--rule);padding:2px;flex-shrink:0" onerror="this.style.display='none'">` : '<div style="width:48px;height:48px;border-radius:6px;background:var(--paper);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0">🗺</div>'}
+    <div style="background:var(--white);border:${isBest?'2px solid var(--bamboo)':'1px solid var(--rule)'};border-radius:10px;overflow:hidden;position:relative;transition:transform .15s" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform='none'">
+      ${isBest ? '<div style="background:var(--bamboo);color:white;font-size:.62rem;font-weight:700;text-align:center;padding:3px;letter-spacing:.5px">✓ MELHOR RESULTADO</div>' : ''}
+      
+      <!-- Creature images background -->
+      <div style="background:var(--ink);padding:.75rem 1rem;display:flex;align-items:center;gap:.5rem;min-height:72px">
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          ${imgs || '<div style="width:52px;height:52px;border-radius:6px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.5rem">🗺</div>'}
+        </div>
         <div style="flex:1;min-width:0">
-          <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:1rem;color:var(--ink);line-height:1.2">${h.name}</div>
-          <div style="font-size:.68rem;background:var(--paper);border:1px solid var(--rule);padding:2px 8px;border-radius:30px;color:var(--muted);display:inline-block;margin-top:3px">Lv ${h.minLvl}${h.maxLvl<999?'–'+h.maxLvl:'+'}</div>
+          <div style="font-family:\'Playfair Display\',serif;font-weight:700;font-size:1rem;color:#f0ede8;line-height:1.2">${h.name}</div>
+          <div style="font-size:.7rem;color:rgba(255,255,255,.5);margin-top:3px">Lv ${h.minLvl}${h.maxLvl<999?'–'+h.maxLvl:'+' }</div>
         </div>
       </div>
-      <div style="font-size:.83rem;color:var(--ink-3);font-weight:300;line-height:1.6">${h.desc}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;font-size:.75rem">
-        <div style="background:var(--paper);border-radius:5px;padding:4px 8px">XP <span style="color:${xColor(h.xp)};font-weight:600">${xpStars(h.xp)}</span></div>
-        <div style="background:var(--paper);border-radius:5px;padding:4px 8px">💰 <span style="color:${pColor(h.profit)};font-weight:600">${h.profit}</span></div>
-        <div style="background:var(--paper);border-radius:5px;padding:4px 8px;grid-column:1/-1">Voc: <span style="color:var(--ink);font-weight:500">${h.vocs.includes('all')?'Todas':h.vocs.map(v=>v.toUpperCase()).join(' / ')}</span></div>
+
+      <!-- Stats grid -->
+      <div style="padding:.9rem 1rem">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.75rem">
+          <div style="background:var(--paper);border-radius:6px;padding:.5rem .65rem">
+            <div style="font-size:.6rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Modo</div>
+            <div style="font-size:.78rem;font-weight:500;color:var(--ink)">${modesStr}</div>
+          </div>
+          <div style="background:var(--paper);border-radius:6px;padding:.5rem .65rem">
+            <div style="font-size:.6rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Vocação</div>
+            <div style="font-size:.78rem;font-weight:500;color:var(--ink)">${vocStr}</div>
+          </div>
+          <div style="background:var(--paper);border-radius:6px;padding:.5rem .65rem">
+            <div style="font-size:.6rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">XP/h Estimado</div>
+            <div style="font-size:.82rem;font-weight:600;color:var(--accent)">${h.xph||'—'}</div>
+          </div>
+          <div style="background:var(--paper);border-radius:6px;padding:.5rem .65rem">
+            <div style="font-size:.6rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:2px">Lucro/h</div>
+            <div style="font-size:.82rem;font-weight:600;color:var(--bamboo)">${h.profit||'—'}</div>
+          </div>
+        </div>
+
+        <div style="font-size:.82rem;color:var(--ink-3);font-weight:300;line-height:1.55;margin-bottom:.75rem">${h.desc}</div>
+
+        <a href="${h.wiki}" target="_blank" style="font-size:.75rem;color:var(--bamboo);font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:4px;border-top:1px solid var(--rule);padding-top:.6rem;width:100%">
+          Ver no TibiaWiki →
+        </a>
       </div>
-      <a href="${h.wiki}" target="_blank" style="font-size:.78rem;color:var(--bamboo);font-weight:500;text-decoration:none;border-top:1px solid var(--rule);padding-top:.6rem">Ver no TibiaWiki →</a>
     </div>`;
   }).join('');
+
   document.getElementById('hf-results').style.display = 'block';
 }
+
 
 // ══════════════════════════════════════════════════
 //  QUEST GUIDE
@@ -2798,14 +2913,14 @@ const DELIVERY_ITEMS = [
 let dtFiltered = [...DELIVERY_ITEMS];
 
 function filterDelivery() {
-  const search = (document.getElementById('dt-search')?.value||'').toLowerCase();
-  const group  = document.getElementById('dt-group')?.value || 'all';
-  const creature = (document.getElementById('dt-creature')?.value||'').toLowerCase();
-  const sort   = document.getElementById('dt-sort')?.value || 'name';
+  const search   = (document.getElementById('dt-search')?.value   || '').toLowerCase().trim();
+  const group    = document.getElementById('dt-group')?.value     || 'all';
+  const creature = (document.getElementById('dt-creature')?.value || '').toLowerCase().trim();
+  const sort     = document.getElementById('dt-sort')?.value      || 'name';
 
   dtFiltered = DELIVERY_ITEMS.filter(item => {
-    if (search && !item.n.toLowerCase().includes(search)) return false;
-    if (group !== 'all' && item.g !== group) return false;
+    if (search   && !item.n.toLowerCase().includes(search))     return false;
+    if (group !== 'all' && item.g !== group)                    return false;
     if (creature && !item.drops.toLowerCase().includes(creature)) return false;
     return true;
   });
@@ -2817,11 +2932,17 @@ function filterDelivery() {
 
   const count = document.getElementById('dt-count');
   if (count) count.textContent = `${dtFiltered.length} item${dtFiltered.length!==1?'s':''}`;
-
   renderDeliveryTable();
 }
 
 function renderDelivery() {
+  // Populate datalist with all item names
+  const dl = document.getElementById('dt-datalist');
+  if (dl) {
+    dl.innerHTML = DELIVERY_ITEMS
+      .map(i => `<option value="${i.n}">`)
+      .join('');
+  }
   dtFiltered = [...DELIVERY_ITEMS].sort((a,b) => a.n.localeCompare(b.n));
   const count = document.getElementById('dt-count');
   if (count) count.textContent = `${dtFiltered.length} itens`;
@@ -2898,7 +3019,31 @@ function showDeliveryPrice(row, data) {
 
 
 
-// HOME LATEST NEWS — /v4/news/latest
+// HOME LATEST NEWS — /v4/news/latest + Claude translation
+async function translateWithClaude(titles) {
+  try {
+    const prompt = `Traduza estes títulos de notícias do Tibia do inglês para o português brasileiro.
+Retorne APENAS um array JSON com as traduções na mesma ordem, sem explicações.
+Títulos: ${JSON.stringify(titles)}`;
+    
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 500,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await response.json();
+    const text = data.content?.[0]?.text || '[]';
+    const clean = text.replace(/```json|```/g, '').trim();
+    return JSON.parse(clean);
+  } catch(e) {
+    return titles; // fallback to original if translation fails
+  }
+}
+
 async function loadHomeNews() {
   const container = document.getElementById('home-news-container');
   const loading   = document.getElementById('home-news-loading');
@@ -2912,41 +3057,8 @@ async function loadHomeNews() {
       return;
     }
 
-    // Tradução de categorias
-    const typeLabel = {
-      'news':             'Notícia',
-      'ticker':           'Ticker',
-      'article':          'Artigo',
-      'featured article': '⭐ Destaque',
-      'cipsoft':          'CipSoft',
-    };
-    const typeClass = {
-      'featured article': 'gold',
-      'article': '',
-      'news': '',
-      'ticker': '',
-    };
-
-    // Tradução de títulos comuns
-    const translateTitle = (t) => {
-      if (!t) return t;
-      return t
-        .replace(/Summer Update/gi, 'Update de Verão')
-        .replace(/Winter Update/gi, 'Update de Inverno')
-        .replace(/Content Fixes/gi, 'Correções de Conteúdo')
-        .replace(/Bug Fixes/gi, 'Correções de Bugs')
-        .replace(/Patch Notes/gi, 'Patch Notes')
-        .replace(/Double XP/gi, 'XP em Dobro')
-        .replace(/Double Skill/gi, 'Skill em Dobro')
-        .replace(/Bonus Weekend/gi, 'Fim de Semana Bônus')
-        .replace(/News Ticker/gi, 'Aviso')
-        .replace(/Login Issues/gi, 'Problemas de Login')
-        .replace(/Server Save/gi, 'Server Save')
-        .replace(/Event Schedule/gi, 'Calendário de Eventos')
-        .replace(/Teaser/gi, 'Teaser')
-        .replace(/Promotion/gi, 'Promoção')
-        .replace(/Revealed/gi, 'Revelado');
-    };
+    const typeLabel = { 'news':'Notícia', 'ticker':'Ticker', 'article':'Artigo', 'featured article':'⭐ Destaque', 'cipsoft':'CipSoft' };
+    const typeClass = { 'featured article':'gold', 'article':'', 'news':'', 'ticker':'' };
 
     const fmtDate = (d) => {
       if (!d) return '';
@@ -2958,31 +3070,39 @@ async function loadHomeNews() {
     };
 
     const items = news.slice(0, 7);
-    const [first, ...rest] = items;
-
-    let html = `<div class="news-featured">
-      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem">
-        <span class="news-tag ${typeClass[first.type]||''}">${typeLabel[first.type]||'Tibia'}</span>
-        <span class="news-date" style="margin-bottom:0">${fmtDate(first.date)}</span>
-      </div>
-      <h2 class="news-title" style="font-size:1.15rem">${translateTitle(first.title)||''}</h2>
-      <p style="font-size:.82rem;color:var(--muted);font-weight:300;margin:.4rem 0 .75rem;line-height:1.5">Clique para ler a notícia completa no Tibia.com — as notícias estão em inglês, o site oficial ainda não tem tradução.</p>
-      <a href="${first.url||'#'}" target="_blank" style="font-size:.82rem;color:var(--bamboo);font-weight:500;text-decoration:none;display:inline-flex;align-items:center;gap:4px">Ler no Tibia.com →</a>
-    </div>`;
-
-    html += rest.map(n => `
-      <div class="news-item">
-        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:3px">
-          <span class="news-tag ${typeClass[n.type]||''}" style="margin-bottom:0">${typeLabel[n.type]||'Tibia'}</span>
-          <span class="news-date" style="margin-bottom:0">${fmtDate(n.date)}</span>
+    
+    // Show with original titles first
+    const renderNews = (titles) => {
+      const [first, ...rest] = items;
+      let h = `<div class="news-featured">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem">
+          <span class="news-tag ${typeClass[first.type]||''}">${typeLabel[first.type]||'Tibia'}</span>
+          <span class="news-date" style="margin-bottom:0">${fmtDate(first.date)}</span>
         </div>
-        <div class="news-item-title">${translateTitle(n.title)||''}</div>
-        <div class="news-item-meta">
-          <a href="${n.url||'#'}" target="_blank" style="color:var(--bamboo);font-size:.75rem;font-weight:500;text-decoration:none">Ler no Tibia.com →</a>
-        </div>
-      </div>`).join('');
+        <h2 class="news-title" style="font-size:1.15rem">${titles[0]||first.title||''}</h2>
+        <p style="font-size:.82rem;color:var(--muted);font-weight:300;margin:.5rem 0 .75rem;line-height:1.5">Notícia oficial do Tibia — <a href="${first.url||'#'}" target="_blank" style="color:var(--bamboo);font-weight:500;text-decoration:none">ler texto completo em inglês →</a></p>
+      </div>`;
+      h += rest.map((n,i) => `
+        <div class="news-item">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:3px">
+            <span class="news-tag ${typeClass[n.type]||''}" style="margin-bottom:0">${typeLabel[n.type]||'Tibia'}</span>
+            <span class="news-date" style="margin-bottom:0">${fmtDate(n.date)}</span>
+          </div>
+          <div class="news-item-title">${titles[i+1]||n.title||''}</div>
+          <div class="news-item-meta">
+            <a href="${n.url||'#'}" target="_blank" style="color:var(--bamboo);font-size:.75rem;font-weight:500;text-decoration:none">Ler no Tibia.com →</a>
+          </div>
+        </div>`).join('');
+      container.innerHTML = h;
+    };
 
-    container.innerHTML = html;
+    // Show immediately with originals
+    renderNews(items.map(n => n.title));
+
+    // Then translate in background
+    const translated = await translateWithClaude(items.map(n => n.title));
+    renderNews(translated);
+
   } catch(err) {
     console.warn('Home news error:', err);
     if (loading) loading.style.display = 'none';
