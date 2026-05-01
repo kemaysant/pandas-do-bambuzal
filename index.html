@@ -1857,21 +1857,22 @@ const itemImgCache = {};
 // Worker roteia /img/* → tibiadata.com/img/* contornando hotlink block
 function itemImgUrl(name) {
   const slug = name.replace(/\s+/g, '_');
-  const base = (CONFIG.proxy || 'https://tibiadata.com');
-  return `${base}/img/objects/${slug}.gif`;
+  return `https://wsrv.nl/?url=tibiadata.com/img/objects/${slug}.gif`;
 }
 
-function creatureImgUrl(name) {
-  const slug = name.toLowerCase().replace(/[\s_]+/g, '-').replace(/[^a-z0-9-]/g, '').replace(/-+/g, '-');
-  const base = (CONFIG.proxy || 'https://tibiadata.com');
-  return `${base}/img/creatures/${slug}.gif`;
+function creatureImgUrl(creature) {
+  const slug = (creature || '').toLowerCase()
+    .replace(/[\s_]+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-');
+  return `https://wsrv.nl/?url=tibiadata.com/img/creatures/${slug}.gif`;
 }
 
 // Converte qualquer image_url da API para passar pelo Worker
 function proxyImgUrl(url) {
   if (!url) return '';
-  if (!CONFIG.proxy) return url;
-  return url.replace(/https?:\/\/tibiadata\.com/g, CONFIG.proxy);
+  const clean = url.replace(/^https?:\/\//, '');
+  return `https://wsrv.nl/?url=${clean}`;
 }
 
 async function fetchItemImg(name) {
@@ -1939,7 +1940,7 @@ function openImbuModal(id) {
   if (hasToken) {
     calcHtml += `
       <div style="background:var(--gold-pale);border:1px solid rgba(160,120,40,.25);border-radius:8px;padding:.9rem 1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem">
-        <img src="https://tibiadata.com/img/objects/gold-token.gif"
+        <img src="https://wsrv.nl/?url=tibiadata.com/img/objects/Gold_Token.gif"
              alt="Gold Token" style="width:32px;height:32px;image-rendering:pixelated;flex-shrink:0"
              onerror="this.outerHTML='<span style=\'font-size:1.4rem\'>🪙</span>'">
         <div>
