@@ -377,23 +377,32 @@ async function tibiaFetch(path) {
 
     <div class="news-grid reveal">
       <div>
-        <div class="news-featured">
-          <span class="news-tag gold">Destaque</span>
-          <div class="news-date">28 Abr 2025</div>
-          <h2 class="news-title">Guild completa 2 anos e cresce no servidor</h2>
-          <p class="news-body">O Bambuzal está crescendo! Comemoramos nosso aniversário com uma hunt coletiva no Feyrist e a entrada de novos membros. Planos para uma GT especial em maio estão em andamento.</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+          <div class="tool-label" style="margin-bottom:0">Últimas notícias do Tibia</div>
+          <a href="https://www.tibia.com/news/?subtopic=latestnews" target="_blank" style="font-size:.78rem;color:var(--bamboo);font-weight:500;text-decoration:none">Ver todas &rarr;</a>
         </div>
-        <div class="news-item">
-          <span class="news-tag">Evento</span>
-          <div class="news-date">22 Abr 2025</div>
-          <div class="news-item-title">Raid na Falcon Bastion — vitória pandas!</div>
-          <div class="news-item-meta">Organizado por PandaMestre · 8 membros presentes</div>
-        </div>
-        <div class="news-item">
-          <span class="news-tag red">Recrutamento</span>
-          <div class="news-date">10 Abr 2025</div>
-          <div class="news-item-title">Aberto recrutamento para Paladins acima de nível 250</div>
-          <div class="news-item-meta">Contate um líder in-game</div>
+        <div class="api-loading" id="home-news-loading"><div class="spinner"></div> Carregando notícias...</div>
+        <div id="home-news-container"></div>
+        <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--rule)">
+          <div class="tool-label" style="margin-bottom:1rem">Notícias da guild</div>
+          <div class="news-featured">
+            <span class="news-tag gold">Destaque</span>
+            <div class="news-date">28 Abr 2025</div>
+            <h2 class="news-title">Guild completa 2 anos e cresce no servidor</h2>
+            <p class="news-body">O Bambuzal está crescendo! Comemoramos nosso aniversário com uma hunt coletiva no Feyrist e a entrada de novos membros. Planos para uma GT especial em maio estão em andamento.</p>
+          </div>
+          <div class="news-item">
+            <span class="news-tag">Evento</span>
+            <div class="news-date">22 Abr 2025</div>
+            <div class="news-item-title">Raid na Falcon Bastion — vitória pandas!</div>
+            <div class="news-item-meta">Organizado por PandaMestre · 8 membros presentes</div>
+          </div>
+          <div class="news-item">
+            <span class="news-tag red">Recrutamento</span>
+            <div class="news-date">10 Abr 2025</div>
+            <div class="news-item-title">Aberto recrutamento para Paladins acima de nível 250</div>
+            <div class="news-item-meta">Contate um líder in-game</div>
+          </div>
         </div>
       </div>
 
@@ -1913,14 +1922,11 @@ async function loadBoostedBosses() {
       renderHomeBoosted(null, boostedBoss);
     }
 
-    // Criatura boostada — extrair da lista de boostable
-    const allBosses = bossData?.boostable_bosses?.creatures || [];
-    const boostedCreature = allBosses.find(c => c.featured) || null;
-    // Fallback: tenta endpoint separado
+    // Criatura boostada — endpoint correto: GET /v4/creatures → creatures.boosted
     try {
-      const creData = await tibiaFetch('/v4/creatures/boosted');
-      const bc2 = creData?.boosted_creature || creData?.creature;
-      if (bc2) {
+      const creData = await tibiaFetch('/v4/creatures');
+      const bc2 = creData?.creatures?.boosted;
+      if (bc2 && bc2.name) {
         const cl = document.getElementById('boosted-creature-loading');
         if (cl) cl.style.display = 'none';
         const ci = document.getElementById('boosted-creature-img');
@@ -1930,11 +1936,16 @@ async function loadBoostedBosses() {
         const cc = document.getElementById('boosted-creature-content');
         if (cc) cc.style.display = 'block';
         renderHomeBoosted(bc2, boostedBoss);
+      } else {
+        const cl = document.getElementById('boosted-creature-loading');
+        if (cl) cl.innerHTML = '<span style="color:var(--muted);font-size:.82rem">Não disponível neste momento</span>';
+        renderHomeBoosted(null, boostedBoss);
       }
     } catch(e2) {
-      // endpoint não disponível — usa nome do boss se existir
+      console.warn('Creatures endpoint error:', e2);
       const cl = document.getElementById('boosted-creature-loading');
       if (cl) cl.innerHTML = '<span style="color:var(--muted);font-size:.82rem">Não disponível neste momento</span>';
+      renderHomeBoosted(null, boostedBoss);
     }
   } catch(e) {
     console.error('Boosted bosses error:', e);
@@ -2116,6 +2127,51 @@ function copyWaste() {
 // Load bosses on init
 loadBoostedBosses();
 loadBossTracker();
+loadHomeNews();
+
+// HOME LATEST NEWS — /v4/news/latest
+async function loadHomeNews() {
+  const container = document.getElementById('home-news-container');
+  const loading   = document.getElementById('home-news-loading');
+  if (!container) return;
+  try {
+    const data = await tibiaFetch('/v4/news/latest');
+    const news = data?.news || [];
+    if (loading) loading.style.display = 'none';
+    if (!news.length) {
+      container.innerHTML = '<p style="font-size:.85rem;color:var(--muted);font-weight:300">Nenhuma notícia no momento.</p>';
+      return;
+    }
+    const typeLabel = { news:'Notícia', ticker:'Ticker', article:'Artigo', 'featured article':'Destaque' };
+    const typeClass = { news:'', ticker:'gold', article:'', 'featured article':'gold' };
+    const fmtDate = (d) => {
+      if (!d) return '';
+      const dt = new Date(d);
+      return isNaN(dt) ? d : dt.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+    };
+    const items = news.slice(0, 6);
+    const [first, ...rest] = items;
+    let html = '<div class="news-featured">' +
+      '<span class="news-tag ' + (typeClass[first.type]||'') + '">' + (typeLabel[first.type]||'Tibia') + '</span>' +
+      '<div class="news-date">' + fmtDate(first.date) + '</div>' +
+      '<h2 class="news-title" style="font-size:1.2rem">' + (first.title||'') + '</h2>' +
+      '<a href="' + (first.url||'#') + '" target="_blank" style="font-size:.82rem;color:var(--bamboo);font-weight:500;text-decoration:none;margin-top:.5rem;display:inline-block">Ler no Tibia.com &rarr;</a>' +
+    '</div>';
+    html += rest.map(function(n) {
+      return '<div class="news-item">' +
+        '<span class="news-tag ' + (typeClass[n.type]||'') + '">' + (typeLabel[n.type]||'Tibia') + '</span>' +
+        '<div class="news-date">' + fmtDate(n.date) + '</div>' +
+        '<div class="news-item-title">' + (n.title||'') + '</div>' +
+        '<div class="news-item-meta"><a href="' + (n.url||'#') + '" target="_blank" style="color:var(--bamboo);font-size:.78rem;font-weight:500;text-decoration:none">Ler no Tibia.com &rarr;</a></div>' +
+      '</div>';
+    }).join('');
+    container.innerHTML = html;
+  } catch(err) {
+    console.warn('Home news error:', err);
+    if (loading) loading.style.display = 'none';
+    if (container) container.innerHTML = '<p style="font-size:.85rem;color:var(--muted);font-weight:300;padding:.5rem 0">N&#227;o foi poss&#237;vel carregar as not&#237;cias do Tibia.</p>';
+  }
+}
 </script>
 <!-- ═══ IMBUEMENTS MODAL ═══ -->
 <div id="imbu-modal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem" onclick="if(event.target===this)closeImbuModal()">
