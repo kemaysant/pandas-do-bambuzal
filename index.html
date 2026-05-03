@@ -401,21 +401,27 @@ async function tibiaFetch(path) {
           <div class="tool-label" style="margin-bottom:1rem">Notícias da guild</div>
           <div class="news-featured">
             <span class="news-tag gold">Destaque</span>
-            <div class="news-date">28 Abr 2025</div>
-            <h2 class="news-title">Guild completa 2 anos e cresce no servidor</h2>
-            <p class="news-body">O Bambuzal está crescendo! Comemoramos nosso aniversário com uma hunt coletiva no Feyrist e a entrada de novos membros. Planos para uma GT especial em maio estão em andamento.</p>
+            <div class="news-date">Dez 2025</div>
+            <h2 class="news-title">⏳ Rank de Mortes 2025 — apuração em andamento!</h2>
+            <p class="news-body">As inscrições para o Ranking Anual de Mortes foram encerradas no dia 12. A liderança está apurando todas as deaths e logs. O resultado será divulgado no dia 15 de dezembro — fiquem ligados para saber quem é o Panda mais azarado do ano! 🔥</p>
           </div>
           <div class="news-item">
-            <span class="news-tag">Evento</span>
-            <div class="news-date">22 Abr 2025</div>
-            <div class="news-item-title">Raid na Falcon Bastion — vitória pandas!</div>
-            <div class="news-item-meta">Organizado por PandaMestre · 8 membros presentes</div>
+            <span class="news-tag">Recrutamento</span>
+            <div class="news-date">2025</div>
+            <div class="news-item-title">📣 Comunicado do RH dos Pandas — Vagas abertas!</div>
+            <div class="news-item-meta">Tem amigo sem guild no Tibia? Traga para a luz! Quem indicar novatos ganha abraço virtual do líder (e talvez prioridade no próximo boss 🤭).</div>
           </div>
           <div class="news-item">
-            <span class="news-tag red">Recrutamento</span>
-            <div class="news-date">10 Abr 2025</div>
-            <div class="news-item-title">Aberto recrutamento para Paladins acima de nível 250</div>
-            <div class="news-item-meta">Contate um líder in-game</div>
+            <span class="news-tag red">Alerta</span>
+            <div class="news-date">2025</div>
+            <div class="news-item-title">⚠️ Cuidado com golpe! Grupo "Tibia Trade" no Facebook</div>
+            <div class="news-item-meta">Moderador "Arthur Campos" aplica golpes em trades de alto valor. Acumula refs falsas e bloqueia vítimas. Denuncie a página. Compartilhe para alertar a comunidade.</div>
+          </div>
+          <div class="news-item">
+            <span class="news-tag">Aviso</span>
+            <div class="news-date">Abr 2025</div>
+            <div class="news-item-title">📢 Test Server — atenção ao backup!</div>
+            <div class="news-item-meta">Backup dos chars: 21/04 às 10h CEST. Char comprado no Bazaar precisa estar na conta até o Server Save do dia 20/04. Login no test usa email/senha do momento do backup.</div>
           </div>
         </div>
       </div>
@@ -2603,15 +2609,17 @@ async function loadRecentDeaths() {
   const el = document.getElementById('home-deaths');
   const loadEl = document.getElementById('home-deaths-loading');
   if (!el || !loadEl) return;
-  
-  // Get online members first, or top 5 by level
-  const targets = allMembers
-    .filter(m => m.status === 'online')
-    .slice(0, 5);
-  const fallback = targets.length === 0;
-  const checkList = fallback
-    ? [...allMembers].sort((a,b) => b.level - a.level).slice(0, 5)
-    : targets;
+
+  // Estratégia: online + amostra aleatória dos demais → 20 membros ao total
+  // Isso garante cobertura ampla e não fica repetindo sempre os mesmos
+  const online = allMembers.filter(m => m.status === 'online');
+  const offline = allMembers.filter(m => m.status !== 'online');
+
+  // Embaralhar os offline para amostragem aleatória
+  const shuffled = [...offline].sort(() => Math.random() - 0.5);
+
+  // Completar até 20 membros únicos: online primeiro, depois aleatórios
+  const checkList = [...online, ...shuffled].slice(0, 20);
 
   if (!checkList.length) {
     el.textContent = 'Nenhum membro para verificar.';
@@ -2626,14 +2634,10 @@ async function loadRecentDeaths() {
     try {
       const data = await tibiaFetch(`/v4/character/${encodeURIComponent(m.name)}`);
       const deaths = data?.character?.deaths || [];
-      deaths.slice(0, 2).forEach(d => {
-        // TibiaData v4 death date can be string "2026-04-30T10:20:00Z"
-        // or object {date: "...", timezone: "...", timezone_type: N}
-        let rawDate = d.date || d.time || '';
-        if (rawDate && typeof rawDate === 'object') {
-          rawDate = rawDate.date || rawDate.time || '';
-        }
-        // Normalize: "2026-04-30 10:20:00.000000" → "2026-04-30T10:20:00"
+      // Pegar até 3 mortes por personagem
+      deaths.slice(0, 3).forEach(d => {
+        let rawDate = d.time || d.date || '';
+        if (rawDate && typeof rawDate === 'object') rawDate = rawDate.date || rawDate.time || '';
         rawDate = String(rawDate).replace(' ', 'T').replace(/\.\d+$/, '');
         allDeaths.push({
           char: m.name,
@@ -2653,13 +2657,15 @@ async function loadRecentDeaths() {
     return;
   }
 
-  allDeaths.sort((a,b) => {
-    const da = new Date(a.date||0).getTime();
-    const db = new Date(b.date||0).getTime();
-    return db - da; // newest first
+  // Ordenar por data/hora — mais recente primeiro
+  allDeaths.sort((a, b) => {
+    const da = a.date ? a.date.replace(' ', 'T') : '0';
+    const db = b.date ? b.date.replace(' ', 'T') : '0';
+    return db.localeCompare(da);
   });
 
-  el.innerHTML = allDeaths.slice(0, 8).map(d => {
+  // Exibir as 5 mais recentes (de qualquer membro)
+  el.innerHTML = allDeaths.slice(0, 5).map(d => {
     let dateStr = '—';
     if (d.date) {
       try {
@@ -2688,7 +2694,7 @@ async function loadRecentDeaths() {
         </div>
       </div>
     </div>`;
-  }).join('') + (allDeaths.length > 8 ? `<p style="font-size:.75rem;color:var(--muted);padding:.5rem 0;text-align:center">${allDeaths.length - 8} morte(s) adicionais não exibidas</p>` : '');
+  }).join('');
 }
 
 setTimeout(triggerReveal, 80);
