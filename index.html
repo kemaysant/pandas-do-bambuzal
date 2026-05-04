@@ -276,14 +276,15 @@ const API_BASE = CONFIG.proxy
 const API_FALLBACK = 'https://tibiadata.bytewizards.de';
 
 async function tibiaFetch(path) {
-  // Sempre tenta proxy + fallback, detecta erros de proxy em texto puro
-  const urls = CONFIG.proxy
-    ? [CONFIG.proxy + path, API_FALLBACK + path]
-    : [API_BASE + path, API_FALLBACK + path];
+  // Tenta: 1) Proxy Cloudflare, 2) api.tibiadata.com direto (CORS aberto), 3) bytewizards
+  const urls = [];
+  if (CONFIG.proxy) urls.push(CONFIG.proxy + path);
+  urls.push('https://api.tibiadata.com' + path);
+  urls.push(API_FALLBACK + path);
   let lastErr;
   for (const url of urls) {
     try {
-      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      const res = await fetch(url, { headers: { 'Accept': 'application/json' }, mode: 'cors' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
       if (!text.trim().startsWith('{') && !text.trim().startsWith('['))
@@ -403,25 +404,25 @@ async function tibiaFetch(path) {
             <span class="news-tag gold">Destaque</span>
             <div class="news-date">Dez 2025</div>
             <h2 class="news-title">⏳ Rank de Mortes 2025 — apuração em andamento!</h2>
-            <p class="news-body">As inscrições para o Ranking Anual de Mortes foram encerradas no dia 12. A liderança está apurando todas as deaths e logs. O resultado será divulgado no dia 15 de dezembro — fiquem ligados para saber quem é o Panda mais azarado do ano! 🔥</p>
+            <p class="news-body">As inscrições foram encerradas no dia 12. A liderança está apurando todas as deaths e logs. Resultado no dia 15 de dezembro — quem será o Panda mais azarado do ano? 🔥</p>
           </div>
           <div class="news-item">
             <span class="news-tag">Recrutamento</span>
             <div class="news-date">2025</div>
-            <div class="news-item-title">📣 Comunicado do RH dos Pandas — Vagas abertas!</div>
-            <div class="news-item-meta">Tem amigo sem guild no Tibia? Traga para a luz! Quem indicar novatos ganha abraço virtual do líder (e talvez prioridade no próximo boss 🤭).</div>
+            <div class="news-item-title">📣 Vagas abertas — indique um amigo!</div>
+            <div class="news-item-meta">Tem amigo sem guild no Tibia? Traga para a luz! Quem indicar ganha abraço virtual do líder (e talvez prioridade no próximo boss 🤭).</div>
           </div>
           <div class="news-item">
             <span class="news-tag red">Alerta</span>
             <div class="news-date">2025</div>
-            <div class="news-item-title">⚠️ Cuidado com golpe! Grupo "Tibia Trade" no Facebook</div>
-            <div class="news-item-meta">Moderador "Arthur Campos" aplica golpes em trades de alto valor. Acumula refs falsas e bloqueia vítimas. Denuncie a página. Compartilhe para alertar a comunidade.</div>
+            <div class="news-item-title">⚠️ Golpe no grupo "Tibia Trade" no Facebook</div>
+            <div class="news-item-meta">Moderador "Arthur Campos" aplica golpes em trades de alto valor. Acumula referências falsas e bloqueia vítimas. Denuncie a página e compartilhe para alertar a comunidade.</div>
           </div>
           <div class="news-item">
             <span class="news-tag">Aviso</span>
             <div class="news-date">Abr 2025</div>
             <div class="news-item-title">📢 Test Server — atenção ao backup!</div>
-            <div class="news-item-meta">Backup dos chars: 21/04 às 10h CEST. Char comprado no Bazaar precisa estar na conta até o Server Save do dia 20/04. Login no test usa email/senha do momento do backup.</div>
+            <div class="news-item-meta">Backup dos chars: 21/04 às 10h CEST. Char do Bazaar precisa estar na conta até o Server Save do dia 20/04. Login usa email/senha do momento do backup.</div>
           </div>
         </div>
       </div>
@@ -623,7 +624,8 @@ async function tibiaFetch(path) {
     <div id="boss-pane-spawn" style="padding-top:1.25rem">
       <!-- Filtros -->
       <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem">
-        <button id="bsf-all"    onclick="filterBossSpawn('all',this)"    style="background:var(--ink);color:var(--bg);border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;font-weight:600;cursor:pointer">Todos</button>
+        <button id="bsf-nemesis" onclick="filterBossSpawn('nemesis',this)" style="background:var(--ink);color:var(--bg);border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;font-weight:600;cursor:pointer">⚔️ Nemesis</button>
+        <button id="bsf-all"    onclick="filterBossSpawn('all',this)"    style="background:none;color:var(--ink);border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;cursor:pointer">Todos</button>
         <button id="bsf-high"   onclick="filterBossSpawn('high',this)"   style="background:none;border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;cursor:pointer;color:var(--ink)">🟢 Alta chance</button>
         <button id="bsf-medium" onclick="filterBossSpawn('medium',this)" style="background:none;border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;cursor:pointer;color:var(--ink)">🟡 Média</button>
         <button id="bsf-low"    onclick="filterBossSpawn('low',this)"    style="background:none;border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;cursor:pointer;color:var(--ink)">🔴 Baixa</button>
@@ -1865,13 +1867,13 @@ function itemImgUrl(name) {
   // Itens: static.tibia.com via wsrv.nl proxy (evita hotlink block)
   const slug = (name || '').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('_');
   const raw = `static.tibia.com/images/library/${slug}.gif`;
-  return `https://wsrv.nl/?url=${encodeURIComponent(raw)}`;
+  return `https://wsrv.nl/?url=${raw}`;
 }
 
 function creatureImgUrl(creature) {
   // race lowercase sem espaços: "Broodrider Inferniarch" → "broodriderinferniarch"
   const race = (creature || '').toLowerCase().replace(/[\s_-]+/g, '').replace(/[^a-z0-9]/g, '');
-  return `https://static.tibia.com/images/library/${race}.gif`;
+  return `https://wsrv.nl/?url=static.tibia.com/images/library/${race}.gif`;
 }
 
 // Converte qualquer image_url da API para passar pelo Worker
@@ -1879,22 +1881,12 @@ function proxyImgUrl(url) {
   return url || '';  // static.tibia.com não precisa de proxy
 }
 
-async function fetchItemImg(name) {
-  if (itemImgCache[name] !== undefined) return itemImgCache[name];
-  try {
-    const data = await tibiaFetch('/v4/item/' + encodeURIComponent(name));
-    // API retorna image_url como static.tibia.com
-    // Usar wsrv.nl como proxy para evitar hotlink block
-    const raw = data?.item?.image_url || itemImgUrl(name);
-    const url = raw ? 'https://wsrv.nl/?url=' + encodeURIComponent(raw.replace('https://', '')) : '';
-    itemImgCache[name] = url;
-    return url;
-  } catch(e) {
-    const raw = itemImgUrl(name);
-    const url = raw ? 'https://wsrv.nl/?url=' + encodeURIComponent(raw.replace('https://', '')) : '';
-    itemImgCache[name] = url;
-    return url;
-  }
+function fetchItemImg(name) {
+  if (itemImgCache[name] !== undefined) return Promise.resolve(itemImgCache[name]);
+  // Gerar URL direto via wsrv.nl sem chamar a API (mais rápido e sem CORS)
+  const url = itemImgUrl(name);
+  itemImgCache[name] = url;
+  return Promise.resolve(url);
 }
 
 
@@ -2317,6 +2309,8 @@ async function runHuntFinder() {
     if (mode !== 'all' && !h.modes.includes(mode)) return false;
     if (focus === 'profit') return h.tipo === 'profit' || h.profit.includes('kk');
     if (focus === 'quest')  return h.tipo === 'quest';
+    // Excluir bosses/eventos do hunt finder (ficam na aba Bosses)
+    if (['Diário','Semanal','Variável','15 dias'].includes(h.tipo)) return false;
     return true;
   });
 
@@ -2610,15 +2604,10 @@ async function loadRecentDeaths() {
   const loadEl = document.getElementById('home-deaths-loading');
   if (!el || !loadEl) return;
 
-  // Estratégia: online + amostra aleatória dos demais → 20 membros ao total
-  // Isso garante cobertura ampla e não fica repetindo sempre os mesmos
+  // Online primeiro + amostra aleatória dos demais → 20 membros únicos
   const online = allMembers.filter(m => m.status === 'online');
   const offline = allMembers.filter(m => m.status !== 'online');
-
-  // Embaralhar os offline para amostragem aleatória
   const shuffled = [...offline].sort(() => Math.random() - 0.5);
-
-  // Completar até 20 membros únicos: online primeiro, depois aleatórios
   const checkList = [...online, ...shuffled].slice(0, 20);
 
   if (!checkList.length) {
@@ -2634,20 +2623,16 @@ async function loadRecentDeaths() {
     try {
       const data = await tibiaFetch(`/v4/character/${encodeURIComponent(m.name)}`);
       const deaths = data?.character?.deaths || [];
-      // Pegar até 3 mortes por personagem
       deaths.slice(0, 3).forEach(d => {
         let rawDate = d.time || d.date || '';
         if (rawDate && typeof rawDate === 'object') rawDate = rawDate.date || rawDate.time || '';
         rawDate = String(rawDate).replace(' ', 'T').replace(/\.\d+$/, '');
         allDeaths.push({
-          char: m.name,
-          vocKey: m.vocKey,
-          level: d.level,
-          date: rawDate,
+          char: m.name, vocKey: m.vocKey, level: d.level, date: rawDate,
           killers: d.killers?.map(k => k.name).join(', ') || '?'
         });
       });
-    } catch(e) { /* skip */ }
+    } catch(e) {}
   }));
 
   loadEl.style.display = 'none';
@@ -2664,7 +2649,6 @@ async function loadRecentDeaths() {
     return db.localeCompare(da);
   });
 
-  // Exibir as 5 mais recentes (de qualquer membro)
   el.innerHTML = allDeaths.slice(0, 5).map(d => {
     let dateStr = '—';
     if (d.date) {
@@ -2815,7 +2799,7 @@ function renderHomeBoosted(creature, boss) {
 
 // ── Boss Spawn Chances ──
 let bossSpawnData   = [];
-let bossSpawnFilter = 'all';
+let bossSpawnFilter = 'nemesis';
 let pinnedBosses    = JSON.parse(localStorage.getItem('panda-pinned') || '[]');
 
 function switchBossTab(tab) {
@@ -2836,10 +2820,69 @@ function switchBossTab(tab) {
     paneTracker.style.display = 'block';
     btnSpawn.style.cssText   = 'background:var(--paper);border:1px solid var(--rule);border-bottom:none;margin-bottom:-2px;border-radius:8px 8px 0 0;padding:.55rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--muted);cursor:pointer';
     btnTracker.style.cssText = 'background:var(--white);border:1px solid var(--rule);border-bottom:2px solid var(--bamboo);margin-bottom:-2px;border-radius:8px 8px 0 0;padding:.55rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--bamboo);cursor:pointer';
-    loadBossTracker();
+    if (!bossSpawnData.length) {
+      // Ainda não carregou — carregar e recarregar tracker quando terminar
+      loadBossSpawn().then(() => loadBossTracker()).catch(() => loadBossTracker());
+    } else {
+      loadBossTracker();
+    }
   }
 }
 
+const NEMESIS_NAMES = new Set([
+  // A
+  'Alptramun','Anmothra','Arachir the Ancient One','Arthom the Hunter',
+  // B
+  'Bakragore','Bane Lord','Barbaria','Battlemaster Zunzu','Big Boss Trolliver','Burster',
+  // C
+  'Captain Jones','Chikhaton','Chizzoron the Distorter','Countess Sorrow','Cublarc the Plunderer',
+  // D
+  'Devovorga','Dharalion','Diblis the Fair','Dracola','Dreadful Disruptor','Dreadmaw',
+  // E
+  'Elvira Hammerthrust',
+  // F
+  'Feroxa (Mortal)','Ferumbras','Ferumbras Mortal Shell','Flamecaller Zazrak','Fleabringer',
+  'Foreman Kneebiter','Furyosa',
+  // G
+  "Gaz'Haragoth","Gaz'haragoth",'General Murius','Ghazbaran',
+  "Goshnar's Megalomania",'Grand Mother Foulscale','Grandfather Tridian',
+  'Gravelord Oshuran','Gravelord Osyran','Groam','Grorlam',
+  // H
+  'Hairman The Huge','Hairman the Huge','Hatebreeder','High Templar Cobrass','Hirintror','Horestis',
+  // I
+  'Irahsae','Izcandar Champion of Summer','Izcandar Champion of Winter','Izcandar the Banished',
+  // J
+  'Jesse the Wicked','Jesse the Brave',
+  // K
+  'King Chuck',
+  // L
+  'Lizard Gate Guardian',
+  // M
+  'Mahatheb','Malofur Mangrinder','Man In The Cave','Man in the Cave','Massacre','Maxxenius',
+  'Morgaroth','Mornenion','Morshabaal','Mr. Punish',
+  // O
+  'Ocyakao','Omrafir','Oodok Witchmaster','Orshabaal',
+  // P
+  'Phrodomo','Plagueroot',
+  // R
+  'Raxias','Robby the Reckless','Rotrender','Rotworm Queen','Rukor Zad',
+  // S
+  'Shlorg','Sir Leopold','Sir Valorcrest','Smuggler Baron Silvertoe','Smuggler Baron Silverhand',
+  // T
+  'Teneshpar','The Abomination','The Big Bad One','The Blightfather','The Evil Eye',
+  'The First Dragon','The Frog Prince','The Handmaiden','The Hungerer','The Imperor',
+  'The Last Lore Keeper','The Manhunter','The Mean Masher','The Mutated Pumpkin',
+  'The Old Whopper','The Pale Count','The Percht Queen','The Plasmother',
+  'The Voice of Ruin','The Welter','Tyrn','Tzumrah the Dazzler',
+  // W
+  'Warlord Ruzad','White Pale','Willi Wasp','World Devourer',
+  // X
+  'Xenia',
+  // Y
+  'Yaga the Crone','Yakchal',
+  // Z
+  'Zarabustor','Zevelon Duskbringer','Zomba','Zulazza the Corruptor','Zushuka',
+]);
 function filterBossSpawn(f, btn) {
   bossSpawnFilter = f;
   document.querySelectorAll('#boss-pane-spawn button[id^="bsf-"]').forEach(b => {
@@ -2880,6 +2923,20 @@ function renderBossSpawnGrid() {
   if (bossSpawnFilter === 'high')   data = data.filter(b => b.chance !== null && b.chance >= 30);
   if (bossSpawnFilter === 'medium') data = data.filter(b => b.chance !== null && b.chance >= 10 && b.chance < 30);
   if (bossSpawnFilter === 'low')    data = data.filter(b => b.chance !== null && b.chance > 0 && b.chance < 10);
+  if (bossSpawnFilter === 'nemesis') {
+    // Mostrar todos os Nemesis da lista, mesmo sem dados de kill stats hoje
+    const existing = new Map(data.map(b => [b.name, b]));
+    const nemesisList = [];
+    NEMESIS_NAMES.forEach(name => {
+      if (existing.has(name)) {
+        nemesisList.push(existing.get(name));
+      } else {
+        // Boss Nemesis sem dados hoje — mostrar com chance desconhecida
+        nemesisList.push({ name, chance: null, img: null });
+      }
+    });
+    data = nemesisList;
+  }
   if (bossSpawnFilter === 'pinned') data = data.filter(b => pinnedBosses.includes(b.name));
 
   data.sort((a, b) => {
@@ -3017,16 +3074,36 @@ function loadBossTracker() {
   const done = JSON.parse(localStorage.getItem('panda-bosses') || '{}');
 
   const grid = document.getElementById('boss-tracker-grid');
-  grid.innerHTML = GUILD_BOSSES.map(b => {
+
+  // Usar bossSpawnData (API - todos os bosses) se disponível, senão GUILD_BOSSES
+  const source = bossSpawnData.length > 0
+    ? bossSpawnData.map(b => ({
+        id: b.name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+        name: b.name,
+        img: b.img || creatureImgUrl(b.name),
+        wiki: `https://tibia.fandom.com/wiki/${encodeURIComponent(b.name.replace(/ /g,'_'))}`,
+        tipo: null
+      }))
+    : GUILD_BOSSES.map(b => ({
+        id: b.id,
+        name: b.name,
+        img: b.creature ? creatureImgUrl(b.creature) : null,
+        wiki: b.wiki,
+        tipo: b.tipo
+      }));
+
+  // Ordenar alfabeticamente
+  source.sort((a, b) => a.name.localeCompare(b.name));
+
+  grid.innerHTML = source.map(b => {
     const isDone = !!done[b.id];
-    const imgUrl = b.creature ? creatureImgUrl(b.creature) : null;
     return `
     <div style="background:${isDone ? 'var(--bamboo-pale)' : 'var(--white)'};border:1px solid ${isDone ? 'rgba(90,158,68,.3)' : 'var(--rule)'};border-radius:8px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;transition:all .15s" onclick="toggleBoss('${b.id}',this)">
       <div style="width:22px;height:22px;border-radius:5px;border:2px solid ${isDone ? 'var(--bamboo)' : 'var(--rule)'};background:${isDone ? 'var(--bamboo)' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;color:white;transition:all .15s;flex-shrink:0">${isDone ? '✓' : ''}</div>
-      ${imgUrl ? `<img src="${imgUrl}" alt="${b.name}" style="width:40px;height:40px;image-rendering:pixelated;flex-shrink:0;border-radius:4px;background:var(--paper);border:1px solid var(--rule);padding:2px" onerror="this.style.display='none'">` : ''}
+      ${b.img ? `<img src="${b.img}" alt="${b.name}" style="width:40px;height:40px;image-rendering:pixelated;flex-shrink:0;border-radius:4px;background:var(--paper);border:1px solid var(--rule);padding:2px" onerror="this.style.display='none'">` : ''}
       <div style="flex:1;min-width:0">
         <div style="font-weight:500;font-size:.87rem;color:${isDone ? 'var(--bamboo)' : 'var(--ink)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.name}</div>
-        <div style="font-size:.7rem;color:var(--muted);font-weight:300">${b.tipo}</div>
+        ${b.tipo ? `<div style="font-size:.7rem;color:var(--muted);font-weight:300">${b.tipo}</div>` : ''}
       </div>
       <a href="${b.wiki}" target="_blank" onclick="event.stopPropagation()" style="font-size:.7rem;color:var(--bamboo);font-weight:500;text-decoration:none;flex-shrink:0">Wiki</a>
     </div>`;
@@ -3156,7 +3233,7 @@ const DT_GROUPS = {
 };
 
 const DELIVERY_ITEMS = [
-{n:'Afflicted Strider Head',g:'b',v:900,drops:'Afflicted Strider'},
+  {n:'Afflicted Strider Head',g:'b',v:900,drops:'Afflicted Strider'},
   {n:'Afflicted Strider Worms',g:'c',v:500,drops:'Afflicted Strider'},
   {n:'Alloy Legs',g:'b',v:11000,drops:'Bulltaur Alchemist · Metal Gargoyle · Sorcerer\'s Apparition · Brachiodemon · Control Tower · Glooth Battery · Katex Blood Tongue · Yirkas Blue Scales'},
   {n:'Amber Souvenir',g:'c',v:850,drops:'Quara Looter · Quara Raider · Quara Plunderer'},
@@ -3176,7 +3253,7 @@ const DELIVERY_ITEMS = [
   {n:'Blemished Spawn Abdomen',g:'d',v:550,drops:'Blemished Spawn'},
   {n:'Blemished Spawn Head',g:'c',v:800,drops:'Blemished Spawn'},
   {n:'Blemished Spawn Tail',g:'b',v:1000,drops:'Blemished Spawn'},
-  {n:'Bloated Maggot',g:'b',v:5200,drops:'Bloated Man · Maggot'},
+  {n:'Bloated Maggot',g:'b',v:5200,drops:'Bloated Man-Maggot'},
   {n:'Blood Amulet',g:'c',v:1230,drops:'Dworc Shadowstalker'},
   {n:'Blood Hood',g:'c',v:1550,drops:'Norcferatu Nightweaver'},
   {n:'Blood Preservation',g:'b',v:320,drops:'Nightfiend · Vicious Manbat · Vampire · Vampire Bride · Vampire Viscount · Arachir the Ancient One · Arthei · Boreth · Diblis the Fair · Lersatio · The Pale Count · Vladrukh'},
@@ -3186,7 +3263,7 @@ const DELIVERY_ITEMS = [
   {n:'Boar Man Hoof',g:'c',v:600,drops:'Boar Man'},
   {n:'Boggy Dreads',g:'c',v:200,drops:'Bog Raider · Weakened Shlorg'},
   {n:'Bola',g:'d',v:35,drops:'Corym Charlatan · Corym Skirmisher · Corym Vanguard'},
-  {n:'Bone Club',g:'c',v:5,drops:'Orger · Bonebeast · Corrupted Skeleton · Goblin · Goblin Assassin · Goblin Leader · Goblin Scavenger · Pirate Skeleton · Demon (Goblin) · Dreadbeast · Munster · Necropharus'},
+  {n:'Bone Club',g:'c',v:5,drops:'Orger · Bonebeast · Corrupted Skeleton · Goblin · Goblin Assassin · Goblin Leader · Goblin Scavenger - · Pirate Skeleton · Demon (Goblin) · Dreadbeast · Munster · Necropharus'},
   {n:'Bone Fetish',g:'d',v:150,drops:'Lost Basher · Lost Exile · Lost Husher · Ogre Sage · Ogre Shaman · Animated Ogre Shaman'},
   {n:'Bone Fibula',g:'c',v:580,drops:'Orclops Bloodbreaker'},
   {n:'Bone Rattle',g:'c',v:790,drops:'Dworc Shadowstalker'},
@@ -3196,7 +3273,7 @@ const DELIVERY_ITEMS = [
   {n:'Bonecarving Knife',g:'c',v:190,drops:'Lost Basher · Lost Exile · Lost Husher'},
   {n:'Bony Tail',g:'c',v:210,drops:'Bonebeast · Ribstride'},
   {n:'Book Of Necromantic Rituals',g:'d',v:180,drops:'Blood Hand · Blood Priest · Floating Savant · Necromancer · Shadow Pupil · Necromancer Servant · Necropharus'},
-  {n:'Book Page',g:'f',v:640,drops:'Biting Book · Burning Book · Cursed Book · Energetic Book · Energuardian Of Tales · Guardian Of Tales · Icecold Book · Knowledge Elemental'},
+  {n:'Book Page',g:'c',v:640,drops:'Biting Book · Burning Book · Cursed Book · Energetic Book · Energuardian Of Tales · Guardian Of Tales · Icecold Book · Knowledge Elemental'},
   {n:'Book With A Dragon',g:'c',v:1800,drops:'Bramble Wyrmling · Cinder Wyrmling · Inkwing'},
   {n:'Book With An Hourglass',g:'b',v:1450,drops:'Headwalker'},
   {n:'Bowl Of Terror Sweat',g:'d',v:500,drops:'Feversleep · Terrorsleep'},
@@ -3215,10 +3292,10 @@ const DELIVERY_ITEMS = [
   {n:'Bulltaur Hoof',g:'c',v:540,drops:'Bulltaur Brute'},
   {n:'Bulltaur Horn',g:'d',v:385,drops:'Bulltaur Alchemist · Bulltaur Brute · Bulltaur Forgepriest'},
   {n:'Bundle Of Cursed Straw',g:'e',v:800,drops:'Blightwalker'},
-  {n:'Carnisylvan Bark',g:'f',v:230,drops:'Dark Carnisylvan · Hulking Carnisylvan · Poisonous Carnisylvan'},
-  {n:'Carnisylvan Finger',g:'f',v:250,drops:'Dark Carnisylvan · Hulking Carnisylvan · Poisonous Carnisylvan'},
+  {n:'Carnisylvan Bark',g:'c',v:230,drops:'Dark Carnisylvan · Hulking Carnisylvan · Poisonous Carnisylvan'},
+  {n:'Carnisylvan Finger',g:'c',v:250,drops:'Dark Carnisylvan · Hulking Carnisylvan · Poisonous Carnisylvan'},
   {n:'Carnivostrich Feather',g:'c',v:600,drops:'Carnivostrich'},
-  {n:'Cat\'s Paw',g:'b',v:2000,drops:'Dark Torturer · Hemming · Mr. Punish · The Scourge of Oblivion'},
+  {n:'Cat\'S Paw',g:'b',v:2000,drops:'Dark Torturer · Hemming · Mr. Punish · The Scourge of Oblivion'},
   {n:'Cave Devourer Eyes',g:'e',v:550,drops:'Cave Devourer'},
   {n:'Cave Devourer Legs',g:'e',v:350,drops:'Cave Devourer'},
   {n:'Cave Devourer Maw',g:'e',v:600,drops:'Cave Devourer'},
@@ -3226,8 +3303,8 @@ const DELIVERY_ITEMS = [
   {n:'Chain Leash',g:'c',v:970,drops:'Gloom Maw'},
   {n:'Chaos Mace',g:'b',v:9000,drops:'Destroyer · Infernal Phantom · Juvenile Bashmu · Lost Berserker · Moohtant · Norcferatu Heartless · Lost Basher · Nightstalker · Alptramun · Anomaly · Bretzecutioner · Duke Krule · Ferumbras · Ferumbras Mortal Shell · Gorzindel · Izcandar Champion of Summer · Izcandar Champion of Winter · Izcandar the Banished · Malofur Mangrinder · Maxxenius · Outburst · Plagueroot · Rupture · Sir Valorcrest · Shulgrax · Tarbaz · The Nightmare Beast · The Pale Count · The Percht Queen · The Scourge of Oblivion · The Shatterer · Utua Stone Sting · Weakened Shlorg'},
   {n:'Chasm Spawn Abdomen',g:'d',v:240,drops:'Chasm Spawn'},
-  {n:'Chasm Spawn Head',g:'f',v:850,drops:'Chasm Spawn'},
-  {n:'Chasm Spawn Tail',g:'f',v:120,drops:'Chasm Spawn'},
+  {n:'Chasm Spawn Head',g:'c',v:850,drops:'Chasm Spawn'},
+  {n:'Chasm Spawn Tail',g:'c',v:120,drops:'Chasm Spawn'},
   {n:'Cheese Cutter',g:'d',v:50,drops:'Corym Charlatan · Corym Skirmisher · Corym Vanguard'},
   {n:'Cheesy Figurine',g:'d',v:150,drops:'Cobra Scout · Corym Vanguard · Corym Charlatan · Corym Skirmisher'},
   {n:'Cluster Of Crystallized Death',g:'b',v:9000,drops:'Creepy Crawler · Crypt Construct · Crypt Fiend'},
@@ -3241,8 +3318,8 @@ const DELIVERY_ITEMS = [
   {n:'Cowbell',g:'d',v:210,drops:'Minotaur Amazon · Minotaur Cult Follower · Minotaur Cult Prophet'},
   {n:'Crab Man Claws',g:'d',v:600,drops:'Crape Man'},
   {n:'Cracked Alabaster Vase',g:'d',v:180,drops:'Broken Shaper · Shaper Matriarch · Twisted Shaper'},
-  {n:'Crawler\'s Essence',g:'b',v:3700,drops:'Branchy Crawler'},
-  {n:'Cry-stal',g:'c',v:3200,drops:'Shrieking Cry · Stal'},
+  {n:'Crawler\'S Essence',g:'b',v:3700,drops:'Branchy Crawler'},
+  {n:'Cry-Stal',g:'c',v:3200,drops:'Shrieking Cry-Stal'},
   {n:'Crystal Bone',g:'c',v:250,drops:'Instable Breach Brood'},
   {n:'Crystal Crossbow',g:'b',v:35000,drops:'Cliff Strider · Haunted Hunter · Mould Phantom · Sulphur Spouter · Branchy Crawler · Cave Chimera · Crazed Summer Rearguard · Freakish Lost Soul · Gorerilla · Naga Archer · Orewalker · Quara Looter · Abyssador · Deathstrike · Deep Terror · Gnomevil · Guard Captain Quaid · Vok the Freakish'},
   {n:'Crystal Mace',g:'b',v:12000,drops:'Squid Warden · Animated Feather · Boar Man · Brachiodemon · Eyeless Devourer · Icecold Book · Infernal Phantom · Juvenile Bashmu · Knight\'s Apparition · Lavafungus · Sight of Surrender · Streaked Devourer · Tunnel Tyrant · Darklight Striker · Ironblight · Roaming Dread · Stone Devourer · Walker · White Weretiger · Eradicator · Melting Frozen Horror · Realityquake · Tamru the Black · The Baron from Below · Utua Stone Sting · Vashresamun · Yakchal · Zamulosh · Zushuka (Mortal)'},
@@ -3288,22 +3365,22 @@ const DELIVERY_ITEMS = [
   {n:'Dragolisk Eye',g:'d',v:690,drops:'Dragolisk'},
   {n:'Dragolisk Poison Gland',g:'d',v:475,drops:'Dragolisk'},
   {n:'Dragon Hammer',g:'b',v:2000,drops:'Bulltaur Brute · Dragon · Dire Penguin · Orc Warlord · Grand Mother Foulscale · Orshabaal · Tazhadur'},
-  {n:'Dragon Priest\'s Wandtip',g:'c',v:175,drops:'Lizard Dragon Priest · Flamecaller Zazrak'},
+  {n:'Dragon Priest\'S Wandtip',g:'c',v:175,drops:'Lizard Dragon Priest · Flamecaller Zazrak'},
   {n:'Dragon Slayer',g:'b',v:15000,drops:'Haunted Dragon · Undead Dragon · Albino Dragon · Dragon Lord · Frost Dragon · Mega Dragon · Dragon Hoard · Inkwing · Ushuriel'},
   {n:'Dragon Tongue',g:'d',v:550,drops:'Ice Dragon · Wardragon · Gelidrazah the Frozen · Kalyassa · Soul of Dragonking Zyrtarch · Tazhadur'},
-  {n:'Dragon\'s Tail',g:'d',v:100,drops:'Dragon · Dragolisk · Dragon Hatchling'},
+  {n:'Dragon\'S Tail',g:'d',v:100,drops:'Dragon · Dragolisk · Dragon Hatchling'},
   {n:'Draken Wristbands',g:'d',v:430,drops:'Draken Elite · Paiz the Pauperizer'},
-  {n:'Dream Essence Egg',g:'d',v:205,drops:'Crazed Summer Rearguard · Crazed Summer Vanguard · Crazed Winter Rearguard · Crazed Winter Vanguard · Insane Siren · Soul · Broken Harbinger'},
+  {n:'Dream Essence Egg',g:'d',v:205,drops:'Crazed Summer Rearguard · Crazed Summer Vanguard · Crazed Winter Rearguard · Crazed Winter Vanguard · Insane Siren · Soul-Broken Harbinger'},
   {n:'Dung Ball',g:'d',v:130,drops:'Insectoid Worker · Mindmasher'},
   {n:'Earflap',g:'d',v:40,drops:'Corym Charlatan · Corym Skirmisher · Corym Vanguard'},
   {n:'Elder Bonelord Tentacle',g:'d',v:150,drops:'Elder Bonelord'},
-  {n:'Elven Astral Observer',g:'f',v:90,drops:'Crazed Summer Vanguard · Crazed Winter Rearguard · Elf Arcanist · Dharalion'},
+  {n:'Elven Astral Observer',g:'c',v:90,drops:'Crazed Summer Vanguard · Crazed Winter Rearguard · Elf Arcanist · Dharalion'},
   {n:'Emerald Tortoise Shell',g:'d',v:2150,drops:'Emerald Tortoise'},
   {n:'Empty Honey Glass',g:'b',v:270,drops:'Black Sphinx Acolyte · Burning Gladiator · Priestess Of The Wild Sun'},
   {n:'Encrypted Notes',g:'c',v:620,drops:'Bulltaur Alchemist'},
   {n:'Energy Ball',g:'d',v:300,drops:'Brain Squid · Dread Intruder · Energetic Book · Outburst'},
   {n:'Ensouled Essence',g:'c',v:820,drops:'Flimsy Lost Soul · Freakish Lost Soul · Mean Lost Soul'},
-  {n:'Essence Of A Bad Dream',g:'f',v:360,drops:'Arachnophobica · Nightmare · Nightmare Scion · Thanatursus · Tormentor'},
+  {n:'Essence Of A Bad Dream',g:'c',v:360,drops:'Arachnophobica · Nightmare · Nightmare Scion · Thanatursus · Tormentor'},
   {n:'Exalted Core',g:'a',v:0,drops:''},
   {n:'Execowtioner Mask',g:'c',v:240,drops:'Execowtioner'},
   {n:'Eye Of A Deepling',g:'e',v:150,drops:'Deepling Elite · Deepling Tyrant · Deathling Scout · Deathling Spellsinger · Deepling Brawler · Deepling Guard · Deepling Master Librarian · Deepling Scout · Deepling Spellsinger · Deepling Warrior · Shark · Deepling Worker · Reflection of Obujos'},
@@ -3317,7 +3394,7 @@ const DELIVERY_ITEMS = [
   {n:'Fig Leaf',g:'c',v:200,drops:'Barkless Fanatic · Barkless Devotee · Ravenous Hunger'},
   {n:'Fir Cone',g:'d',v:25,drops:'Leaf Golem · Wilting Leaf Golem · Dazed Leaf Golem'},
   {n:'Fire Axe',g:'b',v:8000,drops:'Rage Squid · Demon · Feral Sphinx · Guardian of Tales · Infernal Phantom · Insane Siren · Lava Golem · Mean Lost Soul · Sulphider · Vexclaw · Weeper · Lost Berserker · Brachiodemon · Hellfire Fighter · Lost Basher · Lost Exile · Lost Husher · Angry Demon · Arbaziloth · Custodian · Essence of Malice · Ferumbras · Furyosa · Golgordan · Latrivan · Mahrdis · Mazoran · Morgaroth · Orshabaal · The Duke of the Depths · The Imperor · Unaz the Mean · Xogixath'},
-  {n:'Flask Of Demonic Blood',g:'f',v:0,drops:'Betrayed Wraith · Burning Book · Dark Torturer · Dawnfire Asura · Diabolic Imp · Falcon Knight · Fury · Grim Reaper · Hand of Cursed Fate · True Dawnfire Asura · Floating Savant · Frost Flower Asura · Grimeleech · Hellflayer · Hellhound · Juggernaut · Midnight Asura · Nightmare · True Frost Flower Asura · True Midnight Asura · Furyosa · Grand Chaplain Gaunder · Kerberos · Kusuma · Mazoran · Plagirath · Preceptor Lazare · Ragiaz · Razzagorn · Shulgrax · Tarbaz · The Blazing Rose · The Diamond Blossom · The Flaming Orchid · The Lily of Night · The Moonlight Aster · The Winter Bloom · Tormentor · Zamulosh'},
+  {n:'Flask Of Demonic Blood',g:'c',v:0,drops:'Betrayed Wraith · Burning Book · Dark Torturer · Dawnfire Asura · Diabolic Imp · Falcon Knight · Fury · Grim Reaper · Hand of Cursed Fate · True Dawnfire Asura · Floating Savant · Frost Flower Asura · Grimeleech · Hellflayer · Hellhound · Juggernaut · Midnight Asura · Nightmare · True Frost Flower Asura · True Midnight Asura · Furyosa · Grand Chaplain Gaunder · Kerberos · Kusuma · Mazoran · Plagirath · Preceptor Lazare · Ragiaz · Razzagorn · Shulgrax · Tarbaz · The Blazing Rose · The Diamond Blossom · The Flaming Orchid · The Lily of Night · The Moonlight Aster · The Winter Bloom · Tormentor · Zamulosh'},
   {n:'Flotsam',g:'d',v:330,drops:'Foam Stalker · Venerable Foam Stalker'},
   {n:'Focus Cape',g:'b',v:6000,drops:'Afflicted Strider · Converter · Dawnfire Asura · Draken Spellweaver · Lavafungus · Pirat Cutthroat · Tremendous Tyrant · True Dawnfire Asura · Wyrm · Girtablilu Warrior · Harpy · Lizard Dragon Priest · Lumbering Carnivor · Nightmare Scion · Reality Reaver · Sea Serpent · Stabilizing Reality Reaver · Amenef the Burning · Captain Jones · Hellgorak · Raging Mage · Sister Hetai'},
   {n:'Fox Paw',g:'e',v:100,drops:'Werefox · Fox · Black Vixen'},
@@ -3332,7 +3409,7 @@ const DELIVERY_ITEMS = [
   {n:'Girtablilu Warrior Carapace',g:'b',v:520,drops:'Girtablilu Warrior'},
   {n:'Glacier Mask',g:'d',v:2500,drops:'Animated Feather · Crazed Winter Rearguard · Icecold Book · Mycobiontic Beetle · Squid Warden · Animated Snowman · Ice Dragon · Paladin\'s Apparition · Seacrest Serpent · Crystal Spider · Ice Golem · Earl Osam · Gelidrazah the Frozen · Hirintror · Memory of a Dwarf · Neferi the Spy · Shardhead · The Bloodweb · Zushuka'},
   {n:'Glacier Robe',g:'b',v:11000,drops:'Crazed Winter Rearguard · Crazed Winter Vanguard · Icecold Book · Many Faces · Squid Warden · Tremendous Tyrant · Turbulent Elemental · Druid\'s Apparition · Girtablilu Warrior · Goggle Cake · Quara Looter · Quara Predator · Quara Raider · Renegade Quara Predator · Schiach · Quara Pincher · Renegade Quara Pincher · Hazardous Phantom · King Zelos · Srezz Yellow Eyes · Tarbaz · The Blazing Time Guardian · The Time Guardian · The Winter Bloom · Utua Stone Sting · Yakchal · Zushuka'},
-  {n:'Glacier Shoes',g:'c',v:2500,drops:'Foam Stalker · Icecold Book · Many Faces · Seacrest Serpent · Soul · Broken Harbinger · Two · Headed Turtle · Usurper Archer · Varnished Diremaw · Bluebeak · Ice Witch · Hirintror · Neferi the Spy · Venerable Foam Stalker · Zushuka'},
+  {n:'Glacier Shoes',g:'c',v:2500,drops:'Foam Stalker · Icecold Book · Many Faces · Seacrest Serpent · Soul-Broken Harbinger · Two-Headed Turtle · Usurper Archer · Varnished Diremaw · Bluebeak · Ice Witch · Hirintror · Neferi the Spy · Venerable Foam Stalker · Zushuka'},
   {n:'Glob Of Acid Slime',g:'d',v:25,drops:'Acid Blob · Defiler · Stonerefiner'},
   {n:'Glob Of Glooth',g:'d',v:125,drops:'Devourer · Glooth Blob · Rot Elemental'},
   {n:'Glob Of Tar',g:'d',v:30,drops:'Death Blob · Defiler'},
@@ -3342,8 +3419,8 @@ const DELIVERY_ITEMS = [
   {n:'Glooth Club',g:'b',v:1500,drops:'Devourer · Blood Beast · Glooth Anemone · Glooth Bandit · Glooth Blob · Glooth Brigand · Glooth Golem · Glooth Fairy · Lisa'},
   {n:'Glooth Injection Tube',g:'e',v:350,drops:'Glooth Golem · Glooth Fairy'},
   {n:'Glorious Axe',g:'c',v:0,drops:''},
-  {n:'Glowing Rune',g:'f',v:0,drops:''},
-  {n:'Goanna Claw',g:'b',v:260,drops:'Adult Goanna · Young Goanna · Sun · Marked Goanna'},
+  {n:'Glowing Rune',g:'c',v:0,drops:''},
+  {n:'Goanna Claw',g:'b',v:260,drops:'Adult Goanna · Young Goanna · Sun-Marked Goanna'},
   {n:'Goanna Meat',g:'e',v:190,drops:'Adult Goanna · Young Goanna'},
   {n:'Golden Legs',g:'a',v:0,drops:''},
   {n:'Golden Lotus Brooch',g:'d',v:0,drops:''},
@@ -3357,8 +3434,8 @@ const DELIVERY_ITEMS = [
   {n:'Green Bandage',g:'c',v:180,drops:'Putrid Mummy'},
   {n:'Guardian Shield',g:'d',v:0,drops:''},
   {n:'Halberd',g:'d',v:0,drops:''},
-  {n:'Half-digested Stones',g:'f',v:40,drops:'Stonerefiner'},
-  {n:'Half-eaten Brain',g:'c',v:85,drops:'Zombie'},
+  {n:'Half-Digested Stones',g:'c',v:40,drops:'Stonerefiner'},
+  {n:'Half-Eaten Brain',g:'c',v:85,drops:'Zombie'},
   {n:'Harpy Feathers',g:'c',v:730,drops:'Harpy'},
   {n:'Headpecker Beak',g:'c',v:2800,drops:'Headpecker'},
   {n:'Headpecker Feather',g:'d',v:1300,drops:'Headpecker'},
@@ -3376,17 +3453,17 @@ const DELIVERY_ITEMS = [
   {n:'Human Teeth',g:'b',v:2000,drops:'Dark Carnisylvan · Hulking Carnisylvan · Poisonous Carnisylvan'},
   {n:'Humongous Chunk',g:'c',v:540,drops:'Humongous Fungus'},
   {n:'Hydra Head',g:'c',v:600,drops:'Hydra · Lion Hydra'},
-  {n:'Hydrophytes',g:'e',v:220,drops:'Two · Headed Turtle'},
-  {n:'Ice Flower',g:'f',v:370,drops:'Crazed Winter Rearguard · Crazed Winter Vanguard · Soul · Broken Harbinger'},
+  {n:'Hydrophytes',g:'e',v:220,drops:'Two-Headed Turtle'},
+  {n:'Ice Flower',g:'c',v:370,drops:'Crazed Winter Rearguard · Crazed Winter Vanguard · Soul-Broken Harbinger'},
   {n:'Idol Of The Forge',g:'c',v:950,drops:'Bulltaur Forgepriest'},
-  {n:'Inkwell',g:'f',v:0,drops:''},
+  {n:'Inkwell',g:'c',v:0,drops:''},
   {n:'Instable Proto Matter',g:'d',v:0,drops:''},
   {n:'Ivory Carving',g:'d',v:0,drops:''},
   {n:'Key To The Drowned Library',g:'c',v:0,drops:''},
   {n:'Knife',g:'d',v:0,drops:''},
   {n:'Knight Axe',g:'c',v:0,drops:''},
   {n:'Knight Legs',g:'c',v:0,drops:''},
-  {n:'Kongra\'s Shoulderpad',g:'e',v:100,drops:'Cursed Ape · Kongra'},
+  {n:'Kongra\'S Shoulderpad',g:'e',v:100,drops:'Cursed Ape · Kongra'},
   {n:'Lamassu Hoof',g:'e',v:330,drops:'Crypt Warden · Lamassu'},
   {n:'Lamassu Horn',g:'d',v:240,drops:'Crypt Warden · Lamassu'},
   {n:'Lancer Beetle Shell',g:'d',v:80,drops:'Lancer Beetle · The Blightfather'},
@@ -3403,10 +3480,10 @@ const DELIVERY_ITEMS = [
   {n:'Liodile Fang',g:'c',v:480,drops:'Liodile'},
   {n:'Lion Cloak Patch',g:'d',v:0,drops:''},
   {n:'Lion Crest',g:'c',v:0,drops:''},
-  {n:'Lost Basher\'s Spike',g:'c',v:0,drops:''},
+  {n:'Lost Basher\'S Spike',g:'c',v:0,drops:''},
   {n:'Lost Bracers',g:'c',v:0,drops:''},
   {n:'Luminous Orb',g:'b',v:0,drops:''},
-  {n:'Lump Of Earth',g:'f',v:0,drops:''},
+  {n:'Lump Of Earth',g:'c',v:0,drops:''},
   {n:'Mad Froth',g:'d',v:0,drops:''},
   {n:'Magma Boots',g:'c',v:0,drops:''},
   {n:'Magma Clumb',g:'e',v:0,drops:''},
@@ -3434,15 +3511,15 @@ const DELIVERY_ITEMS = [
   {n:'Mutated Bat Ear',g:'c',v:0,drops:''},
   {n:'Mutated Flesh',g:'d',v:0,drops:''},
   {n:'Mutated Rat Tail',g:'c',v:0,drops:''},
-  {n:'Naga Archer Scales',g:'f',v:340,drops:'Naga Archer'},
+  {n:'Naga Archer Scales',g:'c',v:340,drops:'Naga Archer'},
   {n:'Naga Armring',g:'c',v:0,drops:''},
   {n:'Naga Earring',g:'d',v:0,drops:''},
-  {n:'Naga Warrior Scales',g:'f',v:340,drops:'Naga Warrior'},
+  {n:'Naga Warrior Scales',g:'c',v:340,drops:'Naga Warrior'},
   {n:'Necromantic Core',g:'c',v:0,drops:''},
   {n:'Necromantic Rust',g:'e',v:0,drops:''},
   {n:'Night Harpy Feathers',g:'c',v:0,drops:''},
-  {n:'Nighthunter Wing',g:'f',v:2000,drops:'Nighthunter'},
-  {n:'Nimmersatt\'s Seal',g:'d',v:0,drops:''},
+  {n:'Nighthunter Wing',g:'c',v:2000,drops:'Nighthunter'},
+  {n:'Nimmersatt\'S Seal',g:'d',v:0,drops:''},
   {n:'Odd Organ',g:'d',v:0,drops:''},
   {n:'Ogre Ear Stud',g:'e',v:0,drops:''},
   {n:'Old Girtablilu Carapace',g:'c',v:0,drops:''},
@@ -3457,8 +3534,8 @@ const DELIVERY_ITEMS = [
   {n:'Piece Of Frozen Night',g:'c',v:0,drops:''},
   {n:'Piece Of Hell Steel',g:'b',v:0,drops:''},
   {n:'Piece Of Warrior Armor',g:'b',v:0,drops:''},
-  {n:'Pirat\'s Tail',g:'d',v:0,drops:''},
-  {n:'Pirate Coin',g:'f',v:0,drops:''},
+  {n:'Pirat\'S Tail',g:'d',v:0,drops:''},
+  {n:'Pirate Coin',g:'c',v:0,drops:''},
   {n:'Plasma Pearls',g:'d',v:0,drops:''},
   {n:'Plasmatic Lightning',g:'d',v:0,drops:''},
   {n:'Plate Legs',g:'e',v:0,drops:''},
@@ -3506,7 +3583,7 @@ const DELIVERY_ITEMS = [
   {n:'Shimmering Beetles',g:'e',v:0,drops:''},
   {n:'Shiny Stone',g:'d',v:0,drops:''},
   {n:'Silencer Resonating Chamber',g:'d',v:0,drops:''},
-  {n:'Silken Bookmark',g:'f',v:0,drops:''},
+  {n:'Silken Bookmark',g:'c',v:0,drops:''},
   {n:'Silver Moon Coin',g:'b',v:0,drops:''},
   {n:'Silver Poniard',g:'b',v:0,drops:''},
   {n:'Sineater Wing',g:'b',v:0,drops:''},
@@ -3525,8 +3602,8 @@ const DELIVERY_ITEMS = [
   {n:'Sparkion Stings',g:'d',v:0,drops:''},
   {n:'Sparkion Tail',g:'d',v:0,drops:''},
   {n:'Spellbook Of Mind Control',g:'b',v:0,drops:''},
-  {n:'Spellsinger\'s Seal',g:'d',v:0,drops:''},
-  {n:'Spellweaver\'s Robe',g:'b',v:0,drops:''},
+  {n:'Spellsinger\'S Seal',g:'d',v:0,drops:''},
+  {n:'Spellweaver\'S Robe',g:'b',v:0,drops:''},
   {n:'Sphinx Tiara',g:'c',v:0,drops:''},
   {n:'Spiked Bracers',g:'c',v:0,drops:''},
   {n:'Spiked Gorget',g:'c',v:0,drops:''},
@@ -3539,7 +3616,7 @@ const DELIVERY_ITEMS = [
   {n:'Stampor Talons',g:'c',v:0,drops:''},
   {n:'Star Ink',g:'c',v:0,drops:''},
   {n:'Stone Wing',g:'d',v:0,drops:''},
-  {n:'Stonerefine\'s Skull',g:'e',v:0,drops:''},
+  {n:'Stonerefine\'S Skull',g:'e',v:0,drops:''},
   {n:'Strange Helmet',g:'b',v:0,drops:''},
   {n:'Strange Substance',g:'d',v:0,drops:''},
   {n:'Streaked Devourer Eyes',g:'d',v:0,drops:''},
@@ -3547,7 +3624,7 @@ const DELIVERY_ITEMS = [
   {n:'Streaked Devourer Maw',g:'e',v:0,drops:''},
   {n:'Striped Fur',g:'e',v:0,drops:''},
   {n:'Sulphider Shell',g:'e',v:0,drops:''},
-  {n:'Sulphur Powder',g:'f',v:0,drops:''},
+  {n:'Sulphur Powder',g:'c',v:0,drops:''},
   {n:'Sulphurous Stone',g:'d',v:0,drops:''},
   {n:'Swampling Club',g:'c',v:0,drops:''},
   {n:'Swarmer Antenna',g:'d',v:0,drops:''},
@@ -3566,11 +3643,11 @@ const DELIVERY_ITEMS = [
   {n:'Trapped Bad Dream Monster',g:'e',v:0,drops:''},
   {n:'Tunnel Tyrant Head',g:'e',v:0,drops:''},
   {n:'Tunnel Tyrant Shell',g:'e',v:0,drops:''},
-  {n:'Two-headed Turtle Heads',g:'c',v:0,drops:''},
+  {n:'Two-Headed Turtle Heads',g:'c',v:0,drops:''},
   {n:'Undertaker Fangs',g:'e',v:2700,drops:'Undertaker'},
-  {n:'Unholy Bone',g:'f',v:0,drops:''},
-  {n:'Vampire\'s Cape Chain',g:'c',v:0,drops:''},
-  {n:'Vein Of Ore',g:'f',v:0,drops:''},
+  {n:'Unholy Bone',g:'c',v:0,drops:''},
+  {n:'Vampire\'S Cape Chain',g:'c',v:0,drops:''},
+  {n:'Vein Of Ore',g:'c',v:0,drops:''},
   {n:'Venison',g:'d',v:0,drops:''},
   {n:'Vile Axe',g:'a',v:0,drops:''},
   {n:'Volatile Proto Matter',g:'d',v:0,drops:''},
@@ -3578,7 +3655,7 @@ const DELIVERY_ITEMS = [
   {n:'Wardragon Claw',g:'d',v:0,drops:''},
   {n:'Wardragon Tooth',g:'d',v:0,drops:''},
   {n:'Waspoid Claw',g:'c',v:0,drops:''},
-  {n:'Weaver\'s Wandtip',g:'d',v:0,drops:''},
+  {n:'Weaver\'S Wandtip',g:'d',v:0,drops:''},
   {n:'Werebadger Claws',g:'e',v:0,drops:''},
   {n:'Werebadger Skull',g:'e',v:0,drops:''},
   {n:'Werebear Fur',g:'e',v:0,drops:''},
@@ -3592,7 +3669,7 @@ const DELIVERY_ITEMS = [
   {n:'Werepanther Claw',g:'d',v:0,drops:''},
   {n:'Weretiger Tooth',g:'e',v:0,drops:''},
   {n:'Werewolf Fur',g:'d',v:0,drops:''},
-  {n:'Widow\'s Mandibles',g:'d',v:110,drops:'Wailing Widow'},
+  {n:'Widow\'S Mandibles',g:'d',v:110,drops:'Wailing Widow'},
   {n:'Wild Flowers',g:'d',v:0,drops:''},
   {n:'Wimp Tooth Chain',g:'d',v:0,drops:''},
   {n:'Winged Tail',g:'b',v:0,drops:''},
@@ -3605,7 +3682,37 @@ const DELIVERY_ITEMS = [
   {n:'Zaoan Robe',g:'b',v:0,drops:''},
   {n:'Zaoan Shoes',g:'b',v:0,drops:''},
   {n:'Zaogun Flag',g:'c',v:600,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'},
-  {n:'Zaogun Shoulderplates',g:'d',v:150,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'}
+  {n:'Zaogun Shoulderplates',g:'d',v:150,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''}
 ];
 let dtFiltered = [...DELIVERY_ITEMS];
 
