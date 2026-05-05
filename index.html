@@ -5,285 +5,510 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pandas do Bambuzal · Guild · Tibia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ─── CONFIGURAÇÃO: edite aqui o nome da guild e servidor ─── */
+/* ══════════════════════════════════════
+   DESIGN TOKENS — dark by default
+══════════════════════════════════════ */
 :root {
-  --ink:#0e0d0b; --ink-2:#2a2620; --ink-3:#4a4540;
-  --muted:#7a7268; --rule:#d8d0c0; --parchment:#f5f0e8;
-  --paper:#faf8f4; --white:#ffffff;
-  --bamboo:#3d6b2e; --bamboo-light:#5a9e44; --bamboo-pale:#eaf3e4;
-  --gold:#a07828; --gold-light:#c9a840; --gold-pale:#f7f0dc;
-  --red:#8b1a1a; --red-pale:#fdf0f0; --accent:#2d1f5e;
+  /* surfaces */
+  --bg-0: #0d0d0f;
+  --bg-1: #131316;
+  --bg-2: #1a1a1e;
+  --bg-3: #222228;
+  --surface: #1f1f24;
+  /* text */
+  --ink:   #e8e6e0;
+  --ink-2: #c2bfb8;
+  --ink-3: #948f87;
+  --muted: #5c5852;
+  /* accents */
+  --bamboo:      #4d9e3a;
+  --bamboo-light:#65c44e;
+  --bamboo-pale: #0a1a08;
+  --bamboo-dim:  #1a3014;
+  --gold:        #c9a840;
+  --gold-light:  #e0c060;
+  --gold-pale:   #1a1400;
+  --gold-dim:    #2a2000;
+  --red:         #e87070;
+  --red-pale:    #1a0808;
+  --red-dim:     #2a0a0a;
+  --accent:      #8878d0;
+  /* borders */
+  --border:  #2a2a30;
+  --border-2:#333338;
+  /* old compat aliases */
+  --rule:        var(--border);
+  --paper:       var(--bg-1);
+  --white:       var(--surface);
+  --parchment:   var(--bg-2);
+  --bamboo-pale: var(--bamboo-dim);
+  --gold-pale:   var(--gold-dim);
+  --red-pale:    var(--red-dim);
+  --bg:          var(--bg-0);
   --transition-color: background .25s, color .25s, border-color .25s;
 }
-/* ── DARK MODE ── */
-body.dark {
-  --ink:#f0ede8; --ink-2:#d4cfc8; --ink-3:#a89f94;
-  --muted:#6b6258; --rule:#2e2a24; --parchment:#1a1612;
-  --paper:#131109; --white:#1c1812;
-  --bamboo:#5a9e44; --bamboo-light:#7dc464; --bamboo-pale:#0f2009;
-  --gold:#c9a840; --gold-light:#e0c060; --gold-pale:#1a1400;
-  --red:#e87070; --red-pale:#1a0808; --accent:#8878d0;
+/* light mode override */
+body.light {
+  --bg-0: #faf8f4; --bg-1: #f5f0e8; --bg-2: #ede8dc; --bg-3: #e0d8cc;
+  --surface: #ffffff;
+  --ink: #0e0d0b; --ink-2: #2a2620; --ink-3: #4a4540;
+  --muted: #7a7268;
+  --border: #d8d0c0; --border-2: #c8c0b0;
+  --bamboo: #3d6b2e; --bamboo-light: #5a9e44; --bamboo-dim: #eaf3e4;
+  --gold: #a07828; --gold-light: #c9a840; --gold-dim: #f7f0dc;
+  --red: #8b1a1a; --red-dim: #fdf0f0;
+  --bg: #faf8f4;
+  --rule: var(--border); --paper: var(--bg-1); --white: var(--surface);
+  --parchment: var(--bg-2); --bamboo-pale: var(--bamboo-dim);
+  --gold-pale: var(--gold-dim); --red-pale: var(--red-dim);
 }
 body { transition: var(--transition-color); }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.6;min-height:100vh}
+body{background:var(--bg-0);color:var(--ink);font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;min-height:100vh;display:flex}
 
-/* ── DARK TOGGLE BTN ── */
-.dark-toggle{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);border-radius:6px;padding:5px 10px;cursor:pointer;font-size:.78rem;font-family:'DM Sans',sans-serif;transition:all .2s;display:flex;align-items:center;gap:5px}
-.dark-toggle:hover{background:rgba(255,255,255,.1);color:white}
+/* ══════════════════════════════════════
+   SIDEBAR LAYOUT
+══════════════════════════════════════ */
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  background: var(--bg-1);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 200;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.sidebar::-webkit-scrollbar{width:3px}
+.sidebar::-webkit-scrollbar-track{background:transparent}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border)}
 
-/* ─── HEADER ─── */
-.site-header{background:#0e0d0b;color:#f0ede8;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,0.06)}
-.header-top{display:flex;align-items:center;justify-content:space-between;padding:0 2.5rem;height:64px;max-width:1200px;margin:0 auto}
-.logo-group{display:flex;align-items:center;gap:14px}
-.logo-mark{width:38px;height:38px;background:var(--bamboo);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.logo-name{font-family:'Playfair Display',serif;font-weight:700;font-size:1rem;letter-spacing:.5px;color:#f0ede8;line-height:1.1}
-.logo-sub{font-size:.68rem;color:rgba(255,255,255,.4);letter-spacing:2px;text-transform:uppercase;font-weight:300;margin-top:2px}
-.server-tag{background:var(--bamboo);color:#c8f0c0;font-size:.68rem;font-weight:500;padding:3px 10px;border-radius:30px;letter-spacing:.8px;text-transform:uppercase}
-.online-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#4ade80;margin-right:5px;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.sidebar-brand {
+  padding: 1.25rem 1rem 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.brand-logo {
+  width: 44px; height: 44px;
+  background: var(--bamboo);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: .65rem;
+}
+.brand-name {
+  font-family: 'Cinzel', serif;
+  font-size: .82rem; font-weight: 700;
+  letter-spacing: .5px;
+  color: var(--ink);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+.brand-sub {
+  font-size: .62rem; color: var(--muted);
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-top: 3px; font-weight: 300;
+}
+.brand-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--bamboo-pale);
+  border: 1px solid rgba(77,158,58,.25);
+  color: var(--bamboo-light);
+  font-size: .6rem; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 20px;
+  margin-top: .5rem;
+}
+.brand-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #4ade80; animation: pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
-/* ─── NAV ─── */
-.site-nav{background:#1a1812;border-bottom:1px solid rgba(255,255,255,.05)}
-.nav-inner{display:flex;max-width:1200px;margin:0 auto;padding:0 2.5rem;overflow-x:auto;scrollbar-width:none}
-.nav-inner::-webkit-scrollbar{display:none}
-.nav-btn{background:none;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,.45);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;padding:14px 18px;cursor:pointer;white-space:nowrap;transition:color .2s,border-color .2s}
-.nav-btn:hover{color:rgba(255,255,255,.8)}
-.nav-btn.active{color:#c9a840;border-bottom-color:#c9a840}
+/* ── THE KEY: nav-btn as sidebar items ──
+   JS original usa .nav-btn — aplicamos estilos de sidebar aqui */
+.site-nav { display: flex; flex-direction: column; padding: 0 .5rem; }
+.nav-inner { display: flex; flex-direction: column; gap: 1px; }
 
-/* ─── MAIN ─── */
-.main{max-width:1200px;margin:0 auto;padding:0 2.5rem 4rem}
-.page-section{display:none;padding-top:3rem}
-.page-section.active{display:block}
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  width: 100%;
+  background: none;
+  border: none !important;
+  border-bottom: none !important;
+  border-radius: 7px;
+  padding: .52rem .75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: .8rem; font-weight: 400;
+  color: var(--ink-3);
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background .15s, color .15s;
+  letter-spacing: 0;
+  text-transform: none;
+  line-height: 1.4;
+}
+.nav-btn:hover {
+  background: var(--bg-3);
+  color: var(--ink);
+}
+.nav-btn.active {
+  background: var(--bamboo-pale) !important;
+  color: var(--bamboo-light) !important;
+  font-weight: 500;
+  border: none !important;
+}
+.nav-icon {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  opacity: .5;
+  transition: opacity .15s;
+}
+.nav-btn:hover .nav-icon { opacity: .8; }
+.nav-btn.active .nav-icon { opacity: 1; }
+.nav-label { flex: 1; }
+.nav-group-label {
+  font-size: .58rem; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--muted);
+  padding: .6rem .75rem .2rem;
+}
 
-/* ─── LOADING ─── */
-.api-loading{display:flex;align-items:center;gap:10px;padding:2rem 0;color:var(--muted);font-size:.9rem;font-weight:300}
-.spinner{width:18px;height:18px;border:2px solid var(--rule);border-top-color:var(--bamboo);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+/* sidebar footer */
+.sidebar-footer {
+  margin-top: auto;
+  padding: .75rem;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-theme-btn {
+  display: flex; align-items: center; gap: .5rem;
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: .45rem .75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: .75rem; color: var(--ink-3);
+  cursor: pointer; transition: all .2s;
+}
+.sidebar-theme-btn:hover { background: var(--bg-3); color: var(--ink); }
+
+/* ══════════════════════════════════════
+   MAIN CONTENT AREA
+══════════════════════════════════════ */
+.page-wrapper {
+  margin-left: 220px;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top bar */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--bg-1);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 52px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem;
+}
+.topbar-world {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .78rem; color: var(--muted); font-weight: 300;
+}
+.topbar-world strong { color: var(--ink); font-weight: 500; }
+.topbar-right {
+  display: flex; align-items: center; gap: .75rem;
+  font-size: .75rem;
+}
+#world-online-count {
+  display: flex; align-items: center; gap: 5px;
+  color: var(--ink-3); font-size: .75rem;
+}
+
+/* Hamburger (mobile) */
+.menu-toggle {
+  display: none;
+  background: none; border: none; cursor: pointer;
+  color: var(--ink-3); font-size: 1.2rem; padding: 4px;
+}
+
+/* Main scroll */
+.main {
+  padding: 2rem 2.5rem 4rem;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ══════════════════════════════════════
+   PAGE SECTIONS
+══════════════════════════════════════ */
+.page-section { display: none; padding-top: 2rem; }
+.page-section.active { display: block; }
+
+/* ══════════════════════════════════════
+   LOADING / ERROR (compat)
+══════════════════════════════════════ */
+.api-loading{display:flex;align-items:center;gap:10px;padding:1.5rem 0;color:var(--muted);font-size:.88rem;font-weight:300}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--bamboo);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
 @keyframes spin{to{transform:rotate(360deg)}}
-.api-error{background:var(--red-pale);border:1px solid rgba(139,26,26,.2);border-radius:8px;padding:1rem 1.25rem;font-size:.88rem;color:var(--red);display:none}
+.api-error{background:var(--red-pale);border:1px solid rgba(232,112,112,.15);border-radius:8px;padding:1rem 1.25rem;font-size:.85rem;color:var(--red);display:none}
 .api-error strong{font-weight:500;display:block;margin-bottom:4px}
 
-/* ─── HERO ─── */
-.hero{padding:4rem 0 3rem;border-bottom:1px solid var(--rule);margin-bottom:3rem}
-.hero-eyebrow{font-size:.72rem;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--bamboo);margin-bottom:1.25rem;display:flex;align-items:center;gap:10px}
-.hero-eyebrow::after{content:'';display:block;height:1px;width:48px;background:var(--bamboo)}
-.hero-headline{font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(2.8rem,5vw,4.5rem);line-height:1.0;letter-spacing:-1px;margin-bottom:1.5rem;color:var(--ink);max-width:700px}
+/* ══════════════════════════════════════
+   HERO
+══════════════════════════════════════ */
+.hero{padding:2.5rem 0 2rem;border-bottom:1px solid var(--border);margin-bottom:2rem}
+.hero-eyebrow{font-size:.65rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--bamboo);margin-bottom:1rem;display:flex;align-items:center;gap:10px}
+.hero-eyebrow::after{content:'';display:block;height:1px;width:40px;background:var(--bamboo);opacity:.4}
+.hero-headline{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(2rem,4vw,3.5rem);line-height:1.05;letter-spacing:-1px;margin-bottom:1rem;color:var(--ink)}
 .hero-headline em{font-style:italic;color:var(--gold)}
-.hero-desc{font-size:1.1rem;color:var(--ink-3);max-width:560px;line-height:1.75;margin-bottom:2rem;font-weight:300}
-.hero-stats{display:flex;gap:0;border:1px solid var(--rule);border-radius:8px;overflow:hidden;background:var(--white);max-width:480px}
-.stat-item{flex:1;padding:1.25rem 1.5rem;border-right:1px solid var(--rule);text-align:center}
+.hero-desc{font-size:1rem;color:var(--ink-3);max-width:520px;line-height:1.75;margin-bottom:1.75rem;font-weight:300}
+.hero-stats{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface);max-width:420px}
+.stat-item{flex:1;padding:1rem 1.25rem;border-right:1px solid var(--border);text-align:center}
 .stat-item:last-child{border-right:none}
-.stat-num{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:var(--ink);line-height:1}
-.stat-label{font-size:.68rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:4px}
+.stat-num{font-family:'Cinzel',serif;font-size:1.75rem;font-weight:700;color:var(--ink);line-height:1}
+.stat-label{font-size:.6rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:4px}
 
-/* ─── SECTION ─── */
-.sec-title{font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;color:var(--ink);margin-bottom:.4rem}
-.sec-sub{font-size:.9rem;color:var(--muted);margin-bottom:2rem;font-weight:300}
+/* ══════════════════════════════════════
+   SECTION HEADERS
+══════════════════════════════════════ */
+.sec-title{font-family:'Cinzel',serif;font-size:1.5rem;font-weight:700;color:var(--ink);margin-bottom:.3rem}
+.sec-sub{font-size:.85rem;color:var(--muted);margin-bottom:1.75rem;font-weight:300}
 
-/* ─── CARDS ─── */
-.card{background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:1.5rem}
-.card-sm{background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:1.1rem 1.25rem}
-.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.25rem}
+/* ══════════════════════════════════════
+   CARDS
+══════════════════════════════════════ */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.5rem}
+.card-sm{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.25rem}
 .grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem}
 .grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
 
-/* ─── NEWS ─── */
+/* ══════════════════════════════════════
+   NEWS
+══════════════════════════════════════ */
 .news-grid{display:grid;grid-template-columns:2fr 1fr;gap:2rem}
 @media(max-width:768px){.news-grid{grid-template-columns:1fr}}
-.news-featured{border-bottom:1px solid var(--rule);padding-bottom:2rem;margin-bottom:2rem}
-.news-tag{display:inline-block;font-size:.68rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--bamboo);background:var(--bamboo-pale);padding:3px 10px;border-radius:30px;margin-bottom:1rem}
+.news-featured{border-bottom:1px solid var(--border);padding-bottom:1.5rem;margin-bottom:1.5rem}
+.news-tag{display:inline-block;font-size:.62rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--bamboo);background:var(--bamboo-pale);padding:2px 9px;border-radius:20px;margin-bottom:.75rem}
 .news-tag.gold{color:var(--gold);background:var(--gold-pale)}
 .news-tag.red{color:var(--red);background:var(--red-pale)}
-.news-date{font-size:.75rem;color:var(--muted);font-weight:300;margin-bottom:.5rem;font-family:'DM Mono',monospace}
-.news-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--ink);line-height:1.25;margin-bottom:.75rem}
-.news-body{font-size:.95rem;color:var(--ink-3);line-height:1.7;font-weight:300}
-.news-item{padding:1.25rem 0;border-bottom:1px solid var(--rule)}
+.news-date{font-size:.7rem;color:var(--muted);font-weight:300;margin-bottom:.4rem;font-family:'JetBrains Mono',monospace}
+.news-title{font-family:'Cinzel',serif;font-size:1.25rem;font-weight:700;color:var(--ink);line-height:1.25;margin-bottom:.65rem}
+.news-body{font-size:.9rem;color:var(--ink-3);line-height:1.7;font-weight:300}
+.news-item{padding:1rem 0;border-bottom:1px solid var(--border)}
 .news-item:last-child{border-bottom:none}
-.news-item-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.3}
-.news-item-meta{font-size:.75rem;color:var(--muted);font-weight:300}
+.news-item-title{font-family:'Cinzel',serif;font-size:.95rem;font-weight:700;color:var(--ink);margin-bottom:4px;line-height:1.3}
+.news-item-meta{font-size:.72rem;color:var(--muted);font-weight:300}
 
-/* ─── EVENTS ─── */
-.event-list{display:flex;flex-direction:column;gap:1px;background:var(--rule);border-radius:10px;overflow:hidden}
-.event-row{display:flex;align-items:center;gap:1.5rem;padding:1.25rem 1.5rem;background:var(--white);transition:background .15s}
-.event-row:hover{background:var(--paper)}
-.event-date-box{text-align:center;min-width:52px}
-.event-day{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--ink);line-height:1}
-.event-month{font-size:.65rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+/* ══════════════════════════════════════
+   EVENTS
+══════════════════════════════════════ */
+.event-list{display:flex;flex-direction:column;gap:1px;background:var(--border);border-radius:10px;overflow:hidden}
+.event-row{display:flex;align-items:center;gap:1.25rem;padding:1rem 1.25rem;background:var(--surface);transition:background .15s}
+.event-row:hover{background:var(--bg-2)}
+.event-date-box{text-align:center;min-width:48px}
+.event-day{font-family:'Cinzel',serif;font-size:1.6rem;font-weight:900;color:var(--ink);line-height:1}
+.event-month{font-size:.6rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
 .event-info{flex:1}
-.event-name{font-weight:500;color:var(--ink);margin-bottom:2px}
-.event-detail{font-size:.82rem;color:var(--muted);font-weight:300}
-.event-type{font-size:.68rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:30px;white-space:nowrap}
-.et-war{background:#fce8e8;color:var(--red)}
-.et-hunt{background:var(--bamboo-pale);color:var(--bamboo)}
+.event-name{font-weight:500;color:var(--ink);margin-bottom:2px;font-size:.9rem}
+.event-detail{font-size:.78rem;color:var(--muted);font-weight:300}
+.event-type{font-size:.62rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;padding:2px 9px;border-radius:20px;white-space:nowrap}
+.et-war{background:var(--red-pale);color:var(--red)}
+.et-hunt{background:var(--bamboo-pale);color:var(--bamboo-light)}
 .et-quest{background:var(--gold-pale);color:var(--gold)}
-.et-social{background:#e8eeff;color:var(--accent)}
+.et-social{background:rgba(136,120,208,.15);color:var(--accent)}
 
-/* ─── MEMBERS TABLE ─── */
-.filter-bar{display:flex;gap:.5rem;margin-bottom:1.75rem;flex-wrap:wrap}
-.filter-btn{background:var(--white);border:1px solid var(--rule);color:var(--ink-3);font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;letter-spacing:.5px;padding:6px 14px;border-radius:30px;cursor:pointer;transition:all .15s}
-.filter-btn:hover,.filter-btn.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+/* ══════════════════════════════════════
+   MEMBERS TABLE
+══════════════════════════════════════ */
+.filter-bar{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.filter-btn{background:var(--surface);border:1px solid var(--border);color:var(--ink-3);font-family:'Inter',sans-serif;font-size:.75rem;font-weight:500;letter-spacing:.5px;padding:5px 13px;border-radius:20px;cursor:pointer;transition:all .15s}
+.filter-btn:hover,.filter-btn.active{background:var(--bamboo);color:#fff;border-color:var(--bamboo)}
 .member-table{width:100%;border-collapse:collapse}
-.member-table th{font-size:.7rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 1rem .75rem;border-bottom:1px solid var(--rule)}
-.member-table td{padding:1rem;border-bottom:1px solid var(--rule);vertical-align:middle}
+.member-table th{font-size:.65rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);text-align:left;padding:0 1rem .65rem;border-bottom:1px solid var(--border)}
+.member-table td{padding:.85rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle}
 .member-table tr:last-child td{border-bottom:none}
-.member-table tr:hover td{background:var(--paper)}
-.member-name-cell{display:flex;align-items:center;gap:.75rem}
-.member-avatar{width:36px;height:36px;border-radius:6px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.member-name{font-weight:500;color:var(--ink);font-size:.95rem}
-.voc-pill{display:inline-block;font-size:.7rem;font-weight:600;letter-spacing:.5px;padding:2px 8px;border-radius:4px}
-.voc-ek{background:#c0392b;color:#fff}
-.voc-ed{background:#27ae60;color:#fff}
-.voc-ms{background:#2471a3;color:#fff}
-.voc-rp{background:#d4ac0d;color:#fff}
-.voc-monk{background:#7d3c98;color:#fff}
-.rank-pill{display:inline-block;font-size:.68rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:30px}
+.member-table tr:hover td{background:var(--bg-2)}
+.member-name-cell{display:flex;align-items:center;gap:.65rem}
+.member-avatar{width:34px;height:34px;border-radius:6px;background:var(--bg-3);color:var(--ink-3);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.member-name{font-weight:500;color:var(--ink);font-size:.9rem}
+.voc-pill{display:inline-block;font-size:.66rem;font-weight:600;letter-spacing:.5px;padding:2px 7px;border-radius:4px}
+.voc-ek{background:#7f1d1d;color:#fca5a5}
+.voc-ed{background:#14532d;color:#86efac}
+.voc-ms{background:#1e3a5f;color:#93c5fd}
+.voc-rp{background:#78350f;color:#fcd34d}
+.voc-monk{background:#4c1d95;color:#c4b5fd}
+.rank-pill{display:inline-block;font-size:.63rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;padding:2px 9px;border-radius:20px}
 .rank-leader{background:var(--gold-pale);color:var(--gold)}
-.rank-veteran{background:#e8eeff;color:var(--accent)}
-.rank-member{background:var(--paper);color:var(--muted);border:1px solid var(--rule)}
-.level-num{font-family:'DM Mono',monospace;font-size:.9rem;color:var(--ink-3);font-weight:500}
-.online-status{display:inline-block;width:7px;height:7px;border-radius:50%;background:#d1d5db;margin-right:6px}
+.rank-veteran{background:rgba(136,120,208,.12);color:var(--accent)}
+.rank-member{background:var(--bg-3);color:var(--muted);border:1px solid var(--border)}
+.level-num{font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--ink-3);font-weight:500}
+.online-status{display:inline-block;width:7px;height:7px;border-radius:50%;background:#374151;margin-right:6px}
 .online-status.on{background:#4ade80}
 .table-wrap{overflow-x:auto}
 
-/* ─── TOOLS ─── */
+/* ══════════════════════════════════════
+   TOOLS
+══════════════════════════════════════ */
 .tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
 @media(max-width:680px){.tool-grid{grid-template-columns:1fr}}
-.tool-card{background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:1.75rem}
-.tool-label{font-size:.7rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
-.tool-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:1.25rem;line-height:1.2}
+.tool-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.75rem}
+.tool-label{font-size:.65rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem}
+.tool-title{font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:1.25rem;line-height:1.2}
 .input-row{display:flex;flex-direction:column;gap:6px;margin-bottom:1rem}
-.input-label{font-size:.78rem;font-weight:500;color:var(--ink-3)}
-.tool-input{border:1px solid var(--rule);border-radius:6px;padding:8px 12px;font-family:'DM Mono',monospace;font-size:.9rem;color:var(--ink);background:var(--paper);width:100%;outline:none;transition:border-color .15s}
+.input-label{font-size:.75rem;font-weight:500;color:var(--ink-3)}
+.tool-input{border:1px solid var(--border);border-radius:6px;padding:7px 11px;font-family:'JetBrains Mono',monospace;font-size:.85rem;color:var(--ink);background:var(--bg-2);width:100%;outline:none;transition:border-color .15s}
 .tool-input:focus{border-color:var(--bamboo)}
-.tool-select{border:1px solid var(--rule);border-radius:6px;padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--ink);background:var(--paper);width:100%;outline:none;cursor:pointer}
-.calc-btn{background:var(--ink);color:var(--paper);border:none;border-radius:6px;padding:9px 18px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:background .15s;margin-top:.5rem}
-.calc-btn:hover{background:var(--ink-2)}
-.result-box{margin-top:1.25rem;background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:1rem 1.25rem;display:none}
-.result-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--rule);font-size:.9rem}
+.tool-select{border:1px solid var(--border);border-radius:6px;padding:7px 11px;font-family:'Inter',sans-serif;font-size:.85rem;color:var(--ink);background:var(--bg-2);width:100%;outline:none;cursor:pointer}
+.calc-btn{background:var(--bamboo);color:#fff;border:none;border-radius:6px;padding:8px 18px;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;transition:background .15s;margin-top:.5rem}
+.calc-btn:hover{background:var(--bamboo-light)}
+.result-box{margin-top:1.25rem;background:var(--bg-2);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;display:none}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:.88rem}
 .result-row:last-child{border-bottom:none}
 .result-key{color:var(--muted);font-weight:300}
-.result-val{font-weight:500;color:var(--ink);font-family:'DM Mono',monospace}
-.result-status{margin-top:.75rem;padding:8px 12px;border-radius:6px;font-size:.82rem;font-weight:500;text-align:center}
-.status-ok{background:var(--bamboo-pale);color:var(--bamboo)}
+.result-val{font-weight:500;color:var(--ink);font-family:'JetBrains Mono',monospace}
+.result-status{margin-top:.75rem;padding:7px 12px;border-radius:6px;font-size:.8rem;font-weight:500;text-align:center}
+.status-ok{background:var(--bamboo-pale);color:var(--bamboo-light)}
 .status-bad{background:var(--red-pale);color:var(--red)}
 .xp-inputs{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
 
-/* ─── CHAR LOOKUP ─── */
-.char-card{background:var(--white);border:1px solid var(--rule);border-radius:10px;overflow:hidden;display:none}
-.char-card-header{background:var(--ink);color:var(--paper);padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem}
+/* ══════════════════════════════════════
+   CHAR LOOKUP
+══════════════════════════════════════ */
+.char-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;display:none}
+.char-card-header{background:var(--bg-0);color:var(--ink);padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border)}
 .char-avatar{width:48px;height:48px;border-radius:8px;background:var(--bamboo);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
-.char-name-big{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--paper)}
-.char-voc-tag{font-size:.72rem;color:rgba(255,255,255,.45);font-weight:300;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
+.char-name-big{font-family:'Cinzel',serif;font-size:1.2rem;font-weight:700;color:var(--ink)}
+.char-voc-tag{font-size:.68rem;color:var(--muted);font-weight:300;margin-top:2px;text-transform:uppercase;letter-spacing:1px}
 .char-body{padding:1.25rem 1.5rem}
-.char-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--rule);font-size:.9rem}
+.char-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:.88rem}
 .char-row:last-child{border-bottom:none}
 .char-key{color:var(--muted);font-weight:300}
-.char-val{font-weight:500;color:var(--ink);font-family:'DM Mono',monospace;font-size:.85rem}
+.char-val{font-weight:500;color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:.82rem}
 
-/* ─── RULES ─── */
+/* ══════════════════════════════════════
+   RULES
+══════════════════════════════════════ */
 .rules-layout{display:block}
 .rule-block{margin-bottom:2rem}
-.rule-block-title{font-size:.72rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--rule)}
-.rule-item{display:grid;grid-template-columns:36px 1fr;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--rule);align-items:start}
+.rule-block-title{font-size:.65rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.rule-item{display:grid;grid-template-columns:36px 1fr;gap:1rem;padding:.9rem 0;border-bottom:1px solid var(--border);align-items:start}
 .rule-item:last-child{border-bottom:none}
-.rule-num{font-family:'DM Mono',monospace;font-size:.78rem;font-weight:500;color:var(--muted);padding-top:2px;text-align:right}
-.rule-text{font-size:.93rem;color:var(--ink-3);line-height:1.65}
+.rule-num{font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:500;color:var(--muted);padding-top:2px;text-align:right}
+.rule-text{font-size:.9rem;color:var(--ink-3);line-height:1.65}
 .rule-text strong{color:var(--ink);font-weight:500}
-.punishment-card{background:#1a1612;color:#f0ede8;border-radius:10px;padding:1.75rem;margin-bottom:2rem}
-.punishment-title{font-size:.7rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:1.25rem}
-.punishment-step{display:flex;gap:1rem;padding:.9rem 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.punishment-card{background:var(--bg-0);color:var(--ink);border:1px solid var(--border);border-radius:10px;padding:1.75rem;margin-bottom:2rem}
+.punishment-title{font-size:.65rem;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:1.25rem}
+.punishment-step{display:flex;gap:1rem;padding:.9rem 0;border-bottom:1px solid var(--border)}
 .punishment-step:last-of-type{border-bottom:none}
 .pun-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:2px}
-.pun-icon.warn{background:rgba(201,168,64,.2);color:var(--gold-light)}
-.pun-icon.ban{background:rgba(139,26,26,.3);color:#e87070}
-.pun-text{font-size:.88rem;line-height:1.55}
-.pun-text strong{color:#f0ede8;font-weight:600;display:block;margin-bottom:2px}
-.pun-text span{color:rgba(255,255,255,.65);font-size:.82rem;font-weight:300}
-.code-quote{margin-top:1.5rem;padding:1rem;background:rgba(255,255,255,.04);border-left:2px solid var(--gold);border-radius:0 4px 4px 0}
-.code-quote p{font-family:'Playfair Display',serif;font-style:italic;font-size:.85rem;color:rgba(255,255,255,.75);line-height:1.7}
-
-/* ─── ABOUT ─── */
-.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
-@media(max-width:768px){.about-grid{grid-template-columns:1fr;gap:2rem}}
-.about-headline{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;line-height:1.1;color:var(--ink);margin-bottom:1.5rem;letter-spacing:-.5px}
-.about-headline em{color:var(--gold);font-style:italic}
-.about-body{font-size:1rem;color:var(--ink-3);line-height:1.8;font-weight:300;margin-bottom:1.25rem}
-.hierarchy-item{display:grid;grid-template-columns:120px 1fr;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--rule);align-items:start}
+.pun-icon.warn{background:rgba(201,168,64,.15);color:var(--gold-light)}
+.pun-icon.ban{background:rgba(232,112,112,.15);color:var(--red)}
+.pun-text{font-size:.85rem;line-height:1.55}
+.pun-text strong{color:var(--ink);font-weight:600;display:block;margin-bottom:2px}
+.pun-text span{color:var(--muted);font-size:.8rem;font-weight:300}
+.code-quote{margin-top:1.5rem;padding:1rem;background:rgba(255,255,255,.03);border-left:2px solid var(--gold);border-radius:0 4px 4px 0}
+.code-quote p{font-family:'Cinzel',serif;font-style:italic;font-size:.82rem;color:var(--ink-3);line-height:1.7}
+.hierarchy-item{display:grid;grid-template-columns:130px 1fr;gap:1rem;padding:.9rem 0;border-bottom:1px solid var(--border);align-items:start}
 .hierarchy-item:last-child{border-bottom:none}
-.hierarchy-rank{font-weight:500;font-size:.88rem;color:var(--ink)}
-.hierarchy-desc{font-size:.88rem;color:var(--muted);font-weight:300;line-height:1.5}
+.hierarchy-rank{font-weight:500;font-size:.85rem;color:var(--ink)}
+.hierarchy-desc{font-size:.85rem;color:var(--muted);font-weight:300;line-height:1.5}
 
-/* ─── TIBIA BANNER ─── */
-.tibia-banner{background:var(--ink);border-radius:10px;padding:2rem 2.5rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;margin-top:3rem}
+/* ══════════════════════════════════════
+   ABOUT / TIBIA BANNER
+══════════════════════════════════════ */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+@media(max-width:768px){.about-grid{grid-template-columns:1fr;gap:2rem}}
+.about-headline{font-family:'Cinzel',serif;font-size:2rem;font-weight:900;line-height:1.1;color:var(--ink);margin-bottom:1.5rem;letter-spacing:-.5px}
+.about-headline em{color:var(--gold);font-style:italic}
+.about-body{font-size:.95rem;color:var(--ink-3);line-height:1.8;font-weight:300;margin-bottom:1.25rem}
+.tibia-banner{background:var(--bg-0);border:1px solid var(--border);border-radius:10px;padding:1.75rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;margin-top:2.5rem}
 @media(max-width:640px){.tibia-banner{flex-direction:column;text-align:center}}
-.tibia-text h3{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--paper);margin-bottom:4px}
-.tibia-text p{font-size:.88rem;color:rgba(255,255,255,.4);font-weight:300}
-.tibia-link{background:var(--bamboo);color:white;text-decoration:none;padding:10px 22px;border-radius:6px;font-size:.85rem;font-weight:500;white-space:nowrap;transition:background .15s;flex-shrink:0}
+.tibia-text h3{font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:4px}
+.tibia-text p{font-size:.82rem;color:var(--muted);font-weight:300}
+.tibia-link{background:var(--bamboo);color:white;text-decoration:none;padding:8px 20px;border-radius:6px;font-size:.82rem;font-weight:500;white-space:nowrap;transition:background .15s;flex-shrink:0}
 .tibia-link:hover{background:var(--bamboo-light)}
 
-/* ─── WORLD STATUS ─── */
-.world-bar{background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:.9rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;font-size:.85rem}
+/* ══════════════════════════════════════
+   WORLD BAR
+══════════════════════════════════════ */
+.world-bar{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.8rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.5rem;font-size:.82rem}
 .world-bar-left{display:flex;align-items:center;gap:8px;color:var(--ink-3);font-weight:300}
-.world-players{font-family:'DM Mono',monospace;font-weight:500;color:var(--bamboo)}
-.world-record{color:var(--muted);font-size:.78rem}
+.world-players{font-family:'JetBrains Mono',monospace;font-weight:500;color:var(--bamboo)}
+.world-record{color:var(--muted);font-size:.75rem}
+.online-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite;flex-shrink:0}
 
-/* ─── FOOTER ─── */
-footer{background:var(--ink);color:rgba(255,255,255,.3);text-align:center;padding:2rem;font-size:.78rem;letter-spacing:1.5px;text-transform:uppercase;font-weight:300;margin-top:4rem}
-footer strong{color:rgba(255,255,255,.6);font-weight:500}
+/* ══════════════════════════════════════
+   DARK TOGGLE (sidebar footer btn)
+══════════════════════════════════════ */
+.dark-toggle{display:none} /* oculta original, usamos sidebar-theme-btn */
 
-/* ─── REVEAL ─── */
-.reveal{opacity:0;transform:translateY(16px);transition:opacity .45s ease,transform .45s ease}
+/* ══════════════════════════════════════
+   FOOTER
+══════════════════════════════════════ */
+footer{background:var(--bg-0);border-top:1px solid var(--border);color:var(--muted);text-align:center;padding:1.5rem;font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;font-weight:300;margin-top:3rem}
+footer strong{color:var(--ink-3);font-weight:500}
+
+/* ══════════════════════════════════════
+   REVEAL
+══════════════════════════════════════ */
+.reveal{opacity:0;transform:translateY(12px);transition:opacity .4s ease,transform .4s ease}
 .reveal.visible{opacity:1;transform:none}
 
-@media(max-width:640px){
-  .main{padding:0 1rem 4rem}
-  .header-top{padding:0 1rem}
-  .nav-inner{padding:0 1rem}
-  .hero{padding:2rem 0}
-  .hero-headline{font-size:2.2rem}
-  .hero-stats{max-width:100%}
+/* ══════════════════════════════════════
+   MOBILE RESPONSIVE
+══════════════════════════════════════ */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform .25s}
+  .sidebar.open{transform:translateX(0)}
+  .page-wrapper{margin-left:0}
+  .menu-toggle{display:block}
+  .main{padding:1.25rem 1rem 3rem}
+  .topbar{padding:0 1rem}
+  .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199}
+  .sidebar-overlay.open{display:block}
 }
 </style>
 </head>
 <body>
 
-<!-- ═══ CONFIG ═══ -->
+<!-- ── CONFIG (original, sem tocar) ── -->
 <script>
-// ┌─────────────────────────────────────────────────┐
-// │  EDITE AQUI para personalizar sua guild         │
-// └─────────────────────────────────────────────────┘
 const CONFIG = {
-  guildName:    'Pandas do Bambuzal',   // nome exato no Tibia
-  guildNameUrl: 'Pandas do Bambuzal',   // mesmo nome (para URL encode)
-  world:        'Gentebra',               // servidor da guild
+  guildName:    'Pandas do Bambuzal',
+  guildNameUrl: 'Pandas do Bambuzal',
+  world:        'Gentebra',
   founded:      '2023',
-
-  // Líderes (nome exato do char no Tibia)
   leaders: ['PandaMestre', 'BambuzãoKing'],
-
-  // Proxy CORS — troque pela URL do seu Cloudflare Worker depois de publicar
-  // Se deixar vazio, tenta direto (funciona em localhost, não em produção)
-  proxy: 'https://cool-resonance-bc82.mikesantiagogarcia.workers.dev',  // ex: 'https://tibia-proxy.seuusuario.workers.dev'
+  proxy: 'https://cool-resonance-bc82.mikesantiagogarcia.workers.dev',
 };
-
-// ─── API helper ───
-const API_BASE = CONFIG.proxy
-  ? CONFIG.proxy
-  : 'https://api.tibiadata.com';
+const API_BASE = CONFIG.proxy ? CONFIG.proxy : 'https://api.tibiadata.com';
 const API_FALLBACK = 'https://tibiadata.bytewizards.de';
-
 async function tibiaFetch(path) {
-  // Sempre tenta proxy + fallback, detecta erros de proxy em texto puro
-  const urls = CONFIG.proxy
-    ? [CONFIG.proxy + path, API_FALLBACK + path]
-    : [API_BASE + path, API_FALLBACK + path];
+  const urls = [];
+  if (CONFIG.proxy) urls.push(CONFIG.proxy + path);
+  urls.push('https://api.tibiadata.com' + path);
+  urls.push(API_FALLBACK + path);
   let lastErr;
   for (const url of urls) {
     try {
-      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      const res = await fetch(url, { headers: { 'Accept': 'application/json' }, mode: 'cors' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const text = await res.text();
       if (!text.trim().startsWith('{') && !text.trim().startsWith('['))
@@ -295,45 +520,111 @@ async function tibiaFetch(path) {
 }
 </script>
 
-<!-- ═══ HEADER ═══ -->
-<header class="site-header">
-  <div class="header-top">
-    <div class="logo-group">
-      <div class="logo-mark">🐼</div>
-      <div>
-        <div class="logo-name" id="guild-name-header">Pandas do Bambuzal</div>
-        <div class="logo-sub">Guild · Tibia</div>
+<!-- ── SIDEBAR OVERLAY (mobile) ── -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<!-- ══════════════════════════════
+     SIDEBAR
+═══════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <!-- Brand -->
+  <div class="sidebar-brand">
+    <div class="brand-logo">🐼</div>
+    <div class="brand-name">Pandas do Bambuzal</div>
+    <div class="brand-sub">Guild · Tibia</div>
+    <div class="brand-tag"><span class="brand-dot"></span> Gentebra</div>
+  </div>
+
+  <!-- ═══ NAV — JS usa .nav-btn, estrutura única limpa ═══ -->
+  <nav class="site-nav">
+    <div class="nav-inner">
+
+      <div class="nav-group-label">Principal</div>
+      <button class="nav-btn active" onclick="showPage('home',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h4a1 1 0 001-1v-3h2v3a1 1 0 001 1h4a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+        <span class="nav-label">Início</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('members',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+        <span class="nav-label">Membros</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('events',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Eventos</span>
+      </button>
+
+      <div class="nav-group-label" style="margin-top:.75rem">Ferramentas</div>
+      <button class="nav-btn" onclick="showPage('bosses',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Bosses</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('huntfinder',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Hunt Finder</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('quests',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
+        <span class="nav-label">Guia de Quests</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('imbuements',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.997.266-1.948.699-2.79A4 4 0 0012 6a4 4 0 00-3.413 6.11c.433.842.684 1.793.7 2.79h2.714z"/></svg>
+        <span class="nav-label">Imbuements</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('delivery',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Task Delivery</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('tools',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Ferramentas</span>
+      </button>
+
+      <div class="nav-group-label" style="margin-top:.75rem">Guild</div>
+      <button class="nav-btn" onclick="showPage('rules',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Regras</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('about',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Sobre</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- Sidebar footer -->
+  <div class="sidebar-footer">
+    <a href="members.html" class="nav-btn" style="background:rgba(201,168,64,.1);color:var(--gold-light);border:1px solid rgba(201,168,64,.2);border-radius:7px;margin-bottom:.5rem;display:flex">
+      <span class="nav-icon">🔒</span><span class="nav-label">Membros+</span>
+    </a>
+    <button class="sidebar-theme-btn" onclick="toggleDark()" id="dark-btn">
+      ☀ Claro
+    </button>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════
+     PAGE WRAPPER
+═══════════════════════════════ -->
+<div class="page-wrapper">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+      <div class="topbar-world">
+        Servidor <strong id="server-display">Gentebra</strong>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <span id="world-online-count" style="font-size:.78rem;color:rgba(255,255,255,.45);font-weight:300"></span>
-      <button class="dark-toggle" onclick="toggleDark()" id="dark-btn" title="Alternar modo escuro">☀ Claro</button>
-      <span class="server-tag" id="server-display">Antigua</span>
+    <div class="topbar-right">
+      <div id="world-online-count"></div>
+      <!-- dark-toggle oculto via CSS, gerenciado pelo sidebar-footer -->
+      <button class="dark-toggle" onclick="toggleDark()" id="dark-btn-hidden" style="display:none"></button>
     </div>
   </div>
-</header>
 
-<!-- ═══ NAV ═══ -->
-<nav class="site-nav">
-  <div class="nav-inner">
-    <button class="nav-btn active" onclick="showPage('home',this)">Início</button>
-    <button class="nav-btn" onclick="showPage('members',this)">Membros</button>
-    <button class="nav-btn" onclick="showPage('bosses',this)">Bosses</button>
-    <button class="nav-btn" onclick="showPage('events',this)">Eventos</button>
-    <button class="nav-btn" onclick="showPage('huntfinder',this)">Hunt Finder</button>
-    <button class="nav-btn" onclick="showPage('quests',this)">Guia de Quests</button>
-    <button class="nav-btn" onclick="showPage('imbuements',this)">Imbuements</button>
-    <button class="nav-btn" onclick="showPage('delivery',this)">Task Delivery</button>
-    <button class="nav-btn" onclick="showPage('tools',this)">Ferramentas</button>
-    <button class="nav-btn" onclick="showPage('rules',this)">Regras</button>
-    <button class="nav-btn" onclick="showPage('about',this)">Sobre</button>
-    <a href="members.html" class="nav-btn" style="color:var(--bamboo);border-bottom:2px solid var(--bamboo)">🔒 Membros+</a>
-  </div>
-</nav>
-
-<!-- ═══ MAIN ═══ -->
-<div class="main">
-
+  <!-- ═══ MAIN ═══ -->
+  <div class="main">
   <!-- ─── HOME ─── -->
   <section class="page-section active" id="home">
     <div class="hero reveal">
@@ -403,25 +694,25 @@ async function tibiaFetch(path) {
             <span class="news-tag gold">Destaque</span>
             <div class="news-date">Dez 2025</div>
             <h2 class="news-title">⏳ Rank de Mortes 2025 — apuração em andamento!</h2>
-            <p class="news-body">As inscrições para o Ranking Anual de Mortes foram encerradas no dia 12. A liderança está apurando todas as deaths e logs. O resultado será divulgado no dia 15 de dezembro — fiquem ligados para saber quem é o Panda mais azarado do ano! 🔥</p>
+            <p class="news-body">As inscrições foram encerradas no dia 12. A liderança está apurando todas as deaths e logs. Resultado no dia 15 de dezembro — quem será o Panda mais azarado do ano? 🔥</p>
           </div>
           <div class="news-item">
             <span class="news-tag">Recrutamento</span>
             <div class="news-date">2025</div>
-            <div class="news-item-title">📣 Comunicado do RH dos Pandas — Vagas abertas!</div>
-            <div class="news-item-meta">Tem amigo sem guild no Tibia? Traga para a luz! Quem indicar novatos ganha abraço virtual do líder (e talvez prioridade no próximo boss 🤭).</div>
+            <div class="news-item-title">📣 Vagas abertas — indique um amigo!</div>
+            <div class="news-item-meta">Tem amigo sem guild no Tibia? Traga para a luz! Quem indicar ganha abraço virtual do líder (e talvez prioridade no próximo boss 🤭).</div>
           </div>
           <div class="news-item">
             <span class="news-tag red">Alerta</span>
             <div class="news-date">2025</div>
-            <div class="news-item-title">⚠️ Cuidado com golpe! Grupo "Tibia Trade" no Facebook</div>
-            <div class="news-item-meta">Moderador "Arthur Campos" aplica golpes em trades de alto valor. Acumula refs falsas e bloqueia vítimas. Denuncie a página. Compartilhe para alertar a comunidade.</div>
+            <div class="news-item-title">⚠️ Golpe no grupo "Tibia Trade" no Facebook</div>
+            <div class="news-item-meta">Moderador "Arthur Campos" aplica golpes em trades de alto valor. Acumula referências falsas e bloqueia vítimas. Denuncie a página e compartilhe para alertar a comunidade.</div>
           </div>
           <div class="news-item">
             <span class="news-tag">Aviso</span>
             <div class="news-date">Abr 2025</div>
             <div class="news-item-title">📢 Test Server — atenção ao backup!</div>
-            <div class="news-item-meta">Backup dos chars: 21/04 às 10h CEST. Char comprado no Bazaar precisa estar na conta até o Server Save do dia 20/04. Login no test usa email/senha do momento do backup.</div>
+            <div class="news-item-meta">Backup dos chars: 21/04 às 10h CEST. Char do Bazaar precisa estar na conta até o Server Save do dia 20/04. Login usa email/senha do momento do backup.</div>
           </div>
         </div>
       </div>
@@ -623,7 +914,8 @@ async function tibiaFetch(path) {
     <div id="boss-pane-spawn" style="padding-top:1.25rem">
       <!-- Filtros -->
       <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem">
-        <button id="bsf-all"    onclick="filterBossSpawn('all',this)"    style="background:var(--ink);color:var(--bg);border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;font-weight:600;cursor:pointer">Todos</button>
+        <button id="bsf-nemesis" onclick="filterBossSpawn('nemesis',this)" style="background:var(--ink);color:var(--bg);border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;font-weight:600;cursor:pointer">⚔️ Nemesis</button>
+        <button id="bsf-all"    onclick="filterBossSpawn('all',this)"    style="background:none;color:var(--ink);border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;cursor:pointer">Todos</button>
         <button id="bsf-high"   onclick="filterBossSpawn('high',this)"   style="background:none;border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;cursor:pointer;color:var(--ink)">🟢 Alta chance</button>
         <button id="bsf-medium" onclick="filterBossSpawn('medium',this)" style="background:none;border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;cursor:pointer;color:var(--ink)">🟡 Média</button>
         <button id="bsf-low"    onclick="filterBossSpawn('low',this)"    style="background:none;border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;cursor:pointer;color:var(--ink)">🔴 Baixa</button>
@@ -1054,13 +1346,22 @@ async function tibiaFetch(path) {
     </div>
   </section>
 
-</div>
+  </div><!-- /.main -->
+  <footer>
+    <strong>Pandas do Bambuzal</strong> &nbsp;·&nbsp; Tibia Guild &nbsp;·&nbsp; Desde 2023
+  </footer>
+</div><!-- /.page-wrapper -->
 
-<!-- ═══ FOOTER ═══ -->
-<footer>
-  <strong>Pandas do Bambuzal</strong> &nbsp;·&nbsp; Tibia Guild &nbsp;·&nbsp; Desde 2023
-</footer>
-
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+</script>
 <script>
 // ══════════════════════════════════════════════════
 //  ESTADO GLOBAL
@@ -1865,13 +2166,13 @@ function itemImgUrl(name) {
   // Itens: static.tibia.com via wsrv.nl proxy (evita hotlink block)
   const slug = (name || '').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('_');
   const raw = `static.tibia.com/images/library/${slug}.gif`;
-  return `https://wsrv.nl/?url=${encodeURIComponent(raw)}`;
+  return `https://wsrv.nl/?url=${raw}`;
 }
 
 function creatureImgUrl(creature) {
   // race lowercase sem espaços: "Broodrider Inferniarch" → "broodriderinferniarch"
   const race = (creature || '').toLowerCase().replace(/[\s_-]+/g, '').replace(/[^a-z0-9]/g, '');
-  return `https://static.tibia.com/images/library/${race}.gif`;
+  return `https://wsrv.nl/?url=static.tibia.com/images/library/${race}.gif`;
 }
 
 // Converte qualquer image_url da API para passar pelo Worker
@@ -1879,22 +2180,12 @@ function proxyImgUrl(url) {
   return url || '';  // static.tibia.com não precisa de proxy
 }
 
-async function fetchItemImg(name) {
-  if (itemImgCache[name] !== undefined) return itemImgCache[name];
-  try {
-    const data = await tibiaFetch('/v4/item/' + encodeURIComponent(name));
-    // API retorna image_url como static.tibia.com
-    // Usar wsrv.nl como proxy para evitar hotlink block
-    const raw = data?.item?.image_url || itemImgUrl(name);
-    const url = raw ? 'https://wsrv.nl/?url=' + encodeURIComponent(raw.replace('https://', '')) : '';
-    itemImgCache[name] = url;
-    return url;
-  } catch(e) {
-    const raw = itemImgUrl(name);
-    const url = raw ? 'https://wsrv.nl/?url=' + encodeURIComponent(raw.replace('https://', '')) : '';
-    itemImgCache[name] = url;
-    return url;
-  }
+function fetchItemImg(name) {
+  if (itemImgCache[name] !== undefined) return Promise.resolve(itemImgCache[name]);
+  // Gerar URL direto via wsrv.nl sem chamar a API (mais rápido e sem CORS)
+  const url = itemImgUrl(name);
+  itemImgCache[name] = url;
+  return Promise.resolve(url);
 }
 
 
@@ -2317,6 +2608,8 @@ async function runHuntFinder() {
     if (mode !== 'all' && !h.modes.includes(mode)) return false;
     if (focus === 'profit') return h.tipo === 'profit' || h.profit.includes('kk');
     if (focus === 'quest')  return h.tipo === 'quest';
+    // Excluir bosses/eventos do hunt finder (ficam na aba Bosses)
+    if (['Diário','Semanal','Variável','15 dias'].includes(h.tipo)) return false;
     return true;
   });
 
@@ -2610,15 +2903,10 @@ async function loadRecentDeaths() {
   const loadEl = document.getElementById('home-deaths-loading');
   if (!el || !loadEl) return;
 
-  // Estratégia: online + amostra aleatória dos demais → 20 membros ao total
-  // Isso garante cobertura ampla e não fica repetindo sempre os mesmos
+  // Online primeiro + amostra aleatória dos demais → 20 membros únicos
   const online = allMembers.filter(m => m.status === 'online');
   const offline = allMembers.filter(m => m.status !== 'online');
-
-  // Embaralhar os offline para amostragem aleatória
   const shuffled = [...offline].sort(() => Math.random() - 0.5);
-
-  // Completar até 20 membros únicos: online primeiro, depois aleatórios
   const checkList = [...online, ...shuffled].slice(0, 20);
 
   if (!checkList.length) {
@@ -2634,20 +2922,16 @@ async function loadRecentDeaths() {
     try {
       const data = await tibiaFetch(`/v4/character/${encodeURIComponent(m.name)}`);
       const deaths = data?.character?.deaths || [];
-      // Pegar até 3 mortes por personagem
       deaths.slice(0, 3).forEach(d => {
         let rawDate = d.time || d.date || '';
         if (rawDate && typeof rawDate === 'object') rawDate = rawDate.date || rawDate.time || '';
         rawDate = String(rawDate).replace(' ', 'T').replace(/\.\d+$/, '');
         allDeaths.push({
-          char: m.name,
-          vocKey: m.vocKey,
-          level: d.level,
-          date: rawDate,
+          char: m.name, vocKey: m.vocKey, level: d.level, date: rawDate,
           killers: d.killers?.map(k => k.name).join(', ') || '?'
         });
       });
-    } catch(e) { /* skip */ }
+    } catch(e) {}
   }));
 
   loadEl.style.display = 'none';
@@ -2664,7 +2948,6 @@ async function loadRecentDeaths() {
     return db.localeCompare(da);
   });
 
-  // Exibir as 5 mais recentes (de qualquer membro)
   el.innerHTML = allDeaths.slice(0, 5).map(d => {
     let dateStr = '—';
     if (d.date) {
@@ -2815,7 +3098,7 @@ function renderHomeBoosted(creature, boss) {
 
 // ── Boss Spawn Chances ──
 let bossSpawnData   = [];
-let bossSpawnFilter = 'all';
+let bossSpawnFilter = 'nemesis';
 let pinnedBosses    = JSON.parse(localStorage.getItem('panda-pinned') || '[]');
 
 function switchBossTab(tab) {
@@ -2836,10 +3119,69 @@ function switchBossTab(tab) {
     paneTracker.style.display = 'block';
     btnSpawn.style.cssText   = 'background:var(--paper);border:1px solid var(--rule);border-bottom:none;margin-bottom:-2px;border-radius:8px 8px 0 0;padding:.55rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--muted);cursor:pointer';
     btnTracker.style.cssText = 'background:var(--white);border:1px solid var(--rule);border-bottom:2px solid var(--bamboo);margin-bottom:-2px;border-radius:8px 8px 0 0;padding:.55rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--bamboo);cursor:pointer';
-    loadBossTracker();
+    if (!bossSpawnData.length) {
+      // Ainda não carregou — carregar e recarregar tracker quando terminar
+      loadBossSpawn().then(() => loadBossTracker()).catch(() => loadBossTracker());
+    } else {
+      loadBossTracker();
+    }
   }
 }
 
+const NEMESIS_NAMES = new Set([
+  // A
+  'Alptramun','Anmothra','Arachir the Ancient One','Arthom the Hunter',
+  // B
+  'Bakragore','Bane Lord','Barbaria','Battlemaster Zunzu','Big Boss Trolliver','Burster',
+  // C
+  'Captain Jones','Chikhaton','Chizzoron the Distorter','Countess Sorrow','Cublarc the Plunderer',
+  // D
+  'Devovorga','Dharalion','Diblis the Fair','Dracola','Dreadful Disruptor','Dreadmaw',
+  // E
+  'Elvira Hammerthrust',
+  // F
+  'Feroxa (Mortal)','Ferumbras','Ferumbras Mortal Shell','Flamecaller Zazrak','Fleabringer',
+  'Foreman Kneebiter','Furyosa',
+  // G
+  "Gaz'Haragoth","Gaz'haragoth",'General Murius','Ghazbaran',
+  "Goshnar's Megalomania",'Grand Mother Foulscale','Grandfather Tridian',
+  'Gravelord Oshuran','Gravelord Osyran','Groam','Grorlam',
+  // H
+  'Hairman The Huge','Hairman the Huge','Hatebreeder','High Templar Cobrass','Hirintror','Horestis',
+  // I
+  'Irahsae','Izcandar Champion of Summer','Izcandar Champion of Winter','Izcandar the Banished',
+  // J
+  'Jesse the Wicked','Jesse the Brave',
+  // K
+  'King Chuck',
+  // L
+  'Lizard Gate Guardian',
+  // M
+  'Mahatheb','Malofur Mangrinder','Man In The Cave','Man in the Cave','Massacre','Maxxenius',
+  'Morgaroth','Mornenion','Morshabaal','Mr. Punish',
+  // O
+  'Ocyakao','Omrafir','Oodok Witchmaster','Orshabaal',
+  // P
+  'Phrodomo','Plagueroot',
+  // R
+  'Raxias','Robby the Reckless','Rotrender','Rotworm Queen','Rukor Zad',
+  // S
+  'Shlorg','Sir Leopold','Sir Valorcrest','Smuggler Baron Silvertoe','Smuggler Baron Silverhand',
+  // T
+  'Teneshpar','The Abomination','The Big Bad One','The Blightfather','The Evil Eye',
+  'The First Dragon','The Frog Prince','The Handmaiden','The Hungerer','The Imperor',
+  'The Last Lore Keeper','The Manhunter','The Mean Masher','The Mutated Pumpkin',
+  'The Old Whopper','The Pale Count','The Percht Queen','The Plasmother',
+  'The Voice of Ruin','The Welter','Tyrn','Tzumrah the Dazzler',
+  // W
+  'Warlord Ruzad','White Pale','Willi Wasp','World Devourer',
+  // X
+  'Xenia',
+  // Y
+  'Yaga the Crone','Yakchal',
+  // Z
+  'Zarabustor','Zevelon Duskbringer','Zomba','Zulazza the Corruptor','Zushuka',
+]);
 function filterBossSpawn(f, btn) {
   bossSpawnFilter = f;
   document.querySelectorAll('#boss-pane-spawn button[id^="bsf-"]').forEach(b => {
@@ -2880,6 +3222,20 @@ function renderBossSpawnGrid() {
   if (bossSpawnFilter === 'high')   data = data.filter(b => b.chance !== null && b.chance >= 30);
   if (bossSpawnFilter === 'medium') data = data.filter(b => b.chance !== null && b.chance >= 10 && b.chance < 30);
   if (bossSpawnFilter === 'low')    data = data.filter(b => b.chance !== null && b.chance > 0 && b.chance < 10);
+  if (bossSpawnFilter === 'nemesis') {
+    // Mostrar todos os Nemesis da lista, mesmo sem dados de kill stats hoje
+    const existing = new Map(data.map(b => [b.name, b]));
+    const nemesisList = [];
+    NEMESIS_NAMES.forEach(name => {
+      if (existing.has(name)) {
+        nemesisList.push(existing.get(name));
+      } else {
+        // Boss Nemesis sem dados hoje — mostrar com chance desconhecida
+        nemesisList.push({ name, chance: null, img: null });
+      }
+    });
+    data = nemesisList;
+  }
   if (bossSpawnFilter === 'pinned') data = data.filter(b => pinnedBosses.includes(b.name));
 
   data.sort((a, b) => {
@@ -3017,16 +3373,36 @@ function loadBossTracker() {
   const done = JSON.parse(localStorage.getItem('panda-bosses') || '{}');
 
   const grid = document.getElementById('boss-tracker-grid');
-  grid.innerHTML = GUILD_BOSSES.map(b => {
+
+  // Usar bossSpawnData (API - todos os bosses) se disponível, senão GUILD_BOSSES
+  const source = bossSpawnData.length > 0
+    ? bossSpawnData.map(b => ({
+        id: b.name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+        name: b.name,
+        img: b.img || creatureImgUrl(b.name),
+        wiki: `https://tibia.fandom.com/wiki/${encodeURIComponent(b.name.replace(/ /g,'_'))}`,
+        tipo: null
+      }))
+    : GUILD_BOSSES.map(b => ({
+        id: b.id,
+        name: b.name,
+        img: b.creature ? creatureImgUrl(b.creature) : null,
+        wiki: b.wiki,
+        tipo: b.tipo
+      }));
+
+  // Ordenar alfabeticamente
+  source.sort((a, b) => a.name.localeCompare(b.name));
+
+  grid.innerHTML = source.map(b => {
     const isDone = !!done[b.id];
-    const imgUrl = b.creature ? creatureImgUrl(b.creature) : null;
     return `
     <div style="background:${isDone ? 'var(--bamboo-pale)' : 'var(--white)'};border:1px solid ${isDone ? 'rgba(90,158,68,.3)' : 'var(--rule)'};border-radius:8px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;transition:all .15s" onclick="toggleBoss('${b.id}',this)">
       <div style="width:22px;height:22px;border-radius:5px;border:2px solid ${isDone ? 'var(--bamboo)' : 'var(--rule)'};background:${isDone ? 'var(--bamboo)' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;color:white;transition:all .15s;flex-shrink:0">${isDone ? '✓' : ''}</div>
-      ${imgUrl ? `<img src="${imgUrl}" alt="${b.name}" style="width:40px;height:40px;image-rendering:pixelated;flex-shrink:0;border-radius:4px;background:var(--paper);border:1px solid var(--rule);padding:2px" onerror="this.style.display='none'">` : ''}
+      ${b.img ? `<img src="${b.img}" alt="${b.name}" style="width:40px;height:40px;image-rendering:pixelated;flex-shrink:0;border-radius:4px;background:var(--paper);border:1px solid var(--rule);padding:2px" onerror="this.style.display='none'">` : ''}
       <div style="flex:1;min-width:0">
         <div style="font-weight:500;font-size:.87rem;color:${isDone ? 'var(--bamboo)' : 'var(--ink)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.name}</div>
-        <div style="font-size:.7rem;color:var(--muted);font-weight:300">${b.tipo}</div>
+        ${b.tipo ? `<div style="font-size:.7rem;color:var(--muted);font-weight:300">${b.tipo}</div>` : ''}
       </div>
       <a href="${b.wiki}" target="_blank" onclick="event.stopPropagation()" style="font-size:.7rem;color:var(--bamboo);font-weight:500;text-decoration:none;flex-shrink:0">Wiki</a>
     </div>`;
@@ -3156,7 +3532,7 @@ const DT_GROUPS = {
 };
 
 const DELIVERY_ITEMS = [
-{n:'Afflicted Strider Head',g:'b',v:900,drops:'Afflicted Strider'},
+  {n:'Afflicted Strider Head',g:'b',v:900,drops:'Afflicted Strider'},
   {n:'Afflicted Strider Worms',g:'c',v:500,drops:'Afflicted Strider'},
   {n:'Alloy Legs',g:'b',v:11000,drops:'Bulltaur Alchemist · Metal Gargoyle · Sorcerer\'s Apparition · Brachiodemon · Control Tower · Glooth Battery · Katex Blood Tongue · Yirkas Blue Scales'},
   {n:'Amber Souvenir',g:'c',v:850,drops:'Quara Looter · Quara Raider · Quara Plunderer'},
@@ -3176,7 +3552,7 @@ const DELIVERY_ITEMS = [
   {n:'Blemished Spawn Abdomen',g:'d',v:550,drops:'Blemished Spawn'},
   {n:'Blemished Spawn Head',g:'c',v:800,drops:'Blemished Spawn'},
   {n:'Blemished Spawn Tail',g:'b',v:1000,drops:'Blemished Spawn'},
-  {n:'Bloated Maggot',g:'b',v:5200,drops:'Bloated Man · Maggot'},
+  {n:'Bloated Maggot',g:'b',v:5200,drops:'Bloated Man-Maggot'},
   {n:'Blood Amulet',g:'c',v:1230,drops:'Dworc Shadowstalker'},
   {n:'Blood Hood',g:'c',v:1550,drops:'Norcferatu Nightweaver'},
   {n:'Blood Preservation',g:'b',v:320,drops:'Nightfiend · Vicious Manbat · Vampire · Vampire Bride · Vampire Viscount · Arachir the Ancient One · Arthei · Boreth · Diblis the Fair · Lersatio · The Pale Count · Vladrukh'},
@@ -3186,7 +3562,7 @@ const DELIVERY_ITEMS = [
   {n:'Boar Man Hoof',g:'c',v:600,drops:'Boar Man'},
   {n:'Boggy Dreads',g:'c',v:200,drops:'Bog Raider · Weakened Shlorg'},
   {n:'Bola',g:'d',v:35,drops:'Corym Charlatan · Corym Skirmisher · Corym Vanguard'},
-  {n:'Bone Club',g:'c',v:5,drops:'Orger · Bonebeast · Corrupted Skeleton · Goblin · Goblin Assassin · Goblin Leader · Goblin Scavenger · Pirate Skeleton · Demon (Goblin) · Dreadbeast · Munster · Necropharus'},
+  {n:'Bone Club',g:'c',v:5,drops:'Orger · Bonebeast · Corrupted Skeleton · Goblin · Goblin Assassin · Goblin Leader · Goblin Scavenger - · Pirate Skeleton · Demon (Goblin) · Dreadbeast · Munster · Necropharus'},
   {n:'Bone Fetish',g:'d',v:150,drops:'Lost Basher · Lost Exile · Lost Husher · Ogre Sage · Ogre Shaman · Animated Ogre Shaman'},
   {n:'Bone Fibula',g:'c',v:580,drops:'Orclops Bloodbreaker'},
   {n:'Bone Rattle',g:'c',v:790,drops:'Dworc Shadowstalker'},
@@ -3196,7 +3572,7 @@ const DELIVERY_ITEMS = [
   {n:'Bonecarving Knife',g:'c',v:190,drops:'Lost Basher · Lost Exile · Lost Husher'},
   {n:'Bony Tail',g:'c',v:210,drops:'Bonebeast · Ribstride'},
   {n:'Book Of Necromantic Rituals',g:'d',v:180,drops:'Blood Hand · Blood Priest · Floating Savant · Necromancer · Shadow Pupil · Necromancer Servant · Necropharus'},
-  {n:'Book Page',g:'f',v:640,drops:'Biting Book · Burning Book · Cursed Book · Energetic Book · Energuardian Of Tales · Guardian Of Tales · Icecold Book · Knowledge Elemental'},
+  {n:'Book Page',g:'c',v:640,drops:'Biting Book · Burning Book · Cursed Book · Energetic Book · Energuardian Of Tales · Guardian Of Tales · Icecold Book · Knowledge Elemental'},
   {n:'Book With A Dragon',g:'c',v:1800,drops:'Bramble Wyrmling · Cinder Wyrmling · Inkwing'},
   {n:'Book With An Hourglass',g:'b',v:1450,drops:'Headwalker'},
   {n:'Bowl Of Terror Sweat',g:'d',v:500,drops:'Feversleep · Terrorsleep'},
@@ -3215,10 +3591,10 @@ const DELIVERY_ITEMS = [
   {n:'Bulltaur Hoof',g:'c',v:540,drops:'Bulltaur Brute'},
   {n:'Bulltaur Horn',g:'d',v:385,drops:'Bulltaur Alchemist · Bulltaur Brute · Bulltaur Forgepriest'},
   {n:'Bundle Of Cursed Straw',g:'e',v:800,drops:'Blightwalker'},
-  {n:'Carnisylvan Bark',g:'f',v:230,drops:'Dark Carnisylvan · Hulking Carnisylvan · Poisonous Carnisylvan'},
-  {n:'Carnisylvan Finger',g:'f',v:250,drops:'Dark Carnisylvan · Hulking Carnisylvan · Poisonous Carnisylvan'},
+  {n:'Carnisylvan Bark',g:'c',v:230,drops:'Dark Carnisylvan · Hulking Carnisylvan · Poisonous Carnisylvan'},
+  {n:'Carnisylvan Finger',g:'c',v:250,drops:'Dark Carnisylvan · Hulking Carnisylvan · Poisonous Carnisylvan'},
   {n:'Carnivostrich Feather',g:'c',v:600,drops:'Carnivostrich'},
-  {n:'Cat\'s Paw',g:'b',v:2000,drops:'Dark Torturer · Hemming · Mr. Punish · The Scourge of Oblivion'},
+  {n:'Cat\'S Paw',g:'b',v:2000,drops:'Dark Torturer · Hemming · Mr. Punish · The Scourge of Oblivion'},
   {n:'Cave Devourer Eyes',g:'e',v:550,drops:'Cave Devourer'},
   {n:'Cave Devourer Legs',g:'e',v:350,drops:'Cave Devourer'},
   {n:'Cave Devourer Maw',g:'e',v:600,drops:'Cave Devourer'},
@@ -3226,8 +3602,8 @@ const DELIVERY_ITEMS = [
   {n:'Chain Leash',g:'c',v:970,drops:'Gloom Maw'},
   {n:'Chaos Mace',g:'b',v:9000,drops:'Destroyer · Infernal Phantom · Juvenile Bashmu · Lost Berserker · Moohtant · Norcferatu Heartless · Lost Basher · Nightstalker · Alptramun · Anomaly · Bretzecutioner · Duke Krule · Ferumbras · Ferumbras Mortal Shell · Gorzindel · Izcandar Champion of Summer · Izcandar Champion of Winter · Izcandar the Banished · Malofur Mangrinder · Maxxenius · Outburst · Plagueroot · Rupture · Sir Valorcrest · Shulgrax · Tarbaz · The Nightmare Beast · The Pale Count · The Percht Queen · The Scourge of Oblivion · The Shatterer · Utua Stone Sting · Weakened Shlorg'},
   {n:'Chasm Spawn Abdomen',g:'d',v:240,drops:'Chasm Spawn'},
-  {n:'Chasm Spawn Head',g:'f',v:850,drops:'Chasm Spawn'},
-  {n:'Chasm Spawn Tail',g:'f',v:120,drops:'Chasm Spawn'},
+  {n:'Chasm Spawn Head',g:'c',v:850,drops:'Chasm Spawn'},
+  {n:'Chasm Spawn Tail',g:'c',v:120,drops:'Chasm Spawn'},
   {n:'Cheese Cutter',g:'d',v:50,drops:'Corym Charlatan · Corym Skirmisher · Corym Vanguard'},
   {n:'Cheesy Figurine',g:'d',v:150,drops:'Cobra Scout · Corym Vanguard · Corym Charlatan · Corym Skirmisher'},
   {n:'Cluster Of Crystallized Death',g:'b',v:9000,drops:'Creepy Crawler · Crypt Construct · Crypt Fiend'},
@@ -3241,8 +3617,8 @@ const DELIVERY_ITEMS = [
   {n:'Cowbell',g:'d',v:210,drops:'Minotaur Amazon · Minotaur Cult Follower · Minotaur Cult Prophet'},
   {n:'Crab Man Claws',g:'d',v:600,drops:'Crape Man'},
   {n:'Cracked Alabaster Vase',g:'d',v:180,drops:'Broken Shaper · Shaper Matriarch · Twisted Shaper'},
-  {n:'Crawler\'s Essence',g:'b',v:3700,drops:'Branchy Crawler'},
-  {n:'Cry-stal',g:'c',v:3200,drops:'Shrieking Cry · Stal'},
+  {n:'Crawler\'S Essence',g:'b',v:3700,drops:'Branchy Crawler'},
+  {n:'Cry-Stal',g:'c',v:3200,drops:'Shrieking Cry-Stal'},
   {n:'Crystal Bone',g:'c',v:250,drops:'Instable Breach Brood'},
   {n:'Crystal Crossbow',g:'b',v:35000,drops:'Cliff Strider · Haunted Hunter · Mould Phantom · Sulphur Spouter · Branchy Crawler · Cave Chimera · Crazed Summer Rearguard · Freakish Lost Soul · Gorerilla · Naga Archer · Orewalker · Quara Looter · Abyssador · Deathstrike · Deep Terror · Gnomevil · Guard Captain Quaid · Vok the Freakish'},
   {n:'Crystal Mace',g:'b',v:12000,drops:'Squid Warden · Animated Feather · Boar Man · Brachiodemon · Eyeless Devourer · Icecold Book · Infernal Phantom · Juvenile Bashmu · Knight\'s Apparition · Lavafungus · Sight of Surrender · Streaked Devourer · Tunnel Tyrant · Darklight Striker · Ironblight · Roaming Dread · Stone Devourer · Walker · White Weretiger · Eradicator · Melting Frozen Horror · Realityquake · Tamru the Black · The Baron from Below · Utua Stone Sting · Vashresamun · Yakchal · Zamulosh · Zushuka (Mortal)'},
@@ -3288,22 +3664,22 @@ const DELIVERY_ITEMS = [
   {n:'Dragolisk Eye',g:'d',v:690,drops:'Dragolisk'},
   {n:'Dragolisk Poison Gland',g:'d',v:475,drops:'Dragolisk'},
   {n:'Dragon Hammer',g:'b',v:2000,drops:'Bulltaur Brute · Dragon · Dire Penguin · Orc Warlord · Grand Mother Foulscale · Orshabaal · Tazhadur'},
-  {n:'Dragon Priest\'s Wandtip',g:'c',v:175,drops:'Lizard Dragon Priest · Flamecaller Zazrak'},
+  {n:'Dragon Priest\'S Wandtip',g:'c',v:175,drops:'Lizard Dragon Priest · Flamecaller Zazrak'},
   {n:'Dragon Slayer',g:'b',v:15000,drops:'Haunted Dragon · Undead Dragon · Albino Dragon · Dragon Lord · Frost Dragon · Mega Dragon · Dragon Hoard · Inkwing · Ushuriel'},
   {n:'Dragon Tongue',g:'d',v:550,drops:'Ice Dragon · Wardragon · Gelidrazah the Frozen · Kalyassa · Soul of Dragonking Zyrtarch · Tazhadur'},
-  {n:'Dragon\'s Tail',g:'d',v:100,drops:'Dragon · Dragolisk · Dragon Hatchling'},
+  {n:'Dragon\'S Tail',g:'d',v:100,drops:'Dragon · Dragolisk · Dragon Hatchling'},
   {n:'Draken Wristbands',g:'d',v:430,drops:'Draken Elite · Paiz the Pauperizer'},
-  {n:'Dream Essence Egg',g:'d',v:205,drops:'Crazed Summer Rearguard · Crazed Summer Vanguard · Crazed Winter Rearguard · Crazed Winter Vanguard · Insane Siren · Soul · Broken Harbinger'},
+  {n:'Dream Essence Egg',g:'d',v:205,drops:'Crazed Summer Rearguard · Crazed Summer Vanguard · Crazed Winter Rearguard · Crazed Winter Vanguard · Insane Siren · Soul-Broken Harbinger'},
   {n:'Dung Ball',g:'d',v:130,drops:'Insectoid Worker · Mindmasher'},
   {n:'Earflap',g:'d',v:40,drops:'Corym Charlatan · Corym Skirmisher · Corym Vanguard'},
   {n:'Elder Bonelord Tentacle',g:'d',v:150,drops:'Elder Bonelord'},
-  {n:'Elven Astral Observer',g:'f',v:90,drops:'Crazed Summer Vanguard · Crazed Winter Rearguard · Elf Arcanist · Dharalion'},
+  {n:'Elven Astral Observer',g:'c',v:90,drops:'Crazed Summer Vanguard · Crazed Winter Rearguard · Elf Arcanist · Dharalion'},
   {n:'Emerald Tortoise Shell',g:'d',v:2150,drops:'Emerald Tortoise'},
   {n:'Empty Honey Glass',g:'b',v:270,drops:'Black Sphinx Acolyte · Burning Gladiator · Priestess Of The Wild Sun'},
   {n:'Encrypted Notes',g:'c',v:620,drops:'Bulltaur Alchemist'},
   {n:'Energy Ball',g:'d',v:300,drops:'Brain Squid · Dread Intruder · Energetic Book · Outburst'},
   {n:'Ensouled Essence',g:'c',v:820,drops:'Flimsy Lost Soul · Freakish Lost Soul · Mean Lost Soul'},
-  {n:'Essence Of A Bad Dream',g:'f',v:360,drops:'Arachnophobica · Nightmare · Nightmare Scion · Thanatursus · Tormentor'},
+  {n:'Essence Of A Bad Dream',g:'c',v:360,drops:'Arachnophobica · Nightmare · Nightmare Scion · Thanatursus · Tormentor'},
   {n:'Exalted Core',g:'a',v:0,drops:''},
   {n:'Execowtioner Mask',g:'c',v:240,drops:'Execowtioner'},
   {n:'Eye Of A Deepling',g:'e',v:150,drops:'Deepling Elite · Deepling Tyrant · Deathling Scout · Deathling Spellsinger · Deepling Brawler · Deepling Guard · Deepling Master Librarian · Deepling Scout · Deepling Spellsinger · Deepling Warrior · Shark · Deepling Worker · Reflection of Obujos'},
@@ -3317,7 +3693,7 @@ const DELIVERY_ITEMS = [
   {n:'Fig Leaf',g:'c',v:200,drops:'Barkless Fanatic · Barkless Devotee · Ravenous Hunger'},
   {n:'Fir Cone',g:'d',v:25,drops:'Leaf Golem · Wilting Leaf Golem · Dazed Leaf Golem'},
   {n:'Fire Axe',g:'b',v:8000,drops:'Rage Squid · Demon · Feral Sphinx · Guardian of Tales · Infernal Phantom · Insane Siren · Lava Golem · Mean Lost Soul · Sulphider · Vexclaw · Weeper · Lost Berserker · Brachiodemon · Hellfire Fighter · Lost Basher · Lost Exile · Lost Husher · Angry Demon · Arbaziloth · Custodian · Essence of Malice · Ferumbras · Furyosa · Golgordan · Latrivan · Mahrdis · Mazoran · Morgaroth · Orshabaal · The Duke of the Depths · The Imperor · Unaz the Mean · Xogixath'},
-  {n:'Flask Of Demonic Blood',g:'f',v:0,drops:'Betrayed Wraith · Burning Book · Dark Torturer · Dawnfire Asura · Diabolic Imp · Falcon Knight · Fury · Grim Reaper · Hand of Cursed Fate · True Dawnfire Asura · Floating Savant · Frost Flower Asura · Grimeleech · Hellflayer · Hellhound · Juggernaut · Midnight Asura · Nightmare · True Frost Flower Asura · True Midnight Asura · Furyosa · Grand Chaplain Gaunder · Kerberos · Kusuma · Mazoran · Plagirath · Preceptor Lazare · Ragiaz · Razzagorn · Shulgrax · Tarbaz · The Blazing Rose · The Diamond Blossom · The Flaming Orchid · The Lily of Night · The Moonlight Aster · The Winter Bloom · Tormentor · Zamulosh'},
+  {n:'Flask Of Demonic Blood',g:'c',v:0,drops:'Betrayed Wraith · Burning Book · Dark Torturer · Dawnfire Asura · Diabolic Imp · Falcon Knight · Fury · Grim Reaper · Hand of Cursed Fate · True Dawnfire Asura · Floating Savant · Frost Flower Asura · Grimeleech · Hellflayer · Hellhound · Juggernaut · Midnight Asura · Nightmare · True Frost Flower Asura · True Midnight Asura · Furyosa · Grand Chaplain Gaunder · Kerberos · Kusuma · Mazoran · Plagirath · Preceptor Lazare · Ragiaz · Razzagorn · Shulgrax · Tarbaz · The Blazing Rose · The Diamond Blossom · The Flaming Orchid · The Lily of Night · The Moonlight Aster · The Winter Bloom · Tormentor · Zamulosh'},
   {n:'Flotsam',g:'d',v:330,drops:'Foam Stalker · Venerable Foam Stalker'},
   {n:'Focus Cape',g:'b',v:6000,drops:'Afflicted Strider · Converter · Dawnfire Asura · Draken Spellweaver · Lavafungus · Pirat Cutthroat · Tremendous Tyrant · True Dawnfire Asura · Wyrm · Girtablilu Warrior · Harpy · Lizard Dragon Priest · Lumbering Carnivor · Nightmare Scion · Reality Reaver · Sea Serpent · Stabilizing Reality Reaver · Amenef the Burning · Captain Jones · Hellgorak · Raging Mage · Sister Hetai'},
   {n:'Fox Paw',g:'e',v:100,drops:'Werefox · Fox · Black Vixen'},
@@ -3332,7 +3708,7 @@ const DELIVERY_ITEMS = [
   {n:'Girtablilu Warrior Carapace',g:'b',v:520,drops:'Girtablilu Warrior'},
   {n:'Glacier Mask',g:'d',v:2500,drops:'Animated Feather · Crazed Winter Rearguard · Icecold Book · Mycobiontic Beetle · Squid Warden · Animated Snowman · Ice Dragon · Paladin\'s Apparition · Seacrest Serpent · Crystal Spider · Ice Golem · Earl Osam · Gelidrazah the Frozen · Hirintror · Memory of a Dwarf · Neferi the Spy · Shardhead · The Bloodweb · Zushuka'},
   {n:'Glacier Robe',g:'b',v:11000,drops:'Crazed Winter Rearguard · Crazed Winter Vanguard · Icecold Book · Many Faces · Squid Warden · Tremendous Tyrant · Turbulent Elemental · Druid\'s Apparition · Girtablilu Warrior · Goggle Cake · Quara Looter · Quara Predator · Quara Raider · Renegade Quara Predator · Schiach · Quara Pincher · Renegade Quara Pincher · Hazardous Phantom · King Zelos · Srezz Yellow Eyes · Tarbaz · The Blazing Time Guardian · The Time Guardian · The Winter Bloom · Utua Stone Sting · Yakchal · Zushuka'},
-  {n:'Glacier Shoes',g:'c',v:2500,drops:'Foam Stalker · Icecold Book · Many Faces · Seacrest Serpent · Soul · Broken Harbinger · Two · Headed Turtle · Usurper Archer · Varnished Diremaw · Bluebeak · Ice Witch · Hirintror · Neferi the Spy · Venerable Foam Stalker · Zushuka'},
+  {n:'Glacier Shoes',g:'c',v:2500,drops:'Foam Stalker · Icecold Book · Many Faces · Seacrest Serpent · Soul-Broken Harbinger · Two-Headed Turtle · Usurper Archer · Varnished Diremaw · Bluebeak · Ice Witch · Hirintror · Neferi the Spy · Venerable Foam Stalker · Zushuka'},
   {n:'Glob Of Acid Slime',g:'d',v:25,drops:'Acid Blob · Defiler · Stonerefiner'},
   {n:'Glob Of Glooth',g:'d',v:125,drops:'Devourer · Glooth Blob · Rot Elemental'},
   {n:'Glob Of Tar',g:'d',v:30,drops:'Death Blob · Defiler'},
@@ -3342,8 +3718,8 @@ const DELIVERY_ITEMS = [
   {n:'Glooth Club',g:'b',v:1500,drops:'Devourer · Blood Beast · Glooth Anemone · Glooth Bandit · Glooth Blob · Glooth Brigand · Glooth Golem · Glooth Fairy · Lisa'},
   {n:'Glooth Injection Tube',g:'e',v:350,drops:'Glooth Golem · Glooth Fairy'},
   {n:'Glorious Axe',g:'c',v:0,drops:''},
-  {n:'Glowing Rune',g:'f',v:0,drops:''},
-  {n:'Goanna Claw',g:'b',v:260,drops:'Adult Goanna · Young Goanna · Sun · Marked Goanna'},
+  {n:'Glowing Rune',g:'c',v:0,drops:''},
+  {n:'Goanna Claw',g:'b',v:260,drops:'Adult Goanna · Young Goanna · Sun-Marked Goanna'},
   {n:'Goanna Meat',g:'e',v:190,drops:'Adult Goanna · Young Goanna'},
   {n:'Golden Legs',g:'a',v:0,drops:''},
   {n:'Golden Lotus Brooch',g:'d',v:0,drops:''},
@@ -3357,8 +3733,8 @@ const DELIVERY_ITEMS = [
   {n:'Green Bandage',g:'c',v:180,drops:'Putrid Mummy'},
   {n:'Guardian Shield',g:'d',v:0,drops:''},
   {n:'Halberd',g:'d',v:0,drops:''},
-  {n:'Half-digested Stones',g:'f',v:40,drops:'Stonerefiner'},
-  {n:'Half-eaten Brain',g:'c',v:85,drops:'Zombie'},
+  {n:'Half-Digested Stones',g:'c',v:40,drops:'Stonerefiner'},
+  {n:'Half-Eaten Brain',g:'c',v:85,drops:'Zombie'},
   {n:'Harpy Feathers',g:'c',v:730,drops:'Harpy'},
   {n:'Headpecker Beak',g:'c',v:2800,drops:'Headpecker'},
   {n:'Headpecker Feather',g:'d',v:1300,drops:'Headpecker'},
@@ -3376,17 +3752,17 @@ const DELIVERY_ITEMS = [
   {n:'Human Teeth',g:'b',v:2000,drops:'Dark Carnisylvan · Hulking Carnisylvan · Poisonous Carnisylvan'},
   {n:'Humongous Chunk',g:'c',v:540,drops:'Humongous Fungus'},
   {n:'Hydra Head',g:'c',v:600,drops:'Hydra · Lion Hydra'},
-  {n:'Hydrophytes',g:'e',v:220,drops:'Two · Headed Turtle'},
-  {n:'Ice Flower',g:'f',v:370,drops:'Crazed Winter Rearguard · Crazed Winter Vanguard · Soul · Broken Harbinger'},
+  {n:'Hydrophytes',g:'e',v:220,drops:'Two-Headed Turtle'},
+  {n:'Ice Flower',g:'c',v:370,drops:'Crazed Winter Rearguard · Crazed Winter Vanguard · Soul-Broken Harbinger'},
   {n:'Idol Of The Forge',g:'c',v:950,drops:'Bulltaur Forgepriest'},
-  {n:'Inkwell',g:'f',v:0,drops:''},
+  {n:'Inkwell',g:'c',v:0,drops:''},
   {n:'Instable Proto Matter',g:'d',v:0,drops:''},
   {n:'Ivory Carving',g:'d',v:0,drops:''},
   {n:'Key To The Drowned Library',g:'c',v:0,drops:''},
   {n:'Knife',g:'d',v:0,drops:''},
   {n:'Knight Axe',g:'c',v:0,drops:''},
   {n:'Knight Legs',g:'c',v:0,drops:''},
-  {n:'Kongra\'s Shoulderpad',g:'e',v:100,drops:'Cursed Ape · Kongra'},
+  {n:'Kongra\'S Shoulderpad',g:'e',v:100,drops:'Cursed Ape · Kongra'},
   {n:'Lamassu Hoof',g:'e',v:330,drops:'Crypt Warden · Lamassu'},
   {n:'Lamassu Horn',g:'d',v:240,drops:'Crypt Warden · Lamassu'},
   {n:'Lancer Beetle Shell',g:'d',v:80,drops:'Lancer Beetle · The Blightfather'},
@@ -3403,10 +3779,10 @@ const DELIVERY_ITEMS = [
   {n:'Liodile Fang',g:'c',v:480,drops:'Liodile'},
   {n:'Lion Cloak Patch',g:'d',v:0,drops:''},
   {n:'Lion Crest',g:'c',v:0,drops:''},
-  {n:'Lost Basher\'s Spike',g:'c',v:0,drops:''},
+  {n:'Lost Basher\'S Spike',g:'c',v:0,drops:''},
   {n:'Lost Bracers',g:'c',v:0,drops:''},
   {n:'Luminous Orb',g:'b',v:0,drops:''},
-  {n:'Lump Of Earth',g:'f',v:0,drops:''},
+  {n:'Lump Of Earth',g:'c',v:0,drops:''},
   {n:'Mad Froth',g:'d',v:0,drops:''},
   {n:'Magma Boots',g:'c',v:0,drops:''},
   {n:'Magma Clumb',g:'e',v:0,drops:''},
@@ -3434,15 +3810,15 @@ const DELIVERY_ITEMS = [
   {n:'Mutated Bat Ear',g:'c',v:0,drops:''},
   {n:'Mutated Flesh',g:'d',v:0,drops:''},
   {n:'Mutated Rat Tail',g:'c',v:0,drops:''},
-  {n:'Naga Archer Scales',g:'f',v:340,drops:'Naga Archer'},
+  {n:'Naga Archer Scales',g:'c',v:340,drops:'Naga Archer'},
   {n:'Naga Armring',g:'c',v:0,drops:''},
   {n:'Naga Earring',g:'d',v:0,drops:''},
-  {n:'Naga Warrior Scales',g:'f',v:340,drops:'Naga Warrior'},
+  {n:'Naga Warrior Scales',g:'c',v:340,drops:'Naga Warrior'},
   {n:'Necromantic Core',g:'c',v:0,drops:''},
   {n:'Necromantic Rust',g:'e',v:0,drops:''},
   {n:'Night Harpy Feathers',g:'c',v:0,drops:''},
-  {n:'Nighthunter Wing',g:'f',v:2000,drops:'Nighthunter'},
-  {n:'Nimmersatt\'s Seal',g:'d',v:0,drops:''},
+  {n:'Nighthunter Wing',g:'c',v:2000,drops:'Nighthunter'},
+  {n:'Nimmersatt\'S Seal',g:'d',v:0,drops:''},
   {n:'Odd Organ',g:'d',v:0,drops:''},
   {n:'Ogre Ear Stud',g:'e',v:0,drops:''},
   {n:'Old Girtablilu Carapace',g:'c',v:0,drops:''},
@@ -3457,8 +3833,8 @@ const DELIVERY_ITEMS = [
   {n:'Piece Of Frozen Night',g:'c',v:0,drops:''},
   {n:'Piece Of Hell Steel',g:'b',v:0,drops:''},
   {n:'Piece Of Warrior Armor',g:'b',v:0,drops:''},
-  {n:'Pirat\'s Tail',g:'d',v:0,drops:''},
-  {n:'Pirate Coin',g:'f',v:0,drops:''},
+  {n:'Pirat\'S Tail',g:'d',v:0,drops:''},
+  {n:'Pirate Coin',g:'c',v:0,drops:''},
   {n:'Plasma Pearls',g:'d',v:0,drops:''},
   {n:'Plasmatic Lightning',g:'d',v:0,drops:''},
   {n:'Plate Legs',g:'e',v:0,drops:''},
@@ -3506,7 +3882,7 @@ const DELIVERY_ITEMS = [
   {n:'Shimmering Beetles',g:'e',v:0,drops:''},
   {n:'Shiny Stone',g:'d',v:0,drops:''},
   {n:'Silencer Resonating Chamber',g:'d',v:0,drops:''},
-  {n:'Silken Bookmark',g:'f',v:0,drops:''},
+  {n:'Silken Bookmark',g:'c',v:0,drops:''},
   {n:'Silver Moon Coin',g:'b',v:0,drops:''},
   {n:'Silver Poniard',g:'b',v:0,drops:''},
   {n:'Sineater Wing',g:'b',v:0,drops:''},
@@ -3525,8 +3901,8 @@ const DELIVERY_ITEMS = [
   {n:'Sparkion Stings',g:'d',v:0,drops:''},
   {n:'Sparkion Tail',g:'d',v:0,drops:''},
   {n:'Spellbook Of Mind Control',g:'b',v:0,drops:''},
-  {n:'Spellsinger\'s Seal',g:'d',v:0,drops:''},
-  {n:'Spellweaver\'s Robe',g:'b',v:0,drops:''},
+  {n:'Spellsinger\'S Seal',g:'d',v:0,drops:''},
+  {n:'Spellweaver\'S Robe',g:'b',v:0,drops:''},
   {n:'Sphinx Tiara',g:'c',v:0,drops:''},
   {n:'Spiked Bracers',g:'c',v:0,drops:''},
   {n:'Spiked Gorget',g:'c',v:0,drops:''},
@@ -3539,7 +3915,7 @@ const DELIVERY_ITEMS = [
   {n:'Stampor Talons',g:'c',v:0,drops:''},
   {n:'Star Ink',g:'c',v:0,drops:''},
   {n:'Stone Wing',g:'d',v:0,drops:''},
-  {n:'Stonerefine\'s Skull',g:'e',v:0,drops:''},
+  {n:'Stonerefine\'S Skull',g:'e',v:0,drops:''},
   {n:'Strange Helmet',g:'b',v:0,drops:''},
   {n:'Strange Substance',g:'d',v:0,drops:''},
   {n:'Streaked Devourer Eyes',g:'d',v:0,drops:''},
@@ -3547,7 +3923,7 @@ const DELIVERY_ITEMS = [
   {n:'Streaked Devourer Maw',g:'e',v:0,drops:''},
   {n:'Striped Fur',g:'e',v:0,drops:''},
   {n:'Sulphider Shell',g:'e',v:0,drops:''},
-  {n:'Sulphur Powder',g:'f',v:0,drops:''},
+  {n:'Sulphur Powder',g:'c',v:0,drops:''},
   {n:'Sulphurous Stone',g:'d',v:0,drops:''},
   {n:'Swampling Club',g:'c',v:0,drops:''},
   {n:'Swarmer Antenna',g:'d',v:0,drops:''},
@@ -3566,11 +3942,11 @@ const DELIVERY_ITEMS = [
   {n:'Trapped Bad Dream Monster',g:'e',v:0,drops:''},
   {n:'Tunnel Tyrant Head',g:'e',v:0,drops:''},
   {n:'Tunnel Tyrant Shell',g:'e',v:0,drops:''},
-  {n:'Two-headed Turtle Heads',g:'c',v:0,drops:''},
+  {n:'Two-Headed Turtle Heads',g:'c',v:0,drops:''},
   {n:'Undertaker Fangs',g:'e',v:2700,drops:'Undertaker'},
-  {n:'Unholy Bone',g:'f',v:0,drops:''},
-  {n:'Vampire\'s Cape Chain',g:'c',v:0,drops:''},
-  {n:'Vein Of Ore',g:'f',v:0,drops:''},
+  {n:'Unholy Bone',g:'c',v:0,drops:''},
+  {n:'Vampire\'S Cape Chain',g:'c',v:0,drops:''},
+  {n:'Vein Of Ore',g:'c',v:0,drops:''},
   {n:'Venison',g:'d',v:0,drops:''},
   {n:'Vile Axe',g:'a',v:0,drops:''},
   {n:'Volatile Proto Matter',g:'d',v:0,drops:''},
@@ -3578,7 +3954,7 @@ const DELIVERY_ITEMS = [
   {n:'Wardragon Claw',g:'d',v:0,drops:''},
   {n:'Wardragon Tooth',g:'d',v:0,drops:''},
   {n:'Waspoid Claw',g:'c',v:0,drops:''},
-  {n:'Weaver\'s Wandtip',g:'d',v:0,drops:''},
+  {n:'Weaver\'S Wandtip',g:'d',v:0,drops:''},
   {n:'Werebadger Claws',g:'e',v:0,drops:''},
   {n:'Werebadger Skull',g:'e',v:0,drops:''},
   {n:'Werebear Fur',g:'e',v:0,drops:''},
@@ -3592,7 +3968,7 @@ const DELIVERY_ITEMS = [
   {n:'Werepanther Claw',g:'d',v:0,drops:''},
   {n:'Weretiger Tooth',g:'e',v:0,drops:''},
   {n:'Werewolf Fur',g:'d',v:0,drops:''},
-  {n:'Widow\'s Mandibles',g:'d',v:110,drops:'Wailing Widow'},
+  {n:'Widow\'S Mandibles',g:'d',v:110,drops:'Wailing Widow'},
   {n:'Wild Flowers',g:'d',v:0,drops:''},
   {n:'Wimp Tooth Chain',g:'d',v:0,drops:''},
   {n:'Winged Tail',g:'b',v:0,drops:''},
@@ -3605,7 +3981,37 @@ const DELIVERY_ITEMS = [
   {n:'Zaoan Robe',g:'b',v:0,drops:''},
   {n:'Zaoan Shoes',g:'b',v:0,drops:''},
   {n:'Zaogun Flag',g:'c',v:600,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'},
-  {n:'Zaogun Shoulderplates',g:'d',v:150,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'}
+  {n:'Zaogun Shoulderplates',g:'d',v:150,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''},
+  {n:'Nan',g:'c',v:0,drops:''}
 ];
 let dtFiltered = [...DELIVERY_ITEMS];
 
@@ -3844,5 +4250,36 @@ async function loadHomeNews() {
   </div>
 </div>
 
+
+<script>
+// ═══ THEME OVERRIDE ═══
+// Original: body.dark = dark mode
+// Redesign: body.light = light mode (dark is default/base)
+// We override toggleDark() to use our system.
+function toggleDark() {
+  const isLight = document.body.classList.toggle('light');
+  // also remove .dark if it was set by original's restore logic
+  document.body.classList.remove('dark');
+  localStorage.setItem('panda-dark', isLight ? '0' : '1');
+  const btn = document.getElementById('dark-btn');
+  if (btn) btn.textContent = isLight ? '☾ Escuro' : '☀ Claro';
+}
+// Restore preference
+(function() {
+  const saved = localStorage.getItem('panda-dark');
+  // saved='1' means user wanted dark (our default) = no .light class
+  // saved='0' means user wanted light = add .light class
+  document.body.classList.remove('dark'); // clear original's class if any
+  if (saved === '0') {
+    document.body.classList.add('light');
+    const btn = document.getElementById('dark-btn');
+    if (btn) btn.textContent = '☾ Escuro';
+  } else {
+    // dark mode (default)
+    const btn = document.getElementById('dark-btn');
+    if (btn) btn.textContent = '☀ Claro';
+  }
+})();
+</script>
 </body>
 </html>
