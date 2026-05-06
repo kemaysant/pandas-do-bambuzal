@@ -2213,12 +2213,17 @@ function proxyImgUrl(url) {
   return url || '';  // static.tibia.com não precisa de proxy
 }
 
-function fetchItemImg(name) {
-  if (itemImgCache[name] !== undefined) return Promise.resolve(itemImgCache[name]);
-  // Gerar URL direto via wsrv.nl sem chamar a API (mais rápido e sem CORS)
-  const url = itemImgUrl(name);
-  itemImgCache[name] = url;
-  return Promise.resolve(url);
+async function fetchItemImg(name) {
+  if (itemImgCache[name] !== undefined) return itemImgCache[name];
+  try {
+    const data = await tibiaFetch(`/v4/item/${encodeURIComponent(name)}`);
+    const url = data?.item?.image_url || null;
+    itemImgCache[name] = url;
+    return url;
+  } catch(e) {
+    itemImgCache[name] = null;
+    return null;
+  }
 }
 
 
@@ -2241,7 +2246,7 @@ function openImbuModal(id) {
       ${t.items.map(i=>`
         <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--rule);gap:.5rem">
           <div style="display:flex;align-items:center;gap:.5rem;min-width:0">
-            <img data-item-img="${i.n}" src="${itemImgUrl(i.n)}" alt="${i.n}" style="width:24px;height:24px;image-rendering:pixelated;flex-shrink:0;border-radius:3px" onerror="this.src='';this.style.opacity='0.2'">
+            <img data-item-img="${i.n}" src="" alt="${i.n}" style="width:24px;height:24px;image-rendering:pixelated;flex-shrink:0;border-radius:3px;opacity:.2" onerror="this.style.opacity='0.1'">
             <span style="color:var(--ink-3);font-weight:300;font-size:.83rem">${i.n}</span>
           </div>
           <span style="font-family:'DM Mono',monospace;font-weight:500;color:var(--ink);font-size:.83rem;flex-shrink:0">${i.q}x</span>
@@ -2583,12 +2588,12 @@ const HUNTS = [
     creatures:[{n:'Demon'},{n:'Demon Skeleton'}],
     desc:'Hellgate. Excelente bestiary de Demons.', wiki:'https://tibia.fandom.com/wiki/Hellgate' },
 
-  // Kongra: 1140xp, Sibang: 550xp — médio, Banuta começa em 100 de verdade
+  // Serpent Spawn: 3050xp, Medusa: 4000xp — andares profundos de Banuta
   { name:'Banuta', xphNum:1500, minLvl:100, maxLvl:220,
     vocs:['ek','ms'], modes:['solo','duo'], xph:'800k–2kk', profit:'50k–200k', tipo:'xp', dif:'medio', task:true,
     req:'Ape City Quest',
-    creatures:[{n:'Kongra'},{n:'Sibang'}],
-    desc:'Hunt essencial mid-level. Requer Ape City Quest.', wiki:'https://tibia.fandom.com/wiki/Banuta' },
+    creatures:[{n:'Serpent Spawn'},{n:'Medusa'},{n:'Kongra'}],
+    desc:'Hunt essencial mid-level. Andares profundos têm Serpent Spawns e Medusas. Requer Ape City Quest.', wiki:'https://tibia.fandom.com/wiki/Banuta' },
 
   // Draken Warmaster: 3200xp — médio, content realmente pede 130+ de verdade
   { name:'Draken Walls / Zao', xphNum:2000, minLvl:130, maxLvl:280,
@@ -2605,11 +2610,11 @@ const HUNTS = [
     desc:"Profit diário consistente. Requer Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_1' },
 
   // Cave Devourer: 4100xp — difícil, conteúdo pede 200+ real
-  { name:'Gnome Deep Hub', xphNum:2000, minLvl:200, maxLvl:400,
-    vocs:['ed','ms'], modes:['solo','duo'], xph:'1kk–2.5kk', profit:'-300k a -150k', tipo:'xp', dif:'dificil', task:false,
+  { name:'Gnome Deep Hub', xphNum:2000, minLvl:130, maxLvl:400,
+    vocs:['ek','ed','ms'], modes:['solo','duo'], xph:'1.6kk–2.4kk', profit:'-70k a -50k', tipo:'xp', dif:'dificil', task:false,
     req:'',
-    creatures:[{n:'Branchy Crawler'},{n:'Cave Devourer'}],
-    desc:'Alta XP mas alto waste. Para chars com muito bank.', wiki:'https://tibia.fandom.com/wiki/Gnome_Deep_Hub' },
+    creatures:[{n:'Ravenous Lava Lurker'},{n:'Cave Devourer'}],
+    desc:'Alta XP mas alto waste. Andares mais profundos pedem 200+.', wiki:'https://tibia.fandom.com/wiki/Gnome_Deep_Hub' },
 
   // Naga Archer: 1800xp, Naga Warrior: 2000xp — médio, range real 100-220
   { name:'Nykri Delta (Nagas)', xphNum:1500, minLvl:100, maxLvl:220,
@@ -2648,11 +2653,6 @@ const HUNTS = [
     desc:'Ilha de Feyrist. Threatened Dreams Quest. Favorita da guild!', wiki:'https://tibia.fandom.com/wiki/Feyrist' },
 
   // Bulltaur Brute: 3200xp, Alchemist: 2900xp — médio, range real 150-300
-  { name:'Bounac', xphNum:2100, minLvl:150, maxLvl:300,
-    vocs:['all'], modes:['solo','duo'], xph:'1kk–2.5kk', profit:'100k–400k', tipo:'xp', dif:'medio', task:true,
-    req:'Adventures of Galthen Quest',
-    creatures:[{n:'Bulltaur Brute'},{n:'Bulltaur Alchemist'},{n:'Bulltaur Forgepriest'}],
-    desc:"Boss diário + área de hunt. Adventures of Galthen Quest.", wiki:'https://tibia.fandom.com/wiki/Bounac' },
 
   // Dawnfire Asura: 2500xp, Midnight: 3000xp, Frost Flower: 2000xp — médio, range real 150-280
   { name:'Asura Palace', xphNum:1350, minLvl:150, maxLvl:280,
@@ -2662,11 +2662,11 @@ const HUNTS = [
     desc:'Excelente para bestiary de Asuras. Requer acesso.', wiki:'https://tibia.fandom.com/wiki/Asura_Palace' },
 
   // Werehyaena: 2700xp, Shaman: 2800xp — fácil para alto nível, range real 130-260
-  { name:'Hyaena Lairs', xphNum:1550, minLvl:130, maxLvl:260,
-    vocs:['ed','ms'], modes:['solo','duo'], xph:'1.2kk–1.8kk', profit:'200k–450k', tipo:'profit', dif:'facil', task:true,
+  { name:'Hyaena Lairs', xphNum:1550, minLvl:200, maxLvl:320,
+    vocs:['ek'], modes:['solo'], xph:'1kk–2kk', profit:'350k–1kk', tipo:'profit', dif:'medio', task:true,
     req:'',
-    creatures:[{n:'Werehyaena'},{n:'Werehyaena Shaman'}],
-    desc:'Profit consistente. Hunt popular para druids e mages.', wiki:'https://tibia.fandom.com/wiki/Werehyaena' },
+    creatures:[{n:'Werehyaena'},{n:'Werehyaena Shaman'},{n:'Lich'}],
+    desc:'Hunt de Werehyaenas para EK 200+. Bom profit e bestiary. Requer shovel, rope, pick e crowbar (Darashia).', wiki:'https://tibia.fandom.com/wiki/Werehyaena' },
 
   // Merlkin: 1900xp + Kongra — difícil, MS pede 180+ real
   { name:'Deeper Banuta', xphNum:2050, minLvl:180, maxLvl:320,
@@ -2683,11 +2683,11 @@ const HUNTS = [
     desc:'Parte externa de Feyrist. Boa densidade para mages.', wiki:'https://tibia.fandom.com/wiki/Carnisylvan' },
 
   // Plaguesmith: 5000xp, Putrid Mummy: 1050xp — médio, range real 180-320
-  { name:'Rotten Wasteland', xphNum:2200, minLvl:180, maxLvl:320,
-    vocs:['ek','rp'], modes:['solo','duo'], xph:'1.5kk–2.5kk', profit:'100k–300k', tipo:'xp', dif:'medio', task:true,
-    req:'',
+  { name:'Rotten Wasteland', xphNum:2200, minLvl:400, maxLvl:999,
+    vocs:['ek','rp'], modes:['solo','duo'], xph:'1.5kk–2.5kk', profit:'100k–300k', tipo:'xp', dif:'dificil', task:true,
+    req:'Feaster of Souls Quest',
     creatures:[{n:'Plaguesmith'},{n:'Putrid Mummy'}],
-    desc:'Área de undead high-level. Boa para EK e RP.', wiki:'https://tibia.fandom.com/wiki/Rotten_Wasteland' },
+    desc:'Hunt de alto risco dentro da Soulwar — jogadores vão com 750+. Plaguesmiths são extremamente perigosos. Requer Feaster of Souls Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Rotten_Wasteland' },
 
   // ── END GAME (250+) ───────────────────────────────
   // Cobra Vizier: 4800xp, Assassin: 3500xp — difícil, range 250-450
@@ -2705,11 +2705,11 @@ const HUNTS = [
     desc:'Imbue de bota powerful T3. The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Dream_Courts' },
 
   // Burster/Gazer/Ripper Spectre: 3000-4500xp — médio, range 220-400
-  { name:'Grave Danger', xphNum:2100, minLvl:220, maxLvl:400,
+  { name:'Haunted Houses', xphNum:2100, minLvl:220, maxLvl:400,
     vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit', dif:'medio', task:false,
     req:'Grave Danger Quest',
     creatures:[{n:'Burster Spectre'},{n:'Gazer Spectre'},{n:'Ripper Spectre'}],
-    desc:'Rotação de boss diária. Melhor profit da faixa 250–400. Grave Danger Quest.', wiki:'https://tibia.fandom.com/wiki/Grave_Danger' },
+    desc:'Rotação de boss diária com Spectres. Melhor profit da faixa 250–400. Grave Danger Quest.', wiki:'https://www.tibiawiki.com.br/index.php?title=The_Haunted_Houses' },
 
   // Grimeleech: 6800xp, Vexclaw: 5500xp, Hellflayer: 6500xp — difícil, range 280-500
   { name:'Heart of Destruction', xphNum:3600, minLvl:280, maxLvl:500,
@@ -2895,6 +2895,231 @@ const HUNTS = [
     tibiaroute:'Bashmu',
     creatures:[{n:'Bashmu'},{n:'Juvenile Bashmu'}],
     desc:'Criaturas Bashmu de alto nível. Excelente bestiary. Sem quest obrigatória.', wiki:'https://tibia.fandom.com/wiki/Bashmu' },
+  // ── HUNTS CALIBRADAS DO INTIBIA (EK Solo 241) ──────────────────────────
+  // Página 1 intibia
+
+  // The Barkless: criaturas do mundo Gnome, minLvl 150
+  { name:'The Barkless', xphNum:2100, minLvl:150, maxLvl:320,
+    vocs:['ek'], modes:['solo'], xph:'1kk–3kk', profit:'-200k a -50k', tipo:'xp', dif:'dificil', task:false,
+    req:'Cults of Tibia Quest',
+    creatures:[{n:'Barkless Fanatic'},{n:'Barkless Devotee'}],
+    desc:'Área dos Barkless do conteúdo Cults of Tibia. Alto XP mas waste considerável. Requer Cults of Tibia Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Cults_of_Tibia_(The_Barkless)' },
+
+  // Razachai: Draken Warmaster/Spellweaver, minLvl 150
+  { name:'Razachai', xphNum:1600, minLvl:150, maxLvl:280,
+    vocs:['ek'], modes:['solo'], xph:'1.2kk–1.7kk', profit:'150k–350k', tipo:'profit', dif:'medio', task:true,
+    req:'New Frontier + Children of the Revolution',
+    creatures:[{n:'Draken Warmaster'},{n:'Draken Spellweaver'},{n:'Draken Elite'}],
+    desc:'Hunt de Drakens dentro de Razachai. Bom profit e bestiary.', wiki:'https://tibia.fandom.com/wiki/Razachai' },
+
+  // Drefia Wyrm Lair: Wyrm, minLvl 180
+  { name:'Drefia Wyrm Lair', xphNum:1400, minLvl:180, maxLvl:320,
+    vocs:['ek'], modes:['solo'], xph:'1kk–1.6kk', profit:'150k–250k', tipo:'profit', dif:'medio', task:true,
+    req:'',
+    creatures:[{n:'Wyrm'},{n:'Dragon Lord'}],
+    desc:'Wyrms e Dragon Lords em Drefia. Profit consistente.', wiki:'https://tibia.fandom.com/wiki/Drefia' },
+
+  // Exotic Cave: criaturas exóticas, minLvl 130
+  { name:'Exotic Cave', xphNum:1200, minLvl:130, maxLvl:260,
+    vocs:['ek'], modes:['solo'], xph:'900k–1.4kk', profit:'75k–185k', tipo:'profit', dif:'medio', task:true,
+    req:'',
+    creatures:[{n:'Exotic Bat'},{n:'Exotic Cave Spider'}],
+    desc:'Caverna com criaturas exóticas. Bom para bestiary.', wiki:'https://tibia.fandom.com/wiki/Exotic_Cave' },
+
+  // Página 2 intibia
+
+  // Minotaurs Cult Cave: Minotaur Cult Follower/Prophet, minLvl 150
+  { name:'Minotaurs Cult Cave', xphNum:900, minLvl:150, maxLvl:280,
+    vocs:['ek'], modes:['solo'], xph:'600k–900k', profit:'250k–600k', tipo:'profit', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Minotaur Cult Follower'},{n:'Minotaur Cult Prophet'},{n:'Minotaur Cult Zealot'}],
+    desc:'Minotauros de culto com profit sólido.', wiki:'https://tibia.fandom.com/wiki/Minotaur_Cult_Cave' },
+
+  // Feyrist Meadows: Swan Maiden/Pixie/Nymph, minLvl 140
+  { name:'Feyrist Meadows', xphNum:850, minLvl:140, maxLvl:260,
+    vocs:['ek'], modes:['solo'], xph:'530k–800k', profit:'50k–250k', tipo:'xp', dif:'facil', task:true,
+    req:'Threatened Dreams Quest',
+    creatures:[{n:'Swan Maiden'},{n:'Pixie'},{n:'Nymph'}],
+    desc:'Área externa de Feyrist. Boa para bestiary. Threatened Dreams Quest.', wiki:'https://tibia.fandom.com/wiki/Feyrist' },
+
+  // Yielothax Dimension: Yielothax, minLvl 90
+  { name:'Yielothax Dimension', xphNum:800, minLvl:90, maxLvl:200,
+    vocs:['ek'], modes:['solo'], xph:'500k–800k', profit:'50k–150k', tipo:'xp', dif:'medio', task:true,
+    req:'',
+    creatures:[{n:'Yielothax'}],
+    desc:'Dimensão dos Yielothax. Bestiary interessante.', wiki:'https://tibia.fandom.com/wiki/Yielothax' },
+
+  // Krailos Ruins: Ogre/Mutated Tiger, minLvl 80
+  { name:'Krailos Ruins', xphNum:750, minLvl:80, maxLvl:180,
+    vocs:['ek'], modes:['solo'], xph:'700k–800k', profit:'10k–100k', tipo:'xp', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Ogre Rowdy'},{n:'Mutated Tiger'},{n:'Hyaena'}],
+    desc:'Hunt em Krailos com ogres e felinos.', wiki:'https://tibia.fandom.com/wiki/Krailos' },
+
+  // Factory Quarter: Warped creatures, minLvl 180
+  { name:'Factory Quarter', xphNum:900, minLvl:180, maxLvl:320,
+    vocs:['ek'], modes:['solo'], xph:'600k–800k', profit:'250k–400k', tipo:'profit', dif:'medio', task:true,
+    req:'',
+    creatures:[{n:'Warped Siren'},{n:'Warped Cow'},{n:'Warped Duelist'}],
+    desc:'Criaturas Warped na Factory Quarter. Profit e bestiary sólidos.', wiki:'https://tibia.fandom.com/wiki/Factory_Quarter' },
+
+  // Carlin Forbidden Temple: Vampires/Warlocks, minLvl 80
+  { name:'Carlin Forbidden Temple', xphNum:700, minLvl:80, maxLvl:180,
+    vocs:['ek'], modes:['solo'], xph:'450k–700k', profit:'-70k a 50k', tipo:'xp', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Vampire'},{n:'Warlock'}],
+    desc:'Templo Proibido de Carlin. Hunt clássica para níveis médios.', wiki:'https://tibia.fandom.com/wiki/Carlin_Forbidden_Temple' },
+
+  // Página 3 intibia
+
+  // Old Fortress: Dwarf/Goblin Scavengers, minLvl 130
+  { name:'Old Fortress', xphNum:550, minLvl:130, maxLvl:260,
+    vocs:['ek'], modes:['solo'], xph:'400k–650k', profit:'0 a 20k', tipo:'xp', dif:'medio', task:true,
+    req:'',
+    creatures:[{n:'Silencer'},{n:'Midnight Warrior'},{n:'Dream Scar'}],
+    desc:'Old Fortress com criaturas de médio nível.', wiki:'https://tibia.fandom.com/wiki/Old_Fortress' },
+
+  // Caverna Exanima: Spider/Scorpion creatures, minLvl 90
+  { name:'Caverna Exanima', xphNum:450, minLvl:90, maxLvl:180,
+    vocs:['ek'], modes:['solo'], xph:'360k–460k', profit:'30k–300k', tipo:'profit', dif:'medio', task:true,
+    req:'',
+    creatures:[{n:'Exanimated'},{n:'Dread Intruder'}],
+    desc:'Caverna Exanima. Profit interessante para o nível.', wiki:'https://tibia.fandom.com/wiki/Exanima' },
+
+  // Horestis Tomb: Mummies/Scorpions, minLvl 100
+  { name:'Horestis Tomb', xphNum:320, minLvl:100, maxLvl:200,
+    vocs:['ek'], modes:['solo'], xph:'200k–350k', profit:'0 a 100k', tipo:'xp', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Sandstone Scorpion'},{n:'Stone Devourer'},{n:'Bog Raider'}],
+    desc:'Túmulo de Horestis com criaturas do deserto.', wiki:'https://tibia.fandom.com/wiki/Horestis_Tomb' },
+
+  // Sea Serpent North Area: minLvl 90
+  { name:'Sea Serpent North Area', xphNum:420, minLvl:90, maxLvl:180,
+    vocs:['ek'], modes:['solo'], xph:'250k–400k', profit:'5k–25k', tipo:'xp', dif:'medio', task:true,
+    req:'Hunt for the Sea Serpent Quest',
+    creatures:[{n:'Sea Serpent'},{n:'Young Sea Serpent'}],
+    desc:'Área norte com Sea Serpents. Hunt for the Sea Serpent Quest.', wiki:'https://tibia.fandom.com/wiki/Sea_Serpent_Area_(North)' },
+
+  // Página 4 intibia
+
+  // Krailos Spider Lair: minLvl 100
+  { name:'Krailos Spider Lair', xphNum:230, minLvl:100, maxLvl:200,
+    vocs:['ek'], modes:['solo'], xph:'150k–250k', profit:'0 a 20k', tipo:'xp', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Mutated Rat'},{n:'Killer Caiman'},{n:'Giant Spider'}],
+    desc:'Toca das aranhas em Krailos.', wiki:'https://tibia.fandom.com/wiki/Krailos' },
+
+  // Drillworm Cave: minLvl 100
+  { name:'Drillworm Cave', xphNum:250, minLvl:100, maxLvl:200,
+    vocs:['ek'], modes:['solo'], xph:'180k–250k', profit:'20k–60k', tipo:'xp', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Drillworm'},{n:'Gorzindel'}],
+    desc:'Caverna dos Drillworms. Hunt tranquila para médio nível.', wiki:'https://tibia.fandom.com/wiki/Drillworm_Cave' },
+
+  // Venore Dragon Lair: minLvl 35
+  { name:'Venore Dragon Lair', xphNum:160, minLvl:35, maxLvl:100,
+    vocs:['ek'], modes:['solo'], xph:'100k–130k', profit:'-1k a 1k', tipo:'xp', dif:'medio', task:true,
+    req:'',
+    creatures:[{n:'Dragon'},{n:'Dragon Hatchling'}],
+    desc:'Clássico da Venore. Dragon Loot e bestiary.', wiki:'https://tibia.fandom.com/wiki/Venore_Dragon_Lair' },
+
+  // Krimhorn Barbarian Camp: minLvl 20
+  { name:'Krimhorn Barbarian Camp', xphNum:110, minLvl:20, maxLvl:80,
+    vocs:['ek'], modes:['solo'], xph:'85k–115k', profit:'0 a 6k', tipo:'xp', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Barbarian Bloodwalker'},{n:'Barbarian Headsplitter'},{n:'Barbarian Skullhunter'}],
+    desc:'Camp bárbaro em Krimhorn. Hunt de baixo nível.', wiki:'https://tibia.fandom.com/wiki/Krimhorn' },
+
+  // Página 5 intibia
+
+  // Corym Black Market: minLvl 35
+  { name:'Corym Black Market', xphNum:110, minLvl:35, maxLvl:100,
+    vocs:['ek'], modes:['solo'], xph:'90k–110k', profit:'-10k a 5k', tipo:'xp', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Corym Charlatan'},{n:'Corym Skirmisher'},{n:'Corym Vanguard'}],
+    desc:'Mercado negro dos Coryms.', wiki:'https://tibia.fandom.com/wiki/Corym_Black_Market' },
+
+  // Forest Fury Camp: minLvl 25
+  { name:'Forest Fury Camp', xphNum:90, minLvl:25, maxLvl:80,
+    vocs:['ek'], modes:['solo'], xph:'65k–90k', profit:'15k–50k', tipo:'profit', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Forest Fury'},{n:'Mutated Tiger'}],
+    desc:'Acampamento dos Forest Fury. Hunt acessível de baixo nível.', wiki:'https://tibia.fandom.com/wiki/Forest_Fury' },
+
+  // Nargor: pirates, minLvl 50
+  { name:'Nargor', xphNum:90, minLvl:50, maxLvl:120,
+    vocs:['ek'], modes:['solo'], xph:'70k–90k', profit:'10k–25k', tipo:'xp', dif:'facil', task:true,
+    req:'The Shattered Isles Quest',
+    creatures:[{n:'Pirate Buccaneer'},{n:'Pirate Corsair'},{n:'Parrot'}],
+    desc:'Ilha pirata de Nargor. The Shattered Isles Quest.', wiki:'https://tibia.fandom.com/wiki/Nargor' },
+
+  // Mistrock: Cyclops, minLvl 8
+  { name:'Mistrock', xphNum:75, minLvl:8, maxLvl:60,
+    vocs:['ek'], modes:['solo'], xph:'50k–80k', profit:'-9k a -4k', tipo:'xp', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Cyclops'},{n:'Cyclops Drone'},{n:'Cyclops Smith'}],
+    desc:'Ilha de Mistrock com Cyclops. Hunt inicial.', wiki:'https://tibia.fandom.com/wiki/Mistrock' },
+
+  // Página 6 intibia
+
+  // Magician Quarter: Red/Green Dragon, minLvl 60
+  { name:'Magician Quarter', xphNum:70, minLvl:60, maxLvl:140,
+    vocs:['ek'], modes:['solo'], xph:'50k–70k', profit:'15k–30k', tipo:'xp', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Lizard Chosen'},{n:'Lizard Dragon Priest'},{n:'Lizard Zaogun'}],
+    desc:'Bairro dos Magos em Yalahar. Lizards e profit moderado.', wiki:'https://tibia.fandom.com/wiki/Magician_Quarter' },
+
+  // Orc Fortress: minLvl 45
+  { name:'Orc Fortress', xphNum:55, minLvl:45, maxLvl:120,
+    vocs:['ek'], modes:['solo'], xph:'25k–60k', profit:'-5k a 10k', tipo:'xp', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Orc Leader'},{n:'Orc Warlord'},{n:'Orc Rider'}],
+    desc:'Fortaleza dos Orcs. Bestiary e hunt clássica.', wiki:'https://tibia.fandom.com/wiki/Orc_Fortress' },
+
+  // Fenrock: minLvl 13
+  { name:'Fenrock', xphNum:35, minLvl:13, maxLvl:60,
+    vocs:['ek'], modes:['solo'], xph:'15k–45k', profit:'5k–100k', tipo:'profit', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Lizard Sentinel'},{n:'Lizard Snakecharmer'},{n:'Dragon Lord'}],
+    desc:'Hunt inicial com Lizards e Dragons.', wiki:'https://tibia.fandom.com/wiki/Fenrock' },
+
+  // Venore Salamander Cave: minLvl 20
+  { name:'Venore Salamander Cave', xphNum:40, minLvl:20, maxLvl:80,
+    vocs:['ek'], modes:['solo'], xph:'25k–45k', profit:'30k–60k', tipo:'profit', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Fire Salamander'},{n:'Fire Devil'}],
+    desc:'Caverna das salamandras. Bom profit para iniciantes.', wiki:'https://tibia.fandom.com/wiki/Venore_Salamander_Cave' },
+
+  // East Larva Cave: minLvl 15
+  { name:'East Larva Cave', xphNum:25, minLvl:15, maxLvl:60,
+    vocs:['ek'], modes:['solo'], xph:'15k–35k', profit:'1k–4k', tipo:'xp', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Larva'},{n:'Carrion Worm'},{n:'Stone Golem'}],
+    desc:'Caverna das larvas a leste. Hunt de iniciante.', wiki:'https://tibia.fandom.com/wiki/East_Larva_Cave' },
+
+  // Página 7 intibia
+
+  // Tiquanda Crustacean Caves: minLvl 15
+  { name:'Tiquanda Crustacean Caves', xphNum:18, minLvl:15, maxLvl:60,
+    vocs:['ek'], modes:['solo'], xph:'10k–23k', profit:'5k–10k', tipo:'xp', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Crab'},{n:'Scorpion'},{n:'Water Elemental'}],
+    desc:'Cavernas de crustáceos em Tiquanda.', wiki:'https://tibia.fandom.com/wiki/Tiquanda' },
+
+  // Nomad Cave: minLvl 15
+  { name:'Nomad Cave', xphNum:20, minLvl:15, maxLvl:60,
+    vocs:['ek'], modes:['solo'], xph:'15k–20k', profit:'30k–40k', tipo:'profit', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Nomad'},{n:'Nomad (Blue)'}],
+    desc:'Caverna dos Nomads. Bestiary fácil e rápido.', wiki:'https://tibia.fandom.com/wiki/Nomad_Cave' },
+
+  // Venore Rotworm Cave: minLvl 8
+  { name:'Venore Rotworm Cave', xphNum:12, minLvl:8, maxLvl:40,
+    vocs:['ek'], modes:['solo'], xph:'8k–12k', profit:'1k–1.5k', tipo:'xp', dif:'facil', task:true,
+    req:'',
+    creatures:[{n:'Rotworm'},{n:'Carrion Worm'}],
+    desc:'Caverna clássica para iniciantes em Venore.', wiki:'https://tibia.fandom.com/wiki/Venore_Rotworm_Cave' },
+
 ];
 
 // Map API vocation to internal key
@@ -3329,6 +3554,12 @@ function showPage(id, btn) {
 
 function triggerReveal() {
   const els = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);} });
+  }, {threshold:0.05});
+  els.forEach(el => { el.classList.remove('visible'); obs.observe(el); });
+}
+
 // ─── Lazy load de imagens de itens ────────────────────────────────
 function initItemImgLazy(selector) {
   const imgs = document.querySelectorAll(selector + ' [data-lazy-item]');
@@ -3343,12 +3574,6 @@ function initItemImgLazy(selector) {
     }
   }, { rootMargin: '200px' });
   imgs.forEach(img => obs.observe(img));
-}
-
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);} });
-  }, {threshold:0.05});
-  els.forEach(el => { el.classList.remove('visible'); obs.observe(el); });
 }
 
 // ══════════════════════════════════════════════════
@@ -4491,7 +4716,7 @@ function filterDelivery() {
 
   const count = document.getElementById('dt-count');
   if (count) count.textContent = `${dtFiltered.length} item${dtFiltered.length!==1?'s':''}`;
-  renderDeliveryTable(); initItemImgLazy('#dt-body');
+  renderDeliveryTable(); setTimeout(() => initItemImgLazy('#dt-body'), 50);
 }
 
 function renderDelivery() {
@@ -4525,7 +4750,7 @@ function renderDelivery() {
   dtFiltered = [...DELIVERY_ITEMS].sort((a,b) => a.n.localeCompare(b.n));
   const count = document.getElementById('dt-count');
   if (count) count.textContent = `${dtFiltered.length} itens`;
-  renderDeliveryTable(); initItemImgLazy('#dt-body');
+  renderDeliveryTable(); setTimeout(() => initItemImgLazy('#dt-body'), 50);
 }
 
 function renderDeliveryTable() {
