@@ -1030,6 +1030,16 @@ async function tibiaFetch(path) {
     </div>
   </section>
 
+  <!-- Hunt Detail Modal -->
+  <div id="hf-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:1rem"
+       onclick="if(event.target===this)closeHuntModal()">
+    <div style="position:absolute;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)"></div>
+    <div style="position:relative;background:var(--bg-1);border:1px solid var(--border-2);border-radius:14px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:1.5rem;z-index:1">
+      <button onclick="closeHuntModal()" style="position:sticky;top:0;float:right;background:var(--bg-3);border:1px solid var(--border);color:var(--ink-2);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.85rem;margin-bottom:.5rem">✕</button>
+      <div id="hf-modal-body"></div>
+    </div>
+  </div>
+
   <!-- ─── QUEST GUIDE ─── -->
   <section class="page-section" id="quests">
     <h2 class="sec-title">Guia de Quests</h2>
@@ -1909,91 +1919,91 @@ const IMBU_ALL = [
     icon:IMBU_ICONS['vampirism'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Life Leech',
-        items:[{n:'Vampire Teeth',q:25,u:'https://static.tibia.com/images/library/Vampire_Teeth.gif'}],
+        items:[{n:'Vampire Teeth',q:25}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+10% Life Leech',
-        items:[{n:'Vampire Teeth',q:25,u:'https://static.tibia.com/images/library/Vampire_Teeth.gif'},{n:'Bloody Pincers',q:15,u:'https://static.tibia.com/images/library/Bloody_Pincers.gif'}],
+        items:[{n:'Vampire Teeth',q:25},{n:'Bloody Pincers',q:15}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+25% Life Leech',
-        items:[{n:'Vampire Teeth',q:25,u:'https://static.tibia.com/images/library/Vampire_Teeth.gif'},{n:'Bloody Pincers',q:15,u:'https://static.tibia.com/images/library/Bloody_Pincers.gif'},{n:'Piece of Dead Brain',q:5,u:'https://static.tibia.com/images/library/Piece_of_Dead_Brain.gif'}],
+        items:[{n:'Vampire Teeth',q:25},{n:'Bloody Pincers',q:15},{n:'Piece of Dead Brain',q:5}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'void', cat:'leech', name:'Void', desc:'Roubo de Mana — recupera MP pelo dano causado',
     icon:IMBU_ICONS['void'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Mana Leech',
-        items:[{n:'Rope Belt',q:25,u:'https://static.tibia.com/images/library/Rope_Belt.gif'}],
+        items:[{n:'Rope Belt',q:25}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+10% Mana Leech',
-        items:[{n:'Rope Belt',q:25,u:'https://static.tibia.com/images/library/Rope_Belt.gif'},{n:'Silencer Claws',q:25,u:'https://static.tibia.com/images/library/Silencer_Claws.gif'}],
+        items:[{n:'Rope Belt',q:25},{n:'Silencer Claws',q:25}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+25% Mana Leech',
-        items:[{n:'Rope Belt',q:25,u:'https://static.tibia.com/images/library/Rope_Belt.gif'},{n:'Silencer Claws',q:25,u:'https://static.tibia.com/images/library/Silencer_Claws.gif'},{n:'Some Grimeleech Wings',q:5,u:'https://static.tibia.com/images/library/Some_Grimeleech_Wings.gif'}],
+        items:[{n:'Rope Belt',q:25},{n:'Silencer Claws',q:25},{n:'Some Grimeleech Wings',q:5}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'strike', cat:'crit', name:'Strike', desc:'Dano Crítico — chance de golpe crítico com dano aumentado',
     icon:IMBU_ICONS['strike'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'Crit +15% dmg, 5% chance',
-        items:[{n:'Protective Charm',q:20,u:'https://static.tibia.com/images/library/Protective_Charm.gif'}],
+        items:[{n:'Protective Charm',q:20}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'Crit +25% dmg, 8% chance',
-        items:[{n:'Protective Charm',q:20,u:'https://static.tibia.com/images/library/Protective_Charm.gif'},{n:'Sabretooth',q:25,u:'https://static.tibia.com/images/library/Sabretooth.gif'}],
+        items:[{n:'Protective Charm',q:20},{n:'Sabretooth',q:25}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'Crit +50% dmg, 10% chance',
-        items:[{n:'Protective Charm',q:20,u:'https://static.tibia.com/images/library/Protective_Charm.gif'},{n:'Sabretooth',q:25,u:'https://static.tibia.com/images/library/Sabretooth.gif'},{n:'Vexclaw Talon',q:5,u:'https://static.tibia.com/images/library/Vexclaw_Talon.gif'}],
+        items:[{n:'Protective Charm',q:20},{n:'Sabretooth',q:25},{n:'Vexclaw Talon',q:5}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'precision', cat:'crit', name:'Precision', desc:'Skillboost de Distância',
     icon:IMBU_ICONS['precision'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+1 Dist. Fighting',
-        items:[{n:'Elven Scouting Glass',q:25,u:'https://static.tibia.com/images/library/Elven_Scouting_Glass.gif'}],
+        items:[{n:'Elven Scouting Glass',q:25}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+2 Dist. Fighting',
-        items:[{n:'Elven Scouting Glass',q:25,u:'https://static.tibia.com/images/library/Elven_Scouting_Glass.gif'},{n:'Elven Hoof',q:20,u:'https://static.tibia.com/images/library/Elven_Hoof.gif'}],
+        items:[{n:'Elven Scouting Glass',q:25},{n:'Elven Hoof',q:20}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+4 Dist. Fighting',
-        items:[{n:'Elven Scouting Glass',q:25,u:'https://static.tibia.com/images/library/Elven_Scouting_Glass.gif'},{n:'Elven Hoof',q:20,u:'https://static.tibia.com/images/library/Elven_Hoof.gif'},{n:'Metal Spike',q:10,u:'https://static.tibia.com/images/library/Metal_Spike.gif'}],
+        items:[{n:'Elven Scouting Glass',q:25},{n:'Elven Hoof',q:20},{n:'Metal Spike',q:10}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'swiftness', cat:'util', name:'Swiftness', desc:'Skillboost de Velocidade',
     icon:IMBU_ICONS['swiftness'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+10 Speed',
-        items:[{n:'Damselfly Wing',q:15,u:'https://static.tibia.com/images/library/Damselfly_Wing.gif'}],
+        items:[{n:'Damselfly Wing',q:15}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+20 Speed',
-        items:[{n:'Damselfly Wing',q:15,u:'https://static.tibia.com/images/library/Damselfly_Wing.gif'},{n:'Compass',q:25,u:'https://static.tibia.com/images/library/Compass.gif'}],
+        items:[{n:'Damselfly Wing',q:15},{n:'Compass',q:25}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+30 Speed',
-        items:[{n:'Damselfly Wing',q:15,u:'https://static.tibia.com/images/library/Damselfly_Wing.gif'},{n:'Compass',q:25,u:'https://static.tibia.com/images/library/Compass.gif'},{n:'Waspoid Wing',q:20,u:'https://static.tibia.com/images/library/Waspoid_Wing.gif'}],
+        items:[{n:'Damselfly Wing',q:15},{n:'Compass',q:25},{n:'Waspoid Wing',q:20}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'featherweight', cat:'util', name:'Featherweight', desc:'Aumento de Capacidade',
     icon:IMBU_ICONS['featherweight'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+100 Capacity',
-        items:[{n:'Fairy Wings',q:20,u:'https://static.tibia.com/images/library/Fairy_Wings.gif'}],
+        items:[{n:'Fairy Wings',q:20}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+200 Capacity',
-        items:[{n:'Fairy Wings',q:20,u:'https://static.tibia.com/images/library/Fairy_Wings.gif'},{n:'Little Bowl of Myrrh',q:10,u:'https://static.tibia.com/images/library/Little_Bowl_of_Myrrh.gif'}],
+        items:[{n:'Fairy Wings',q:20},{n:'Little Bowl of Myrrh',q:10}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+300 Capacity',
-        items:[{n:'Fairy Wings',q:20,u:'https://static.tibia.com/images/library/Fairy_Wings.gif'},{n:'Little Bowl of Myrrh',q:10,u:'https://static.tibia.com/images/library/Little_Bowl_of_Myrrh.gif'},{n:'Goosebump Leather',q:5,u:'https://static.tibia.com/images/library/Goosebump_Leather.gif'}],
+        items:[{n:'Fairy Wings',q:20},{n:'Little Bowl of Myrrh',q:10},{n:'Goosebump Leather',q:5}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'vibrancy', cat:'util', name:'Vibrancy', desc:'Remoção de Paralisia',
     icon:IMBU_ICONS['vibrancy'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'Remove Paralisia (1x)',
-        items:[{n:'Wereboar Hooves',q:20,u:'https://static.tibia.com/images/library/Wereboar_Hooves.gif'}],
+        items:[{n:'Wereboar Hooves',q:20}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'Remove Paralisia (2x)',
-        items:[{n:'Wereboar Hooves',q:20,u:'https://static.tibia.com/images/library/Wereboar_Hooves.gif'},{n:'Crystallized Anger',q:15,u:'https://static.tibia.com/images/library/Crystallized_Anger.gif'}],
+        items:[{n:'Wereboar Hooves',q:20},{n:'Crystallized Anger',q:15}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'Remove Paralisia (3x)',
-        items:[{n:'Wereboar Hooves',q:20,u:'https://static.tibia.com/images/library/Wereboar_Hooves.gif'},{n:'Crystallized Anger',q:15,u:'https://static.tibia.com/images/library/Crystallized_Anger.gif'},{n:'Quill',q:5,u:'https://static.tibia.com/images/library/Quill.gif'}],
+        items:[{n:'Wereboar Hooves',q:20},{n:'Crystallized Anger',q:15},{n:'Quill',q:5}],
         gold1:20000, gold20:100000 },
     ]},
   // ── PROTEÇÃO ELEMENTAL ────────────────────────────────
@@ -2001,78 +2011,78 @@ const IMBU_ALL = [
     icon:IMBU_ICONS['lich'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+3% Death Protection',
-        items:[{n:'Flask of Embalming Fluid',q:25,u:'https://static.tibia.com/images/library/Flask_of_Embalming_Fluid.gif'}],
+        items:[{n:'Flask of Embalming Fluid',q:25}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+5% Death Protection',
-        items:[{n:'Flask of Embalming Fluid',q:25,u:'https://static.tibia.com/images/library/Flask_of_Embalming_Fluid.gif'},{n:'Gloom Wolf Fur',q:20,u:'https://static.tibia.com/images/library/Gloom_Wolf_Fur.gif'}],
+        items:[{n:'Flask of Embalming Fluid',q:25},{n:'Gloom Wolf Fur',q:20}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+8% Death Protection',
-        items:[{n:'Flask of Embalming Fluid',q:25,u:'https://static.tibia.com/images/library/Flask_of_Embalming_Fluid.gif'},{n:'Gloom Wolf Fur',q:20,u:'https://static.tibia.com/images/library/Gloom_Wolf_Fur.gif'},{n:'Mystical Hourglass',q:5,u:'https://static.tibia.com/images/library/Mystical_Hourglass.gif'}],
+        items:[{n:'Flask of Embalming Fluid',q:25},{n:'Gloom Wolf Fur',q:20},{n:'Mystical Hourglass',q:5}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'snakeskin', cat:'prot', name:'Snake Skin', desc:'Proteção de Terra',
     icon:IMBU_ICONS['snakeskin'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+3% Earth Protection',
-        items:[{n:'Piece of Swampling Wood',q:25,u:'https://static.tibia.com/images/library/Piece_of_Swampling_Wood.gif'}],
+        items:[{n:'Piece of Swampling Wood',q:25}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+5% Earth Protection',
-        items:[{n:'Piece of Swampling Wood',q:25,u:'https://static.tibia.com/images/library/Piece_of_Swampling_Wood.gif'},{n:'Snake Skin',q:20,u:'https://static.tibia.com/images/library/Snake_Skin.gif'}],
+        items:[{n:'Piece of Swampling Wood',q:25},{n:'Snake Skin',q:20}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+8% Earth Protection',
-        items:[{n:'Piece of Swampling Wood',q:25,u:'https://static.tibia.com/images/library/Piece_of_Swampling_Wood.gif'},{n:'Snake Skin',q:20,u:'https://static.tibia.com/images/library/Snake_Skin.gif'},{n:'Brimstone Fangs',q:10,u:'https://static.tibia.com/images/library/Brimstone_Fangs.gif'}],
+        items:[{n:'Piece of Swampling Wood',q:25},{n:'Snake Skin',q:20},{n:'Brimstone Fangs',q:10}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'dragonhide', cat:'prot', name:'Dragon Hide', desc:'Proteção de Fogo',
     icon:IMBU_ICONS['dragonhide'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+3% Fire Protection',
-        items:[{n:'Green Dragon Leather',q:20,u:'https://static.tibia.com/images/library/Green_Dragon_Leather.gif'}],
+        items:[{n:'Green Dragon Leather',q:20}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+5% Fire Protection',
-        items:[{n:'Green Dragon Leather',q:20,u:'https://static.tibia.com/images/library/Green_Dragon_Leather.gif'},{n:'Blazing Bone',q:10,u:'https://static.tibia.com/images/library/Blazing_Bone.gif'}],
+        items:[{n:'Green Dragon Leather',q:20},{n:'Blazing Bone',q:10}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+8% Fire Protection',
-        items:[{n:'Green Dragon Leather',q:20,u:'https://static.tibia.com/images/library/Green_Dragon_Leather.gif'},{n:'Blazing Bone',q:10,u:'https://static.tibia.com/images/library/Blazing_Bone.gif'},{n:'Draken Sulphur',q:5,u:'https://static.tibia.com/images/library/Draken_Sulphur.gif'}],
+        items:[{n:'Green Dragon Leather',q:20},{n:'Blazing Bone',q:10},{n:'Draken Sulphur',q:5}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'cloud', cat:'prot', name:'Cloud Fabric', desc:'Proteção de Energia',
     icon:IMBU_ICONS['cloud'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+3% Energy Protection',
-        items:[{n:'Wyvern Talisman',q:20,u:'https://static.tibia.com/images/library/Wyvern_Talisman.gif'}],
+        items:[{n:'Wyvern Talisman',q:20}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+5% Energy Protection',
-        items:[{n:'Wyvern Talisman',q:20,u:'https://static.tibia.com/images/library/Wyvern_Talisman.gif'},{n:'Crawler Head Plating',q:15,u:'https://static.tibia.com/images/library/Crawler_Head_Plating.gif'}],
+        items:[{n:'Wyvern Talisman',q:20},{n:'Crawler Head Plating',q:15}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+8% Energy Protection',
-        items:[{n:'Wyvern Talisman',q:20,u:'https://static.tibia.com/images/library/Wyvern_Talisman.gif'},{n:'Crawler Head Plating',q:15,u:'https://static.tibia.com/images/library/Crawler_Head_Plating.gif'},{n:'Wyrm Scale',q:10,u:'https://static.tibia.com/images/library/Wyrm_Scale.gif'}],
+        items:[{n:'Wyvern Talisman',q:20},{n:'Crawler Head Plating',q:15},{n:'Wyrm Scale',q:10}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'demon', cat:'prot', name:'Demon Presence', desc:'Proteção de Sagrado',
     icon:IMBU_ICONS['demon'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+3% Holy Protection',
-        items:[{n:'Cultish Robe',q:25,u:'https://static.tibia.com/images/library/Cultish_Robe.gif'}],
+        items:[{n:'Cultish Robe',q:25}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+5% Holy Protection',
-        items:[{n:'Cultish Robe',q:25,u:'https://static.tibia.com/images/library/Cultish_Robe.gif'},{n:'Cultish Mask',q:25,u:'https://static.tibia.com/images/library/Cultish_Mask.gif'}],
+        items:[{n:'Cultish Robe',q:25},{n:'Cultish Mask',q:25}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+8% Holy Protection',
-        items:[{n:'Cultish Robe',q:25,u:'https://static.tibia.com/images/library/Cultish_Robe.gif'},{n:'Cultish Mask',q:25,u:'https://static.tibia.com/images/library/Cultish_Mask.gif'},{n:'Hellspawn Tail',q:20,u:'https://static.tibia.com/images/library/Hellspawn_Tail.gif'}],
+        items:[{n:'Cultish Robe',q:25},{n:'Cultish Mask',q:25},{n:'Hellspawn Tail',q:20}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'blockade', cat:'prot', name:'Blockade', desc:'Proteção de Gelo',
     icon:IMBU_ICONS['blockade'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+3% Ice Protection',
-        items:[{n:'Winter Wolf Fur',q:25,u:'https://static.tibia.com/images/library/Winter_Wolf_Fur.gif'}],
+        items:[{n:'Winter Wolf Fur',q:25}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+5% Ice Protection',
-        items:[{n:'Winter Wolf Fur',q:25,u:'https://static.tibia.com/images/library/Winter_Wolf_Fur.gif'},{n:'Thick Fur',q:15,u:'https://static.tibia.com/images/library/Thick_Fur.gif'}],
+        items:[{n:'Winter Wolf Fur',q:25},{n:'Thick Fur',q:15}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+8% Ice Protection',
-        items:[{n:'Winter Wolf Fur',q:25,u:'https://static.tibia.com/images/library/Winter_Wolf_Fur.gif'},{n:'Thick Fur',q:15,u:'https://static.tibia.com/images/library/Thick_Fur.gif'},{n:'Deepling Warts',q:10,u:'https://static.tibia.com/images/library/Deepling_Warts.gif'}],
+        items:[{n:'Winter Wolf Fur',q:25},{n:'Thick Fur',q:15},{n:'Deepling Warts',q:10}],
         gold1:20000, gold20:100000 },
     ]},
   // ── DANO ELEMENTAL ───────────────────────────────────
@@ -2080,65 +2090,65 @@ const IMBU_ALL = [
     icon:IMBU_ICONS['reap'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Death Dmg',
-        items:[{n:'Pile of Grave Earth',q:25,u:'https://static.tibia.com/images/library/Pile_of_Grave_Earth.gif'}],
+        items:[{n:'Pile of Grave Earth',q:25}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+9% Death Dmg',
-        items:[{n:'Pile of Grave Earth',q:25,u:'https://static.tibia.com/images/library/Pile_of_Grave_Earth.gif'},{n:'Demonic Skeletal Hand',q:20,u:'https://static.tibia.com/images/library/Demonic_Skeletal_Hand.gif'}],
+        items:[{n:'Pile of Grave Earth',q:25},{n:'Demonic Skeletal Hand',q:20}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+12% Death Dmg',
-        items:[{n:'Pile of Grave Earth',q:25,u:'https://static.tibia.com/images/library/Pile_of_Grave_Earth.gif'},{n:'Demonic Skeletal Hand',q:20,u:'https://static.tibia.com/images/library/Demonic_Skeletal_Hand.gif'},{n:'Petrified Scream',q:5,u:'https://static.tibia.com/images/library/Petrified_Scream.gif'}],
+        items:[{n:'Pile of Grave Earth',q:25},{n:'Demonic Skeletal Hand',q:20},{n:'Petrified Scream',q:5}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'electrify', cat:'dmg', name:'Electrify', desc:'Dano de Energia',
     icon:IMBU_ICONS['electrify'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Energy Dmg',
-        items:[{n:'Rorc Feather',q:25,u:'https://static.tibia.com/images/library/Rorc_Feather.gif'}],
+        items:[{n:'Rorc Feather',q:25}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+9% Energy Dmg',
-        items:[{n:'Rorc Feather',q:25,u:'https://static.tibia.com/images/library/Rorc_Feather.gif'},{n:'Peacock Feather Fan',q:5,u:'https://static.tibia.com/images/library/Peacock_Feather_Fan.gif'}],
+        items:[{n:'Rorc Feather',q:25},{n:'Peacock Feather Fan',q:5}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+12% Energy Dmg',
-        items:[{n:'Rorc Feather',q:25,u:'https://static.tibia.com/images/library/Rorc_Feather.gif'},{n:'Peacock Feather Fan',q:5,u:'https://static.tibia.com/images/library/Peacock_Feather_Fan.gif'},{n:'Energy Vein',q:1,u:'https://static.tibia.com/images/library/Energy_Vein.gif'}],
+        items:[{n:'Rorc Feather',q:25},{n:'Peacock Feather Fan',q:5},{n:'Energy Vein',q:1}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'venom', cat:'dmg', name:'Venom', desc:'Dano de Terra',
     icon:IMBU_ICONS['venom'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Earth Dmg',
-        items:[{n:'Swamp Grass',q:25,u:'https://static.tibia.com/images/library/Swamp_Grass.gif'}],
+        items:[{n:'Swamp Grass',q:25}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+9% Earth Dmg',
-        items:[{n:'Swamp Grass',q:25,u:'https://static.tibia.com/images/library/Swamp_Grass.gif'},{n:'Poisonous Slime',q:20,u:'https://static.tibia.com/images/library/Poisonous_Slime.gif'}],
+        items:[{n:'Swamp Grass',q:25},{n:'Poisonous Slime',q:20}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+12% Earth Dmg',
-        items:[{n:'Swamp Grass',q:25,u:'https://static.tibia.com/images/library/Swamp_Grass.gif'},{n:'Poisonous Slime',q:20,u:'https://static.tibia.com/images/library/Poisonous_Slime.gif'},{n:'Slime Heart',q:2,u:'https://static.tibia.com/images/library/Slime_Heart.gif'}],
+        items:[{n:'Swamp Grass',q:25},{n:'Poisonous Slime',q:20},{n:'Slime Heart',q:2}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'frost', cat:'dmg', name:'Frost', desc:'Dano de Gelo',
     icon:IMBU_ICONS['frost'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Ice Dmg',
-        items:[{n:'Frosty Heart',q:25,u:'https://static.tibia.com/images/library/Frosty_Heart.gif'}],
+        items:[{n:'Frosty Heart',q:25}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+9% Ice Dmg',
-        items:[{n:'Frosty Heart',q:25,u:'https://static.tibia.com/images/library/Frosty_Heart.gif'},{n:'Seacrest Hair',q:10,u:'https://static.tibia.com/images/library/Seacrest_Hair.gif'}],
+        items:[{n:'Frosty Heart',q:25},{n:'Seacrest Hair',q:10}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+12% Ice Dmg',
-        items:[{n:'Frosty Heart',q:25,u:'https://static.tibia.com/images/library/Frosty_Heart.gif'},{n:'Seacrest Hair',q:10,u:'https://static.tibia.com/images/library/Seacrest_Hair.gif'},{n:'Polar Bear Paw',q:5,u:'https://static.tibia.com/images/library/Polar_Bear_Paw.gif'}],
+        items:[{n:'Frosty Heart',q:25},{n:'Seacrest Hair',q:10},{n:'Polar Bear Paw',q:5}],
         gold1:20000, gold20:100000 },
     ]},
   { id:'scorch', cat:'dmg', name:'Scorch', desc:'Dano de Fogo',
     icon:IMBU_ICONS['scorch'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+5% Fire Dmg',
-        items:[{n:'Fiery Heart',q:25,u:'https://static.tibia.com/images/library/Fiery_Heart.gif'}],
+        items:[{n:'Fiery Heart',q:25}],
         gold1:5000, gold20:25000 },
       { label:'Intricate',color:'#8b5cf6', effect:'+9% Fire Dmg',
-        items:[{n:'Fiery Heart',q:25,u:'https://static.tibia.com/images/library/Fiery_Heart.gif'},{n:'Green Dragon Scale',q:5,u:'https://static.tibia.com/images/library/Green_Dragon_Scale.gif'}],
+        items:[{n:'Fiery Heart',q:25},{n:'Green Dragon Scale',q:5}],
         gold1:10000, gold20:50000 },
       { label:'Powerful', color:'#ef4444', effect:'+12% Fire Dmg',
-        items:[{n:'Fiery Heart',q:25,u:'https://static.tibia.com/images/library/Fiery_Heart.gif'},{n:'Green Dragon Scale',q:5,u:'https://static.tibia.com/images/library/Green_Dragon_Scale.gif'},{n:'Demon Horn',q:5,u:'https://static.tibia.com/images/library/Demon_Horn.gif'}],
+        items:[{n:'Fiery Heart',q:25},{n:'Green Dragon Scale',q:5},{n:'Demon Horn',q:5}],
         gold1:20000, gold20:100000 },
     ]},
 ];
@@ -2416,250 +2426,475 @@ async function injectImbuIcons() {
 // task: true = boa task de bestiary
 // req: '' | string de requisito de quest
 // tipo: 'xp' | 'profit' | 'quest'  (quest = evento/boss especial)
+// ══════════════════════════════════════════════════
+//  HUNT FINDER MODAL
+// ══════════════════════════════════════════════════
+function openHuntModal(idx) {
+  const h = window._hfResults && window._hfResults[idx];
+  if (!h) return;
+  const slug = SLUG_OVERRIDES_FN(h.name);
+  const vocLabel  = { ek:'⚔ EK', ed:'🌿 ED', ms:'🔮 MS', rp:'🏹 RP', monk:'🥋 Monk' };
+  const difLabel  = { facil:'🟢 Fácil', medio:'🟡 Médio', dificil:'🔴 Difícil' };
+  const modeLabel = { solo:'🧍 Solo', duo:'👥 Duo', time:'👥👥 Time' };
+  const vocStr  = h.vocs.includes('all') ? 'Todas' : h.vocs.map(v => vocLabel[v]||v).join(', ');
+  const modesStr = h.modes.map(m => modeLabel[m]||m).join(', ');
+
+  const creaturesHtml = (h.creatures||[]).map(c => {
+    const name = c.n||c;
+    const key = name.toLowerCase().replace(/[^a-z0-9]/g,'');
+    const s = SLUG_OVERRIDES[key] || name.split(' ').map(w=>w[0].toUpperCase()+w.slice(1)).join('-');
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+      <img src="https://cdn.tibiaroute.com/monsters/${s}.gif" style="width:64px;height:64px;image-rendering:pixelated;object-fit:contain" onerror="this.style.opacity='.3'">
+      <span style="font-size:.65rem;color:var(--ink-3);text-align:center">${name}</span>
+    </div>`;
+  }).join('');
+
+  const tibiarouteSlug = h.tibiaroute || h.name.split(' ').map(w=>w[0].toUpperCase()+w.slice(1)).join('-');
+  const intibiaLink = h.intibia ? `<a href="${h.intibia}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:#4f46e5;color:white;border-radius:7px;text-decoration:none;font-size:.8rem;font-weight:600">🔗 Ver no Intibia</a>` : '';
+  const tibiarouteLink = `<a href="https://tibiaroute.com/br/hunting-places/${tibiarouteSlug}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--bg-3);color:var(--ink);border:1px solid var(--border);border-radius:7px;text-decoration:none;font-size:.8rem;font-weight:500">🗺 TibiaRoute</a>`;
+  const wikiLink = h.wiki ? `<a href="${h.wiki}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--bg-3);color:var(--bamboo);border:1px solid var(--border);border-radius:7px;text-decoration:none;font-size:.8rem;font-weight:500">📖 TibiaWiki</a>` : '';
+
+  const reqHtml = h.req ? `<div style="background:var(--gold-dim);border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:.5rem .75rem;font-size:.8rem;color:var(--gold-light)">🗝 Requer: ${h.req}</div>` : '';
+  const tipsHtml = h.tips ? `<div style="margin-top:.75rem;padding:.75rem;background:var(--bg-3);border-radius:8px;font-size:.82rem;color:var(--ink-2);line-height:1.6">💡 ${h.tips}</div>` : '';
+
+  document.getElementById('hf-modal-body').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem;flex-wrap:wrap;gap:.5rem">
+      <div>
+        <h2 style="font-size:1.4rem;font-weight:800;color:var(--ink);margin:0 0 4px">${h.name}</h2>
+        <div style="font-size:.8rem;color:var(--muted)">Lv ${h.minLvl}${h.maxLvl<999?'–'+h.maxLvl:'+'}  ·  ${modesStr}  ·  ${vocStr}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">${intibiaLink}${tibiarouteLink}${wikiLink}</div>
+    </div>
+
+    <!-- Creatures -->
+    <div style="background:#1e1a14;border-radius:10px;padding:1rem;margin-bottom:1rem;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;min-height:88px;align-items:center">
+      ${creaturesHtml}
+    </div>
+
+    <!-- Stats grid -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1rem">
+      <div style="background:var(--bg-2);border-radius:8px;padding:.65rem .8rem;text-align:center">
+        <div style="font-size:.55rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">XP/h</div>
+        <div style="font-size:1rem;font-weight:800;color:var(--accent);margin-top:2px">${h.xph||'—'}</div>
+      </div>
+      <div style="background:var(--bg-2);border-radius:8px;padding:.65rem .8rem;text-align:center">
+        <div style="font-size:.55rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">Lucro/h</div>
+        <div style="font-size:1rem;font-weight:800;color:var(--bamboo);margin-top:2px">${h.profit||'—'}</div>
+      </div>
+      <div style="background:var(--bg-2);border-radius:8px;padding:.65rem .8rem;text-align:center">
+        <div style="font-size:.55rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">Dificuldade</div>
+        <div style="font-size:.9rem;font-weight:700;color:var(--ink);margin-top:2px">${difLabel[h.dif]||h.dif}</div>
+      </div>
+    </div>
+
+    <!-- Description + req -->
+    <div style="font-size:.88rem;color:var(--ink-2);line-height:1.65;margin-bottom:.75rem">${h.desc}</div>
+    ${reqHtml}${tipsHtml}
+  `;
+  document.getElementById('hf-modal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeHuntModal() {
+  document.getElementById('hf-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function SLUG_OVERRIDES_FN(name) {
+  return name.split(' ').map(w=>w[0].toUpperCase()+w.slice(1)).join('-');
+}
+
 const HUNTS = [
-  // ── LOW LEVEL (8-80) ──────────────────────────────
-  { name:'Rotworm Hell', xphNum:350, minLvl:20, maxLvl:100,
+  // ── LOW LEVEL (20-100) ────────────────────────────
+  // Rotworm: 40xp, Carrion Worm: 70xp — conteúdo de iniciante absoluto, fácil
+  { name:'Rotworm Hell', xphNum:350, minLvl:20, maxLvl:70,
     vocs:['all'], modes:['solo'], xph:'200k–500k', profit:'50k–150k', tipo:'xp', dif:'facil', task:true,
     req:'',
-    creatures:[{n:'Rotworm',u:'rotworm'},{n:'Carrion Worm',u:'carrionworm'}],
+    creatures:[{n:'Rotworm'},{n:'Carrion Worm'}],
     desc:'Hunt clássica de iniciante. Sem requisito de quest.', wiki:'https://tibia.fandom.com/wiki/Rotworm' },
 
-  { name:'Nomad Cave', xphNum:280, minLvl:8, maxLvl:80,
+  // Nomad: 60xp — nível 8 é possível mas range real começa em 15
+  { name:'Nomad Cave', xphNum:280, minLvl:15, maxLvl:60,
     vocs:['all'], modes:['solo'], xph:'150k–400k', profit:'-50k a 0', tipo:'xp', dif:'facil', task:false,
     req:'Aristos Task Quest',
-    creatures:[{n:'Nomad',u:'nomad'}],
+    creatures:[{n:'Nomad'}],
     desc:'Hunt solo inicial.', wiki:'https://tibia.fandom.com/wiki/Nomads' },
 
-  { name:'Cyclops / Cyclopolis', xphNum:700, minLvl:40, maxLvl:120,
+  // Cyclops: 150xp, Cyclops Smith: 265xp — fácil, melhor range 50-130
+  { name:'Cyclops / Cyclopolis', xphNum:700, minLvl:50, maxLvl:130,
     vocs:['ek','rp'], modes:['solo','duo'], xph:'400k–900k', profit:'0 a 150k', tipo:'xp', dif:'facil', task:true,
     req:'',
-    creatures:[{n:'Cyclops',u:'cyclops'},{n:'Cyclops Smith',u:'cyclopssmith'},{n:'Cyclops Drone',u:'cyclopsdrone'}],
+    creatures:[{n:'Cyclops'},{n:'Cyclops Smith'},{n:'Cyclops Drone'}],
     desc:'Acesso livre. Boa densidade, sem requisito de quest.', wiki:'https://tibia.fandom.com/wiki/Cyclopolis' },
 
-  { name:'Isle of Evil', xphNum:780, minLvl:50, maxLvl:150,
+  // Demon Skeleton: 145xp, Bonelord: 170xp — fácil, range 50-120
+  { name:'Isle of Evil', xphNum:780, minLvl:50, maxLvl:120,
     vocs:['ek','rp'], modes:['solo'], xph:'500k–900k', profit:'100k–300k', tipo:'xp', dif:'facil', task:true,
     req:'',
-    creatures:[{n:'Demon Skeleton',u:'demonskeleton'},{n:'Bonelord',u:'bonelord'}],
+    creatures:[{n:'Demon Skeleton'},{n:'Bonelord'}],
     desc:'Hunt solo consistente. Sem requisito de quest.', wiki:'https://tibia.fandom.com/wiki/Isle_of_Evil' },
 
-  { name:'Orc Fortress', xphNum:780, minLvl:50, maxLvl:130,
+  // Orc Warlord: 668xp, Orc Berserker: 195xp — fácil, range 50-120
+  { name:'Orc Fortress', xphNum:780, minLvl:50, maxLvl:120,
     vocs:['ek','rp'], modes:['solo','duo'], xph:'500k–1kk', profit:'50k–200k', tipo:'xp', dif:'facil', task:true,
     req:'',
-    creatures:[{n:'Orc Warlord',u:'orcwarlord'},{n:'Orc Berserker',u:'orcberserker'}],
+    creatures:[{n:'Orc Warlord'},{n:'Orc Berserker'}],
     desc:'Hunt clássica. Bom para task de bestiary.', wiki:'https://tibia.fandom.com/wiki/Orc_Fortress' },
 
-  { name:'Frost Dragons', xphNum:900, minLvl:60, maxLvl:160,
+  // Frost Dragon: 2100xp — médio, mas o conteúdo de svargrond é realmente para 80+
+  { name:'Frost Dragons', xphNum:900, minLvl:80, maxLvl:180,
     vocs:['ek','rp'], modes:['solo','duo'], xph:'500k–1.2kk', profit:'100k–300k', tipo:'xp', dif:'medio', task:true,
     req:'Barbarian Test Quest',
-    creatures:[{n:'Frost Dragon',u:'frostdragon'},{n:'Frost Dragon Hatchling',u:'frostdragonhatchling'}],
+    creatures:[{n:'Frost Dragon'},{n:'Frost Dragon Hatchling'}],
     desc:'Svargrond. Requer Barbarian Test Quest.', wiki:'https://tibia.fandom.com/wiki/Frost_Dragon' },
 
-  { name:'Lizard City (Zao)', xphNum:900, minLvl:60, maxLvl:180,
+  // Lizard Legionnaire: 515xp, Lizard Snakecharmer: 515xp — médio, Zao requer quest e é realmente 80+
+  { name:'Lizard City (Zao)', xphNum:900, minLvl:80, maxLvl:200,
     vocs:['all'], modes:['solo','duo'], xph:'500k–1.2kk', profit:'50k–200k', tipo:'xp', dif:'medio', task:true,
     req:'The New Frontier Quest',
-    creatures:[{n:'Lizard Legionnaire',u:'lizardlegionnaire'},{n:'Lizard Snakecharmer',u:'lizardsnakecharmer'}],
+    creatures:[{n:'Lizard Legionnaire'},{n:'Lizard Snakecharmer'}],
     desc:'Área de Zao com boa densidade. Requer The New Frontier Quest.', wiki:'https://tibia.fandom.com/wiki/Zao' },
 
-  { name:'Edron Hellhole', xphNum:900, minLvl:70, maxLvl:180,
+  // Demon Skeleton: 145xp, Hellhound: 2200xp — médio por causa do Hellhound, range real 80-200
+  { name:'Edron Hellhole', xphNum:900, minLvl:80, maxLvl:200,
     vocs:['all'], modes:['solo','duo'], xph:'600k–1.2kk', profit:'100k–300k', tipo:'xp', dif:'medio', task:false,
     req:'',
-    creatures:[{n:'Demon Skeleton',u:'demonskeleton'},{n:'Diabolic Imp',u:'diabolicimp'},{n:'Hellhound',u:'hellhound'}],
+    creatures:[{n:'Demon Skeleton'},{n:'Diabolic Imp'},{n:'Hellhound'}],
     desc:'Área clássica de dificuldade média. Boa densidade.', wiki:'https://tibia.fandom.com/wiki/Hellhole' },
 
   // ── MID LEVEL (80-250) ────────────────────────────
-  { name:'Sea Serpents', xphNum:1050, minLvl:60, maxLvl:999,
+  // Sea Serpent: 2200xp, Young: 745xp — médio, começa de verdade em 80
+  { name:'Sea Serpents', xphNum:1050, minLvl:80, maxLvl:200,
     vocs:['all'], modes:['solo','duo'], xph:'600k–1.3kk', profit:'150k–400k', tipo:'profit', dif:'medio', task:true,
     req:'Hunt for the Sea Serpent Quest',
-    creatures:[{n:'Sea Serpent',u:'seaserpent'},{n:'Young Sea Serpent',u:'youngseaserpent'}],
+    creatures:[{n:'Sea Serpent'},{n:'Young Sea Serpent'}],
     desc:'XP e profit sólidos. Requer Hunt for the Sea Serpent Quest.', wiki:'https://tibia.fandom.com/wiki/Sea_Serpent' },
 
-  { name:'Deeplings', xphNum:1100, minLvl:60, maxLvl:999,
+  // Deepling Scout: 750xp, Deepling Warrior: 900xp — médio, quest obrigatória, range 80-180
+  { name:'Deeplings', xphNum:1100, minLvl:80, maxLvl:180,
     vocs:['all'], modes:['solo','duo'], xph:'700k–1.5kk', profit:'0 a 200k', tipo:'xp', dif:'medio', task:true,
     req:'Liquid Black Quest',
-    creatures:[{n:'Deepling Scout',u:'deeplingscout'},{n:'Deepling Warrior',u:'deeplingwarrior'},{n:'Deepling Spellsinger',u:'deeplingspellsinger'}],
+    creatures:[{n:'Deepling Scout'},{n:'Deepling Warrior'},{n:'Deepling Spellsinger'}],
     desc:'3 bosses e chance de Manta Ray (rara). Liquid Black Quest.', wiki:'https://tibia.fandom.com/wiki/Deepling' },
 
-  { name:'Demons (Hellgate)', xphNum:1100, minLvl:100, maxLvl:300,
+  // Demon: 6000xp — médio, mas Demon é muito forte para baixo nível. Range real 150-350
+  { name:'Demons (Hellgate)', xphNum:1100, minLvl:150, maxLvl:350,
     vocs:['all'], modes:['solo','duo'], xph:'800k–1.5kk', profit:'100k–400k', tipo:'xp', dif:'medio', task:true,
     req:'',
-    creatures:[{n:'Demon',u:'demon'},{n:'Demon Skeleton',u:'demonskeleton'}],
+    creatures:[{n:'Demon'},{n:'Demon Skeleton'}],
     desc:'Hellgate. Excelente bestiary de Demons.', wiki:'https://tibia.fandom.com/wiki/Hellgate' },
 
-  { name:'Banuta', xphNum:1500, minLvl:80, maxLvl:999,
+  // Kongra: 1140xp, Sibang: 550xp — médio, Banuta começa em 100 de verdade
+  { name:'Banuta', xphNum:1500, minLvl:100, maxLvl:220,
     vocs:['ek','ms'], modes:['solo','duo'], xph:'800k–2kk', profit:'50k–200k', tipo:'xp', dif:'medio', task:true,
     req:'Ape City Quest',
-    creatures:[{n:'Kongra',u:'kongra'},{n:'Sibang',u:'sibang'}],
+    creatures:[{n:'Kongra'},{n:'Sibang'}],
     desc:'Hunt essencial mid-level. Requer Ape City Quest.', wiki:'https://tibia.fandom.com/wiki/Banuta' },
 
-  { name:'Draken Walls / Zao', xphNum:2000, minLvl:100, maxLvl:280,
+  // Draken Warmaster: 3200xp — médio, content realmente pede 130+ de verdade
+  { name:'Draken Walls / Zao', xphNum:2000, minLvl:130, maxLvl:280,
     vocs:['all'], modes:['solo','duo'], xph:'1kk–2.5kk', profit:'100k–400k', tipo:'xp', dif:'medio', task:true,
     req:'New Frontier + Children of the Revolution',
-    creatures:[{n:'Draken Warmaster',u:'drakenwarmaster'},{n:'Draken Spellweaver',u:'drakenspellweaver'},{n:'Draken Elite',u:'drakenelite'}],
+    creatures:[{n:'Draken Warmaster'},{n:'Draken Spellweaver'},{n:'Draken Elite'}],
     desc:'New Frontier + Children of the Revolution. Ótimo XP mid-game.', wiki:'https://tibia.fandom.com/wiki/Draken_Walls' },
 
-  { name:'Warzone 1–3', xphNum:1500, minLvl:100, maxLvl:250,
+  // Warzones 1-3: Gnomevil é boss, Mitmah Vanguard: 1600xp — médio, range 100-220
+  { name:'Warzone 1–3', xphNum:1500, minLvl:100, maxLvl:220,
     vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–500k', tipo:'profit', dif:'medio', task:false,
     req:"Bigfoot's Burden Quest",
-    creatures:[{n:'Gnomevil',u:'gnomehorticulist'},{n:'Mitmah Vanguard',u:'mitmahvanguard'}],
+    creatures:[{n:'Gnomevil'},{n:'Mitmah Vanguard'}],
     desc:"Profit diário consistente. Requer Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_1' },
 
-  { name:'Gnome Deep Hub', xphNum:2000, minLvl:100, maxLvl:999,
+  // Cave Devourer: 4100xp — difícil, conteúdo pede 200+ real
+  { name:'Gnome Deep Hub', xphNum:2000, minLvl:200, maxLvl:400,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'1kk–2.5kk', profit:'-300k a -150k', tipo:'xp', dif:'dificil', task:false,
     req:'',
-    creatures:[{n:'Branchy Crawler',u:'ghostlycrawler'},{n:'Cave Devourer',u:'cavedevourer'}],
+    creatures:[{n:'Branchy Crawler'},{n:'Cave Devourer'}],
     desc:'Alta XP mas alto waste. Para chars com muito bank.', wiki:'https://tibia.fandom.com/wiki/Gnome_Deep_Hub' },
 
-  { name:'Nykri Delta (Nagas)', xphNum:1500, minLvl:80, maxLvl:999,
+  // Naga Archer: 1800xp, Naga Warrior: 2000xp — médio, range real 100-220
+  { name:'Nykri Delta (Nagas)', xphNum:1500, minLvl:100, maxLvl:220,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'1kk–1.8kk', profit:'-70k a 20k', tipo:'xp', dif:'medio', task:true,
     req:'',
-    creatures:[{n:'Naga Archer',u:'nagaarcher'},{n:'Naga Warrior',u:'nagawarrior'}],
+    creatures:[{n:'Naga Archer'},{n:'Naga Warrior'}],
     desc:'Hunt nova com criaturas Naga. Bom bestiary.', wiki:'https://tibia.fandom.com/wiki/Nykri_Delta' },
 
-  { name:'Oramond Western Plains', xphNum:1350, minLvl:80, maxLvl:999,
+  // Boar Man: 1200xp, Moohtant: 1600xp — fácil, range real 100-220
+  { name:'Oramond Western Plains', xphNum:1350, minLvl:100, maxLvl:220,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'900k–1.7kk', profit:'-150k a -70k', tipo:'xp', dif:'facil', task:true,
     req:'',
-    creatures:[{n:'Boar Man',u:'boarman'},{n:'Moohtant',u:'moohtant'}],
+    creatures:[{n:'Boar Man'},{n:'Moohtant'}],
     desc:'XP sólida, alto waste. Popular no servidor Gentebra.', wiki:'https://tibia.fandom.com/wiki/Oramond_Western_Plains' },
 
-  { name:'Cults of Tibia', xphNum:1200, minLvl:100, maxLvl:999,
+  // Cult creatures: 400-900xp — médio, range real 100-200
+  { name:'Cults of Tibia', xphNum:1200, minLvl:100, maxLvl:200,
     vocs:['all'], modes:['solo','duo'], xph:'800k–1.5kk', profit:'50k–200k', tipo:'xp', dif:'medio', task:true,
     req:'Cults of Tibia Quest',
-    creatures:[{n:'Cultist',u:'cultist'},{n:'Adept of the Cult',u:'adeptofcult'}],
+    creatures:[{n:'Cult Believer'},{n:'Adept of the Cult'}],
     desc:'Áreas exclusivas com loot único. Cults of Tibia Quest.', wiki:'https://tibia.fandom.com/wiki/Cults_of_Tibia' },
 
-  // ── HIGH LEVEL (150-350) ──────────────────────────
-  { name:'Warzone 4–6', xphNum:1500, minLvl:150, maxLvl:300,
+  // ── HIGH LEVEL (150-400) ──────────────────────────
+  // Warzone 4-6 é claramente endgame das warzones, range 150-280
+  { name:'Warzone 4–6', xphNum:1500, minLvl:150, maxLvl:280,
     vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–600k', tipo:'profit', dif:'medio', task:false,
     req:"Bigfoot's Burden Quest",
-    creatures:[{n:'Gnomevil',u:'gnomehorticulist'},{n:'Sandstone Scorpion',u:'sandstonescorpion'}],
+    creatures:[{n:'Gnomevil'},{n:'Sandstone Scorpion'}],
     desc:"Itens Gnome. Continuação da Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_4' },
 
-  { name:'Feyrist', xphNum:2500, minLvl:150, maxLvl:999,
+  // Pixie: 800xp, Nymph: 800xp, Swan Maiden: 1100xp — fácil p/ alto nível, range 130-280
+  { name:'Feyrist', xphNum:2500, minLvl:130, maxLvl:280,
     vocs:['ed','ms','rp'], modes:['solo','duo'], xph:'1.5kk–3kk', profit:'200k–500k', tipo:'xp', dif:'facil', task:true,
     req:'Threatened Dreams Quest',
-    creatures:[{n:'Pixie',u:'pixie'},{n:'Nymph',u:'nymph'},{n:'Swan Maiden',u:'swanmaiden'}],
+    creatures:[{n:'Pixie'},{n:'Nymph'},{n:'Swan Maiden'}],
     desc:'Ilha de Feyrist. Threatened Dreams Quest. Favorita da guild!', wiki:'https://tibia.fandom.com/wiki/Feyrist' },
 
-  { name:'Bounac', xphNum:2100, minLvl:150, maxLvl:999,
+  // Bulltaur Brute: 3200xp, Alchemist: 2900xp — médio, range real 150-300
+  { name:'Bounac', xphNum:2100, minLvl:150, maxLvl:300,
     vocs:['all'], modes:['solo','duo'], xph:'1kk–2.5kk', profit:'100k–400k', tipo:'xp', dif:'medio', task:true,
     req:'Adventures of Galthen Quest',
-    creatures:[{n:'Bulltaur Brute',u:'bulltaurbrute'},{n:'Bulltaur Alchemist',u:'bulltauralchemist'},{n:'Bulltaur Forgepriest',u:'bulltaurforgepriest'}],
+    creatures:[{n:'Bulltaur Brute'},{n:'Bulltaur Alchemist'},{n:'Bulltaur Forgepriest'}],
     desc:"Boss diário + área de hunt. Adventures of Galthen Quest.", wiki:'https://tibia.fandom.com/wiki/Bounac' },
 
-  { name:'Asura Palace', xphNum:1350, minLvl:200, maxLvl:999,
+  // Dawnfire Asura: 2500xp, Midnight: 3000xp, Frost Flower: 2000xp — médio, range real 150-280
+  { name:'Asura Palace', xphNum:1350, minLvl:150, maxLvl:280,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'1.1kk–1.5kk', profit:'0 a 25k', tipo:'xp', dif:'medio', task:true,
     req:'A Piece of Cake Quest',
-    creatures:[{n:'Dawnfire Asura',u:'asura'},{n:'Midnight Asura',u:'asuranight'},{n:'Frost Flower Asura',u:'frostflowerasura'}],
+    creatures:[{n:'Dawnfire Asura'},{n:'Midnight Asura'},{n:'Frost Flower Asura'}],
     desc:'Excelente para bestiary de Asuras. Requer acesso.', wiki:'https://tibia.fandom.com/wiki/Asura_Palace' },
 
-  { name:'Hyaena Lairs', xphNum:1550, minLvl:200, maxLvl:999,
+  // Werehyaena: 2700xp, Shaman: 2800xp — fácil para alto nível, range real 130-260
+  { name:'Hyaena Lairs', xphNum:1550, minLvl:130, maxLvl:260,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'1.2kk–1.8kk', profit:'200k–450k', tipo:'profit', dif:'facil', task:true,
     req:'',
-    creatures:[{n:'Werehyaena',u:'werehyaena'},{n:'Werehyaena Shaman',u:'werehyaenashaman'}],
+    creatures:[{n:'Werehyaena'},{n:'Werehyaena Shaman'}],
     desc:'Profit consistente. Hunt popular para druids e mages.', wiki:'https://tibia.fandom.com/wiki/Werehyaena' },
 
-  { name:'Deeper Banuta', xphNum:2050, minLvl:200, maxLvl:999,
+  // Merlkin: 1900xp + Kongra — difícil, MS pede 180+ real
+  { name:'Deeper Banuta', xphNum:2050, minLvl:180, maxLvl:320,
     vocs:['ms'], modes:['solo','duo'], xph:'1.6kk–2.2kk', profit:'30k–100k', tipo:'xp', dif:'dificil', task:true,
     req:'Ape City Quest',
-    creatures:[{n:'Kongra',u:'kongra'},{n:'Sibang',u:'sibang'},{n:'Merlkin',u:'merlkin'}],
+    creatures:[{n:'Kongra'},{n:'Sibang'},{n:'Merlkin'}],
     desc:'Ótimo XP para MS 200+. Bestiary completo de simianos.', wiki:'https://tibia.fandom.com/wiki/Deeper_Banuta' },
 
-  { name:'Carnisylvan / Feyrist Ext.', xphNum:1800, minLvl:180, maxLvl:999,
+  // Carnisylvan: 1800xp — médio, range real 150-280
+  { name:'Carnisylvan / Feyrist Ext.', xphNum:1800, minLvl:150, maxLvl:280,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'1.3kk–2.5kk', profit:'-100k a 100k', tipo:'xp', dif:'medio', task:true,
     req:'Threatened Dreams Quest',
-    creatures:[{n:'Carnisylvan',u:'carnisylvan'},{n:'Pixie',u:'pixie'}],
+    creatures:[{n:'Carnisylvan'},{n:'Pixie'}],
     desc:'Parte externa de Feyrist. Boa densidade para mages.', wiki:'https://tibia.fandom.com/wiki/Carnisylvan' },
 
-  { name:'Rotten Wasteland', xphNum:2200, minLvl:200, maxLvl:999,
+  // Plaguesmith: 5000xp, Putrid Mummy: 1050xp — médio, range real 180-320
+  { name:'Rotten Wasteland', xphNum:2200, minLvl:180, maxLvl:320,
     vocs:['ek','rp'], modes:['solo','duo'], xph:'1.5kk–2.5kk', profit:'100k–300k', tipo:'xp', dif:'medio', task:true,
     req:'',
-    creatures:[{n:'Plaguesmith',u:'plaguesmith'},{n:'Putrid Mummy',u:'putridmummy'}],
+    creatures:[{n:'Plaguesmith'},{n:'Putrid Mummy'}],
     desc:'Área de undead high-level. Boa para EK e RP.', wiki:'https://tibia.fandom.com/wiki/Rotten_Wasteland' },
 
   // ── END GAME (250+) ───────────────────────────────
-  { name:'Cobra Bastion', xphNum:3500, minLvl:250, maxLvl:999,
+  // Cobra Vizier: 4800xp, Assassin: 3500xp — difícil, range 250-450
+  { name:'Cobra Bastion', xphNum:3500, minLvl:250, maxLvl:450,
     vocs:['ek','rp'], modes:['solo','duo'], xph:'2kk–4kk', profit:'300k–700k', tipo:'xp', dif:'dificil', task:true,
     req:'Order of the Cobra Quest',
-    creatures:[{n:'Cobra Vizier',u:'cobravizier'},{n:'Cobra Assassin',u:'cobraassassin'},{n:'Cobra Scout',u:'cobrascout'}],
+    creatures:[{n:'Cobra Vizier'},{n:'Cobra Assassin'},{n:'Cobra Scout'}],
     desc:'Boss Scarlett Etzel + itens cobra. Order of the Cobra Quest.', wiki:'https://tibia.fandom.com/wiki/Cobra_Bastion' },
 
-  { name:'Dream Courts', xphNum:3100, minLvl:250, maxLvl:999,
+  // Choking Fear: 6000xp, Retching Horror: 6000xp, Silencer: 8700xp — difícil, range 280-500
+  { name:'Dream Courts', xphNum:3100, minLvl:280, maxLvl:500,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–4kk', profit:'200k–500k', tipo:'xp', dif:'dificil', task:true,
     req:'The Dream Courts Quest',
-    creatures:[{n:'Choking Fear',u:'chokingfear'},{n:'Retching Horror',u:'retchinghorror'},{n:'Silencer',u:'silencer'}],
+    creatures:[{n:'Choking Fear'},{n:'Retching Horror'},{n:'Silencer'}],
     desc:'Imbue de bota powerful T3. The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Dream_Courts' },
 
-  { name:'Grave Danger', xphNum:2100, minLvl:250, maxLvl:999,
+  // Burster/Gazer/Ripper Spectre: 3000-4500xp — médio, range 220-400
+  { name:'Grave Danger', xphNum:2100, minLvl:220, maxLvl:400,
     vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit', dif:'medio', task:false,
     req:'Grave Danger Quest',
-    creatures:[{n:'Burster Spectre',u:'bursterspectre'},{n:'Gazer Spectre',u:'gazerspectre'},{n:'Ripper Spectre',u:'ripperspectre'}],
+    creatures:[{n:'Burster Spectre'},{n:'Gazer Spectre'},{n:'Ripper Spectre'}],
     desc:'Rotação de boss diária. Melhor profit da faixa 250–400. Grave Danger Quest.', wiki:'https://tibia.fandom.com/wiki/Grave_Danger' },
 
-  { name:'Heart of Destruction', xphNum:3600, minLvl:250, maxLvl:999,
+  // Grimeleech: 6800xp, Vexclaw: 5500xp, Hellflayer: 6500xp — difícil, range 280-500
+  { name:'Heart of Destruction', xphNum:3600, minLvl:280, maxLvl:500,
     vocs:['all'], modes:['solo','duo','time'], xph:'2kk–5kk', profit:'500k–1.5kk', tipo:'profit', dif:'dificil', task:false,
     req:'Heart of Destruction Quest',
-    creatures:[{n:'Grimeleech',u:'grimeleech'},{n:'Vexclaw',u:'vexclaw'},{n:'Hellflayer',u:'hellflayer'}],
+    creatures:[{n:'Grimeleech'},{n:'Vexclaw'},{n:'Hellflayer'}],
     desc:'Imbue crítico T3 + alto profit diário. Heart of Destruction Quest.', wiki:'https://tibia.fandom.com/wiki/Heart_of_Destruction' },
 
-  { name:'Falcon Bastion', xphNum:4100, minLvl:270, maxLvl:999,
+  // Falcon Knight: 6900xp, Falcon Paladin: 5900xp — difícil, range 300-550
+  { name:'Falcon Bastion', xphNum:4100, minLvl:300, maxLvl:550,
     vocs:['ek'], modes:['solo','duo'], xph:'2kk–5kk', profit:'300k–800k', tipo:'xp', dif:'dificil', task:false,
     req:'Order of the Falcon Quest',
-    creatures:[{n:'Falcon Knight',u:'falconknight'},{n:'Falcon Paladin',u:'falconpaladin'}],
+    creatures:[{n:'Falcon Knight'},{n:'Falcon Paladin'}],
     desc:'Boss Oberon + itens Falcon. Order of the Falcon Quest. Organizado pela guild!', wiki:'https://tibia.fandom.com/wiki/Falcon_Bastion' },
 
-  { name:'Kilmaresh', xphNum:3600, minLvl:300, maxLvl:999,
+  // Sphinx: 4500xp, Lamassu: 5000xp — médio, range 250-450
+  { name:'Kilmaresh', xphNum:3600, minLvl:250, maxLvl:450,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–5kk', profit:'0 a 500k', tipo:'xp', dif:'medio', task:true,
     req:'Kilmaresh Quest',
-    creatures:[{n:'Sphinx',u:'sphinx'},{n:'Lamassu',u:'lamassu'},{n:'Feral Sphinx',u:'feralsphinx'}],
+    creatures:[{n:'Sphinx'},{n:'Lamassu'},{n:'Feral Sphinx'}],
     desc:'Múltiplos spawn premium. Ótimo XP para Druids e Mages.', wiki:'https://tibia.fandom.com/wiki/Kilmaresh' },
 
+  // Boss event — range mínimo alto, sem maxLvl real
   { name:'Ferumbras Ascendant', xphNum:0, minLvl:300, maxLvl:999,
     vocs:['all'], modes:['time'], xph:'—', profit:'1kk–10kk+', tipo:'quest', dif:'dificil', task:false,
     req:'Ferumbras Ascendant Quest',
-    creatures:[{n:'Ferumbras',u:'falsegod'}],
+    creatures:[{n:'Ferumbras'}],
     desc:'O boss mais cobiçado do Tibia. Ferumbras Ascendant Quest. Organizado pela liderança.', wiki:'https://www.tibiawiki.com.br/wiki/Ferumbras_Ascendant_Quest' },
 
-  { name:'Soulwar', xphNum:4100, minLvl:350, maxLvl:999,
+  // Cloak of Terror: 5500xp, Soul-Broken: 4600xp — difícil, level real de farmar é 400+
+  { name:'Soulwar', xphNum:4100, minLvl:380, maxLvl:999,
     vocs:['all'], modes:['solo','duo','time'], xph:'2.5kk–6kk', profit:'200k–600k', tipo:'xp', dif:'dificil', task:false,
     req:'Feaster of Souls Quest',
-    creatures:[{n:'Cloak of Terror',u:'cloakofterror'},{n:'Soul-Broken Harbinger',u:'soulbrokenharbinger'}],
+    creatures:[{n:'Cloak of Terror'},{n:'Soul-Broken Harbinger'}],
     desc:'Bosses diários + múltiplas salas de hunt. Level real: 400+.', wiki:'https://tibia.fandom.com/wiki/Soulwar' },
 
-  { name:'Warzone 7–9', xphNum:3100, minLvl:350, maxLvl:999,
+  // Hellspawn: 3900xp, Lava Golem: 3500xp — difícil, range 300-550
+  { name:'Warzone 7–9', xphNum:3100, minLvl:300, maxLvl:550,
     vocs:['all'], modes:['time'], xph:'2kk–4kk', profit:'300k–800k', tipo:'profit', dif:'dificil', task:false,
     req:'Too Hot to Handle Quest',
-    creatures:[{n:'Hellspawn',u:'hellspawn'},{n:'Lava Golem',u:'lavagolem'}],
+    creatures:[{n:'Hellspawn'},{n:'Lava Golem'}],
     desc:'Itens Eldritch. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_7' },
 
-  { name:'Secret Library', xphNum:6200, minLvl:350, maxLvl:999,
+  // Icecold/Energetic/Burning Book: 5500-6500xp — difícil, range 330-999
+  { name:'Secret Library', xphNum:6200, minLvl:330, maxLvl:999,
     vocs:['all'], modes:['solo','duo','time'], xph:'3kk–8kk', profit:'400k–1.5kk', tipo:'xp', dif:'dificil', task:false,
     req:'The Secret Library Quest',
-    creatures:[{n:'Icecold Book',u:'icecoldbook'},{n:'Energetic Book',u:'energeticbook'},{n:'Burning Book',u:'burningcursedbook'}],
+    creatures:[{n:'Icecold Book'},{n:'Energetic Book'},{n:'Burning Book'}],
     desc:'Hunt meta + rotação de boss lucrativa. The Secret Library Quest.', wiki:'https://tibia.fandom.com/wiki/The_Secret_Library' },
 
+  // Frazzlemaw: 9000xp, Guzzlemaw: 10000xp — difícil, EK pede 400+
   { name:'Roshamuul Prison', xphNum:3600, minLvl:400, maxLvl:999,
     vocs:['ek'], modes:['solo','duo'], xph:'2.5kk–4kk', profit:'500k–1kk', tipo:'xp', dif:'dificil', task:true,
     req:'',
-    creatures:[{n:'Frazzlemaw',u:'frazzlemaw'},{n:'Guzzlemaw',u:'guzzlemaw'}],
+    creatures:[{n:'Frazzlemaw'},{n:'Guzzlemaw'}],
     desc:'Alta densidade de criaturas. Hunt sólida para EKs 400+.', wiki:'https://tibia.fandom.com/wiki/Roshamuul' },
 
-  { name:'No Rest for the Wicked', xphNum:0, minLvl:400, maxLvl:999,
+  // Inferniarch: 8000xp+ — difícil, conteúdo requer 500+
+  { name:'No Rest for the Wicked', xphNum:0, minLvl:450, maxLvl:999,
     vocs:['all'], modes:['time'], xph:'2kk–5kk', profit:'1kk–3kk', tipo:'quest', dif:'dificil', task:false,
     req:'No Rest for the Wicked Quest',
-    creatures:[{n:'Broodrider Inferniarch',u:'broodriderinferniarch'},{n:'Gorger Inferniarch',u:'gorgerinferniarch'}],
+    creatures:[{n:'Broodrider Inferniarch'},{n:'Gorger Inferniarch'}],
     desc:"10 vitórias modo Difícil = item Inferniach GARANTIDO. Requer ~500+.", wiki:'https://www.tibiawiki.com.br/wiki/No_Rest_for_the_Wicked_Quest' },
 
-  { name:'Court of Winter', xphNum:3100, minLvl:550, maxLvl:999,
+  // Crazed Winter: 4900xp — difícil, content para 500+
+  { name:'Court of Winter', xphNum:3100, minLvl:500, maxLvl:999,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–4kk', profit:'0 a 500k', tipo:'xp', dif:'dificil', task:true,
     req:'The Dream Courts Quest',
-    creatures:[{n:'Crazed Winter Rearguard',u:'crazedwinterrearguard'},{n:'Crazed Winter Vanguard',u:'crazedwintervanguard'}],
+    creatures:[{n:'Crazed Winter Rearguard'},{n:'Crazed Winter Vanguard'}],
     desc:'Hunt premium de alto nível para casters. Requer The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Court_of_Winter' },
 
-  { name:'Netherworld (Lost Souls)', xphNum:2600, minLvl:550, maxLvl:999,
+  // Freakish Lost Soul: 3900xp — difícil, MS solo pede 500+
+  { name:'Netherworld (Lost Souls)', xphNum:2600, minLvl:500, maxLvl:999,
     vocs:['ms'], modes:['solo'], xph:'2.3kk–2.8kk', profit:'-10k a 10k', tipo:'xp', dif:'dificil', task:true,
     req:'',
-    creatures:[{n:'Flimsy Lost Soul',u:'lostsoulweak'},{n:'Mean Lost Soul',u:'lostsoulmedium'},{n:'Freakish Lost Soul',u:'lostsoulhard'}],
+    creatures:[{n:'Flimsy Lost Soul'},{n:'Mean Lost Soul'},{n:'Freakish Lost Soul'}],
     desc:'Hunt solo para MS de alto nível. Acesso por quest específica.', wiki:'https://tibia.fandom.com/wiki/Netherworld' },
+
+  // ── HUNTS ADICIONAIS (TibiaRoute + intibia calibrados) ──────────
+  { name:'Asura Mirror', xphNum:4200, minLvl:350, maxLvl:600,
+    vocs:['ek','rp'], modes:['solo','duo'], xph:'3.5kk–6kk', profit:'600k–900k', tipo:'xp', dif:'dificil', task:true,
+    req:'A Piece of Cake Quest',
+    tibiaroute:'Asura-Mirror',
+    creatures:[{n:'Dawnfire Asura'},{n:'Midnight Asura'},{n:'Frost Flower Asura'}],
+    desc:'Área das Asuras com Hellspawns. XP e bestiary excelentes. A Piece of Cake Quest.', wiki:'https://tibia.fandom.com/wiki/Asura_Palace',
+    tips:'Asuras são fracas para holy. Leve exori hur para os Hellspawns.' },
+
+  { name:'Carnisylvans', xphNum:2200, minLvl:500, maxLvl:999,
+    vocs:['ek'], modes:['solo'], xph:'3kk–4kk', profit:'1kk–1.5kk', tipo:'profit', dif:'medio', task:true,
+    req:'Threatened Dreams Quest',
+    tibiaroute:'Carnisylvans-EK',
+    creatures:[{n:'Carnisylvan Sapling'},{n:'Dark Carnisylvan'},{n:'Hulking Carnisylvan'}],
+    desc:'Hunt de carnisylvans para EK. Profit e bestiary consistentes. Threatened Dreams Quest.', wiki:'https://tibia.fandom.com/wiki/Carnisylvan' },
+
+  { name:'DT Seal INQ', xphNum:3000, minLvl:500, maxLvl:999,
+    vocs:['ek'], modes:['solo'], xph:'3.5kk–4.5kk', profit:'800k–1.3kk', tipo:'xp', dif:'dificil', task:true,
+    req:'Pits of Inferno + Inquisition Quest',
+    tibiaroute:'DT-Seal-INQ-EK',
+    creatures:[{n:'Betrayed Wraith'},{n:'Dark Torturer'},{n:'Hand of Cursed Fate'}],
+    desc:'Seal dos Dark Torturers + Inquisition. Muito bom profit para EK alto nível.', wiki:'https://tibia.fandom.com/wiki/Inquisition_Quest',
+    tips:'Dark Torturer é fraco para holy. Escudo essencial.' },
+
+  { name:'Warzone 2', xphNum:2500, minLvl:450, maxLvl:700,
+    vocs:['ek'], modes:['solo'], xph:'2.5kk–4.3kk', profit:'700k–1kk', tipo:'profit', dif:'medio', task:false,
+    req:"Bigfoot's Burden Quest",
+    tibiaroute:'Warzone-2',
+    creatures:[{n:'Lost Berserker'},{n:'Weeper'},{n:'Infected Weeper'}],
+    desc:"Warzone 2 solo EK. Profit consistente diário. Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_2' },
+
+  { name:'Summer Court', xphNum:2800, minLvl:380, maxLvl:600,
+    vocs:['ek','rp'], modes:['solo','duo'], xph:'2.5kk–4.5kk', profit:'200k–400k', tipo:'xp', dif:'dificil', task:true,
+    req:'The Dream Courts Quest',
+    tibiaroute:'Summer-Court',
+    creatures:[{n:'Crazed Summer Rearguard'},{n:'Crazed Summer Vanguard'},{n:'Thanatursus'}],
+    desc:'Summer Court do Dream Courts. Bom XP e bestiary. Requer The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Dream_Courts' },
+
+  { name:'Warzone 6', xphNum:2200, minLvl:350, maxLvl:600,
+    vocs:['ek'], modes:['solo','duo'], xph:'2.5kk–3.5kk', profit:'700k–1kk', tipo:'profit', dif:'dificil', task:false,
+    req:'Too Hot to Handle Quest',
+    tibiaroute:'Warzone-6',
+    creatures:[{n:'Deepworm'},{n:'Diremaw'},{n:'Humongous Fungus'}],
+    desc:'Warzone 6 solo EK. Profit excelente. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_6' },
+
+  { name:'Burster Spectres', xphNum:2500, minLvl:350, maxLvl:600,
+    vocs:['ek','rp'], modes:['solo'], xph:'2.5kk–4.5kk', profit:'300k–500k', tipo:'xp', dif:'dificil', task:true,
+    req:'Grave Danger Quest',
+    tibiaroute:'Burster-Spectres',
+    creatures:[{n:'Burster Spectre'}],
+    desc:'Hunt solo de Burster Spectres. Grave Danger Quest. XP e profit sólidos.', wiki:'https://tibia.fandom.com/wiki/Grave_Danger' },
+
+  { name:'Flimsy Lost Souls Venore', xphNum:3000, minLvl:500, maxLvl:999,
+    vocs:['ek'], modes:['solo'], xph:'3.5kk–5kk', profit:'700k–1.1kk', tipo:'xp', dif:'dificil', task:true,
+    req:'',
+    tibiaroute:'Flimsy-Lost-Souls-Venore',
+    creatures:[{n:'Flimsy Lost Soul'},{n:'Grim Reaper'}],
+    desc:'Lost Souls + Grim Reapers em Venore. Excelente para EK alto nível.', wiki:'https://tibia.fandom.com/wiki/Netherworld' },
+
+  { name:'Temple of the Sun and Sea', xphNum:3200, minLvl:550, maxLvl:999,
+    vocs:['ek','rp'], modes:['solo','duo'], xph:'3kk–5.2kk', profit:'400k–600k', tipo:'xp', dif:'dificil', task:true,
+    req:'The Kilmaresh Quest',
+    tibiaroute:'Temple-of-the-Sun-and-Sea',
+    creatures:[{n:'Black Sphinx Acolyte'},{n:'Burning Gladiator'},{n:'Priestess of the Wild Sun'}],
+    desc:'Templo de Kilmaresh. Criaturas exclusivas com bom loot. Kilmaresh Quest.', wiki:'https://tibia.fandom.com/wiki/Kilmaresh' },
+
+  { name:'Roshamuul Bones', xphNum:4000, minLvl:550, maxLvl:999,
+    vocs:['ek'], modes:['solo','duo'], xph:'3.5kk–5kk', profit:'600k–1kk', tipo:'xp', dif:'dificil', task:true,
+    req:'',
+    tibiaroute:'Roshamuul-Bones',
+    creatures:[{n:'Frazzlemaw'},{n:'Guzzlemaw'},{n:'Silencer'}],
+    desc:'Andares inferiores de Roshamuul. Alta densidade e excelente XP.', wiki:'https://tibia.fandom.com/wiki/Roshamuul' },
+
+  { name:'Upper Roshamuul', xphNum:5500, minLvl:650, maxLvl:999,
+    vocs:['all'], modes:['solo','duo'], xph:'4kk–6kk', profit:'800k–1.5kk', tipo:'xp', dif:'dificil', task:false,
+    req:'Feaster of Souls Quest',
+    tibiaroute:'Upper-Roshamuul',
+    creatures:[{n:'Choking Fear'},{n:'Retching Horror'},{n:'Silencer'}],
+    desc:'Upper Roshamuul — endgame. Feaster of Souls Quest. Level real 700+.', wiki:'https://tibia.fandom.com/wiki/Roshamuul' },
+
+  { name:'Warzone 8', xphNum:3500, minLvl:650, maxLvl:999,
+    vocs:['ek'], modes:['solo'], xph:'3kk–4.5kk', profit:'1.5kk–2kk', tipo:'profit', dif:'dificil', task:false,
+    req:'Too Hot to Handle Quest',
+    tibiaroute:'Warzone-8-EK',
+    creatures:[{n:'Lavafungus'},{n:'Lavaworm'},{n:'Streaked Devourer'}],
+    desc:'Warzone 8 solo EK. Excelente profit. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_7' },
+
+  { name:'Warzone 3', xphNum:3800, minLvl:650, maxLvl:999,
+    vocs:['ek'], modes:['solo'], xph:'3kk–5.5kk', profit:'1.2kk–1.8kk', tipo:'profit', dif:'dificil', task:false,
+    req:"Bigfoot's Burden Quest",
+    tibiaroute:'Warzone-3-EK',
+    creatures:[{n:'Cliff Strider'},{n:'Ironblight'},{n:'Lost Berserker'}],
+    desc:"Warzone 3 EK solo. Alta XP e profit. Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_3' },
+
+  { name:'Feru Way', xphNum:3800, minLvl:500, maxLvl:999,
+    vocs:['ek'], modes:['solo','duo'], xph:'3kk–4.5kk', profit:'1kk–1.5kk', tipo:'profit', dif:'dificil', task:false,
+    req:'Heart of Destruction Quest',
+    tibiaroute:'Feru-Way',
+    creatures:[{n:'Grimeleech'},{n:'Hellflayer'},{n:'Vexclaw'}],
+    desc:'Área de HoD com Demons. Profit muito alto. Heart of Destruction Quest.', wiki:'https://tibia.fandom.com/wiki/Heart_of_Destruction' },
+
+  { name:'Bashmu', xphNum:3500, minLvl:550, maxLvl:999,
+    vocs:['ek','rp'], modes:['solo','duo'], xph:'2.5kk–4kk', profit:'400k–700k', tipo:'xp', dif:'dificil', task:true,
+    req:'',
+    tibiaroute:'Bashmu',
+    creatures:[{n:'Bashmu'},{n:'Juvenile Bashmu'}],
+    desc:'Criaturas Bashmu de alto nível. Excelente bestiary. Sem quest obrigatória.', wiki:'https://tibia.fandom.com/wiki/Bashmu' },
 ];
 
 // Map API vocation to internal key
@@ -2799,6 +3034,9 @@ function runHuntFinder() {
     return;
   }
 
+  // Store for modal
+  window._hfResults = results;
+
   const modeLabel = { solo:'🧍 Solo', duo:'👥 Duo', time:'👥👥 Time' };
   const vocLabel  = { ek:'⚔ EK', ed:'🌿 ED', ms:'🔮 MS', rp:'🏹 RP', monk:'🥋 Monk' };
   const difLabel  = { facil:'🟢 Fácil', medio:'🟡 Médio', dificil:'🔴 Difícil' };
@@ -2829,7 +3067,8 @@ function runHuntFinder() {
       : '';
 
     return `
-    <div id="${cardId}" style="background:var(--surface);border:${isBest ? '2px solid var(--bamboo)' : '1px solid var(--border)'};border-radius:10px;overflow:hidden;transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column"
+    <div id="${cardId}" style="background:var(--surface);border:${isBest ? '2px solid var(--bamboo)' : '1px solid var(--border)'};border-radius:10px;overflow:hidden;transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column;cursor:pointer"
+         onclick="openHuntModal(${i})"
          onmouseenter="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,.18)'"
          onmouseleave="this.style.transform='none';this.style.boxShadow='none'">
 
@@ -2880,7 +3119,7 @@ function runHuntFinder() {
 
         <div style="font-size:.8rem;color:var(--ink-3);font-weight:300;line-height:1.5;flex:1">${h.desc}${reqHtml}</div>
 
-        <a href="${h.wiki}" target="_blank" rel="noopener"
+        <a href="${h.wiki}" target="_blank" rel="noopener" onclick="event.stopPropagation()"
            style="font-size:.72rem;color:var(--bamboo);font-weight:500;text-decoration:none;border-top:1px solid var(--border);padding-top:.55rem;margin-top:.65rem;display:block">
           Ver no TibiaWiki →
         </a>
@@ -2890,7 +3129,19 @@ function runHuntFinder() {
 
   document.getElementById('hf-results').style.display = 'block';
 
-  // Inject creature images from static.tibia.com
+  // Inject creature images via cdn.tibiaroute.com/monsters/{Pascal-Case}.gif
+  // Overrides para nomes cujo slug difere do nome de exibição
+  const SLUG_OVERRIDES = {
+    'dawnfireasura':        'Dawnfire-Asura',
+    'midnightasura':        'Midnight-Asura',
+    'flimsylostsoul':       'Flimsy-Lost-Soul',
+    'meanlostsoul':         'Mean-Lost-Soul',
+    'freakishlostsoul':     'Freakish-Lost-Soul',
+    'gnomevil':             'Gnomevil',
+    'branchycrawler':       'Branchy-Crawler',
+    'adeptofthecult':       'Adept-Of-The-Cult',
+    'soulbrokenharbinger':  'Soul-Broken-Harbinger',
+  };
   results.forEach((h, i) => {
     const creatures = (h.creatures || []).slice(0, 3);
     if (!creatures.length) return;
@@ -2898,7 +3149,10 @@ function runHuntFinder() {
     if (!container) return;
     container.innerHTML = creatures.map(c => {
       const name = c.n || c;
-      const url = 'https://static.tibia.com/images/library/' + (c.u || '') + '.gif';
+      const key  = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const slug = SLUG_OVERRIDES[key] ||
+                   name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
+      const url  = `https://cdn.tibiaroute.com/monsters/${slug}.gif`;
       return `<img src="${url}" alt="${name}" title="${name}"
         style="width:52px;height:52px;image-rendering:pixelated;border-radius:6px;object-fit:contain;background:rgba(0,0,0,.2)"
         onerror="this.style.display='none'">`;
