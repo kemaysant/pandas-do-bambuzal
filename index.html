@@ -2457,7 +2457,7 @@ function openHuntModal(idx) {
     const key = name.toLowerCase().replace(/[^a-z0-9]/g,'');
     const s = SLUG_OVERRIDES[key] || name.split(' ').map(w=>w[0].toUpperCase()+w.slice(1)).join('-');
     return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-      <img src="https://cdn.tibiaroute.com/monsters/${s}.gif" style="width:64px;height:64px;image-rendering:pixelated;object-fit:contain" onerror="this.style.opacity='.3'">
+      <img src="https://cdn.tibiaroute.com/monsters/${s}.gif" referrerpolicy="no-referrer" style="width:64px;height:64px;image-rendering:pixelated;object-fit:contain" onerror="this.style.opacity='.3'">
       <span style="font-size:.65rem;color:var(--ink-3);text-align:center">${name}</span>
     </div>`;
   }).join('');
@@ -3386,7 +3386,7 @@ function runHuntFinder() {
       const slug = SLUG_OVERRIDES[key] ||
                    name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
       const url  = `https://cdn.tibiaroute.com/monsters/${slug}.gif`;
-      return `<img src="${url}" alt="${name}" title="${name}"
+      return `<img src="${url}" alt="${name}" title="${name}" referrerpolicy="no-referrer"
         style="width:52px;height:52px;image-rendering:pixelated;border-radius:6px;object-fit:contain;background:rgba(0,0,0,.2)"
         onerror="this.style.display='none'">`;
     }).join('');
