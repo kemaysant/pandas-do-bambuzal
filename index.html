@@ -9,6 +9,8 @@
 <title>Pandas do Bambuzal · Guild · Tibia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
 /* ══════════════════════════════════════
    DESIGN TOKENS — dark by default
@@ -498,6 +500,227 @@ footer strong{color:var(--ink-3);font-weight:500}
 @media(max-width:620px){
   .hf-modal-cols{grid-template-columns:1fr !important}
 }
+
+/* ── Hunt Modal Redesign ── */
+.hf-modal-overlay {
+  position:fixed;inset:0;z-index:9999;
+  display:none;align-items:center;justify-content:center;padding:1rem;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(6px);
+}
+.hf-modal-overlay.open { display:flex; }
+.hf-modal-box {
+  position:relative;
+  background:var(--bg-1);
+  border:1px solid var(--border-2);
+  border-radius:16px;
+  width:100%;max-width:1020px;
+  max-height:92vh;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+}
+.hf-modal-box::-webkit-scrollbar{width:4px}
+.hf-modal-box::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+/* Header */
+.hf-mhdr {
+  padding:1.25rem 1.5rem .9rem;
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:10;
+  background:var(--bg-1);
+}
+.hf-mhdr-top {
+  display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem;flex-wrap:wrap;
+  margin-bottom:.75rem;
+}
+.hf-mhdr-title { font-size:1.35rem;font-weight:800;color:var(--ink);margin:0 0 3px;line-height:1.2; }
+.hf-mhdr-meta  { font-size:.73rem;color:var(--muted); }
+.hf-mhdr-meta strong { color:var(--ink-2); }
+.hf-mhdr-stats {
+  display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;
+}
+.hf-stat-box {
+  background:var(--bg-2);border-radius:9px;padding:.55rem .8rem;text-align:center;
+}
+.hf-stat-lbl { font-size:.48rem;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--muted);margin-bottom:2px; }
+.hf-stat-val { font-size:.95rem;font-weight:800; }
+.hf-close-btn {
+  background:var(--bg-3);border:1px solid var(--border);color:var(--ink-2);
+  border-radius:7px;padding:5px 11px;cursor:pointer;font-size:.8rem;font-weight:600;
+  flex-shrink:0;transition:background .15s;
+}
+.hf-close-btn:hover { background:var(--bg-2); }
+
+/* Body 3-col */
+.hf-mbody { padding:1rem 1.5rem 1.5rem; }
+.hf-m3col {
+  display:grid;
+  grid-template-columns:1fr 260px 190px;
+  gap:1rem;align-items:start;
+}
+@media(max-width:900px){
+  .hf-m3col { grid-template-columns:1fr 190px; }
+  .hf-m3col .hf-col-map { display:none; }
+}
+@media(max-width:600px){
+  .hf-m3col { grid-template-columns:1fr; }
+}
+
+/* Section labels */
+.hf-sec-lbl {
+  font-size:.58rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:.5rem;display:flex;align-items:center;gap:6px;
+}
+
+/* Creature card Intibia-style */
+.hf-creature {
+  display:flex;gap:.75rem;align-items:flex-start;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  border-radius:11px;padding:.7rem .85rem;
+  transition:border-color .15s;
+}
+.hf-creature:hover { border-color:rgba(255,255,255,.13); }
+.hf-creature-img-wrap {
+  flex-shrink:0;width:66px;height:66px;
+  background:radial-gradient(ellipse at center,#2a2018 0%,#141008 100%);
+  border-radius:10px;border:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+}
+.hf-creature-img-wrap img {
+  width:56px;height:56px;image-rendering:pixelated;object-fit:contain;position:relative;z-index:1;
+}
+.hf-creature-body { flex:1;min-width:0; }
+.hf-creature-name {
+  font-size:.82rem;font-weight:700;color:var(--ink);margin-bottom:.3rem;
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+}
+.hf-charm-badge {
+  background:rgba(167,139,250,.15);color:#a78bfa;
+  border-radius:4px;padding:1px 6px;font-size:.62rem;font-weight:700;
+}
+.hf-blvl-badge { color:var(--muted);font-size:.58rem; }
+
+/* Stat bars */
+.hf-bars { margin-bottom:.45rem; }
+.hf-bar-row { display:flex;align-items:center;gap:6px;margin-bottom:3px; }
+.hf-bar-lbl { font-size:.52rem;color:var(--ink-3);width:20px;flex-shrink:0; }
+.hf-bar-track {
+  flex:1;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;
+}
+.hf-bar-fill { height:100%;border-radius:3px; }
+
+/* Stat pills */
+.hf-pills { display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.4rem; }
+.hf-pill {
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  border-radius:7px;padding:.28rem .5rem;text-align:center;min-width:50px;
+}
+.hf-pill-lbl { font-size:.45rem;color:var(--ink-3);letter-spacing:.5px;text-transform:uppercase; }
+.hf-pill-val { font-size:.78rem;font-weight:700; }
+
+/* Resistance grid */
+.hf-res { display:flex;flex-wrap:wrap;gap:3px;margin-top:.35rem; }
+.hf-res-item {
+  display:flex;flex-direction:column;align-items:center;gap:2px;min-width:34px;
+}
+.hf-res-icon { font-size:.62rem; }
+.hf-res-val {
+  font-size:.57rem;font-weight:700;border-radius:4px;padding:1px 4px;white-space:nowrap;
+}
+
+/* Map panel */
+.hf-col-map {}
+.hf-map-wrap {
+  position:relative;border-radius:10px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+  background:#0a0a0c;
+  height:230px;
+}
+.hf-map-wrap .leaflet-container {
+  background:#0d0d10;
+  border-radius:9px;
+}
+/* Hide leaflet attribution */
+.hf-map-wrap .leaflet-control-attribution,
+#hf-leaflet-zoom-map .leaflet-control-attribution { display:none; }
+#hf-leaflet-zoom-map { border-radius:13px; }
+#hf-leaflet-zoom-map .leaflet-container { background:#0d0d10; border-radius:13px; }
+.hf-map-controls {
+  display:flex;gap:5px;margin-top:.5rem;
+}
+.hf-map-btn {
+  flex:1;background:var(--bg-3);border:1px solid var(--border);color:var(--ink-2);
+  border-radius:6px;padding:4px 0;cursor:pointer;font-size:.72rem;font-weight:600;
+  transition:background .15s;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:4px;
+}
+.hf-map-btn:hover { background:var(--bg-2);color:var(--ink); }
+
+/* Map zoomed overlay */
+.hf-map-zoom-overlay {
+  display:none;position:fixed;inset:0;z-index:10000;
+  background:rgba(0,0,0,.9);backdrop-filter:blur(4px);
+  align-items:center;justify-content:center;padding:1.5rem;
+}
+.hf-map-zoom-overlay.open { display:flex; }
+.hf-map-zoom-inner {
+  position:relative;width:100%;max-width:860px;
+  aspect-ratio:4/3;border-radius:14px;overflow:hidden;
+  border:1px solid var(--border-2);
+}
+.hf-map-zoom-inner iframe { width:100%;height:100%;border:none; }
+.hf-map-zoom-close {
+  position:absolute;top:-38px;right:0;
+  background:var(--bg-3);border:1px solid var(--border);color:var(--ink-2);
+  border-radius:7px;padding:5px 13px;cursor:pointer;font-size:.8rem;font-weight:600;
+}
+
+/* Right col: supplies + loots */
+.hf-item-grid { display:flex;flex-wrap:wrap;gap:.4rem; }
+.hf-item-slot {
+  display:flex;flex-direction:column;align-items:center;gap:3px;cursor:default;
+}
+.hf-item-slot-img {
+  width:44px;height:44px;background:#16130e;
+  border:1px solid rgba(255,255,255,.1);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.5);
+}
+.hf-item-slot-img img {
+  width:34px;height:34px;image-rendering:pixelated;object-fit:contain;
+}
+.hf-item-slot-lbl {
+  font-size:.52rem;color:var(--ink-3);text-align:center;max-width:50px;line-height:1.2;
+}
+
+/* Tips / req / location */
+.hf-tips {
+  padding:.55rem .75rem;background:rgba(134,239,172,.06);
+  border-left:3px solid var(--bamboo);border-radius:0 7px 7px 0;
+  font-size:.77rem;color:var(--ink-2);line-height:1.55;
+}
+.hf-req-quest {
+  padding:.35rem .6rem;background:rgba(234,179,8,.08);
+  border-left:3px solid #eab308;border-radius:0 5px 5px 0;
+  font-size:.77rem;color:#eab308;
+}
+.hf-location {
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  border-radius:8px;padding:.55rem .75rem;
+}
+.hf-location-text { font-size:.77rem;color:var(--ink-2);line-height:1.5; }
+
+/* Desc */
+.hf-desc { font-size:.82rem;color:var(--ink-2);line-height:1.65;margin-bottom:.9rem; }
+
+/* Links */
+.hf-links { display:flex;gap:5px;flex-wrap:wrap; }
+.hf-link {
+  display:inline-flex;align-items:center;gap:5px;padding:5px 11px;
+  background:var(--bg-3);border:1px solid var(--border);
+  border-radius:6px;text-decoration:none;font-size:.7rem;font-weight:500;
+  transition:background .15s;color:var(--ink);
+}
+.hf-link:hover { background:var(--bg-2); }
+.hf-link.bamboo { color:var(--bamboo); }
 </style>
 </head>
 <body>
@@ -1037,12 +1260,18 @@ async function tibiaFetch(path) {
   </section>
 
   <!-- Hunt Detail Modal -->
-  <div id="hf-modal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;padding:1rem"
-       onclick="if(event.target===this)closeHuntModal()">
-    <div style="position:absolute;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)"></div>
-    <div style="position:relative;background:var(--bg-1);border:1px solid var(--border-2);border-radius:14px;width:100%;max-width:860px;max-height:92vh;overflow-y:auto;padding:1.5rem;z-index:1">
-      <button onclick="closeHuntModal()" style="position:sticky;top:0;float:right;background:var(--bg-3);border:1px solid var(--border);color:var(--ink-2);border-radius:6px;padding:4px 10px;cursor:pointer;font-size:.85rem;margin-bottom:.5rem">✕</button>
+  <!-- Hunt Modal -->
+  <div id="hf-modal" class="hf-modal-overlay" onclick="if(event.target===this)closeHuntModal()">
+    <div class="hf-modal-box">
       <div id="hf-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Map Zoom Overlay -->
+  <div id="hf-map-zoom" class="hf-map-zoom-overlay" onclick="if(event.target===this)closeMapZoom()">
+    <div style="position:relative;width:100%;max-width:860px;height:560px;border-radius:14px;overflow:visible;border:1px solid var(--border-2)">
+      <button class="hf-map-zoom-close" onclick="closeMapZoom()">✕ Fechar</button>
+      <div id="hf-leaflet-zoom-map" style="width:100%;height:100%;border-radius:14px;"></div>
     </div>
   </div>
 
@@ -3635,50 +3864,31 @@ function openHuntModal(idx) {
   // ── Resistance badge
   function resBadge(val, cfg) {
     if (val === null || val === undefined) return '';
-    let bg, txt;
-    if (val === 0)        { bg='rgba(100,100,100,.2)'; txt='Imune'; }
-    else if (val < 50)    { bg='rgba(34,197,94,.15)';  txt=val+'%'; }
-    else if (val < 85)    { bg='rgba(34,197,94,.08)';  txt=val+'%'; }
-    else if (val === 100) { bg='rgba(255,255,255,.05)'; txt=val+'%'; }
-    else if (val <= 110)  { bg='rgba(234,179,8,.12)';   txt=val+'%'; }
-    else                  { bg='rgba(239,68,68,.2)';    txt=val+'%'; }
-    const textColor = val === 0 ? '#94a3b8' : val < 85 ? '#4ade80' : val <= 100 ? '#94a3b8' : val <= 110 ? '#eab308' : '#f87171';
-    return `<div style="display:flex;flex-direction:column;align-items:center;gap:2px;min-width:36px">
-      <span style="font-size:.65rem">${cfg.icon}</span>
-      <span style="font-size:.6rem;font-weight:600;color:${textColor};background:${bg};border-radius:4px;padding:1px 4px;white-space:nowrap">${txt}</span>
+    let textColor, bg, txt;
+    if (val === 0)        { bg='rgba(100,100,100,.22)'; txt='Imune';  textColor='#94a3b8'; }
+    else if (val < 50)    { bg='rgba(34,197,94,.18)';  txt=val+'%'; textColor='#4ade80'; }
+    else if (val < 85)    { bg='rgba(34,197,94,.08)';  txt=val+'%'; textColor='#86efac'; }
+    else if (val === 100) { bg='rgba(255,255,255,.05)'; txt=val+'%'; textColor='#94a3b8'; }
+    else if (val <= 110)  { bg='rgba(234,179,8,.14)';  txt=val+'%'; textColor='#eab308'; }
+    else                  { bg='rgba(239,68,68,.22)';  txt=val+'%'; textColor='#f87171'; }
+    return `<div class="hf-res-item">
+      <span class="hf-res-icon">${cfg.icon}</span>
+      <span class="hf-res-val" style="color:${textColor};background:${bg}">${txt}</span>
     </div>`;
   }
 
-  // ── Stat pill
-  function pill(label, val, color) {
-    return `<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:7px;padding:.35rem .6rem;text-align:center;min-width:52px">
-      <div style="font-size:.5rem;color:var(--ink-3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:1px">${label}</div>
-      <div style="font-size:.8rem;font-weight:700;color:${color||'var(--ink)'}">${val}</div>
-    </div>`;
-  }
-
-  // ── Bar (thin, compact)
-  function bar(label, pct, color) {
-    return `<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-      <span style="font-size:.55rem;color:var(--ink-3);width:22px;flex-shrink:0">${label}</span>
-      <div style="flex:1;height:4px;background:rgba(255,255,255,.07);border-radius:2px;overflow:hidden">
-        <div style="height:100%;width:${Math.max(3,pct)}%;background:${color};border-radius:2px"></div>
-      </div>
-    </div>`;
-  }
-
-  // ── Item slot (supply / loot)
-  function itemSlot(name, size=42) {
+  // ── Item slot (supply / loot) using new CSS classes
+  function itemSlot(name) {
     const label = name.replace(/ Potion$/,'').replace(/^Ultimate /,'Ult. ').replace(/^Strong /,'Str. ').replace(/^Great /,'');
-    return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;cursor:default" title="${name}">
-      <div style="width:${size}px;height:${size}px;background:#16130e;border:1px solid rgba(255,255,255,.1);border-radius:7px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.5)">
-        <img src="${itemImgUrl(name)}" style="width:${size-10}px;height:${size-10}px;image-rendering:pixelated;object-fit:contain" onerror="this.style.opacity='.1'">
+    return `<div class="hf-item-slot" title="${name}">
+      <div class="hf-item-slot-img">
+        <img src="${itemImgUrl(name)}" onerror="this.style.opacity='.1'">
       </div>
-      <span style="font-size:.55rem;color:var(--ink-3);text-align:center;max-width:${size+6}px;line-height:1.2">${label}</span>
+      <span class="hf-item-slot-lbl">${label}</span>
     </div>`;
   }
 
-  // ── Build creature cards
+  // ── Build creature cards (Intibia-inspired)
   const creaturesHtml = (h.creatures||[]).map(c => {
     const name = c.n || c;
     const key  = name.toLowerCase();
@@ -3686,40 +3896,48 @@ function openHuntModal(idx) {
     const st   = CREATURE_STATS[key] || {};
     const imgUrl = `https://wsrv.nl/?url=${encodeURIComponent('https://cdn.tibiaroute.com/monsters/'+s+'.gif')}`;
 
-    // Stats pills row
     const hpVal    = st.HP    ? st.HP.toLocaleString('pt-BR')  : '?';
     const xpVal    = st.XP    ? st.XP.toLocaleString('pt-BR')  : '?';
     const armorVal = st.armor != null ? st.armor : '?';
     const mitVal   = st.mit   != null ? st.mit   : '?';
-    const charmBadge = st.charm ? `<span style="background:rgba(167,139,250,.15);color:#a78bfa;border-radius:4px;padding:1px 6px;font-size:.65rem;font-weight:700">🔮 ${st.charm} pts</span>` : '';
-    const blvlBadge  = st.blvl  ? `<span style="color:var(--muted);font-size:.6rem">${st.blvl}</span>` : '';
 
-    // Resistances
-    const resHtml = st.res ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:.4rem">
-      ${st.res.map((v,i) => resBadge(v, ELEM_CFG[i])).join('')}
-    </div>` : '';
+    const charmBadge = st.charm
+      ? `<span class="hf-charm-badge">🔮 ${st.charm} pts</span>` : '';
+    const blvlBadge  = st.blvl
+      ? `<span class="hf-blvl-badge">${st.blvl}</span>` : '';
 
-    return `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:.75rem .9rem;display:flex;gap:.85rem;align-items:flex-start">
-      <div style="flex-shrink:0;width:60px;height:60px;display:flex;align-items:center;justify-content:center;background:#1a1610;border-radius:8px;border:1px solid rgba(255,255,255,.06)">
-        <img src="${imgUrl}" style="width:52px;height:52px;image-rendering:pixelated;object-fit:contain" onerror="this.style.opacity='.2'">
+    const resHtml = st.res
+      ? `<div class="hf-res">${st.res.map((v,i) => resBadge(v, ELEM_CFG[i])).join('')}</div>`
+      : '';
+
+    return `<div class="hf-creature">
+      <div class="hf-creature-img-wrap">
+        <img src="${imgUrl}" onerror="this.style.opacity='.15'">
       </div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:.35rem;flex-wrap:wrap">
-          <span style="font-size:.82rem;font-weight:700;color:var(--ink)">${name}</span>
-          ${charmBadge}${blvlBadge}
+      <div class="hf-creature-body">
+        <div class="hf-creature-name">
+          ${name}${charmBadge}${blvlBadge}
         </div>
-        <!-- HP/XP/Vel bars -->
-        ${bar('HP',  st.hp  || 40, '#ef4444')}
-        ${bar('XP',  st.xp  || 40, '#f59e0b')}
-        ${bar('Vel', st.spd || 40, '#818cf8')}
-        <!-- Pills: HP real, XP real, Armor, Mit -->
-        <div style="display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.5rem">
-          ${pill('❤ HP',    hpVal,    '#ef4444')}
-          ${pill('⭐ XP',   xpVal,    '#f59e0b')}
-          ${pill('🛡 Armor', armorVal, '#94a3b8')}
-          ${pill('🔰 Mit',  mitVal,   '#818cf8')}
+        <div class="hf-bars">
+          <div class="hf-bar-row">
+            <span class="hf-bar-lbl">HP</span>
+            <div class="hf-bar-track"><div class="hf-bar-fill" style="width:${Math.max(3,st.hp||40)}%;background:#ef4444"></div></div>
+          </div>
+          <div class="hf-bar-row">
+            <span class="hf-bar-lbl">XP</span>
+            <div class="hf-bar-track"><div class="hf-bar-fill" style="width:${Math.max(3,st.xp||40)}%;background:#f59e0b"></div></div>
+          </div>
+          <div class="hf-bar-row">
+            <span class="hf-bar-lbl">Vel</span>
+            <div class="hf-bar-track"><div class="hf-bar-fill" style="width:${Math.max(3,st.spd||40)}%;background:#818cf8"></div></div>
+          </div>
         </div>
-        <!-- Resistances -->
+        <div class="hf-pills">
+          <div class="hf-pill"><div class="hf-pill-lbl">❤ HP</div><div class="hf-pill-val" style="color:#ef4444">${hpVal}</div></div>
+          <div class="hf-pill"><div class="hf-pill-lbl">⭐ XP</div><div class="hf-pill-val" style="color:#f59e0b">${xpVal}</div></div>
+          <div class="hf-pill"><div class="hf-pill-lbl">🛡 Armor</div><div class="hf-pill-val" style="color:#94a3b8">${armorVal}</div></div>
+          <div class="hf-pill"><div class="hf-pill-lbl">🔰 Mit</div><div class="hf-pill-val" style="color:#818cf8">${mitVal}</div></div>
+        </div>
         ${resHtml}
       </div>
     </div>`;
@@ -3729,7 +3947,6 @@ function openHuntModal(idx) {
   const supplies = getDefaultSupplies(h);
   const suppliesHtml = supplies.slice(0,6).map(s => itemSlot(typeof s==='string'?s:s.name)).join('');
 
-  // Auto-loot from creature data if hunt has no explicit loots
   let loots = h.loots || [];
   if (!loots.length) {
     const seen = new Set();
@@ -3739,119 +3956,273 @@ function openHuntModal(idx) {
     });
   }
   const lootsHtml = loots.length
-    ? loots.slice(0,8).map(l => itemSlot(typeof l==='string'?l:l.name)).join('')
+    ? loots.slice(0,10).map(l => itemSlot(typeof l==='string'?l:l.name)).join('')
     : `<span style="font-size:.75rem;color:var(--muted);font-style:italic">Sem dados</span>`;
 
-  // ── Location (from first creature's wiki data)
+  // ── Location
   const firstCreature = (h.creatures||[])[0];
   const firstKey = firstCreature ? (firstCreature.n||firstCreature).toLowerCase() : '';
   const firstSt  = CREATURE_STATS[firstKey] || {};
   const locationText = h.access || firstSt.loc || '';
   const locationHtml = locationText
-    ? `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:.6rem .8rem">
-        <div style="font-size:.6rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem">📍 Localização</div>
-        <div style="font-size:.78rem;color:var(--ink-2);line-height:1.5">${locationText}</div>
+    ? `<div class="hf-location">
+        <div class="hf-sec-lbl">📍 Localização</div>
+        <div class="hf-location-text">${locationText}</div>
       </div>` : '';
 
   // ── Requirements
   const reqItems = h.reqItems || [];
   const reqItemsHtml = reqItems.map(item =>
-    `<div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--ink-2)">
-      <span style="color:var(--bamboo);font-size:.65rem">●</span>${item}</div>`
+    `<div style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--ink-2);margin-bottom:.2rem">
+      <span style="color:var(--bamboo);font-size:.65rem">●</span>${item}
+    </div>`
   ).join('');
   const reqQuestHtml = h.req
-    ? `<div style="margin-top:${reqItems.length?'.4rem':'0'};padding:.4rem .65rem;background:rgba(234,179,8,.08);border-left:3px solid #eab308;border-radius:0 5px 5px 0;font-size:.78rem;color:#eab308">🗝 ${h.req}</div>`
+    ? `<div class="hf-req-quest" style="margin-top:${reqItems.length?'.4rem':'0'}">🗝 ${h.req}</div>`
     : '';
   const reqBlockHtml = (reqItems.length || h.req)
-    ? `<div>
-        <div style="font-size:.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:.45rem">Requisitos</div>
-        ${reqItemsHtml}${reqQuestHtml}
-      </div>` : '';
+    ? `<div><div class="hf-sec-lbl">Requisitos</div>${reqItemsHtml}${reqQuestHtml}</div>` : '';
 
   const tipsHtml = h.tips
-    ? `<div style="padding:.6rem .8rem;background:rgba(134,239,172,.06);border-left:3px solid var(--bamboo);border-radius:0 7px 7px 0;font-size:.78rem;color:var(--ink-2);line-height:1.55">💡 ${h.tips}</div>`
-    : '';
+    ? `<div class="hf-tips">💡 ${h.tips}</div>` : '';
 
-  // ── External links
+  // ── Map: Leaflet minimap using tibiamaps.io tiles
+  // Hunt coords lookup table (tibiaroute slug → [x, y, floor])
+  const HUNT_COORDS = {
+    'Haunted-Houses':    [33094, 31641, 7],
+    'The-Barkless':      [32271, 31813, 7],
+    'Draken-Walls-Zao':  [33484, 32046, 7],
+    'Asura-Mirror':      [32869, 31284, 1],
+    'Burster-Spectres':  [33094, 31641, 7],
+    'Carnisylvans-EK':   [32612, 32158, 7],
+    'Razachai':          [33487, 32046, 6],
+    'Rotworm-Hell':      [32537, 32380, 9],
+    'DT-Seal-INQ-EK':   [33203, 32393, 1],
+    'Summer-Court':      [32530, 31140, 7],
+    'Warzone-2':         [33285, 31997, 7],
+    'Warzone-6':         [33467, 32072, 7],
+    'Warzone-8-EK':      [33467, 32072, 7],
+    'Warzone-3-EK':      [33285, 31997, 7],
+    'Feru-Way':          [33143, 31629, 7],
+    'Bashmu':            [33143, 31629, 7],
+    'Upper-Roshamuul':   [33590, 31802, 7],
+    'Roshamuul-Bones':   [33590, 31900, 7],
+    'Flimsy-Lost-Souls-Venore': [32950, 32475, 4],
+    'Temple-of-the-Sun-and-Sea': [33315, 32560, 7],
+    'Flimsylostsoul':    [32950, 32475, 4],
+  };
   const tibiarouteSlug = h.tibiaroute || h.name.split(' ').map(w=>w[0].toUpperCase()+w.slice(1)).join('-');
-  const tibiarouteLink = `<a href="https://tibiaroute.com/br/hunting-places/${tibiarouteSlug}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px;background:var(--bg-3);color:var(--ink);border:1px solid var(--border);border-radius:6px;text-decoration:none;font-size:.72rem;font-weight:500">🗺 TibiaRoute</a>`;
-  const wikiLink = h.wiki
-    ? `<a href="${h.wiki}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px;background:var(--bg-3);color:var(--bamboo);border:1px solid var(--border);border-radius:6px;text-decoration:none;font-size:.72rem;font-weight:500">📖 TibiaWiki</a>`
-    : '';
+  const coords = HUNT_COORDS[tibiarouteSlug] || [32271, 31813, 7];
+  const mapHtml = `
+    <div class="hf-sec-lbl">🗺 Mapa</div>
+    <div class="hf-map-wrap" id="hf-map-wrap">
+      <div id="hf-leaflet-map" style="width:100%;height:100%;border-radius:9px;"></div>
+    </div>
+    <div class="hf-map-controls">
+      <button class="hf-map-btn" onclick="openMapZoom(${coords[0]},${coords[1]},${coords[2]})">🔍 Zoom</button>
+    </div>`;
+
+  // ── External links — removed (no external site links)
 
   document.getElementById('hf-modal-body').innerHTML = `
-    <!-- ── Header ── -->
-    <div style="margin-bottom:1rem">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem">
+    <!-- ─── HEADER sticky ─── -->
+    <div class="hf-mhdr">
+      <div class="hf-mhdr-top">
         <div>
-          <h2 style="font-size:1.3rem;font-weight:800;color:var(--ink);margin:0 0 3px;line-height:1.2">${h.name}</h2>
-          <div style="font-size:.75rem;color:var(--muted)">
-            Level mínimo <strong style="color:var(--ink-2)">${h.minLvl}</strong>${h.maxLvl<999?' – '+h.maxLvl:'+'}
-            &nbsp;·&nbsp; Modo: <strong style="color:var(--ink-2)">${modesStr}</strong>
+          <h2 class="hf-mhdr-title">${h.name}</h2>
+          <div class="hf-mhdr-meta">
+            Nível <strong>${h.minLvl}</strong>${h.maxLvl<999?' – '+h.maxLvl:'+'}
+            &nbsp;·&nbsp; Modo: <strong>${modesStr}</strong>
             &nbsp;·&nbsp; ${vocStr}
           </div>
         </div>
-        <div style="display:flex;gap:5px;flex-wrap:wrap">${tibiarouteLink}${wikiLink}</div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <button class="hf-close-btn" onclick="closeHuntModal()">✕ Fechar</button>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem">
-        <div style="background:var(--bg-2);border-radius:7px;padding:.5rem .7rem;text-align:center">
-          <div style="font-size:.5rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)">XP/hora</div>
-          <div style="font-size:.92rem;font-weight:800;color:#818cf8;margin-top:1px">${h.xph||'—'}</div>
+      <div class="hf-mhdr-stats">
+        <div class="hf-stat-box">
+          <div class="hf-stat-lbl">XP/hora</div>
+          <div class="hf-stat-val" style="color:#818cf8">${h.xph||'—'}</div>
         </div>
-        <div style="background:var(--bg-2);border-radius:7px;padding:.5rem .7rem;text-align:center">
-          <div style="font-size:.5rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)">Lucro/hora</div>
-          <div style="font-size:.92rem;font-weight:800;color:${profitColor};margin-top:1px">${h.profit||'—'}</div>
+        <div class="hf-stat-box">
+          <div class="hf-stat-lbl">Lucro/hora</div>
+          <div class="hf-stat-val" style="color:${profitColor}">${h.profit||'—'}</div>
         </div>
-        <div style="background:var(--bg-2);border-radius:7px;padding:.5rem .7rem;text-align:center">
-          <div style="font-size:.5rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)">Dificuldade</div>
-          <div style="font-size:.85rem;font-weight:700;color:${difColor[h.dif]||'var(--ink)'};margin-top:1px">${difLabel[h.dif]||h.dif}</div>
+        <div class="hf-stat-box">
+          <div class="hf-stat-lbl">Dificuldade</div>
+          <div class="hf-stat-val" style="color:${difColor[h.dif]||'var(--ink)'};font-size:.85rem">${difLabel[h.dif]||h.dif}</div>
         </div>
       </div>
     </div>
 
-    <div style="font-size:.83rem;color:var(--ink-2);line-height:1.6;margin-bottom:.9rem">${h.desc}</div>
+    <!-- ─── BODY 3 columns ─── -->
+    <div class="hf-mbody">
+      <div class="hf-desc">${h.desc}</div>
 
-    <!-- ── Two-column layout ── -->
-    <div class="hf-modal-cols" style="display:grid;grid-template-columns:1fr 210px;gap:.9rem;align-items:start">
+      <div class="hf-m3col">
 
-      <!-- LEFT: Criaturas + Req + Tips -->
-      <div style="display:flex;flex-direction:column;gap:.8rem">
-
-        <div>
-          <div style="font-size:.62rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:.45rem">Criaturas</div>
-          <div style="display:flex;flex-direction:column;gap:.45rem">
-            ${creaturesHtml||'<span style="font-size:.8rem;color:var(--muted)">—</span>'}
+        <!-- COL 1: Criaturas + Req + Tips + Location -->
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div>
+            <div class="hf-sec-lbl">Criaturas</div>
+            <div style="display:flex;flex-direction:column;gap:.45rem">
+              ${creaturesHtml||'<span style="font-size:.8rem;color:var(--muted)">—</span>'}
+            </div>
           </div>
+          ${reqBlockHtml}
+          ${locationHtml}
+          ${tipsHtml}
         </div>
 
-        ${reqBlockHtml}
-        ${locationHtml}
-        ${tipsHtml}
-      </div>
-
-      <!-- RIGHT: Supplies + Loots -->
-      <div style="display:flex;flex-direction:column;gap:.8rem">
-
-        <div>
-          <div style="font-size:.62rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Suprimentos</div>
-          <div style="display:flex;flex-wrap:wrap;gap:.45rem">${suppliesHtml}</div>
+        <!-- COL 2: Mapa -->
+        <div class="hf-col-map">
+          ${mapHtml}
         </div>
 
-        <div>
-          <div style="font-size:.62rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Melhores loots</div>
-          <div style="display:flex;flex-wrap:wrap;gap:.45rem">${lootsHtml}</div>
+        <!-- COL 3: Suprimentos + Loots -->
+        <div style="display:flex;flex-direction:column;gap:.8rem">
+          <div>
+            <div class="hf-sec-lbl">Suprimentos</div>
+            <div class="hf-item-grid">${suppliesHtml}</div>
+          </div>
+          <div>
+            <div class="hf-sec-lbl">Melhores loots</div>
+            <div class="hf-item-grid">${lootsHtml}</div>
+          </div>
         </div>
 
       </div>
     </div>
   `;
 
-  document.getElementById('hf-modal').style.display = 'flex';
+  document.getElementById('hf-modal').classList.add('open');
   document.body.style.overflow = 'hidden';
+  // Init inline minimap after DOM settles
+  setTimeout(() => initHfMiniMap(coords[0], coords[1], coords[2]), 60);
 }
+
 function closeHuntModal() {
-  document.getElementById('hf-modal').style.display = 'none';
+  document.getElementById('hf-modal').classList.remove('open');
   document.body.style.overflow = '';
+  // Destroy inline minimap
+  if (window._hfMiniMap) { window._hfMiniMap.remove(); window._hfMiniMap = null; }
+}
+
+// Initialize inline Leaflet minimap after modal renders
+function initHfMiniMap(x, y, floor) {
+  const el = document.getElementById('hf-leaflet-map');
+  if (!el || !window.L) return;
+  if (window._hfMiniMap) { window._hfMiniMap.remove(); window._hfMiniMap = null; }
+
+  const TILE_BASE = 'https://tibiamaps.github.io/tibia-map-data/mapper/';
+  L.CRS.TibiaSimple = L.extend({}, L.CRS.Simple, {
+    scale: function(zoom) { return 256 * Math.pow(2, zoom); },
+    latLngToPoint: function(latlng, zoom) {
+      const pt = this.projection.project(latlng);
+      const s = this.scale(zoom);
+      return this.transformation._transform(pt, s);
+    },
+    pointToLatLng: function(point, zoom) {
+      const s = this.scale(zoom);
+      const pt = this.transformation.untransform(point, s);
+      return this.projection.unproject(pt);
+    }
+  });
+
+  const map = window._hfMiniMap = L.map(el, {
+    crs: L.CRS.TibiaSimple,
+    minZoom: 0, maxZoom: 2,
+    zoomControl: true,
+    attributionControl: false,
+    fadeAnimation: false,
+  });
+
+  const layer = L.gridLayer({ floor });
+  layer.getTileSize = function() {
+    const s = L.GridLayer.prototype.getTileSize.call(this);
+    const z = this._tileZoom;
+    return z > 0 ? s.divideBy(map.getZoomScale(0, z)).round() : s;
+  };
+  layer.createTile = function(coords) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, 256, 256);
+    const px = Math.abs(Math.floor(coords.x * 256 / 1));
+    const py = Math.abs(Math.floor(coords.y * 256 / 1));
+    const key = `${px}_${py}_${floor}`;
+    const img = new Image();
+    img.onload = () => { ctx.drawImage(img, 0, 0, 256, 256); };
+    img.src = TILE_BASE + `Minimap_Color_${key}.png`;
+    return canvas;
+  };
+  layer.addTo(map);
+
+  // Marker
+  const Icon = L.divIcon({
+    html: '<div style="width:10px;height:10px;background:#4ade80;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(74,222,128,.8)"></div>',
+    iconSize: [10, 10],
+    iconAnchor: [5, 5],
+    className: ''
+  });
+  const latlng = map.unproject([x, y], 0);
+  L.marker(latlng, { icon: Icon }).addTo(map);
+  map.setView(latlng, 0);
+}
+
+function openMapZoom(x, y, floor) {
+  document.getElementById('hf-map-zoom').classList.add('open');
+  setTimeout(() => {
+    const el = document.getElementById('hf-leaflet-zoom-map');
+    if (!el || !window.L) return;
+    if (window._hfZoomMap) { window._hfZoomMap.remove(); window._hfZoomMap = null; }
+
+    const TILE_BASE = 'https://tibiamaps.github.io/tibia-map-data/mapper/';
+    const map = window._hfZoomMap = L.map(el, {
+      crs: L.CRS.TibiaSimple || L.CRS.Simple,
+      minZoom: 0, maxZoom: 2,
+      zoomControl: true,
+      attributionControl: false,
+      fadeAnimation: false,
+    });
+
+    const layer = L.gridLayer({ floor });
+    layer.getTileSize = function() {
+      const s = L.GridLayer.prototype.getTileSize.call(this);
+      const z = this._tileZoom;
+      return z > 0 ? s.divideBy(map.getZoomScale(0, z)).round() : s;
+    };
+    layer.createTile = function(coords) {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#111';
+      ctx.fillRect(0, 0, 256, 256);
+      const px = Math.abs(Math.floor(coords.x * 256));
+      const py = Math.abs(Math.floor(coords.y * 256));
+      const key = `${px}_${py}_${floor}`;
+      const img = new Image();
+      img.onload = () => { ctx.drawImage(img, 0, 0, 256, 256); };
+      img.src = TILE_BASE + `Minimap_Color_${key}.png`;
+      return canvas;
+    };
+    layer.addTo(map);
+
+    const Icon = L.divIcon({
+      html: '<div style="width:12px;height:12px;background:#4ade80;border:2px solid #fff;border-radius:50%;box-shadow:0 0 8px rgba(74,222,128,.9)"></div>',
+      iconSize: [12, 12], iconAnchor: [6, 6], className: ''
+    });
+    const latlng = map.unproject([x, y], 0);
+    L.marker(latlng, { icon: Icon }).addTo(map);
+    map.setView(latlng, 1);
+  }, 80);
+}
+
+function closeMapZoom() {
+  document.getElementById('hf-map-zoom').classList.remove('open');
+  if (window._hfZoomMap) { window._hfZoomMap.remove(); window._hfZoomMap = null; }
 }
 
 function SLUG_OVERRIDES_FN(name) {
