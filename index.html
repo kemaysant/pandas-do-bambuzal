@@ -2189,17 +2189,37 @@ const GOLD_TOKEN_IMBU = {
 
 let currentImbuId = null;
 
-const itemImgCache = {};
 
-// Gera URL de imagem de item via tibiadata.com/img/objects/ (sem API call)
-// Mesmo padrão das criaturas: lowercase, espaços e underscores → hifens
-// ── Imagens via Cloudflare Worker (mesmo proxy da API) ──
-// Worker roteia /img/* → tibiadata.com/img/* contornando hotlink block
+
+// ── MD5 leve (Pior & Sedoglavic, domínio público) ──────────────────
+// Necessário para montar URLs do wikia nocookie CDN
+function _md5(str) {
+  function safeAdd(x,y){var lsw=(x&0xffff)+(y&0xffff);return(((x>>16)+(y>>16)+(lsw>>16))<<16)|(lsw&0xffff);}
+  function bitRotL(num,cnt){return(num<<cnt)|(num>>>(32-cnt));}
+  function md5cmn(q,a,b,x,s,t){return safeAdd(bitRotL(safeAdd(safeAdd(a,q),safeAdd(x,t)),s),b);}
+  function md5ff(a,b,c,d,x,s,t){return md5cmn((b&c)|((~b)&d),a,b,x,s,t);}
+  function md5gg(a,b,c,d,x,s,t){return md5cmn((b&d)|(c&(~d)),a,b,x,s,t);}
+  function md5hh(a,b,c,d,x,s,t){return md5cmn(b^c^d,a,b,x,s,t);}
+  function md5ii(a,b,c,d,x,s,t){return md5cmn(c^(b|(~d)),a,b,x,s,t);}
+  function str2binl(str){var bin=[],mask=(1<<8)-1;for(var i=0;i<str.length*8;i+=8)bin[i>>5]|=(str.charCodeAt(i/8)&mask)<<(i%32);return bin;}
+  function binl2hex(binarray){var hexcase=0,hex_tab=hexcase?'0123456789ABCDEF':'0123456789abcdef',str='';for(var i=0;i<binarray.length*4;i++){str+=hex_tab.charAt((binarray[i>>2]>>((i%4)*8+4))&0xf)+hex_tab.charAt((binarray[i>>2]>>((i%4)*8))&0xf);}return str;}
+  function core_md5(x,len){x[len>>5]|=0x80<<((len)%32);x[(((len+64)>>>9)<<4)+14]=len;var a=1732584193,b=-271733879,c=-1732584194,d=271733878;for(var i=0;i<x.length;i+=16){var olda=a,oldb=b,oldc=c,oldd=d;a=md5ff(a,b,c,d,x[i+0],7,-680876936);d=md5ff(d,a,b,c,x[i+1],12,-389564586);c=md5ff(c,d,a,b,x[i+2],17,606105819);b=md5ff(b,c,d,a,x[i+3],22,-1044525330);a=md5ff(a,b,c,d,x[i+4],7,-176418897);d=md5ff(d,a,b,c,x[i+5],12,1200080426);c=md5ff(c,d,a,b,x[i+6],17,-1473231341);b=md5ff(b,c,d,a,x[i+7],22,-45705983);a=md5ff(a,b,c,d,x[i+8],7,1770035416);d=md5ff(d,a,b,c,x[i+9],12,-1958414417);c=md5ff(c,d,a,b,x[i+10],17,-42063);b=md5ff(b,c,d,a,x[i+11],22,-1990404162);a=md5ff(a,b,c,d,x[i+12],7,1804603682);d=md5ff(d,a,b,c,x[i+13],12,-40341101);c=md5ff(c,d,a,b,x[i+14],17,-1502002290);b=md5ff(b,c,d,a,x[i+15],22,1236535329);a=md5gg(a,b,c,d,x[i+1],5,-165796510);d=md5gg(d,a,b,c,x[i+6],9,-1069501632);c=md5gg(c,d,a,b,x[i+11],14,643717713);b=md5gg(b,c,d,a,x[i+0],20,-373897302);a=md5gg(a,b,c,d,x[i+5],5,-701558691);d=md5gg(d,a,b,c,x[i+10],9,38016083);c=md5gg(c,d,a,b,x[i+15],14,-660478335);b=md5gg(b,c,d,a,x[i+4],20,-405537848);a=md5gg(a,b,c,d,x[i+9],5,568446438);d=md5gg(d,a,b,c,x[i+14],9,-1019803690);c=md5gg(c,d,a,b,x[i+3],14,-187363961);b=md5gg(b,c,d,a,x[i+8],20,1163531501);a=md5gg(a,b,c,d,x[i+13],5,-1444681467);d=md5gg(d,a,b,c,x[i+2],9,-51403784);c=md5gg(c,d,a,b,x[i+7],14,1735328473);b=md5gg(b,c,d,a,x[i+12],20,-1926607734);a=md5hh(a,b,c,d,x[i+5],4,-378558);d=md5hh(d,a,b,c,x[i+8],11,-2022574463);c=md5hh(c,d,a,b,x[i+11],16,1839030562);b=md5hh(b,c,d,a,x[i+14],23,-35309556);a=md5hh(a,b,c,d,x[i+1],4,-1530992060);d=md5hh(d,a,b,c,x[i+4],11,1272893353);c=md5hh(c,d,a,b,x[i+7],16,-155497632);b=md5hh(b,c,d,a,x[i+10],23,-1094730640);a=md5hh(a,b,c,d,x[i+13],4,681279174);d=md5hh(d,a,b,c,x[i+0],11,-358537222);c=md5hh(c,d,a,b,x[i+3],16,-722521979);b=md5hh(b,c,d,a,x[i+6],23,76029189);a=md5hh(a,b,c,d,x[i+9],4,-640364487);d=md5hh(d,a,b,c,x[i+12],11,-421815835);c=md5hh(c,d,a,b,x[i+15],16,530742520);b=md5hh(b,c,d,a,x[i+2],23,-995338651);a=md5ii(a,b,c,d,x[i+0],6,-198630844);d=md5ii(d,a,b,c,x[i+7],10,1126891415);c=md5ii(c,d,a,b,x[i+14],15,-1416354905);b=md5ii(b,c,d,a,x[i+5],21,-57434055);a=md5ii(a,b,c,d,x[i+12],6,1700485571);d=md5ii(d,a,b,c,x[i+3],10,-1894986606);c=md5ii(c,d,a,b,x[i+10],15,-1051523);b=md5ii(b,c,d,a,x[i+1],21,-2054922799);a=md5ii(a,b,c,d,x[i+8],6,1873313359);d=md5ii(d,a,b,c,x[i+15],10,-30611744);c=md5ii(c,d,a,b,x[i+6],15,-1560198380);b=md5ii(b,c,d,a,x[i+13],21,1309151649);a=md5ii(a,b,c,d,x[i+4],6,-145523070);d=md5ii(d,a,b,c,x[i+11],10,-1120210379);c=md5ii(c,d,a,b,x[i+2],15,718787259);b=md5ii(b,c,d,a,x[i+9],21,-343485551);a=safeAdd(a,olda);b=safeAdd(b,oldb);c=safeAdd(c,oldc);d=safeAdd(d,oldd);}return[a,b,c,d];}
+  return binl2hex(core_md5(str2binl(str), str.length * 8));
+}
+
+// Gera URL de imagem de item via wikia nocookie CDN (sem API call, sem hotlink block)
+// URL padrão: /tibia/images/{md5[0]}/{md5[0:2]}/Nome_Slug.gif/revision/latest?path-prefix=en
+// Slug: TitleCase com underscores, artigos/preposições em lowercase (ex: "Blood_Tincture_in_a_Vial")
+const _WIKIA_LOWER = new Set(['a','an','the','of','with','in','on','at','for','and','or','but','to','from','by','via','vs']);
 function itemImgUrl(name) {
-  // Itens: static.tibia.com via wsrv.nl proxy (evita hotlink block)
-  const slug = (name || '').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('_');
-  const raw = `static.tibia.com/images/library/${slug}.gif`;
-  return `https://wsrv.nl/?url=${raw}`;
+  const words = (name || '').split(' ');
+  const slug = words.map((w, i) =>
+    (i > 0 && _WIKIA_LOWER.has(w.toLowerCase()))
+      ? w.toLowerCase()
+      : (w.charAt(0).toUpperCase() + w.slice(1))
+  ).join('_') + '.gif';
+  const h = _md5(slug);
+  return `https://static.wikia.nocookie.net/tibia/images/${h[0]}/${h.slice(0,2)}/${slug}/revision/latest?path-prefix=en`;
 }
 
 function creatureImgUrl(creature) {
@@ -2211,19 +2231,6 @@ function creatureImgUrl(creature) {
 // Converte qualquer image_url da API para passar pelo Worker
 function proxyImgUrl(url) {
   return url || '';  // static.tibia.com não precisa de proxy
-}
-
-async function fetchItemImg(name) {
-  if (itemImgCache[name] !== undefined) return itemImgCache[name];
-  try {
-    const data = await tibiaFetch(`/v4/item/${encodeURIComponent(name)}`);
-    const url = data?.item?.image_url || null;
-    itemImgCache[name] = url;
-    return url;
-  } catch(e) {
-    itemImgCache[name] = null;
-    return null;
-  }
 }
 
 
@@ -2307,13 +2314,13 @@ function openImbuModal(id) {
   document.getElementById('imbu-modal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
 
-  // Busca imagens dos itens via TibiaData API (ignora URLs fandom hardcoded que bloqueiam hotlink)
-  d.tiers.forEach((t, ti) => {
-    t.items.forEach(async (item, ii) => {
-      const url = await fetchItemImg(item.n);
-      if (!url) return;
-      const imgEls = document.querySelectorAll(`[data-item-img="${item.n}"]`);
-      imgEls.forEach(el => { el.src = url; el.style.opacity = '1'; });
+  // Carrega imagens dos itens via wikia CDN (síncrono, sem API call)
+  d.tiers.forEach(t => {
+    t.items.forEach(item => {
+      const url = itemImgUrl(item.n);
+      document.querySelectorAll(`[data-item-img="${item.n}"]`).forEach(el => {
+        el.src = url; el.style.opacity = '1';
+      });
     });
   });
 }
@@ -2409,7 +2416,7 @@ function filterImbu(f, btn) {
 }
 
 // Inject imbuement images after cards render
-async function injectImbuIcons() {
+function injectImbuIcons() {
   const items = document.querySelectorAll('[data-imbu-id]');
   for (const el of items) {
     const id = el.dataset.imbuId;
@@ -2417,9 +2424,7 @@ async function injectImbuIcons() {
     if (!d) continue;
     const imgEl = el.querySelector('[data-imbu-icon]');
     if (!imgEl || imgEl.src) continue;
-    // Try fetching via API using imbuement name
-    const url = await fetchItemImg(d.name + ' (Powerful)');
-    if (url) imgEl.src = url;
+    imgEl.src = itemImgUrl(d.name + ' (Powerful)');
   }
 }
 
@@ -3564,15 +3569,15 @@ function triggerReveal() {
 function initItemImgLazy(selector) {
   const imgs = document.querySelectorAll(selector + ' [data-lazy-item]');
   if (!imgs.length) return;
-  const obs = new IntersectionObserver(async entries => {
+  const obs = new IntersectionObserver(entries => {
     for (const e of entries) {
       if (!e.isIntersecting) continue;
       obs.unobserve(e.target);
       const name = e.target.dataset.lazyItem;
-      const url = await fetchItemImg(name);
-      if (url) e.target.src = url;
+      // itemImgUrl é síncrona — monta URL via MD5 + wikia CDN, sem API call
+      e.target.src = itemImgUrl(name);
     }
-  }, { rootMargin: '200px' });
+  }, { rootMargin: '400px' });
   imgs.forEach(img => obs.observe(img));
 }
 
