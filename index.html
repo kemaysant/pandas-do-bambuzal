@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Necessário para carregar imagens do wikia CDN (static.wikia.nocookie.net)
+     sem o header Referer, que é bloqueado pelo CDN quando vem de domínios externos -->
+<meta name="referrer" content="no-referrer">
 <title>Pandas do Bambuzal · Guild · Tibia</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -2162,7 +2165,7 @@ function renderImbuPage(filter) {
       <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem">
         <div style="width:48px;height:48px;border-radius:8px;background:var(--paper);border:1px solid var(--rule);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center">
         ${d.icon
-          ? `<img data-imbu-icon src="${d.icon}" alt="${d.name}" style="width:100%;height:100%;image-rendering:pixelated;object-fit:contain" onerror="this.src='';this.parentNode.innerHTML='<span style=font-size:1.3rem>⚗</span>'">`
+          ? `<img data-imbu-icon src="${d.icon}" alt="${d.name}" referrerpolicy="no-referrer" style="width:100%;height:100%;image-rendering:pixelated;object-fit:contain" onerror="this.src='';this.parentNode.innerHTML='<span style=font-size:1.3rem>⚗</span>'">`
           : `<span style="font-size:1.3rem">⚗</span>`
         }
       </div>
@@ -2253,7 +2256,7 @@ function openImbuModal(id) {
       ${t.items.map(i=>`
         <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--rule);gap:.5rem">
           <div style="display:flex;align-items:center;gap:.5rem;min-width:0">
-            <img data-item-img="${i.n}" src="" alt="${i.n}" style="width:24px;height:24px;image-rendering:pixelated;flex-shrink:0;border-radius:3px;opacity:.2" onerror="this.style.opacity='0.1'">
+            <img data-item-img="${i.n}" src="" alt="${i.n}" referrerpolicy="no-referrer" style="width:24px;height:24px;image-rendering:pixelated;flex-shrink:0;border-radius:3px;opacity:.2" onerror="this.style.opacity='0.1'">
             <span style="color:var(--ink-3);font-weight:300;font-size:.83rem">${i.n}</span>
           </div>
           <span style="font-family:'DM Mono',monospace;font-weight:500;color:var(--ink);font-size:.83rem;flex-shrink:0">${i.q}x</span>
@@ -2284,8 +2287,8 @@ function openImbuModal(id) {
   if (hasToken) {
     calcHtml += `
       <div style="background:var(--gold-pale);border:1px solid rgba(160,120,40,.25);border-radius:8px;padding:.9rem 1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem">
-        <img src="https://static.tibia.com/images/library/Gold_Token.gif"
-             alt="Gold Token" style="width:32px;height:32px;image-rendering:pixelated;flex-shrink:0"
+        <img src="https://static.wikia.nocookie.net/tibia/images/0/0b/Gold_Token.gif/revision/latest?path-prefix=en"
+             alt="Gold Token" referrerpolicy="no-referrer" style="width:32px;height:32px;image-rendering:pixelated;flex-shrink:0"
              onerror="this.outerHTML='<span style=\'font-size:1.4rem\'>🪙</span>'">
         <div>
           <div style="font-size:.85rem;font-weight:500;color:var(--gold)">Disponível via Gold Token no NPC</div>
@@ -3565,20 +3568,25 @@ function triggerReveal() {
   els.forEach(el => { el.classList.remove('visible'); obs.observe(el); });
 }
 
-// ─── Lazy load de imagens de itens ────────────────────────────────
+// ─── Load de imagens de itens ─────────────────────────────────────
+// IntersectionObserver falha em containers com display:none (.page-section).
+// Carregamos em lotes de 30 a cada frame para não travar o render.
 function initItemImgLazy(selector) {
-  const imgs = document.querySelectorAll(selector + ' [data-lazy-item]');
+  const imgs = Array.from(document.querySelectorAll(selector + ' [data-lazy-item]'));
   if (!imgs.length) return;
-  const obs = new IntersectionObserver(entries => {
-    for (const e of entries) {
-      if (!e.isIntersecting) continue;
-      obs.unobserve(e.target);
-      const name = e.target.dataset.lazyItem;
-      // itemImgUrl é síncrona — monta URL via MD5 + wikia CDN, sem API call
-      e.target.src = itemImgUrl(name);
+  let i = 0;
+  function loadBatch() {
+    const end = Math.min(i + 30, imgs.length);
+    for (; i < end; i++) {
+      // img.src nunca é falsy (retorna URL absoluta da página) — checar atributo src
+      if (!imgs[i].getAttribute('src')) {
+        imgs[i].src = itemImgUrl(imgs[i].dataset.lazyItem);
+      }
     }
-  }, { rootMargin: '400px' });
-  imgs.forEach(img => obs.observe(img));
+    if (i < imgs.length) setTimeout(loadBatch, 16);
+  }
+  // Duplo rAF: garante que o container já está visível antes de carregar
+  requestAnimationFrame(() => requestAnimationFrame(loadBatch));
 }
 
 // ══════════════════════════════════════════════════
@@ -4721,7 +4729,7 @@ function filterDelivery() {
 
   const count = document.getElementById('dt-count');
   if (count) count.textContent = `${dtFiltered.length} item${dtFiltered.length!==1?'s':''}`;
-  renderDeliveryTable(); setTimeout(() => initItemImgLazy('#dt-body'), 50);
+  renderDeliveryTable(); initItemImgLazy('#dt-body');
 }
 
 function renderDelivery() {
@@ -4755,7 +4763,7 @@ function renderDelivery() {
   dtFiltered = [...DELIVERY_ITEMS].sort((a,b) => a.n.localeCompare(b.n));
   const count = document.getElementById('dt-count');
   if (count) count.textContent = `${dtFiltered.length} itens`;
-  renderDeliveryTable(); setTimeout(() => initItemImgLazy('#dt-body'), 50);
+  renderDeliveryTable(); initItemImgLazy('#dt-body');
 }
 
 function renderDeliveryTable() {
@@ -4775,6 +4783,7 @@ function renderDeliveryTable() {
       <td>
         <div style="display:flex;align-items:center;gap:.5rem">
           <img src="" data-lazy-item="${item.n}"
+               referrerpolicy="no-referrer"
                alt="" style="width:32px;height:32px;image-rendering:pixelated;flex-shrink:0" 
                onerror="this.style.display='none'">
           <span style="font-weight:500;font-size:.88rem;color:var(--ink)">${item.n}</span>
