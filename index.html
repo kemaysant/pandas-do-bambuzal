@@ -485,6 +485,361 @@ footer strong{color:var(--ink-3);font-weight:500}
 .reveal.visible{opacity:1;transform:none}
 
 /* ══════════════════════════════════════
+   PARTY FINDER
+══════════════════════════════════════ */
+
+/* Card container */
+.pf-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 1rem 1.25rem;
+}
+.pf-card-label {
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .5rem;
+}
+
+/* Search row */
+.pf-search-row {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+}
+
+/* Inputs */
+.pf-input {
+  background: var(--bg-2);
+  border: 1px solid var(--border-2);
+  border-radius: 7px;
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  transition: border-color .15s;
+}
+.pf-input:focus { border-color: var(--bamboo); }
+.pf-input-lg {
+  flex: 1;
+  padding: 7px 12px;
+  font-size: .87rem;
+  min-width: 0;
+}
+.pf-input-num {
+  width: 64px;
+  padding: 6px 6px;
+  font-size: .83rem;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Buttons */
+.pf-btn-primary {
+  background: var(--bamboo);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 7px 16px;
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+.pf-btn-primary:hover { background: var(--bamboo-light); }
+
+/* Character result badge */
+.pf-char-badge {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex-wrap: wrap;
+  background: var(--bg-2);
+  border: 1px solid rgba(77,158,58,.2);
+  border-radius: 8px;
+  padding: .6rem .9rem;
+}
+.pf-online-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #4ade80;
+  flex-shrink: 0;
+}
+.pf-char-name { font-weight: 700; color: var(--bamboo-light); font-size: .9rem; }
+.pf-char-detail { font-size: .75rem; color: var(--muted); }
+.pf-share-tag {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+.pf-share-label {
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pf-share-val {
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--gold);
+  background: var(--gold-dim);
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+
+/* Filters bar */
+.pf-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  align-items: flex-end;
+}
+.pf-filter-group { display: flex; flex-direction: column; }
+.pf-filter-grow  { flex: 1; min-width: 200px; }
+.pf-filter-action { margin-left: auto; }
+
+/* Level row */
+.pf-lvl-row { display: flex; align-items: center; gap: .35rem; }
+.pf-lvl-dash { color: var(--muted); font-size: .85rem; }
+
+/* Pills */
+.pf-pills { display: flex; flex-wrap: wrap; gap: .3rem; }
+.pf-pill {
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-size: .73rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border-2);
+  background: transparent;
+  color: var(--ink-3);
+  transition: all .15s;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+}
+.pf-pill:hover { border-color: var(--bamboo); color: var(--bamboo-light); }
+.pf-pill.active {
+  background: var(--bamboo) !important;
+  border-color: var(--bamboo) !important;
+  color: #fff !important;
+  font-weight: 600;
+}
+.pf-pill.panda-on  { background: var(--bamboo); border-color: var(--bamboo); color: #fff; font-weight: 600; }
+.pf-pill.excl-on   { background: var(--red);    border-color: var(--red);    color: #fff; font-weight: 600; }
+
+/* Guild multi-select dropdown */
+.pf-guild-select-wrap {
+  position: relative;
+}
+.pf-guild-select-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  width: 100%;
+  min-width: 210px;
+  padding: 5px 10px 5px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-2);
+  background: var(--bg-2);
+  color: var(--ink-3);
+  font-size: .75rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+  white-space: nowrap;
+}
+.pf-guild-select-btn:hover { border-color: var(--bamboo); color: var(--ink); }
+.pf-guild-select-btn.open  { border-color: var(--bamboo); color: var(--ink); }
+.pf-guild-select-btn.has-excl { border-color: var(--red); color: var(--red); }
+.pf-guild-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 240px;
+  max-width: 320px;
+  background: var(--bg-2);
+  border: 1px solid var(--border-2);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.45);
+  z-index: 200;
+  overflow: hidden;
+}
+.pf-guild-dropdown.open { display: block; }
+.pf-guild-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  padding: 7px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.pf-guild-search {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ink);
+  font-size: .78rem;
+  font-family: 'Inter', sans-serif;
+}
+.pf-guild-search::placeholder { color: var(--muted); }
+.pf-guild-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+.pf-guild-list::-webkit-scrollbar { width: 3px; }
+.pf-guild-list::-webkit-scrollbar-track { background: transparent; }
+.pf-guild-list::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+.pf-guild-item {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: 6px 12px;
+  font-size: .78rem;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background .1s;
+  user-select: none;
+}
+.pf-guild-item:hover { background: var(--bg-3); color: var(--ink); }
+.pf-guild-item.selected { color: var(--red); }
+.pf-guild-item .pf-guild-chk {
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+  border: 1px solid var(--border-2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .1s, border-color .1s;
+}
+.pf-guild-item.selected .pf-guild-chk {
+  background: var(--red);
+  border-color: var(--red);
+}
+.pf-guild-chk-mark { display: none; color: #fff; font-size: 9px; line-height: 1; }
+.pf-guild-item.selected .pf-guild-chk-mark { display: block; }
+
+/* Status flex helpers */
+#pf-status, #pf-count { display: flex; }
+#pf-status[style*="none"], #pf-count[style*="none"] { display: none !important; }
+
+/* 5-column grid */
+.pf-cols-grid {
+  display: none;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .75rem;
+}
+.pf-cols-grid.visible { display: grid; }
+@media(max-width:1100px){ .pf-cols-grid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+@media(max-width:720px) { .pf-cols-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media(max-width:480px) { .pf-cols-grid { grid-template-columns: 1fr; } }
+
+/* Vocation column */
+.pf-voc-col {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  min-width: 0;
+}
+.pf-col-hdr {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .6rem .8rem;
+  background: var(--bg-2);
+  border-bottom: 2px solid var(--col-accent, var(--border));
+  min-width: 0;
+}
+.pf-col-icon { font-size: .85rem; flex-shrink: 0; line-height: 1; }
+.pf-col-name {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--ink);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pf-col-badge {
+  font-size: .65rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+
+/* Column body with scroll */
+.pf-col-body {
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  padding: .25rem .3rem;
+}
+.pf-col-body::-webkit-scrollbar { width: 3px; }
+.pf-col-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* Rows */
+.pf-row {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .26rem .45rem;
+  border-radius: 5px;
+  min-width: 0;
+  cursor: default;
+  transition: background .1s;
+}
+.pf-row:hover { background: var(--bg-3); }
+.pf-row.panda { background: rgba(77,158,58,.08); }
+.pf-row.panda:hover { background: rgba(77,158,58,.15); }
+
+.pf-row-name {
+  flex: 1;
+  min-width: 0;
+  font-size: .78rem;
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+.pf-row.panda .pf-row-name { color: var(--bamboo-light); font-weight: 600; }
+.pf-row-lvl {
+  font-size: .7rem;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  flex-shrink: 0;
+}
+.pf-row.share .pf-row-lvl { color: var(--gold); }
+.pf-empty {
+  padding: .6rem .45rem;
+  font-size: .73rem;
+  color: var(--muted);
+  font-weight: 300;
+  text-align: center;
+}
+
+/* ══════════════════════════════════════
    MOBILE RESPONSIVE
 ══════════════════════════════════════ */
 @media(max-width:768px){
@@ -798,6 +1153,10 @@ async function tibiaFetch(path) {
       <button class="nav-btn" onclick="showPage('huntfinder',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Hunt Finder</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('partyfinder',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 12.094A5.973 5.973 0 004 15v1H1v-1a3 3 0 013.75-2.906z"/></svg>
+        <span class="nav-label">Party Finder</span>
       </button>
       <button class="nav-btn" onclick="showPage('quests',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
@@ -1522,6 +1881,164 @@ async function tibiaFetch(path) {
     </div>
   </section>
 
+  <!-- ─── PARTY FINDER ─── -->
+  <section class="page-section" id="partyfinder">
+
+    <h2 class="sec-title" style="margin-bottom:.2rem">Party Finder</h2>
+    <p class="sec-sub" style="margin-bottom:1.5rem">Jogadores online em <strong style="color:var(--bamboo-light)">Gentebra</strong> disponíveis para compartilhar experiência</p>
+
+    <!-- Busca de personagem -->
+    <div class="pf-card" style="margin-bottom:.85rem">
+      <div class="pf-card-label">Buscar por personagem</div>
+      <div class="pf-search-row">
+        <input id="pf-char-input" type="text" placeholder="Nome do personagem..."
+          class="pf-input pf-input-lg"
+          onfocus="this.style.borderColor='var(--bamboo)'" onblur="this.style.borderColor='var(--border-2)'"
+          onkeydown="if(event.key==='Enter')pfSearchChar()">
+        <button class="pf-btn-primary" onclick="pfSearchChar()">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+          Buscar
+        </button>
+      </div>
+      <div id="pf-char-load" style="display:none;margin-top:.55rem;font-size:.78rem;color:var(--muted);align-items:center;gap:.4rem">
+        <span class="spinner" style="width:11px;height:11px;border-width:1px"></span> Buscando...
+      </div>
+      <div id="pf-char-err" style="display:none;margin-top:.5rem;font-size:.78rem;color:var(--red)"></div>
+      <div id="pf-char-result" style="display:none;margin-top:.75rem">
+        <div class="pf-char-badge">
+          <span class="pf-online-dot"></span>
+          <span id="pf-char-name-out" class="pf-char-name"></span>
+          <span id="pf-char-detail" class="pf-char-detail"></span>
+          <div class="pf-share-tag">
+            <span class="pf-share-label">Share</span>
+            <span id="pf-char-share" class="pf-share-val"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="pf-card pf-filters" style="margin-bottom:1rem">
+
+      <div class="pf-filter-group">
+        <div class="pf-card-label">Faixa de Level</div>
+        <div class="pf-lvl-row">
+          <input id="pf-lvl-min" type="number" min="1" max="4000" value="1" class="pf-input pf-input-num" oninput="pfAutoRefresh()">
+          <span class="pf-lvl-dash">—</span>
+          <input id="pf-lvl-max" type="number" min="1" max="4000" value="4000" class="pf-input pf-input-num" oninput="pfAutoRefresh()">
+        </div>
+      </div>
+
+      <div class="pf-filter-group pf-filter-grow">
+        <div class="pf-card-label">Vocação</div>
+        <div class="pf-pills" id="pf-voc-btns">
+          <button class="pf-pill active" data-voc="" onclick="pfSetVoc(this)">Todas</button>
+          <button class="pf-pill" data-voc="elite knight" onclick="pfSetVoc(this)">⚔ EK</button>
+          <button class="pf-pill" data-voc="royal paladin" onclick="pfSetVoc(this)">🏹 RP</button>
+          <button class="pf-pill" data-voc="elder druid" onclick="pfSetVoc(this)">🌿 ED</button>
+          <button class="pf-pill" data-voc="master sorcerer" onclick="pfSetVoc(this)">🔮 MS</button>
+          <button class="pf-pill" data-voc="exalted monk" onclick="pfSetVoc(this)">🥋 Monk</button>
+        </div>
+      </div>
+
+      <div class="pf-filter-group">
+        <div class="pf-card-label">Guild</div>
+        <div class="pf-pills">
+          <button id="pf-guild-toggle" class="pf-pill" onclick="pfToggleGuildFilter()">🐼 Só Pandas</button>
+        </div>
+      </div>
+
+      <div class="pf-filter-group pf-filter-grow">
+        <div class="pf-card-label">Evitar guildas <span id="pf-excl-badge" style="display:none;background:var(--red);color:#fff;border-radius:20px;padding:1px 7px;font-size:.65rem;font-weight:700;margin-left:4px">0</span></div>
+        <div class="pf-guild-select-wrap" id="pf-guild-select-wrap">
+          <button class="pf-guild-select-btn" id="pf-guild-select-btn" onclick="pfToggleGuildDropdown(event)">
+            <span id="pf-guild-select-label">Selecionar guildas para evitar</span>
+            <svg id="pf-guild-chevron" width="11" height="11" viewBox="0 0 20 20" fill="currentColor" style="flex-shrink:0;transition:transform .2s"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </button>
+          <div class="pf-guild-dropdown" id="pf-guild-dropdown">
+            <div class="pf-guild-search-wrap">
+              <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor" style="color:var(--muted);flex-shrink:0"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+              <input class="pf-guild-search" id="pf-guild-search-input" placeholder="Selecionar guildas para evitar" oninput="pfFilterGuildList(this.value)" onclick="event.stopPropagation()">
+            </div>
+            <div class="pf-guild-list" id="pf-guild-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pf-filter-group pf-filter-action">
+        <div class="pf-card-label" style="visibility:hidden">.</div>
+        <button class="pf-btn-primary" onclick="loadPartyFinder()">
+          <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+          Atualizar
+        </button>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div id="pf-status" style="display:none;padding:.5rem 0;font-size:.8rem;color:var(--muted);align-items:center;gap:.45rem;margin-bottom:.5rem">
+      <span class="spinner"></span> Carregando Gentebra...
+    </div>
+    <div id="pf-error" style="display:none;background:var(--red-pale);border:1px solid rgba(232,112,112,.2);border-radius:8px;padding:.65rem 1rem;font-size:.82rem;color:var(--red);margin-bottom:.85rem"></div>
+    <div id="pf-count" style="display:none;padding:.45rem .1rem;margin-bottom:.85rem;font-size:.78rem;color:var(--muted);align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.4rem">
+      <span id="pf-count-text"></span>
+      <span id="pf-count-panda" style="color:var(--bamboo)"></span>
+    </div>
+
+    <!-- Colunas de vocação -->
+    <div id="pf-columns" class="pf-cols-grid">
+      <div class="pf-voc-col">
+        <div class="pf-col-hdr" style="--col-accent:#4ade80">
+          <span class="pf-col-icon">⚔</span>
+          <span class="pf-col-name">Elite Knight</span>
+          <span class="pf-col-badge" id="pf-cnt-ek" style="color:#4ade80">0</span>
+        </div>
+        <div class="pf-col-body" id="pf-list-ek"></div>
+      </div>
+      <div class="pf-voc-col">
+        <div class="pf-col-hdr" style="--col-accent:#f0c060">
+          <span class="pf-col-icon">🏹</span>
+          <span class="pf-col-name">Royal Paladin</span>
+          <span class="pf-col-badge" id="pf-cnt-rp" style="color:#f0c060">0</span>
+        </div>
+        <div class="pf-col-body" id="pf-list-rp"></div>
+      </div>
+      <div class="pf-voc-col">
+        <div class="pf-col-hdr" style="--col-accent:#38bdf8">
+          <span class="pf-col-icon">🌿</span>
+          <span class="pf-col-name">Elder Druid</span>
+          <span class="pf-col-badge" id="pf-cnt-ed" style="color:#38bdf8">0</span>
+        </div>
+        <div class="pf-col-body" id="pf-list-ed"></div>
+      </div>
+      <div class="pf-voc-col">
+        <div class="pf-col-hdr" style="--col-accent:#f87171">
+          <span class="pf-col-icon">🔮</span>
+          <span class="pf-col-name">Master Sorcerer</span>
+          <span class="pf-col-badge" id="pf-cnt-ms" style="color:#f87171">0</span>
+        </div>
+        <div class="pf-col-body" id="pf-list-ms"></div>
+      </div>
+      <div class="pf-voc-col">
+        <div class="pf-col-hdr" style="--col-accent:#a78bfa">
+          <span class="pf-col-icon">🥋</span>
+          <span class="pf-col-name">Exalted Monk</span>
+          <span class="pf-col-badge" id="pf-cnt-monk" style="color:#a78bfa">0</span>
+        </div>
+        <div class="pf-col-body" id="pf-list-monk"></div>
+      </div>
+    </div>
+
+    <!-- Placeholder -->
+    <div id="pf-placeholder" style="text-align:center;padding:3.5rem 1rem">
+      <div style="font-size:2.5rem;margin-bottom:.65rem;opacity:.5">👥</div>
+      <div style="font-family:'Cinzel',serif;font-weight:700;color:var(--ink);margin-bottom:.4rem">Party Finder · Gentebra</div>
+      <div style="font-size:.83rem;color:var(--muted);font-weight:300;max-width:340px;margin:0 auto;line-height:1.65">
+        Busque um personagem para calcular a faixa de share, ou defina os filtros e clique em <strong style="color:var(--ink-2)">Atualizar</strong>.
+      </div>
+    </div>
+
+  </section>
+
   <!-- ─── RULES ─── -->
   <section class="page-section" id="rules">
     <h2 class="sec-title">Regras</h2>
@@ -2121,7 +2638,6 @@ async function loadTibiaEvents() {
       const now = new Date(); now.setHours(0,0,0,0);
       const fallback = [
         { name:"Demon's Lullaby",    startDate: new Date('2026-05-07'), end_date:'2026-05-21' },
-        { name:'Demon\u2019s Lullaby', startDate: new Date('2026-05-07') },
         { name:'Full Moon',           startDate: new Date('2026-05-12') },
         { name:'Last Creep Standing', startDate: new Date('2026-05-20') },
       ];
@@ -2476,14 +2992,23 @@ function itemImgUrl(name) {
 }
 
 function creatureImgUrl(creature) {
-  // race lowercase sem espaços: "Broodrider Inferniarch" → "broodriderinferniarch"
-  const race = (creature || '').toLowerCase().replace(/[\s_-]+/g, '').replace(/[^a-z0-9]/g, '');
-  return `https://wsrv.nl/?url=static.tibia.com/images/library/${race}.gif`;
+  // Mesmo padrão do Hunt Finder: TitleCase com hífens → cdn.tibiaroute.com/monsters/
+  const slug = (creature || '').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
+  return `https://wsrv.nl/?url=${encodeURIComponent('https://cdn.tibiaroute.com/monsters/' + slug + '.gif')}`;
 }
 
-// Converte qualquer image_url da API para passar pelo Worker
-function proxyImgUrl(url) {
-  return url || '';  // static.tibia.com não precisa de proxy
+// Converte image_url da API para uma URL acessível.
+// static.tibia.com bloqueia hotlink de origens externas e wsrv não tem acesso.
+// Ignoramos a URL da API e construímos via creatureImgUrl (wsrv+wikia), que já funciona.
+function proxyImgUrl(url, name) {
+  if (name) return creatureImgUrl(name);
+  if (!url) return '';
+  if (url.startsWith('data:')) return url;
+  // Extrai o nome do arquivo da URL para tentar montar via wikia
+  // ex: https://static.tibia.com/images/library/undeadgladiator.gif → "undeadgladiator"
+  const m = url.match(/\/([^/]+)\.gif/i);
+  if (m) return `https://wsrv.nl/?url=static.tibia.com/images/library/${m[1]}.gif`;
+  return url;
 }
 
 
@@ -5302,6 +5827,9 @@ function showPage(id, btn) {
   if (id === 'bosses' && !bossSpawnData.length) {
     loadBossSpawn();
   }
+  if (id === 'partyfinder') {
+    loadPartyFinder();
+  }
 }
 
 function triggerReveal() {
@@ -5462,7 +5990,7 @@ async function loadBoostedBosses() {
       const bl = document.getElementById('boosted-boss-loading');
       if (bl) bl.style.display = 'none';
       const bi = document.getElementById('boosted-boss-img');
-      if (bi) { bi.src = proxyImgUrl(boostedBoss.image_url) || ''; bi.alt = boostedBoss.name || ''; }
+      if (bi) { bi.src = proxyImgUrl(boostedBoss.image_url, boostedBoss.name) || ''; bi.alt = boostedBoss.name || ''; }
       const bn = document.getElementById('boosted-boss-name');
       if (bn) bn.textContent = boostedBoss.name || '—';
       const bc = document.getElementById('boosted-boss-content');
@@ -5480,7 +6008,7 @@ async function loadBoostedBosses() {
         const cl = document.getElementById('boosted-creature-loading');
         if (cl) cl.style.display = 'none';
         const ci = document.getElementById('boosted-creature-img');
-        if (ci) { ci.src = proxyImgUrl(bc2.image_url) || ''; ci.alt = bc2.name || ''; }
+        if (ci) { ci.src = proxyImgUrl(bc2.image_url, bc2.name) || ''; ci.alt = bc2.name || ''; }
         const cn = document.getElementById('boosted-creature-name');
         if (cn) cn.textContent = bc2.name || '—';
         const cc = document.getElementById('boosted-creature-content');
@@ -5514,8 +6042,8 @@ function renderHomeBoosted(creature, boss) {
   el.style.display = 'flex';
   el.style.flexDirection = 'column';
   const items = [
-    creature ? { label:'Criatura', name: creature.name, img: proxyImgUrl(creature.image_url) } : null,
-    boss     ? { label:'Boss',     name: boss.name,     img: proxyImgUrl(boss.image_url)     } : null,
+    creature ? { label:'Criatura', name: creature.name, img: creatureImgUrl(creature.name) } : null,
+    boss     ? { label:'Boss',     name: boss.name,     img: creatureImgUrl(boss.name)     } : null,
   ].filter(Boolean);
 
   if (!items.length) {
@@ -5524,13 +6052,17 @@ function renderHomeBoosted(creature, boss) {
   }
 
   el.innerHTML = items.map(item => `
-    <div style="display:flex;align-items:center;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--rule)">
-      <img src="${item.img}" alt="${item.name}" style="width:40px;height:40px;image-rendering:pixelated;border-radius:6px;background:var(--paper);border:1px solid var(--rule);padding:2px;flex-shrink:0" onerror="this.style.display='none'">
-      <div style="flex:1">
-        <div style="font-weight:500;font-size:.88rem;color:var(--ink)">${item.name}</div>
-        <div style="font-size:.7rem;color:var(--muted);font-weight:300">+50% hoje · ${item.label}</div>
+    <div style="display:flex;align-items:center;gap:.75rem;padding:.65rem 0;border-bottom:1px solid var(--rule)">
+      <div style="width:52px;height:52px;flex-shrink:0;background:var(--bg-2);border-radius:8px;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;overflow:hidden">
+        <img src="${item.img}" alt="${item.name}"
+          style="width:52px;height:52px;image-rendering:pixelated;object-fit:contain"
+          onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=creatureImgUrl(this.alt)}else{this.style.opacity='.2'}">
       </div>
-      <span style="font-size:.65rem;background:var(--bamboo-pale);color:var(--bamboo);padding:2px 8px;border-radius:10px;font-weight:500">BOOST</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:.88rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.name}</div>
+        <div style="font-size:.7rem;color:var(--muted);font-weight:300;margin-top:1px">+50% hoje · ${item.label}</div>
+      </div>
+      <span style="font-size:.62rem;background:var(--bamboo-pale);color:var(--bamboo);padding:2px 9px;border-radius:10px;font-weight:600;flex-shrink:0">BOOST</span>
     </div>`).join('');
 }
 
@@ -6594,10 +7126,10 @@ async function loadHomeNews() {
 
   try {
     const data = await tibiaFetch('/v4/news/latest');
-    // Prefer type=news/article over tickers, take top 5
+    // Prefer type=news/article over tickers, take top 3
     const all  = data?.news || [];
     const important = all.filter(n => n.type === 'news' || n.type === 'article' || n.type === 'featured article');
-    const news = (important.length >= 5 ? important : all).slice(0, 5);
+    const news = (important.length >= 3 ? important : all).slice(0, 3);
 
     if (loading) loading.style.display = 'none';
     if (!news.length) {
@@ -6692,7 +7224,392 @@ async function loadHomeNews() {
 
 
 <script>
-// ═══ THEME OVERRIDE ═══
+// ══════════════════════════════════════════════════
+//  PARTY FINDER — Gentebra  (v2)
+// ══════════════════════════════════════════════════
+
+const PF_GUILD = 'Pandas do Bambuzal';
+const PF_WORLD = 'Gentebra';
+
+let pfGuildMode = 'none';
+let pfVocFilter = '';
+let pfAutoTimer = null;
+let pfExcludedGuilds = new Set(); // guildas selecionadas para evitar
+
+// Lista de guildas do servidor Gentebra — edite conforme necessário
+const SERVER_GUILDS = [
+  'Afeka',
+  'Amigos Do Henricus',
+  'Ancestrais',
+  'Argentinos',
+  'Avengers',
+  'Bank Iron',
+  'Beagle Eye',
+  'Bombers Clan',
+  'Bonk Brotherhood',
+  'Calvos',
+  'Caravana Do Deserto',
+  'Caravana Itinerante',
+  'Chiquititas',
+  'Circo Da Morte',
+  'Comando Suprimo',
+  'Conflito',
+  'Covardes',
+  'Crimes Organizados',
+  'Decisao',
+  'Defenders of Gentebra',
+  'Desembargadores',
+  'Doces Guerreiros',
+  'Domadores de Dragao',
+  'Dragoes do Norte',
+  'Elite Force',
+  'Elite Gentebra',
+  'Estrelas Cadentes',
+  'Falange',
+  'Filhos de Deus',
+  'Force of Blood',
+  'Fortes e Bravos',
+  'Furia Nordestina',
+  'Gemini',
+  'Gentebra Legends',
+  'Guardioes da Esperanca',
+  'Guerreiros da Madrugada',
+  'Guerreiros Imortais',
+  'Guerreiros Supremos',
+  'Hunters',
+  'Imbativeis',
+  'Imperio Brasileiro',
+  'Iron Wolves',
+  'Ironclad',
+  'Kingsguard',
+  'Lendarios',
+  'Leoes do Cerrado',
+  'Liberdade',
+  'Liga dos Extraordinarios',
+  'Loucuras do Tibia',
+  'Magos Supremos',
+  'Masmorras',
+  'Masters of War',
+  'Mineradores',
+  'Novos Horizontes',
+  'Os Brutos',
+  'Os Cacadores',
+  'Os Imortais',
+  'Os Intocaveis',
+  'Os Nordestinos',
+  'Os Paulistas',
+  'Os Perturbados',
+  'Os Piratas',
+  'Os Reformados',
+  'Os Resistentes',
+  'Os Revolucionarios',
+  'Os Selvagens',
+  'Os Sobreviventes',
+  'Os Temidos',
+  'Pata Firme',
+  'Pe de Chumbo',
+  'Pesadelo',
+  'Predadores',
+  'Quebradores de Regras',
+  'Rebeldes',
+  'Rei do Gado',
+  'Reis do Norte',
+  'Republica Federativa',
+  'Resistencia',
+  'Retaliacao',
+  'Samurais',
+  'Sanguinarios',
+  'Sem Piedade',
+  'Sertanejos',
+  'Shadow Lords',
+  'Soldados da Tempestade',
+  'Supremacia',
+  'The Last Stand',
+  'The Rising',
+  'Thunder Force',
+  'Titas do Cerrado',
+  'Tropa de Elite',
+  'Ultimos Guerreiros',
+  'Vampiros do Sertao',
+  'Vendetta',
+  'Vikings',
+  'Vortex',
+  'Warriors of Darkness',
+  'Wolves',
+  'Zika Squad',
+].filter(g => g.toLowerCase() !== 'pandas do bambuzal');
+
+function pfCalcShare(lvl) {
+  if (!lvl || lvl <= 0) return { min: 1, max: 4000 };
+  const min = Math.max(1,    Math.floor(lvl * (2/3)));
+  const max = Math.min(4000, Math.ceil(lvl  * (4/3)));
+  return { min, max };
+}
+
+function pfVocGroup(voc) {
+  const v = (voc || '').toLowerCase();
+  if (v.includes('elite knight') || v === 'knight')      return 'ek';
+  if (v.includes('royal paladin') || v === 'paladin')    return 'rp';
+  if (v.includes('elder druid') || v === 'druid')        return 'ed';
+  if (v.includes('master sorcerer') || v === 'sorcerer') return 'ms';
+  if (v.includes('monk'))                                 return 'monk';
+  return 'other';
+}
+
+function pfSetVoc(btn) {
+  pfVocFilter = btn.dataset.voc;
+  document.querySelectorAll('.pf-voc-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  pfAutoRefresh();
+}
+
+function pfToggleGuildFilter() {
+  const btn = document.getElementById('pf-guild-toggle');
+  pfGuildMode = pfGuildMode === 'only' ? 'none' : 'only';
+  btn.classList.toggle('panda-on', pfGuildMode === 'only');
+  pfAutoRefresh();
+}
+
+// ─── Guild multi-select dropdown ───────────────────────────────
+
+function pfInitGuildDropdown() {
+  pfRenderGuildList('');
+  document.addEventListener('click', function(e) {
+    if (!document.getElementById('pf-guild-select-wrap').contains(e.target)) {
+      pfCloseGuildDropdown();
+    }
+  });
+}
+
+function pfToggleGuildDropdown(e) {
+  e.stopPropagation();
+  const dd  = document.getElementById('pf-guild-dropdown');
+  const btn = document.getElementById('pf-guild-select-btn');
+  const chevron = document.getElementById('pf-guild-chevron');
+  const isOpen = dd.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+  chevron.style.transform = isOpen ? 'rotate(180deg)' : '';
+  if (isOpen) {
+    document.getElementById('pf-guild-search-input').focus();
+    pfRenderGuildList('');
+  }
+}
+
+function pfCloseGuildDropdown() {
+  document.getElementById('pf-guild-dropdown').classList.remove('open');
+  document.getElementById('pf-guild-select-btn').classList.remove('open');
+  document.getElementById('pf-guild-chevron').style.transform = '';
+}
+
+function pfFilterGuildList(q) {
+  pfRenderGuildList(q);
+}
+
+function pfRenderGuildList(q) {
+  const list = document.getElementById('pf-guild-list');
+  const query = (q || '').toLowerCase().trim();
+  const guilds = query
+    ? SERVER_GUILDS.filter(g => g.toLowerCase().includes(query))
+    : SERVER_GUILDS;
+
+  if (!guilds.length) {
+    list.innerHTML = '<div style="padding:10px 12px;font-size:.76rem;color:var(--muted)">Nenhuma guild encontrada</div>';
+    return;
+  }
+
+  list.innerHTML = guilds.map(g => {
+    const sel = pfExcludedGuilds.has(g.toLowerCase()) ? ' selected' : '';
+    const safeName = g.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    return '<div class="pf-guild-item' + sel + '" onclick="pfToggleGuildExclude(\'' + safeName + '\')">'
+      + '<div class="pf-guild-chk"><span class="pf-guild-chk-mark">✓</span></div>'
+      + '<span>' + g + '</span>'
+      + '</div>';
+  }).join('');
+}
+
+function pfToggleGuildExclude(guildName) {
+  const key = guildName.toLowerCase();
+  if (pfExcludedGuilds.has(key)) {
+    pfExcludedGuilds.delete(key);
+  } else {
+    pfExcludedGuilds.add(key);
+  }
+  pfUpdateGuildSelectLabel();
+  pfRenderGuildList(document.getElementById('pf-guild-search-input').value || '');
+  pfAutoRefresh();
+}
+
+function pfUpdateGuildSelectLabel() {
+  const btn   = document.getElementById('pf-guild-select-btn');
+  const label = document.getElementById('pf-guild-select-label');
+  const badge = document.getElementById('pf-excl-badge');
+  const count = pfExcludedGuilds.size;
+  if (count === 0) {
+    label.textContent = 'Selecionar guildas para evitar';
+    btn.classList.remove('has-excl');
+    badge.style.display = 'none';
+  } else {
+    label.textContent = count === 1
+      ? '1 guild sendo evitada'
+      : count + ' guildas sendo evitadas';
+    btn.classList.add('has-excl');
+    badge.textContent = count;
+    badge.style.display = 'inline';
+  }
+}
+
+function pfAutoRefresh() {
+  clearTimeout(pfAutoTimer);
+  pfAutoTimer = setTimeout(() => {
+    if (document.getElementById('pf-columns').classList.contains('visible')) loadPartyFinder();
+  }, 350);
+}
+
+async function pfSearchChar() {
+  const name   = (document.getElementById('pf-char-input').value || '').trim();
+  const resEl  = document.getElementById('pf-char-result');
+  const errEl  = document.getElementById('pf-char-err');
+  const loadEl = document.getElementById('pf-char-load');
+  if (!name) return;
+  resEl.style.display  = 'none';
+  errEl.style.display  = 'none';
+  loadEl.style.display = 'flex';
+  try {
+    const data = await tibiaFetch('/v4/character/' + encodeURIComponent(name));
+    const c = data?.character?.character;
+    if (!c) throw new Error('Personagem não encontrado');
+    const lvl   = c.level || 0;
+    const voc   = c.vocation || '';
+    const share = pfCalcShare(lvl);
+    document.getElementById('pf-char-name-out').textContent = c.name;
+    document.getElementById('pf-char-detail').textContent   = '· ' + voc + ' · Nível ' + lvl;
+    document.getElementById('pf-char-share').textContent    = share.min + ' – ' + share.max;
+    document.getElementById('pf-lvl-min').value = share.min;
+    document.getElementById('pf-lvl-max').value = share.max;
+    resEl.style.display  = 'flex';
+    loadEl.style.display = 'none';
+    loadPartyFinder();
+  } catch(e) {
+    loadEl.style.display = 'none';
+    errEl.style.display  = 'block';
+    errEl.textContent    = e.message || 'Erro ao buscar personagem';
+  }
+}
+
+function pfRenderRow(p, isPanda, inShare) {
+  const cls = 'pf-row' + (isPanda ? ' panda' : '') + (inShare ? ' share' : '');
+  const extra = isPanda
+    ? ' <span style="font-size:.6rem;line-height:1">🐼</span>'
+    : (inShare ? ' <span style="font-size:.58rem;color:var(--gold)">★</span>' : '');
+  return '<div class="' + cls + '" title="' + p.name + ' · ' + p.vocation + ' · Nv ' + p.level + '">'
+    + '<span class="pf-row-name">' + p.name + extra + '</span>'
+    + '<span class="pf-row-lvl">' + p.level + '</span>'
+    + '</div>';
+}
+
+async function loadPartyFinder() {
+  const statusEl = document.getElementById('pf-status');
+  const errEl    = document.getElementById('pf-error');
+  const countEl  = document.getElementById('pf-count');
+  const cols     = document.getElementById('pf-columns');
+  const ph       = document.getElementById('pf-placeholder');
+
+  statusEl.style.display = 'flex';
+  errEl.style.display    = 'none';
+  countEl.style.display  = 'none';
+  ph.style.display       = 'none';
+
+  const lvlMin = parseInt(document.getElementById('pf-lvl-min').value) || 1;
+  const lvlMax = parseInt(document.getElementById('pf-lvl-max').value) || 4000;
+
+  try {
+    // Busca paralela: mundo + guild pandas + guildas a evitar
+    const guildFetches = [
+      tibiaFetch('/v4/world/' + encodeURIComponent(PF_WORLD)),
+      tibiaFetch('/v4/guild/' + encodeURIComponent(PF_GUILD)),
+    ];
+    // Busca membros de cada guild selecionada para evitar
+    const excludedGuildNames = Array.from(pfExcludedGuilds);
+    excludedGuildNames.forEach(function(g) {
+      // Encontra nome original (case-correct) da lista SERVER_GUILDS
+      const original = SERVER_GUILDS.find(sg => sg.toLowerCase() === g) || g;
+      guildFetches.push(tibiaFetch('/v4/guild/' + encodeURIComponent(original)));
+    });
+
+    const results = await Promise.allSettled(guildFetches);
+    const worldRes = results[0];
+    const guildRes = results[1];
+    const excludedGuildResults = results.slice(2);
+
+    const players = worldRes.value?.world?.online_players || [];
+    const guildMembers = new Set();
+    (guildRes.value?.guild?.members || []).forEach(function(m) {
+      guildMembers.add((m.name || '').toLowerCase());
+    });
+
+    // Constrói set com membros das guildas a evitar
+    const excludedMembers = new Set();
+    excludedGuildResults.forEach(function(res) {
+      (res.value?.guild?.members || []).forEach(function(m) {
+        excludedMembers.add((m.name || '').toLowerCase());
+      });
+    });
+
+    var filtered = players.filter(function(p) {
+      var lvl   = p.level || 0;
+      var vocLc = (p.vocation || '').toLowerCase();
+      if (lvl < lvlMin || lvl > lvlMax) return false;
+      if (pfVocFilter && !vocLc.includes(pfVocFilter)) return false;
+      var isPanda = guildMembers.has((p.name || '').toLowerCase());
+      if (pfGuildMode === 'only' && !isPanda) return false;
+      // Evitar membros das guildas selecionadas — mas nunca exclui Pandas
+      if (excludedMembers.size > 0 && !isPanda) {
+        if (excludedMembers.has((p.name || '').toLowerCase())) return false;
+      }
+      return true;
+    });
+
+    filtered.sort(function(a, b) { return b.level - a.level; });
+
+    var groups = { ek:[], rp:[], ed:[], ms:[], monk:[] };
+    filtered.forEach(function(p) {
+      var g = pfVocGroup(p.vocation);
+      if (groups[g]) groups[g].push(p);
+    });
+
+    statusEl.style.display = 'none';
+    cols.classList.add('visible');
+    cols.style.display = '';
+
+    ['ek','rp','ed','ms','monk'].forEach(function(voc) {
+      var cnt  = document.getElementById('pf-cnt-' + voc);
+      var list = document.getElementById('pf-list-' + voc);
+      cnt.textContent = groups[voc].length;
+      if (!groups[voc].length) {
+        list.innerHTML = '<div class="pf-empty">Nenhum online</div>';
+        return;
+      }
+      list.innerHTML = groups[voc].map(function(p) {
+        var isPanda  = guildMembers.has(p.name.toLowerCase());
+        var inShare  = p.level >= lvlMin && p.level <= lvlMax;
+        return pfRenderRow(p, isPanda, inShare);
+      }).join('');
+    });
+
+    var total  = filtered.length;
+    var pandas = filtered.filter(function(p) { return guildMembers.has(p.name.toLowerCase()); }).length;
+    document.getElementById('pf-count-text').textContent  = total + ' jogador' + (total !== 1 ? 'es' : '') + ' encontrado' + (total !== 1 ? 's' : '') + ' · Nv ' + lvlMin + '–' + lvlMax;
+    document.getElementById('pf-count-panda').textContent = pandas ? '🐼 ' + pandas + ' Panda' + (pandas !== 1 ? 's' : '') + ' online' : '';
+    countEl.style.display = 'flex';
+
+  } catch(e) {
+    statusEl.style.display = 'none';
+    errEl.style.display    = 'block';
+    errEl.textContent      = 'Erro ao carregar: ' + e.message;
+  }
+}
+
+
 // Original: body.dark = dark mode
 // Redesign: body.light = light mode (dark is default/base)
 // We override toggleDark() to use our system.
@@ -6720,6 +7637,8 @@ function toggleDark() {
     if (btn) btn.textContent = '☀ Claro';
   }
 })();
+
+document.addEventListener('DOMContentLoaded', pfInitGuildDropdown);
 </script>
 </body>
 </html>
