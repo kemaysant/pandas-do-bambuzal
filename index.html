@@ -928,10 +928,19 @@ async function tibiaFetch(path) {
         <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--rule)">
           <div class="tool-label" style="margin-bottom:1rem">Notícias da guild</div>
           <div class="news-featured">
-            <span class="news-tag gold">Destaque</span>
-            <div class="news-date">Dez 2025</div>
-            <h2 class="news-title">⏳ Rank de Mortes 2025 — apuração em andamento!</h2>
-            <p class="news-body">As inscrições foram encerradas no dia 12. A liderança está apurando todas as deaths e logs. Resultado no dia 15 de dezembro — quem será o Panda mais azarado do ano? 🔥</p>
+            <span class="news-tag gold">📢 Evento</span>
+            <div class="news-date">07 Mai 2025</div>
+            <h2 class="news-title">👼🔥 Demon's Lullaby chegando — vire babá de demônio!</h2>
+            <p class="news-body">
+              A partir de hoje começa o <strong>Demon's Lullaby</strong>. Vá ao deserto de Jakundaf, fale com a <em>Demon Mother</em> (hi → challenge → yes) e pegue seu bebê demoníaco.
+              Atenda 6 pedidos com cooldown de 20h cada — sem vacilar ou perde o progresso.
+              <br><br>
+              💰 <strong>Recompensas:</strong> Demon Baby Doll + Achievements. Se o server completar: <strong>+50% XP até 21/05</strong>.<br>
+              🏠 <strong>Itens disponíveis na GH de Thais e em pontos estratégicos.</strong><br>
+              🔥 Fique de olho nos pedidos — alguns são chatos e outros perigosos 👀
+              <br><br>
+              <a href="https://www.tibiawiki.com.br/Demon%27s_Lullaby" target="_blank" rel="noopener" style="color:var(--bamboo);font-weight:600;font-size:.82rem">Ver guia completo no TibiaWiki →</a>
+            </p>
           </div>
           <div class="news-item">
             <span class="news-tag">Recrutamento</span>
@@ -2025,7 +2034,14 @@ async function loadTibiaEvents() {
     }
 
     const upcoming = eventList
-      .filter(e => !isNaN(e.startDate))
+      .filter(e => {
+        if (isNaN(e.startDate)) return false;
+        if (e.end_date || e.endDate) {
+          const endD = new Date(e.end_date || e.endDate);
+          if (!isNaN(endD) && endD < now) return false;
+        }
+        return true;
+      })
       .sort((a,b) => a.startDate - b.startDate)
       .slice(0, 8);
 
@@ -2033,7 +2049,8 @@ async function loadTibiaEvents() {
 
     const renderRow = (e, compact) => {
       const d = e.startDate;
-      const isActive = d <= now;
+      const endD = (e.end_date || e.endDate) ? new Date(e.end_date || e.endDate) : null;
+      const isActive = d <= now && (!endD || isNaN(endD) || endD >= now);
       const label = String(d.getDate()).padStart(2,'0') + '/' + months[d.getMonth()];
       if (compact) return `
         <div style="display:flex;align-items:center;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--rule)">
@@ -2052,12 +2069,11 @@ async function loadTibiaEvents() {
         </div>`;
     };
 
-    // Build fallback for when API returns empty
+    // Fallback quando a API não retorna eventos — calendário Mai 2026
     const fallbackEvents = [
-      { name:'XP/Skill Event',       startDate: new Date('2026-05-01'), description:'XP e Skill em dobro em todos os mundos.' },
-      { name:'Demon’s Lullaby', startDate: new Date('2026-05-07'), description:'Evento de monstros especiais.' },
-      { name:'Full Moon',            startDate: new Date('2026-05-12'), description:'Werebeasts aparecem com mais frequência.' },
-      { name:'Last Creep Standing',  startDate: new Date('2026-05-20'), description:'Evento de sobrevivência especial.' },
+      { name:"Demon's Lullaby",    startDate: new Date('2026-05-07'), end_date:'2026-05-21', description:'+50% XP global se o servidor completar. Fale com a Demon Mother em Jakundaf.' },
+      { name:'Full Moon',          startDate: new Date('2026-05-12'), description:'Werebeasts aparecem com mais frequência.' },
+      { name:'Last Creep Standing',startDate: new Date('2026-05-20'), description:'Evento de sobrevivência especial.' },
     ];
     const listFull    = upcoming.length ? upcoming : fallbackEvents;
     const listCompact = upcoming.length ? upcoming.slice(0,5) : fallbackEvents;
@@ -2077,14 +2093,14 @@ async function loadTibiaEvents() {
     const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
     const now = new Date(); now.setHours(0,0,0,0);
     const fallback = [
-      { name:'XP/Skill Event',       startDate: new Date('2026-05-01') },
-      { name:'Demon’s Lullaby', startDate: new Date('2026-05-07') },
-      { name:'Full Moon',            startDate: new Date('2026-05-12') },
-      { name:'Last Creep Standing',  startDate: new Date('2026-05-20') },
+      { name:"Demon's Lullaby",    startDate: new Date('2026-05-07'), end_date:'2026-05-21' },
+      { name:'Full Moon',          startDate: new Date('2026-05-12') },
+      { name:'Last Creep Standing',startDate: new Date('2026-05-20') },
     ];
     const renderFb = (e, compact) => {
       const d = e.startDate;
-      const isActive = d <= now;
+      const endD = (e.end_date || e.endDate) ? new Date(e.end_date || e.endDate) : null;
+      const isActive = d <= now && (!endD || isNaN(endD) || endD >= now);
       const label = String(d.getDate()).padStart(2,'0') + '/' + months[d.getMonth()];
       if (compact) return `<div style="display:flex;align-items:center;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--rule)">
         <div style="background:${isActive?'var(--bamboo)':'var(--rule)'};color:${isActive?'#fff':'var(--muted)'};border-radius:6px;padding:2px 8px;font-size:.7rem;font-weight:600;white-space:nowrap;min-width:46px;text-align:center;font-family:'DM Mono',monospace">${label}</div>
@@ -2104,14 +2120,15 @@ async function loadTibiaEvents() {
       const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
       const now = new Date(); now.setHours(0,0,0,0);
       const fallback = [
-        { name:'XP/Skill Event',      startDate: new Date('2026-05-01') },
+        { name:"Demon's Lullaby",    startDate: new Date('2026-05-07'), end_date:'2026-05-21' },
         { name:'Demon\u2019s Lullaby', startDate: new Date('2026-05-07') },
         { name:'Full Moon',           startDate: new Date('2026-05-12') },
         { name:'Last Creep Standing', startDate: new Date('2026-05-20') },
       ];
       homeEl.innerHTML = fallback.map(e => {
         const d = e.startDate;
-        const isActive = d <= now;
+        const endD = e.end_date ? new Date(e.end_date) : null;
+        const isActive = d <= now && (!endD || isNaN(endD) || endD >= now);
         const label = String(d.getDate()).padStart(2,'0') + '/' + months[d.getMonth()];
         return `<div style="display:flex;align-items:center;gap:.6rem;padding:.5rem 0;border-bottom:1px solid var(--rule)">
           <div style="background:${isActive?'var(--bamboo)':'var(--rule)'};color:${isActive?'#fff':'var(--muted)'};border-radius:6px;padding:2px 8px;font-size:.7rem;font-weight:600;white-space:nowrap;min-width:46px;text-align:center;font-family:'DM Mono',monospace">${label}</div>
