@@ -2210,8 +2210,8 @@ function _md5(str) {
   return binl2hex(core_md5(str2binl(str), str.length * 8));
 }
 
-// Gera URL de imagem de item via wikia nocookie CDN (sem API call, sem hotlink block)
-// URL padrão: /tibia/images/{md5[0]}/{md5[0:2]}/Nome_Slug.gif/revision/latest?path-prefix=en
+// Gera URL de imagem de item via wikia nocookie CDN (sem API call)
+// Passa pelo wsrv.nl para evitar bloqueio por Referer quando vem do GitHub Pages
 // Slug: TitleCase com underscores, artigos/preposições em lowercase (ex: "Blood_Tincture_in_a_Vial")
 const _WIKIA_LOWER = new Set(['a','an','the','of','with','in','on','at','for','and','or','but','to','from','by','via','vs']);
 function itemImgUrl(name) {
@@ -2222,7 +2222,8 @@ function itemImgUrl(name) {
       : (w.charAt(0).toUpperCase() + w.slice(1))
   ).join('_') + '.gif';
   const h = _md5(slug);
-  return `https://static.wikia.nocookie.net/tibia/images/${h[0]}/${h.slice(0,2)}/${slug}/revision/latest?path-prefix=en`;
+  const wikiaUrl = `https://static.wikia.nocookie.net/tibia/images/${h[0]}/${h.slice(0,2)}/${slug}/revision/latest?path-prefix=en`;
+  return `https://wsrv.nl/?url=${encodeURIComponent(wikiaUrl)}`;
 }
 
 function creatureImgUrl(creature) {
@@ -4782,9 +4783,10 @@ function renderDeliveryTable() {
       <td style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace">${i+1}</td>
       <td>
         <div style="display:flex;align-items:center;gap:.5rem">
-          <img src="" data-lazy-item="${item.n}"
+          <img data-lazy-item="${item.n}"
                referrerpolicy="no-referrer"
-               alt="" style="width:32px;height:32px;image-rendering:pixelated;flex-shrink:0" 
+               alt="" style="width:32px;height:32px;image-rendering:pixelated;flex-shrink:0;opacity:0"
+               onload="this.style.opacity='1'"
                onerror="this.style.display='none'">
           <span style="font-weight:500;font-size:.88rem;color:var(--ink)">${item.n}</span>
           ${isNPC?'<span style="font-size:.6rem;background:var(--gold-pale);color:var(--gold);padding:1px 6px;border-radius:8px;font-weight:500;white-space:nowrap">NPC</span>':''}
