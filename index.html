@@ -1640,26 +1640,37 @@ async function tibiaFetch(path) {
         style="background:var(--white);border:1px solid var(--rule);border-bottom:2px solid var(--bamboo);margin-bottom:-2px;border-radius:8px 8px 0 0;padding:.55rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--bamboo);cursor:pointer">
         🎯 Chances de Spawn
       </button>
+      <button id="boss-tab-lever" onclick="switchBossTab('lever')"
+        style="background:var(--paper);border:1px solid var(--rule);border-bottom:none;margin-bottom:-2px;border-radius:8px 8px 0 0;padding:.55rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--muted);cursor:pointer">
+        🔧 Boss de Alavanca
+      </button>
       <button id="boss-tab-tracker" onclick="switchBossTab('tracker')"
         style="background:var(--paper);border:1px solid var(--rule);border-bottom:none;margin-bottom:-2px;border-radius:8px 8px 0 0;padding:.55rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--muted);cursor:pointer">
         ✅ Meu Tracker
       </button>
     </div>
 
-    <!-- ── ABA: Chances de Spawn ── -->
+    <!-- ── ABA: Chances de Spawn (só Nemesis) ── -->
     <div id="boss-pane-spawn" style="padding-top:1.25rem">
-      <!-- Filtros -->
       <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem">
-        <button id="bsf-nemesis" onclick="filterBossSpawn('nemesis',this)" style="background:var(--ink);color:var(--bg);border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;font-weight:600;cursor:pointer">⚔️ Nemesis</button>
-        <button id="bsf-all"    onclick="filterBossSpawn('all',this)"    style="background:none;color:var(--ink);border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;cursor:pointer">Todos</button>
+        <button id="bsf-all"    onclick="filterBossSpawn('all',this)"    style="background:var(--ink);color:var(--bg);border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;font-weight:600;cursor:pointer">Todos</button>
         <button id="bsf-high"   onclick="filterBossSpawn('high',this)"   style="background:none;border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;cursor:pointer;color:var(--ink)">🟢 Alta chance</button>
         <button id="bsf-medium" onclick="filterBossSpawn('medium',this)" style="background:none;border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;cursor:pointer;color:var(--ink)">🟡 Média</button>
         <button id="bsf-low"    onclick="filterBossSpawn('low',this)"    style="background:none;border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;cursor:pointer;color:var(--ink)">🔴 Baixa</button>
         <button id="bsf-pinned" onclick="filterBossSpawn('pinned',this)" style="background:none;border:1px solid var(--rule);border-radius:20px;padding:5px 14px;font-size:.8rem;cursor:pointer;color:var(--ink)">📌 Fixados</button>
         <button onclick="loadBossSpawn()" style="margin-left:auto;background:none;border:1px solid var(--rule);border-radius:8px;padding:5px 14px;font-size:.75rem;color:var(--muted);cursor:pointer">↻ Atualizar</button>
       </div>
-      <div id="boss-spawn-loading" class="api-loading"><div class="spinner"></div> Buscando kill statistics do Gentebra...</div>
+      <div id="boss-spawn-loading" class="api-loading"><div class="spinner"></div> Buscando dados de Gentebra...</div>
+      <!-- ── Hot Bosses Banner ── -->
+      <div id="boss-hot-banner" style="display:none;margin-bottom:1rem"></div>
       <div id="boss-spawn-grid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.6rem"></div>
+    </div>
+
+    <!-- ── ABA: Boss de Alavanca ── -->
+    <div id="boss-pane-lever" style="display:none;padding-top:1.25rem">
+      <p style="font-size:.82rem;color:var(--muted);font-weight:300;margin-bottom:1.25rem">Bosses boostáveis que aparecem a cada ~20h. Sem cálculo de chance — estão sempre disponíveis para serem feitos.</p>
+      <div id="boss-lever-loading" class="api-loading" style="display:none"><div class="spinner"></div> Carregando...</div>
+      <div id="boss-lever-grid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.6rem"></div>
     </div>
 
     <!-- ── ABA: Meu Tracker ── -->
@@ -3284,6 +3295,13 @@ function creatureImgUrl(creature) {
   // Mesmo padrão do Hunt Finder: TitleCase com hífens → cdn.tibiaroute.com/monsters/
   const slug = (creature || '').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
   return `https://wsrv.nl/?url=${encodeURIComponent('https://cdn.tibiaroute.com/monsters/' + slug + '.gif')}`;
+}
+
+// GIF animado do boss via CDN do exevopan
+// Formato: https://assets.service-exevopan.com/public/sprites/bosses/{Nome}.gif
+function bossImgUrl(name) {
+  if (!name) return creatureImgUrl("");
+  return "https://assets.service-exevopan.com/public/sprites/bosses/" + encodeURIComponent(name) + ".gif";
 }
 
 // Converte image_url da API para uma URL acessível.
@@ -6648,11 +6666,11 @@ async function loadRecentDeaths() {
   const loadEl = document.getElementById('home-deaths-loading');
   if (!el || !loadEl) return;
 
-  // Online primeiro + amostra aleatória dos demais → 20 membros únicos
-  const online = allMembers.filter(m => m.status === 'online');
+  // Online primeiro, depois offline ordenados por last_login desc (mais ativo primeiro)
+  // Nunca embaralhar aleatoriamente — garante consistência de resultados
+  const online  = allMembers.filter(m => m.status === 'online');
   const offline = allMembers.filter(m => m.status !== 'online');
-  const shuffled = [...offline].sort(() => Math.random() - 0.5);
-  const checkList = [...online, ...shuffled].slice(0, 20);
+  const checkList = [...online, ...offline].slice(0, 30);
 
   if (!checkList.length) {
     el.textContent = 'Nenhum membro para verificar.';
@@ -6667,14 +6685,21 @@ async function loadRecentDeaths() {
     try {
       const data = await tibiaFetch(`/v4/character/${encodeURIComponent(m.name)}`);
       const deaths = data?.character?.deaths || [];
-      deaths.slice(0, 3).forEach(d => {
+      deaths.slice(0, 5).forEach(d => {
+        // Normalizar para ISO 8601 → parse confiável pelo Date
         let rawDate = d.time || d.date || '';
         if (rawDate && typeof rawDate === 'object') rawDate = rawDate.date || rawDate.time || '';
-        rawDate = String(rawDate).replace(' ', 'T').replace(/\.\d+$/, '');
-        allDeaths.push({
-          char: m.name, vocKey: m.vocKey, level: d.level, date: rawDate,
-          killers: d.killers?.map(k => k.name).join(', ') || '?'
-        });
+        rawDate = String(rawDate).trim().replace(' ', 'T');
+        // Garantir que tem timezone Z se não tiver offset
+        if (rawDate && !rawDate.endsWith('Z') && !rawDate.match(/[+-]\d{2}:\d{2}$/)) rawDate += 'Z';
+        const ts = rawDate ? new Date(rawDate).getTime() : 0;
+        if (!isNaN(ts) && ts > 0) {
+          allDeaths.push({
+            char: m.name, vocKey: m.vocKey, level: d.level,
+            date: rawDate, ts,
+            killers: d.killers?.map(k => k.name).join(', ') || '?'
+          });
+        }
       });
     } catch(e) {}
   }));
@@ -6686,27 +6711,21 @@ async function loadRecentDeaths() {
     return;
   }
 
-  // Ordenar por data/hora — mais recente primeiro
-  allDeaths.sort((a, b) => {
-    const da = a.date ? a.date.replace(' ', 'T') : '0';
-    const db = b.date ? b.date.replace(' ', 'T') : '0';
-    return db.localeCompare(da);
-  });
+  // Ordenar por timestamp numérico — mais recente primeiro, sempre determinístico
+  allDeaths.sort((a, b) => b.ts - a.ts);
 
   el.innerHTML = allDeaths.slice(0, 5).map(d => {
     let dateStr = '—';
-    if (d.date) {
-      try {
-        const dt = new Date(d.date);
-        if (!isNaN(dt)) {
-          const dd = String(dt.getDate()).padStart(2,'0');
-          const mm = String(dt.getMonth()+1).padStart(2,'0');
-          const hh = String(dt.getHours()).padStart(2,'0');
-          const mi = String(dt.getMinutes()).padStart(2,'0');
-          dateStr = `${dd}/${mm} ${hh}:${mi}`;
-        }
-      } catch(e) {}
-    }
+    try {
+      const dt = new Date(d.ts);
+      if (!isNaN(dt)) {
+        const dd = String(dt.getDate()).padStart(2,'0');
+        const mm = String(dt.getMonth()+1).padStart(2,'0');
+        const hh = String(dt.getHours()).padStart(2,'0');
+        const mi = String(dt.getMinutes()).padStart(2,'0');
+        dateStr = `${dd}/${mm} ${hh}:${mi}`;
+      }
+    } catch(e) {}
     return `
     <div style="display:flex;align-items:flex-start;gap:.65rem;padding:.6rem 0;border-bottom:1px solid var(--rule)">
       <span style="font-size:.85rem;flex-shrink:0;margin-top:1px">💀</span>
@@ -6847,33 +6866,31 @@ function renderHomeBoosted(creature, boss) {
 
 // ── Boss Spawn Chances ──
 let bossSpawnData   = [];
-let bossSpawnFilter = 'nemesis';
+let leverBossData   = [];
+let bossSpawnFilter = 'all';
 let pinnedBosses    = JSON.parse(localStorage.getItem('panda-pinned') || '[]');
 
-function switchBossTab(tab) {
-  const paneSpawn   = document.getElementById('boss-pane-spawn');
-  const paneTracker = document.getElementById('boss-pane-tracker');
-  const btnSpawn    = document.getElementById('boss-tab-spawn');
-  const btnTracker  = document.getElementById('boss-tab-tracker');
-  if (!paneSpawn || !paneTracker) return;
+const TAB_ACTIVE   = 'background:var(--white);border:1px solid var(--rule);border-bottom:2px solid var(--bamboo);margin-bottom:-2px;border-radius:8px 8px 0 0;padding:.55rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--bamboo);cursor:pointer';
+const TAB_INACTIVE = 'background:var(--paper);border:1px solid var(--rule);border-bottom:none;margin-bottom:-2px;border-radius:8px 8px 0 0;padding:.55rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--muted);cursor:pointer';
 
+function switchBossTab(tab) {
+  const panes = { spawn:'boss-pane-spawn', lever:'boss-pane-lever', tracker:'boss-pane-tracker' };
+  const btns  = { spawn:'boss-tab-spawn',  lever:'boss-tab-lever',  tracker:'boss-tab-tracker'  };
+  Object.keys(panes).forEach(k => {
+    const p = document.getElementById(panes[k]);
+    const b = document.getElementById(btns[k]);
+    if (p) p.style.display = (k === tab) ? 'block' : 'none';
+    if (b) b.style.cssText = (k === tab) ? TAB_ACTIVE : TAB_INACTIVE;
+  });
   if (tab === 'spawn') {
-    paneSpawn.style.display = 'block';
-    paneTracker.style.display = 'none';
-    btnSpawn.style.cssText   = 'background:var(--white);border:1px solid var(--rule);border-bottom:2px solid var(--bamboo);margin-bottom:-2px;border-radius:8px 8px 0 0;padding:.55rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--bamboo);cursor:pointer';
-    btnTracker.style.cssText = 'background:var(--paper);border:1px solid var(--rule);border-bottom:none;margin-bottom:-2px;border-radius:8px 8px 0 0;padding:.55rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--muted);cursor:pointer';
     if (!bossSpawnData.length) loadBossSpawn();
-  } else {
-    paneSpawn.style.display = 'none';
-    paneTracker.style.display = 'block';
-    btnSpawn.style.cssText   = 'background:var(--paper);border:1px solid var(--rule);border-bottom:none;margin-bottom:-2px;border-radius:8px 8px 0 0;padding:.55rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--muted);cursor:pointer';
-    btnTracker.style.cssText = 'background:var(--white);border:1px solid var(--rule);border-bottom:2px solid var(--bamboo);margin-bottom:-2px;border-radius:8px 8px 0 0;padding:.55rem 1.1rem;font-size:.85rem;font-weight:600;color:var(--bamboo);cursor:pointer';
-    if (!bossSpawnData.length) {
-      // Ainda não carregou — carregar e recarregar tracker quando terminar
-      loadBossSpawn().then(() => loadBossTracker()).catch(() => loadBossTracker());
-    } else {
-      loadBossTracker();
-    }
+    else renderBossSpawnGrid();
+  } else if (tab === 'lever') {
+    if (!leverBossData.length) loadBossSpawn().then(renderLeverGrid);
+    else renderLeverGrid();
+  } else if (tab === 'tracker') {
+    if (!bossSpawnData.length) loadBossSpawn().then(() => loadBossTracker()).catch(() => loadBossTracker());
+    else loadBossTracker();
   }
 }
 
@@ -6940,6 +6957,36 @@ function filterBossSpawn(f, btn) {
   renderBossSpawnGrid();
 }
 
+function renderLeverGrid() {
+  const grid = document.getElementById('boss-lever-grid');
+  if (!grid) return;
+  // Bosses de alavanca = boostable bosses que NÃO são Nemesis
+  const data = leverBossData.length ? leverBossData
+    : bossSpawnData.filter(b => !NEMESIS_NAMES.has(b.name));
+  if (!data.length) {
+    grid.style.display = 'block';
+    grid.innerHTML = '<p style="color:var(--muted);font-size:.85rem;padding:2rem;text-align:center">Nenhum boss encontrado. Clique em Chances de Spawn primeiro para carregar os dados.</p>';
+    return;
+  }
+  const sorted = [...data].sort((a,b) => a.name.localeCompare(b.name));
+  grid.style.display = 'grid';
+  grid.innerHTML = sorted.map(b => {
+    const imgUrl = bossImgUrl(b.name);
+    return `
+    <div style="background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;transition:transform .12s"
+         onmouseenter="this.style.transform='translateY(-1px)'" onmouseleave="this.style.transform='none'">
+      <div style="width:64px;height:64px;background:var(--paper);border:1px solid var(--rule);border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">
+        <img src="${imgUrl}" alt="${b.name}" style="width:100%;height:100%;object-fit:contain"
+             onerror="this.src='${creatureImgUrl(b.name)}';this.onerror=function(){this.parentNode.innerHTML='<span style=font-size:1.4rem>👹</span>'}">
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:.88rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.name}</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:2px">~20h de respawn</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function togglePin(name, btn) {
   event.stopPropagation();
   const idx = pinnedBosses.indexOf(name);
@@ -6963,28 +7010,75 @@ function chanceLabel(pct) {
   return `<span style="color:${chanceColor(pct)};font-size:.85rem;font-weight:600">${pct.toFixed(1)}%</span>`;
 }
 
-function renderBossSpawnGrid() {
-  const grid = document.getElementById('boss-spawn-grid');
-  if (!grid) return;
-  let data = [...bossSpawnData];
+function activityBadge(killedToday, killedWeek) {
+  // Apenas mortes de criaturas — sem dados de players
+  if (killedToday === null && killedWeek === null) return '';
+  const day  = killedToday  || 0;
+  const week = killedWeek   || 0;
+  if (day > 0) {
+    const label = day === 1 ? '1 morte hoje' : `${day}x hoje`;
+    return `<span title="Morto ${day}x nas últimas 24h no servidor" style="display:inline-flex;align-items:center;gap:3px;font-size:.68rem;font-weight:600;color:#e07040;background:rgba(224,112,64,.12);border:1px solid rgba(224,112,64,.25);border-radius:20px;padding:1px 7px;margin-top:3px">&#x2694;&#xFE0F; ${label}</span>`;
+  }
+  if (week > 0) {
+    const label = week === 1 ? '1 morte esta semana' : `${week}x esta semana`;
+    return `<span title="Morto ${week}x nos últimos 7 dias no servidor" style="display:inline-flex;align-items:center;gap:3px;font-size:.68rem;font-weight:600;color:#a08060;background:rgba(160,128,96,.1);border:1px solid rgba(160,128,96,.2);border-radius:20px;padding:1px 7px;margin-top:3px">&#x1F4C5; ${label}</span>`;
+  }
+  return `<span title="Sem mortes registradas nos últimos 7 dias no servidor" style="display:inline-flex;align-items:center;gap:3px;font-size:.68rem;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1px 7px;margin-top:3px">&#x1F4A4; Inativo</span>`;
+}
 
+function renderBossSpawnGrid() {
+  const grid   = document.getElementById('boss-spawn-grid');
+  const banner = document.getElementById('boss-hot-banner');
+  if (!grid) return;
+
+  // Chance de Spawn sempre mostra APENAS Nemesis
+  const existing = new Map(bossSpawnData.map(b => [b.name, b]));
+  let allNemesis = [];
+  NEMESIS_NAMES.forEach(name => {
+    if (existing.has(name)) allNemesis.push(existing.get(name));
+    else allNemesis.push({ name, chance: null, img: bossImgUrl(name), killedToday: null, killedWeek: null });
+  });
+
+  // ── Hot Bosses Banner (top 3 com chance real) ──
+  if (banner) {
+    const hotBosses = [...allNemesis]
+      .filter(b => b.chance !== null && b.chance > 0)
+      .sort((a, b) => b.chance - a.chance)
+      .slice(0, 3);
+    if (hotBosses.length && bossSpawnFilter === 'all') {
+      const medals = ['🥇', '🥈', '🥉'];
+      banner.style.display = 'block';
+      banner.innerHTML = `
+        <div style="background:linear-gradient(135deg,rgba(34,160,60,.08),rgba(255,170,30,.08));border:1px solid rgba(34,160,60,.25);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem">
+          <div style="font-size:.72rem;font-weight:700;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem">🔥 Maior chance agora</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.6rem">
+            ${hotBosses.map((b, i) => {
+              const barColor = b.chance >= 30 ? '#22cc44' : b.chance >= 10 ? '#ffaa22' : '#cc3333';
+              const imgUrl = bossImgUrl(b.name);
+              const fallback = creatureImgUrl(b.name);
+              return `<div style="background:var(--white);border:1px solid rgba(34,160,60,.3);border-radius:8px;padding:.6rem .85rem;display:flex;align-items:center;gap:.65rem;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+                <span style="font-size:1.1rem;flex-shrink:0">${medals[i]}</span>
+                <div style="width:42px;height:42px;background:var(--paper);border-radius:6px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">
+                  <img src="${imgUrl}" alt="${b.name}" style="width:100%;height:100%;object-fit:contain"
+                       onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='${fallback}'}else{this.parentNode.innerHTML='<span style=font-size:1.1rem>👹</span>'}">
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-weight:600;font-size:.8rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.name}</div>
+                  <div style="font-weight:700;font-size:.92rem;color:${barColor}">${b.chance.toFixed(1)}%</div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+
+  let data = [...allNemesis];
   if (bossSpawnFilter === 'high')   data = data.filter(b => b.chance !== null && b.chance >= 30);
   if (bossSpawnFilter === 'medium') data = data.filter(b => b.chance !== null && b.chance >= 10 && b.chance < 30);
   if (bossSpawnFilter === 'low')    data = data.filter(b => b.chance !== null && b.chance > 0 && b.chance < 10);
-  if (bossSpawnFilter === 'nemesis') {
-    // Mostrar todos os Nemesis da lista, mesmo sem dados de kill stats hoje
-    const existing = new Map(data.map(b => [b.name, b]));
-    const nemesisList = [];
-    NEMESIS_NAMES.forEach(name => {
-      if (existing.has(name)) {
-        nemesisList.push(existing.get(name));
-      } else {
-        // Boss Nemesis sem dados hoje — mostrar com chance desconhecida
-        nemesisList.push({ name, chance: null, img: null });
-      }
-    });
-    data = nemesisList;
-  }
   if (bossSpawnFilter === 'pinned') data = data.filter(b => pinnedBosses.includes(b.name));
 
   data.sort((a, b) => {
@@ -7004,23 +7098,51 @@ function renderBossSpawnGrid() {
   }
 
   grid.innerHTML = data.map(b => {
-    const isPinned = pinnedBosses.includes(b.name);
-    const imgUrl   = b.img || creatureImgUrl(b.name);
+    const isPinned  = pinnedBosses.includes(b.name);
+    const imgUrl    = bossImgUrl(b.name);
+    const fallback  = creatureImgUrl(b.name);
+    const hasChance = b.chance !== null && b.chance > 0;
+    const isHigh    = b.chance !== null && b.chance >= 30;
+
+    // Border color
     const bc = b.chance === null ? 'var(--rule)'
-      : b.chance >= 30 ? 'rgba(34,204,68,.4)'
-      : b.chance >= 10 ? 'rgba(255,170,34,.3)'
-      : b.chance > 0   ? 'rgba(204,51,51,.3)'
+      : b.chance >= 30 ? 'rgba(34,204,68,.5)'
+      : b.chance >= 10 ? 'rgba(255,170,34,.4)'
+      : b.chance > 0   ? 'rgba(204,51,51,.35)'
       : 'var(--rule)';
+
+    // Background glow for high chance
+    const bg = isHigh
+      ? 'linear-gradient(135deg,rgba(34,204,68,.07),rgba(34,204,68,.03))'
+      : isPinned ? 'rgba(160,120,40,.06)' : 'var(--white)';
+
+    const barColor = b.chance === null ? 'var(--muted)'
+      : b.chance >= 30 ? '#22cc44'
+      : b.chance >= 10 ? '#ffaa22'
+      : '#cc3333';
+
+    // Progress bar (capped at 100%, reference: 50% = full bar visually feels right)
+    const barWidth = b.chance === null ? 0 : Math.min(100, b.chance * 2);
+
+    const glowStyle = isHigh ? 'box-shadow:0 0 0 1px rgba(34,204,68,.2),0 3px 12px rgba(34,204,68,.12);' : '';
+
     return `
-    <div style="background:${isPinned?'rgba(160,120,40,.06)':'var(--white)'};border:1px solid ${bc};border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;transition:transform .12s"
-         onmouseenter="this.style.transform='translateY(-1px)'" onmouseleave="this.style.transform='none'">
-      <div style="width:52px;height:52px;background:var(--paper);border:1px solid var(--rule);border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">
-        <img src="${imgUrl}" alt="${b.name}" style="width:100%;height:100%;image-rendering:pixelated;object-fit:contain"
-             onerror="this.parentNode.innerHTML='<span style=font-size:1.4rem>👹</span>'">
+    <div style="background:${bg};border:1px solid ${bc};border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;transition:transform .12s,box-shadow .12s;${glowStyle}"
+         onmouseenter="this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 14px rgba(0,0,0,.1)'"
+         onmouseleave="this.style.transform='none';this.style.boxShadow='${isHigh?'0 0 0 1px rgba(34,204,68,.2),0 3px 12px rgba(34,204,68,.12)':'none'}'">
+      <div style="width:64px;height:64px;background:var(--paper);border:1px solid var(--rule);border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative">
+        <img src="${imgUrl}" alt="${b.name}" style="width:100%;height:100%;object-fit:contain"
+             onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='${fallback}'}else{this.parentNode.innerHTML='<span style=font-size:1.4rem>👹</span>'}">
+        ${isHigh ? '<div style="position:absolute;top:2px;right:2px;width:8px;height:8px;background:#22cc44;border-radius:50%;box-shadow:0 0 4px #22cc44"></div>' : ''}
       </div>
       <div style="flex:1;min-width:0">
         <div style="font-weight:600;font-size:.88rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.name}</div>
-        <div style="margin-top:2px">${chanceLabel(b.chance)}</div>
+        <div style="margin-top:3px">${chanceLabel(b.chance)}</div>
+        ${hasChance ? `
+        <div style="margin-top:5px;height:3px;background:var(--rule);border-radius:2px;overflow:hidden">
+          <div style="height:100%;width:${barWidth}%;background:${barColor};border-radius:2px;transition:width .4s ease"></div>
+        </div>` : ''}
+        <div style="margin-top:4px">${activityBadge(b.killedToday ?? null, b.killedWeek ?? null)}</div>
       </div>
       <button onclick="togglePin('${b.name}',this)" title="${isPinned?'Desafixar':'Fixar'}"
         style="background:none;border:none;cursor:pointer;font-size:.95rem;opacity:${isPinned?'1':'0.25'};transition:opacity .15s;padding:4px"
@@ -7061,9 +7183,13 @@ async function loadBossSpawn() {
     bossSpawnData = allBosses.map(boss => {
       const entry = ks.find(e => e.race?.toLowerCase() === boss.name?.toLowerCase());
       let chance = null;
+      let killedToday = null;
+      let killedWeek  = null;
       // boss.chance não existe na API - calcular via kill statistics
       if (entry) {
-        const killed = entry.last_day_killed || 0;
+        killedToday = entry.last_day_killed  || 0;
+        killedWeek  = entry.last_week_killed || 0;
+        const killed = killedToday;
         // Se foi muito morto hoje = spawn alto = chance menor amanhã
         // Se não foi morto = estava raro = mais chance de aparecer
         if (killed === 0) chance = 70;
@@ -7073,17 +7199,21 @@ async function loadBossSpawn() {
         else chance = 8;
       }
       // Usar image_url da API (static.tibia.com - sem hotlink block)
-      const img = boss.image_url || creatureImgUrl(boss.name);
-      return { name: boss.name, img, chance };
+      const img = bossImgUrl(boss.name);
+      return { name: boss.name, img, chance, killedToday, killedWeek };
     });
+    // Separar Nemesis dos bosses de alavanca
+    leverBossData = bossSpawnData.filter(b => !NEMESIS_NAMES.has(b.name));
+    bossSpawnData = bossSpawnData; // todos ficam para lookup, renderBossSpawnGrid filtra
   } else {
     // Fallback com bosses da guild
     console.warn('[BossSpawn] usando fallback com GUILD_BOSSES');
     bossSpawnData = (typeof GUILD_BOSSES !== 'undefined' ? GUILD_BOSSES : [])
-      .map(b => ({ name: b.name, img: creatureImgUrl(b.creature || b.name), chance: null }));
+      .map(b => ({ name: b.name, img: bossImgUrl(b.name), chance: null }));
+    leverBossData = [];
   }
 
-  console.log('[BossSpawn] bossSpawnData:', bossSpawnData.length, 'itens');
+  console.log('[BossSpawn] bossSpawnData:', bossSpawnData.length, 'leverBossData:', leverBossData.length);
   if (loading) loading.style.display = 'none';
   if (grid) grid.style.display = bossSpawnData.length ? 'grid' : 'block';
   renderBossSpawnGrid();
@@ -7128,7 +7258,7 @@ function loadBossTracker() {
     ? bossSpawnData.map(b => ({
         id: b.name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
         name: b.name,
-        img: b.img || creatureImgUrl(b.name),
+        img: bossImgUrl(b.name),
         wiki: `https://tibia.fandom.com/wiki/${encodeURIComponent(b.name.replace(/ /g,'_'))}`,
         tipo: null
       }))
@@ -7148,7 +7278,7 @@ function loadBossTracker() {
     return `
     <div style="background:${isDone ? 'var(--bamboo-pale)' : 'var(--white)'};border:1px solid ${isDone ? 'rgba(90,158,68,.3)' : 'var(--rule)'};border-radius:8px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;transition:all .15s" onclick="toggleBoss('${b.id}',this)">
       <div style="width:22px;height:22px;border-radius:5px;border:2px solid ${isDone ? 'var(--bamboo)' : 'var(--rule)'};background:${isDone ? 'var(--bamboo)' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;color:white;transition:all .15s;flex-shrink:0">${isDone ? '✓' : ''}</div>
-      ${b.img ? `<img src="${b.img}" alt="${b.name}" style="width:40px;height:40px;image-rendering:pixelated;flex-shrink:0;border-radius:4px;background:var(--paper);border:1px solid var(--rule);padding:2px" onerror="this.style.display='none'">` : ''}
+      <img src="${bossImgUrl(b.name)}" alt="${b.name}" style="width:40px;height:40px;object-fit:contain;flex-shrink:0;border-radius:4px;background:var(--paper);border:1px solid var(--rule);padding:2px" onerror="this.style.display='none'">
       <div style="flex:1;min-width:0">
         <div style="font-weight:500;font-size:.87rem;color:${isDone ? 'var(--bamboo)' : 'var(--ink)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.name}</div>
         ${b.tipo ? `<div style="font-size:.7rem;color:var(--muted);font-weight:300">${b.tipo}</div>` : ''}
@@ -8482,14 +8612,19 @@ document.addEventListener('DOMContentLoaded', pfInitGuildDropdown);
     if(!active.length)return null;
     const n=active.length;
     const gross=LSP.hdr.loot-LSP.hdr.supplies;
-    const splitEach=Math.round(gross/n);
     const extraMap={};
     active.forEach(p=>extraMap[p.name]=extraAdv[p.name]||0);
     extraLines.forEach(e=>{if(extraMap[e.player]!==undefined)extraMap[e.player]+=e.amount;});
+    // Extra = custo compartilhado adiantado por 1 jogador (prey cards com TC, etc)
+    // O grupo divide esse custo: gross_real = gross - totalExtras
+    const totalExtra=active.reduce((s,p)=>s+(extraMap[p.name]||0),0);
+    const splitEach=Math.round((gross-totalExtra)/n);
     const results=active.map(p=>{
       const extra=extraMap[p.name]||0;
+      // Ajusta balance: quem pagou o extra teve esse custo fora do client
       // transfer > 0 → paga | transfer < 0 → recebe
-      const transfer=Math.round(p.balance-extra-splitEach);
+      const balAdj=p.balance-extra;
+      const transfer=Math.round(balAdj-splitEach);
       return{...p,extra,splitEach,transfer};
     });
     return{gross,splitEach,results};
