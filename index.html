@@ -485,6 +485,105 @@ footer strong{color:var(--ink-3);font-weight:500}
 .reveal.visible{opacity:1;transform:none}
 
 /* ══════════════════════════════════════
+   HUNT MODAL EXTRAS — imbuements, charms, animated loots, comments
+══════════════════════════════════════ */
+
+/* Imbuement tag */
+.hf-imbu-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(136,120,208,.14);
+  border: 1px solid rgba(136,120,208,.3);
+  color: var(--accent);
+  font-size: .72rem; font-weight: 600;
+  padding: 3px 9px; border-radius: 20px;
+  letter-spacing: .3px;
+}
+
+/* Charm row */
+.hf-charm-row {
+  display: flex; align-items: center; gap: .5rem;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  font-size: .78rem;
+}
+.hf-charm-row:last-child { border-bottom: none; }
+.hf-charm-creature { color: var(--ink-2); font-weight: 500; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hf-charm-name { color: var(--gold); font-size: .7rem; font-weight: 600; background: var(--gold-dim); padding: 2px 7px; border-radius: 10px; white-space: nowrap; }
+
+/* Equipment block */
+.hf-equip-text {
+  font-size: .8rem; color: var(--ink-3); line-height: 1.6; font-weight: 300;
+}
+.hf-equip-item {
+  display: flex; align-items: center; gap: .5rem;
+  padding: 4px 0; font-size: .78rem; color: var(--ink-2);
+}
+.hf-equip-dot { color: var(--bamboo); font-size: .55rem; flex-shrink: 0; }
+
+/* Animated loot slot (Intibia Supabase) */
+.hf-loot-anim-grid {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: .3rem;
+}
+.hf-loot-anim-slot {
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: var(--bg-3); border: 1px solid var(--border);
+  border-radius: 7px; padding: 6px 5px; width: 58px; cursor: default;
+  transition: border-color .15s;
+}
+.hf-loot-anim-slot:hover { border-color: var(--gold); }
+.hf-loot-anim-slot img { width: 32px; height: 32px; image-rendering: pixelated; }
+.hf-loot-anim-lbl { font-size: .55rem; color: var(--muted); text-align: center; line-height: 1.2; max-width: 52px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+/* Comments section */
+.hf-comments {
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+}
+.hf-comments-login {
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: 8px; padding: .75rem 1rem;
+  font-size: .8rem; color: var(--muted); text-align: center;
+}
+.hf-comments-login input {
+  background: var(--bg-3); border: 1px solid var(--border-2);
+  border-radius: 6px; padding: 6px 10px; color: var(--ink);
+  font-size: .82rem; width: 100%; outline: none; margin-bottom: .5rem;
+  font-family: 'Inter', sans-serif;
+}
+.hf-comments-login input:focus { border-color: var(--bamboo); }
+.hf-comment-form { display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1rem; }
+.hf-comment-textarea {
+  background: var(--bg-2); border: 1px solid var(--border-2);
+  border-radius: 8px; padding: 8px 12px; color: var(--ink);
+  font-size: .82rem; font-family: 'Inter', sans-serif; resize: vertical;
+  min-height: 60px; outline: none;
+}
+.hf-comment-textarea:focus { border-color: var(--bamboo); }
+.hf-comment-submit {
+  background: var(--bamboo); color: #fff; border: none;
+  border-radius: 6px; padding: 7px 16px; font-size: .8rem;
+  font-weight: 600; cursor: pointer; align-self: flex-end;
+  font-family: 'Inter', sans-serif; transition: background .15s;
+}
+.hf-comment-submit:hover { background: var(--bamboo-light); }
+.hf-comment-submit:disabled { opacity: .5; cursor: default; }
+.hf-comment-item {
+  padding: .65rem 0; border-bottom: 1px solid rgba(255,255,255,.05);
+  font-size: .8rem;
+}
+.hf-comment-item:last-child { border-bottom: none; }
+.hf-comment-meta {
+  display: flex; align-items: center; gap: .5rem;
+  margin-bottom: 3px;
+}
+.hf-comment-author { font-weight: 600; color: var(--bamboo-light); }
+.hf-comment-date { font-size: .68rem; color: var(--muted); }
+.hf-comment-text { color: var(--ink-2); line-height: 1.55; }
+.hf-comment-empty { font-size: .78rem; color: var(--muted); font-style: italic; }
+.hf-comments-login-form { display: flex; flex-direction: column; gap: .5rem; }
+
+/* ══════════════════════════════════════
    PARTY FINDER
 ══════════════════════════════════════ */
 
@@ -908,7 +1007,7 @@ footer strong{color:var(--ink-3);font-weight:500}
 .hf-mbody { padding:1rem 1.5rem 1.5rem; }
 .hf-m3col {
   display:grid;
-  grid-template-columns:1fr 260px 190px;
+  grid-template-columns:1fr 260px 210px;
   gap:1rem;align-items:start;
 }
 @media(max-width:900px){
@@ -983,17 +1082,45 @@ footer strong{color:var(--ink-3);font-weight:500}
 }
 
 /* Map panel */
-.hf-col-map {}
+.hf-col-map {
+  position: sticky;
+  top: 0;   /* ancora no topo do scroll container do modal */
+  align-self: start;
+}
 .hf-map-wrap {
-  position:relative;border-radius:10px;overflow:hidden;
+  position:relative;
+  border-radius:10px;
   border:1px solid rgba(255,255,255,.08);
   background:#0a0a0c;
   height:230px;
+  /* overflow:hidden removido — cortava os controles Leaflet (▲▼ andares) */
 }
 .hf-map-wrap .leaflet-container {
   background:#0d0d10;
   border-radius:9px;
 }
+/* Estilo nativo dos botões do floor control — igual ao zoom +/- */
+.hf-map-wrap .leaflet-control-zoom,
+.hf-map-wrap .leaflet-bar {
+  border-radius:4px;
+  overflow:hidden;
+  box-shadow:0 1px 5px rgba(0,0,0,.65);
+}
+.hf-map-wrap .leaflet-bar a {
+  width:26px;
+  height:26px;
+  line-height:26px;
+  font-size:11px;
+  font-weight:700;
+  background:#1e1e22;
+  color:#d4d0c8;
+  border-bottom:1px solid rgba(255,255,255,.1);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.hf-map-wrap .leaflet-bar a:last-child { border-bottom:none; }
+.hf-map-wrap .leaflet-bar a:hover { background:#2a2a32; color:#fff; }
 /* Hide leaflet attribution */
 .hf-map-wrap .leaflet-control-attribution,
 #hf-leaflet-zoom-map .leaflet-control-attribution { display:none; }
@@ -1169,6 +1296,10 @@ async function tibiaFetch(path) {
       <button class="nav-btn" onclick="showPage('delivery',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Task Delivery</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('lootsplit',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Loot Split</span>
       </button>
       <button class="nav-btn" onclick="showPage('tools',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
@@ -1672,6 +1803,7 @@ async function tibiaFetch(path) {
       <button class="filter-btn" onclick="filterImbu('prot',this)">Proteções</button>
       <button class="filter-btn" onclick="filterImbu('dmg',this)">Dano Elemental</button>
       <button class="filter-btn" onclick="filterImbu('util',this)">Utilitários</button>
+      <button class="filter-btn" onclick="filterImbu('skill',this)">Skill Boost</button>
     </div>
 
     <div id="imbu-page-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem"></div>
@@ -1748,6 +1880,78 @@ async function tibiaFetch(path) {
         </thead>
         <tbody id="dt-body"></tbody>
       </table>
+    </div>
+  </section>
+
+  <!-- ─── LOOT SPLIT ─── -->
+  <section class="page-section" id="lootsplit">
+    <h2 class="sec-title">Loot Split</h2>
+    <p class="sec-sub">Cole a sessão da party, calcule o split igualitário e copie as mensagens de transferência para o banco.</p>
+
+    <div class="card" style="margin-bottom:1rem">
+      <div class="tool-label">Sessão do Tibia</div>
+      <textarea id="ls-si" rows="8" style="width:100%;resize:vertical;font-family:monospace;font-size:12px;line-height:1.55;border:1px solid var(--rule);border-radius:7px;padding:.7rem .85rem;background:var(--paper);color:var(--ink);outline:none;margin-top:.5rem" placeholder="Cole aqui o session log da sua party...
+
+Session data: From 2025-10-10, 20:24:38 to 2025-10-10, 22:38:19
+Session: 02:13h
+Loot Type: Market
+Loot: 1,764,645
+Supplies: 1,754,135
+Balance: 10,510
+PlayerName (Leader)
+ Loot: 715,822
+ Supplies: 530,067
+ Balance: 185,755
+ Damage: 901,309
+ Healing: 469,355"></textarea>
+      <div id="ls-err" style="display:none;font-size:12px;color:#ef4444;margin-top:.4rem;padding:.4rem .65rem;background:rgba(239,68,68,.08);border-radius:6px"></div>
+      <div style="display:flex;gap:.6rem;margin-top:.75rem;flex-wrap:wrap">
+        <button class="filter-btn active" onclick="lsGo()">⚔ Calcular split</button>
+        <button class="filter-btn" onclick="lsReset()">↺ Limpar</button>
+      </div>
+    </div>
+
+    <div id="ls-results" style="display:none">
+
+      <!-- Métricas -->
+      <div id="ls-metrics" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.65rem;margin-bottom:1rem"></div>
+
+      <!-- Jogadores -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="tool-title" style="margin-bottom:.85rem;font-size:1rem">Jogadores</div>
+        <div id="ls-pgrid"></div>
+      </div>
+
+      <!-- Opções avançadas -->
+      <div class="card" style="margin-bottom:1rem">
+        <div class="tool-title" style="margin-bottom:.35rem;font-size:1rem">Opções avançadas</div>
+        <p style="font-size:.75rem;color:var(--muted);margin-bottom:.85rem">Adicione gastos extras por jogador (prey cards, silver tokens, imbus) ou remova quem não participa do split.</p>
+        <div id="ls-advgrid" style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem"></div>
+        <div style="height:1px;background:var(--rule);margin:.85rem 0"></div>
+        <div class="tool-label" style="margin-bottom:.35rem">Gastos extras adicionais</div>
+        <p style="font-size:.75rem;color:var(--muted);margin-bottom:.65rem">Para múltiplos itens ou gastos com descrição.</p>
+        <div id="ls-extras"></div>
+        <button class="filter-btn" style="margin-top:.4rem" onclick="lsAddExtra()">+ Adicionar linha</button>
+        <div style="height:1px;background:var(--rule);margin:.85rem 0"></div>
+        <button class="filter-btn active" onclick="lsRecalc()">↺ Recalcular</button>
+      </div>
+
+      <!-- Transferências -->
+      <div class="card">
+        <div class="tool-title" style="margin-bottom:.85rem;font-size:1rem">Transferências</div>
+        <div id="ls-tlist"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:var(--paper);border-radius:8px;margin-top:.85rem">
+          <div>
+            <div style="font-size:.72rem;color:var(--muted)">Lucro por pessoa</div>
+            <div id="ls-profit" style="font-size:1.25rem;font-weight:700;color:var(--bamboo)">0 gp</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:.72rem;color:var(--muted)">Loot total</div>
+            <div id="ls-loot-banner" style="font-size:.95rem;font-weight:600;color:var(--ink)">0 gp</div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -2661,24 +2865,30 @@ async function loadTibiaEvents() {
 // ══════════════════════════════════════════════════
 // ── Imbuements data completo com 3 tiers ──
 const IMBU_ICONS = {
-  'vampirism': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzFhMDUwNSIvPjxwYXRoIGQ9Ik0yMCA4Yy00IDAtOCAzLTggOCAwIDMgMiA1IDQgNmwtMiAxMGgxMmwtMi0xMGMyLTEgNC0zIDQtNiAwLTUtNC04LTgtOHoiIGZpbGw9IiNjYzIyMjIiLz48Y2lyY2xlIGN4PSIxNyIgY3k9IjE4IiByPSIxLjUiIGZpbGw9IiNmZjY2NjYiLz48Y2lyY2xlIGN4PSIyMyIgY3k9IjE4IiByPSIxLjUiIGZpbGw9IiNmZjY2NjYiLz48L3N2Zz4=',
-  'void': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MDUxYSIvPjxlbGxpcHNlIGN4PSIyMCIgY3k9IjIwIiByeD0iMTAiIHJ5PSIxMiIgZmlsbD0iIzIyMzNhYSIvPjxlbGxpcHNlIGN4PSIyMCIgY3k9IjE4IiByeD0iNiIgcnk9IjciIGZpbGw9IiM0NDU1Y2MiLz48ZWxsaXBzZSBjeD0iMjAiIGN5PSIxNiIgcng9IjMiIHJ5PSI0IiBmaWxsPSIjODg5OWZmIi8+PGNpcmNsZSBjeD0iMjAiIGN5PSIxNCIgcj0iMS41IiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==',
-  'strike': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzFhMGEwMCIvPjxwb2x5Z29uIHBvaW50cz0iMjAsNiAyNiwxOCAzOCwxOCAyOCwyNiAzMiwzOCAyMCwzMCA4LDM4IDEyLDI2IDIsMTggMTQsMTgiIGZpbGw9IiNmZjg4MDAiIHN0cm9rZT0iI2ZmYWEzMyIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9zdmc+',
-  'precision': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MTAwYSIvPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjEyIiBmaWxsPSJub25lIiBzdHJva2U9IiMzM2FhNTUiIHN0cm9rZS13aWR0aD0iMiIvPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjciIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzQ0Y2M2NiIgc3Ryb2tlLXdpZHRoPSIyIi8+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIgZmlsbD0iIzU1ZmY3NyIvPjxsaW5lIHgxPSIyMCIgeTE9IjgiIHgyPSIyMCIgeTI9IjEzIiBzdHJva2U9IiM0NGNjNjYiIHN0cm9rZS13aWR0aD0iMS41Ii8+PGxpbmUgeDE9IjIwIiB5MT0iMjciIHgyPSIyMCIgeTI9IjMyIiBzdHJva2U9IiM0NGNjNjYiIHN0cm9rZS13aWR0aD0iMS41Ii8+PGxpbmUgeDE9IjgiIHkxPSIyMCIgeDI9IjEzIiB5Mj0iMjAiIHN0cm9rZT0iIzQ0Y2M2NiIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48bGluZSB4MT0iMjciIHkxPSIyMCIgeDI9IjMyIiB5Mj0iMjAiIHN0cm9rZT0iIzQ0Y2M2NiIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48L3N2Zz4=',
-  'swiftness': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MGExYSIvPjxwYXRoIGQ9Ik0yOCAxMGwtMTQgOCA2IDItOCAxMCAxNC04LTYtMnoiIGZpbGw9IiNhYWJiZmYiLz48cGF0aCBkPSJNMTAgMjBoNk0xMCAxNmg0TTEwIDI0aDQiIHN0cm9rZT0iIzY2NzdjYyIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==',
-  'featherweight': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzBhMDgwNSIvPjxwYXRoIGQ9Ik0yMCA4YzAgMC0xMCA4LTEwIDE2IDAgNSA0IDggMTAgOHMxMC0zIDEwLThjMC04LTEwLTE2LTEwLTE2eiIgZmlsbD0iIzhCNjkxNCIgc3Ryb2tlPSIjYzQ5YTI4IiBzdHJva2Utd2lkdGg9IjEiLz48cGF0aCBkPSJNMjAgMTJjMCAwLTYgNS02IDEyIDAgMyAyIDUgNiA1czYtMiA2LTVjMC03LTYtMTItNi0xMnoiIGZpbGw9IiNjNDlhMjgiLz48L3N2Zz4=',
-  'vibrancy': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzBhMDUxMiIvPjxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjExIiBmaWxsPSIjNjYyMmFhIi8+PHBhdGggZD0iTTEzIDIwIFExNyAxNCAyMCAyMCBRMjMgMjYgMjcgMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2NjODhmZiIgc3Ryb2tlLXdpZHRoPSIyLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==',
-  'lich': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MDUwYSIvPjxwYXRoIGQ9Ik0yMCA3IEwxMyAxNiBMOSAxNSBMMTQgMjIgTDExIDMxIEwyMCAyNyBMMjkgMzEgTDI2IDIyIEwzMSAxNSBMMjcgMTYgWiIgZmlsbD0iIzQ0NDQ1NSIgc3Ryb2tlPSIjNjY2NmFhIiBzdHJva2Utd2lkdGg9IjEiLz48Y2lyY2xlIGN4PSIxNiIgY3k9IjE5IiByPSIyIiBmaWxsPSIjYWFhYWZmIi8+PGNpcmNsZSBjeD0iMjQiIGN5PSIxOSIgcj0iMiIgZmlsbD0iI2FhYWFmZiIvPjwvc3ZnPg==',
-  'snakeskin': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MTAwNSIvPjxwYXRoIGQ9Ik0yMCA4Yy01IDAtOSA0LTkgOSAwIDMgMiA2IDUgOGwtMyA3aDE0bC0zLTdjMy0yIDUtNSA1LTggMC01LTQtOS05LTl6IiBmaWxsPSIjMjI4ODIyIiBzdHJva2U9IiM0NGFhNDQiIHN0cm9rZS13aWR0aD0iMSIvPjxwYXRoIGQ9Ik0xNSAyMCBRMjAgMTYgMjUgMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzg4Y2M4OCIgc3Ryb2tlLXdpZHRoPSIxLjUiLz48L3N2Zz4=',
-  'dragonhide': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzFhMDUwMCIvPjxwYXRoIGQ9Ik0yMCA3IEwyOSAxMyBMMzIgMjIgTDI3IDMxIEwyMCAzMyBMMTMgMzEgTDggMjIgTDExIDEzIFoiIGZpbGw9IiNjYzMzMDAiIHN0cm9rZT0iI2ZmNTUyMiIgc3Ryb2tlLXdpZHRoPSIxIi8+PHBhdGggZD0iTTIwIDcgTDI5IDEzIE0yMCA3IEwxMSAxMyIgc3Ryb2tlPSIjZmY4ODY2IiBzdHJva2Utd2lkdGg9IjEiLz48cGF0aCBkPSJNMTYgMTggTDIwIDE1IEwyNCAxOCBMMjIgMjQgTDE4IDI0IFoiIGZpbGw9IiNmZjc3NDQiLz48L3N2Zz4=',
-  'cloud': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MDUxYSIvPjxwYXRoIGQ9Ik0xNCAyMiBRMTIgMjIgMTIgMTkgUTEyIDE1IDE2IDE1IFExNyAxMSAyMSAxMSBRMjYgMTEgMjcgMTUgUTMwIDE1IDMwIDE5IFEzMCAyMiAyOCAyMiBaIiBmaWxsPSIjMzM0NGJiIiBzdHJva2U9IiM1NTY2ZGQiIHN0cm9rZS13aWR0aD0iMSIvPjxwYXRoIGQ9Ik0xNyAyOCBMMTQgMjIgTTIwIDI4IEwyMCAyMiBNMjMgMjggTDI2IDIyIiBzdHJva2U9IiNhYWJiZmYiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=',
-  'demon': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzFhMTAwMCIvPjxwYXRoIGQ9Ik0yMCA4IEwyOCAxNCBMMjggMjQgTDIwIDMwIEwxMiAyNCBMMTIgMTQgWiIgZmlsbD0iI2FhYWEwMCIgc3Ryb2tlPSIjZGRkZDIyIiBzdHJva2Utd2lkdGg9IjEiLz48cGF0aCBkPSJNMTUgMTIgTDE0IDggTTI1IDEyIEwyNiA4IiBzdHJva2U9IiNmZmZmNDQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iMTciIGN5PSIxOSIgcj0iMiIgZmlsbD0iI2ZmZmY4OCIvPjxjaXJjbGUgY3g9IjIzIiBjeT0iMTkiIHI9IjIiIGZpbGw9IiNmZmZmODgiLz48L3N2Zz4=',
-  'blockade': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwMTAyMCIvPjxyZWN0IHg9IjEwIiB5PSIxMiIgd2lkdGg9IjIwIiBoZWlnaHQ9IjE4IiByeD0iMyIgZmlsbD0iIzExNzdhYSIgc3Ryb2tlPSIjMzNhYWRkIiBzdHJva2Utd2lkdGg9IjEuNSIvPjxsaW5lIHgxPSIxNiIgeTE9IjEyIiB4Mj0iMTYiIHkyPSIzMCIgc3Ryb2tlPSIjMzNhYWRkIiBzdHJva2Utd2lkdGg9IjEiLz48bGluZSB4MT0iMjQiIHkxPSIxMiIgeDI9IjI0IiB5Mj0iMzAiIHN0cm9rZT0iIzMzYWFkZCIgc3Ryb2tlLXdpZHRoPSIxIi8+PGxpbmUgeDE9IjEwIiB5MT0iMjEiIHgyPSIzMCIgeTI9IjIxIiBzdHJva2U9IiMzM2FhZGQiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==',
-  'reap': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MDUwNSIvPjxwYXRoIGQ9Ik0yOCA4IFEyMiAxNCAyMCAyMCBRMTggMjYgMjIgMzIgTDI0IDMwIFEyMSAyNSAyMyAyMCBRMjUgMTUgMzEgMTAgWiIgZmlsbD0iIzU1NTU2NiIvPjxwYXRoIGQ9Ik0xMCAzMiBMMjAgMjAiIHN0cm9rZT0iIzg4ODhhYSIgc3Ryb2tlLXdpZHRoPSIzIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48Y2lyY2xlIGN4PSIxMCIgY3k9IjMyIiByPSIzIiBmaWxsPSIjYWFhYWNjIi8+PC9zdmc+',
-  'electrify': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MDUxYSIvPjxwYXRoIGQ9Ik0yMiA2IEwxNCAyMiBMMjAgMjIgTDE4IDM0IEwyNiAxOCBMMjAgMTggWiIgZmlsbD0iI2JiNDRmZiIgc3Ryb2tlPSIjZGQ4OGZmIiBzdHJva2Utd2lkdGg9IjEiLz48L3N2Zz4=',
-  'venom': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzA1MTAwNSIvPjxwYXRoIGQ9Ik0yMCA4IFEyNiAxMiAyOCAyMCBRMjYgMjggMjAgMzIgUTE0IDI4IDEyIDIwIFExNCAxMiAyMCA4WiIgZmlsbD0iIzMzODgzMyIgc3Ryb2tlPSIjNTVjYzU1IiBzdHJva2Utd2lkdGg9IjEiLz48cGF0aCBkPSJNMTYgMjAgUTE4IDE2IDIwIDIwIFEyMiAyNCAyNCAyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjYWFmZmFhIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==',
-  'frost': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzAwMGExNCIvPjxsaW5lIHgxPSIyMCIgeTE9IjgiIHgyPSIyMCIgeTI9IjMyIiBzdHJva2U9IiM0NGNjZmYiIHN0cm9rZS13aWR0aD0iMi41Ii8+PGxpbmUgeDE9IjgiIHkxPSIyMCIgeDI9IjMyIiB5Mj0iMjAiIHN0cm9rZT0iIzQ0Y2NmZiIgc3Ryb2tlLXdpZHRoPSIyLjUiLz48bGluZSB4MT0iMTEiIHkxPSIxMSIgeDI9IjI5IiB5Mj0iMjkiIHN0cm9rZT0iIzQ0Y2NmZiIgc3Ryb2tlLXdpZHRoPSIyLjUiLz48bGluZSB4MT0iMjkiIHkxPSIxMSIgeDI9IjExIiB5Mj0iMjkiIHN0cm9rZT0iIzQ0Y2NmZiIgc3Ryb2tlLXdpZHRoPSIyLjUiLz48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIzIiBmaWxsPSIjYWFlZWZmIi8+PC9zdmc+',
-  'scorch': 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDAgNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iNiIgZmlsbD0iIzFhMDUwMCIvPjxwYXRoIGQ9Ik0yMCAzMiBRMTIgMjQgMTIgMTggUTEyIDEwIDIwIDggUTE4IDE0IDIyIDE2IFEyMCAxMCAyNiA4IFEzMiAxNCAyOCAyMCBRMjYgMjQgMjggMjggUTI0IDI2IDIyIDI4IFEyMiAyNCAyMCAyMiBRMTggMjYgMjAgMzJaIiBmaWxsPSIjZmY0NDAwIiBzdHJva2U9IiNmZjg4NDQiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg=='
+  'vampirism':     'https://intibia.com/imbuements/vampirism-3.png',
+  'void':          'https://intibia.com/imbuements/void-3.png',
+  'strike':        'https://intibia.com/imbuements/strike-3.png',
+  'precision':     'https://intibia.com/imbuements/precision-3.png',
+  'swiftness':     'https://intibia.com/imbuements/swiftness-3.png',
+  'featherweight': 'https://intibia.com/imbuements/featherweight-3.png',
+  'vibrancy':      'https://intibia.com/imbuements/vibrancy-3.png',
+  'lich':          'https://intibia.com/imbuements/lich-shroud-3.png',
+  'snakeskin':     'https://intibia.com/imbuements/snake-skin-3.png',
+  'dragonhide':    'https://intibia.com/imbuements/dragon-hide-3.png',
+  'cloud':         'https://intibia.com/imbuements/cloud-fabric-3.png',
+  'demon':         'https://intibia.com/imbuements/demon-presence-3.png',
+  'blockade':      'https://intibia.com/imbuements/blockade-3.png',
+  'reap':          'https://intibia.com/imbuements/reap-3.png',
+  'electrify':     'https://intibia.com/imbuements/electrify-3.png',
+  'venom':         'https://intibia.com/imbuements/venom-3.png',
+  'frost':         'https://intibia.com/imbuements/frost-3.png',
+  'scorch':        'https://intibia.com/imbuements/scorch-3.png',
+  'slash':         'https://intibia.com/imbuements/slash-3.png',
+  'bash':          'https://intibia.com/imbuements/bash-3.png',
+  'chop':          'https://intibia.com/imbuements/chop-3.png',
+  'punch':         'https://wsrv.nl/?url=https://www.tibiawiki.com.br/images/5/58/Punch_Icon.gif&n=-1',
+  'epiphany':      'https://intibia.com/imbuements/epiphany-3.png',
+  'quara':         'https://intibia.com/imbuements/quara-scale-3.png',
 };
 
 const IMBU_ALL = [
@@ -2722,7 +2932,7 @@ const IMBU_ALL = [
         items:[{n:'Protective Charm',q:20},{n:'Sabretooth',q:25},{n:'Vexclaw Talon',q:5}],
         gold1:20000, gold20:100000 },
     ]},
-  { id:'precision', cat:'crit', name:'Precision', desc:'Skillboost de Distância',
+  { id:'precision', cat:'skill', name:'Precision', desc:'Skillboost de Distância',
     icon:IMBU_ICONS['precision'],
     tiers:[
       { label:'Basic',    color:'#3b82f6', effect:'+1 Dist. Fighting',
@@ -2801,6 +3011,19 @@ const IMBU_ALL = [
         items:[{n:'Piece of Swampling Wood',q:25},{n:'Snake Skin',q:20},{n:'Brimstone Fangs',q:10}],
         gold1:20000, gold20:100000 },
     ]},
+  { id:'quara', cat:'prot', name:'Quara Scale', desc:'Proteção de Gelo',
+    icon:IMBU_ICONS['quara'],
+    tiers:[
+      { label:'Basic',    color:'#3b82f6', effect:'+3% Ice Protection',
+        items:[{n:'Winter Wolf Fur',q:25}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+5% Ice Protection',
+        items:[{n:'Winter Wolf Fur',q:25},{n:'Thick Fur',q:15}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+8% Ice Protection',
+        items:[{n:'Winter Wolf Fur',q:25},{n:'Thick Fur',q:15},{n:'Deepling Warts',q:10}],
+        gold1:20000, gold20:100000 },
+    ]},
   { id:'dragonhide', cat:'prot', name:'Dragon Hide', desc:'Proteção de Fogo',
     icon:IMBU_ICONS['dragonhide'],
     tiers:[
@@ -2840,17 +3063,17 @@ const IMBU_ALL = [
         items:[{n:'Cultish Robe',q:25},{n:'Cultish Mask',q:25},{n:'Hellspawn Tail',q:20}],
         gold1:20000, gold20:100000 },
     ]},
-  { id:'blockade', cat:'prot', name:'Blockade', desc:'Proteção de Gelo',
+  { id:'blockade', cat:'skill', name:'Blockade', desc:'Skillboost de Escudo',
     icon:IMBU_ICONS['blockade'],
     tiers:[
-      { label:'Basic',    color:'#3b82f6', effect:'+3% Ice Protection',
-        items:[{n:'Winter Wolf Fur',q:25}],
+      { label:'Basic',    color:'#3b82f6', effect:'+1 Shielding',
+        items:[{n:'Piece of Scarab Shell',q:25}],
         gold1:5000, gold20:25000 },
-      { label:'Intricate',color:'#8b5cf6', effect:'+5% Ice Protection',
-        items:[{n:'Winter Wolf Fur',q:25},{n:'Thick Fur',q:15}],
+      { label:'Intricate',color:'#8b5cf6', effect:'+2 Shielding',
+        items:[{n:'Piece of Scarab Shell',q:25},{n:'Hardened Bone',q:20}],
         gold1:10000, gold20:50000 },
-      { label:'Powerful', color:'#ef4444', effect:'+8% Ice Protection',
-        items:[{n:'Winter Wolf Fur',q:25},{n:'Thick Fur',q:15},{n:'Deepling Warts',q:10}],
+      { label:'Powerful', color:'#ef4444', effect:'+4 Shielding',
+        items:[{n:'Piece of Scarab Shell',q:25},{n:'Hardened Bone',q:20},{n:'Protective Charm',q:5}],
         gold1:20000, gold20:100000 },
     ]},
   // ── DANO ELEMENTAL ───────────────────────────────────
@@ -2919,6 +3142,72 @@ const IMBU_ALL = [
         items:[{n:'Fiery Heart',q:25},{n:'Green Dragon Scale',q:5},{n:'Demon Horn',q:5}],
         gold1:20000, gold20:100000 },
     ]},
+  // ── AUMENTO DE SKILL ────────────────────────────────────
+  { id:'slash', cat:'skill', name:'Slash', desc:'Skillboost de Espada',
+    icon:IMBU_ICONS['slash'],
+    tiers:[
+      { label:'Basic',    color:'#3b82f6', effect:'+1 Sword Fighting',
+        items:[{n:'Concentrated Demonic Blood',q:25}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+2 Sword Fighting',
+        items:[{n:'Concentrated Demonic Blood',q:25},{n:'Hellspawn Tail',q:15}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+4 Sword Fighting',
+        items:[{n:'Concentrated Demonic Blood',q:25},{n:'Hellspawn Tail',q:15},{n:'Vile Axe',q:1}],
+        gold1:20000, gold20:100000 },
+    ]},
+  { id:'bash', cat:'skill', name:'Bash', desc:'Skillboost de Clava',
+    icon:IMBU_ICONS['bash'],
+    tiers:[
+      { label:'Basic',    color:'#3b82f6', effect:'+1 Club Fighting',
+        items:[{n:'Troll Green',q:25}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+2 Club Fighting',
+        items:[{n:'Troll Green',q:25},{n:'Broken Shamanic Staff',q:10}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+4 Club Fighting',
+        items:[{n:'Troll Green',q:25},{n:'Broken Shamanic Staff',q:10},{n:'War Crystal',q:5}],
+        gold1:20000, gold20:100000 },
+    ]},
+  { id:'chop', cat:'skill', name:'Chop', desc:'Skillboost de Machado',
+    icon:IMBU_ICONS['chop'],
+    tiers:[
+      { label:'Basic',    color:'#3b82f6', effect:'+1 Axe Fighting',
+        items:[{n:'Piece of Scarab Shell',q:25}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+2 Axe Fighting',
+        items:[{n:'Piece of Scarab Shell',q:25},{n:'Scarab Pincers',q:20}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+4 Axe Fighting',
+        items:[{n:'Piece of Scarab Shell',q:25},{n:'Scarab Pincers',q:20},{n:'Sabretooth',q:5}],
+        gold1:20000, gold20:100000 },
+    ]},
+  { id:'punch', cat:'skill', name:'Punch', desc:'Skillboost de Punhos',
+    icon:IMBU_ICONS['punch'],
+    tiers:[
+      { label:'Basic',    color:'#3b82f6', effect:'+1 Fist Fighting',
+        items:[{n:'Fern',q:25}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+2 Fist Fighting',
+        items:[{n:'Fern',q:25},{n:'Orichalcum Pearl',q:20}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+4 Fist Fighting',
+        items:[{n:'Fern',q:25},{n:'Orichalcum Pearl',q:20},{n:'Strand of Medusa Hair',q:5}],
+        gold1:20000, gold20:100000 },
+    ]},
+  { id:'epiphany', cat:'skill', name:'Epiphany', desc:'Skillboost de Nível Mágico',
+    icon:IMBU_ICONS['epiphany'],
+    tiers:[
+      { label:'Basic',    color:'#3b82f6', effect:'+1 Magic Level',
+        items:[{n:'Pixie Dust',q:25}],
+        gold1:5000, gold20:25000 },
+      { label:'Intricate',color:'#8b5cf6', effect:'+2 Magic Level',
+        items:[{n:'Pixie Dust',q:25},{n:'Elvish Talisman',q:15}],
+        gold1:10000, gold20:50000 },
+      { label:'Powerful', color:'#ef4444', effect:'+4 Magic Level',
+        items:[{n:'Pixie Dust',q:25},{n:'Elvish Talisman',q:15},{n:'Activated Enflamed Essence of Fire',q:5}],
+        gold1:20000, gold20:100000 },
+    ]},
 ];
 
 function renderImbuPage(filter) {
@@ -2928,9 +3217,9 @@ function renderImbuPage(filter) {
   grid.innerHTML = items.map(d => `
     <div class="card" data-imbu-id="${d.id}" style="cursor:pointer;transition:transform .15s" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform='none'" onclick="openImbuModal('${d.id}')">
       <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem">
-        <div style="width:48px;height:48px;border-radius:8px;background:var(--paper);border:1px solid var(--rule);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center">
+        <div style="width:56px;height:56px;border-radius:8px;background:var(--paper);border:1px solid var(--rule);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center">
         ${d.icon
-          ? `<img data-imbu-icon src="${d.icon}" alt="${d.name}" referrerpolicy="no-referrer" style="width:100%;height:100%;image-rendering:pixelated;object-fit:contain" onerror="this.src='';this.parentNode.innerHTML='<span style=font-size:1.3rem>⚗</span>'">`
+          ? `<img data-imbu-icon src="${d.icon}" alt="${d.name}" style="width:100%;height:100%;object-fit:contain" onerror="this.src='';this.parentNode.innerHTML='<span style=font-size:1.3rem>⚗</span>'">`
           : `<span style="font-size:1.3rem">⚗</span>`
         }
       </div>
@@ -2945,8 +3234,8 @@ function renderImbuPage(filter) {
       <div style="font-size:.82rem;color:var(--bamboo);font-weight:500">${d.tiers[2].effect}</div>
       <div style="font-size:.72rem;color:var(--muted);font-weight:300;margin-top:.5rem;text-align:right">Comparar tiers →</div>
     </div>`).join('');
-}
   setTimeout(injectImbuIcons, 100);
+}
 
 // Gold Token prices via NPC (Vampirism, Void, Strike)
 const GOLD_TOKEN_IMBU = {
@@ -4168,7 +4457,11 @@ const CREATURE_STATS = {
   'terrorsleep':{hp:64,xp:54,spd:51,HP:7200,XP:7240,armor:80,mit:1.1,charm:25,bclass:'Magical',blvl:'Hard',res:[85,65,95,0,105,110,45,100],loc:'Roshamuul Mines (down {{Mapper Coords',loot:['4-197?','Platinum Coin','Great Mana Potion','Ultimate Health Potion','Small Ruby']},
   'thaian':{hp:78,xp:55,spd:0,HP:50000,XP:9000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[10,10,10,10,10,10,15,10],loc:'Barren Drift',loot:['Green Gem','Yellow Gem','Amber (Item)','Death Toll','Pair of Old Bracers']},
   'thalas':{hp:60,xp:48,spd:60,HP:4100,XP:2950,armor:40,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,110,110,0,80,120,0,100],loc:'Stone Tomb.',loot:['Cobrafang Dagger','Great Health Potion','Poison Dagger','Small Emerald','Serpent Sword']},
-  'thanatursus':{hp:64,xp:53,spd:57,HP:7200,XP:6300,armor:78,mit:2.02,charm:25,bclass:'Magical',blvl:'Hard',res:[70,100,100,100,50,80,120,100],loc:'Haunted Temple, Court of Winter, Court of Summer, Dream Labyrinth',loot:['Platinum Coin','1-3?','Ham','Essence of a Bad Dream','Halberd']},
+  'thanatursus':{hp:64,xp:53,spd:57,HP:7200,XP:6300,armor:78,mit:2.02,charm:25,bclass:'Magical',blvl:'Hard',res:[70,100,100,100,50,80,120,100],loc:'Haunted Temple (Haunted Nexus), Court of Winter, Court of Summer, Dream Labyrinth',loot:['Platinum Coin','Ham','Essence of a Bad Dream','Halberd','Spellbook of Mind Control','Fur Boots']},
+  'arachnophobica':{hp:66,xp:55,spd:50,HP:5000,XP:4700,armor:50,mit:1.35,charm:50,bclass:'Magical',blvl:'Hard',res:[100,100,100,100,50,140,50,100],loc:'Haunted Cellar (Haunted Nexus), Buried Cathedral',loot:['Platinum Coin','Great Spirit Potion','Essence of a Bad Dream','Energy Ring','Silver Amulet','Sword Ring','Assassin Dagger','Hexagonal Ruby']},
+  'gazer spectre':{hp:63,xp:52,spd:55,HP:4500,XP:4200,armor:45,mit:1.18,charm:50,bclass:'Magical',blvl:'Hard',res:[15,40,130,100,100,100,100,100],loc:'Haunted Temple (Haunted Nexus), Buried Cathedral',loot:['Platinum Coin','Essence of a Bad Dream','Great Mana Potion','Demonic Essence','Stone Skin Amulet','Assassin Dagger','Hexagonal Ruby']},
+  'ripper spectre':{hp:60,xp:50,spd:52,HP:3800,XP:3500,armor:40,mit:1.05,charm:50,bclass:'Magical',blvl:'Hard',res:[30,120,100,80,110,100,100,100],loc:'Haunted Cellar (Haunted Nexus), Buried Cathedral',loot:['Platinum Coin','Essence of a Bad Dream','Great Spirit Potion','Assassin Dagger','Hexagonal Ruby']},
+  'burster spectre':{hp:66,xp:55,spd:55,HP:6500,XP:6000,armor:55,mit:1.48,charm:50,bclass:'Magical',blvl:'Hard',res:[0,120,30,100,100,100,100,100],loc:'Haunted Tomb (Haunted Nexus), Buried Cathedral',loot:['Platinum Coin','Essence of a Bad Dream','Great Mana Potion','Stone Skin Amulet','Magma Coat','Assassin Dagger','Hexagonal Ruby']},
   'thawing dragon lord':{hp:73,xp:46,spd:0,HP:25000,XP:2100,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,100,100],loc:'One spawn in the Falcon Bastion, {{Mapper Coords',loot:['Gold Ingot','Bar of Gold','Ice Cream Cone (Blue-Barian)','Ice Cube']},
   'the abomination':{hp:98,xp:86,spd:0,HP:750000,XP:1500000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[50,50,50,50,50,50,50,0],loc:'The Abomination appears inside his own room under the Ice Islands, {{Mapper Coords',loot:['Small Ruby','Small Emerald','Black Pearl','Demonic Essence','Death Ring']},
   'the armored voidborn':{hp:80,xp:0,spd:0,HP:60000,XP:0,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[3,3,3,3,3,3,3,100],loc:'The Orc Cult hideout in the Edron Orc Cave',loot:[]},
@@ -4404,15 +4697,22 @@ function openHuntModal(idx) {
   ];
 
   // ── Resistance badge
+  // Lógica correta do Tibia:
+  //   0%        = Imune (melhor defesa possível — ruim para player)
+  //   1–84%     = Resistente (toma menos dano — ruim para player)
+  //   85–100%   = Neutro
+  //   101–114%  = Fraco (toma mais dano — bom para player)
+  //   ≥115%     = Muito fraco (ótimo para player)
+  // Cores: VERMELHO = forte/imune, VERDE = fraqueza (bom para atacar)
   function resBadge(val, cfg) {
     if (val === null || val === undefined) return '';
     let textColor, bg, txt;
-    if (val === 0)        { bg='rgba(100,100,100,.22)'; txt='Imune';  textColor='#94a3b8'; }
-    else if (val < 50)    { bg='rgba(34,197,94,.18)';  txt=val+'%'; textColor='#4ade80'; }
-    else if (val < 85)    { bg='rgba(34,197,94,.08)';  txt=val+'%'; textColor='#86efac'; }
-    else if (val === 100) { bg='rgba(255,255,255,.05)'; txt=val+'%'; textColor='#94a3b8'; }
-    else if (val <= 110)  { bg='rgba(234,179,8,.14)';  txt=val+'%'; textColor='#eab308'; }
-    else                  { bg='rgba(239,68,68,.22)';  txt=val+'%'; textColor='#f87171'; }
+    if (val === 0)        { bg='rgba(239,68,68,.28)';   txt='Imune';  textColor='#f87171'; }
+    else if (val <= 50)   { bg='rgba(239,68,68,.18)';   txt=val+'%'; textColor='#fca5a5'; }
+    else if (val <= 84)   { bg='rgba(234,179,8,.14)';   txt=val+'%'; textColor='#fbbf24'; }
+    else if (val <= 100)  { bg='rgba(255,255,255,.05)'; txt=val+'%'; textColor='#94a3b8'; }
+    else if (val <= 114)  { bg='rgba(34,197,94,.15)';   txt=val+'%'; textColor='#4ade80'; }
+    else                  { bg='rgba(34,197,94,.28)';   txt=val+'%'; textColor='#86efac'; }
     return `<div class="hf-res-item">
       <span class="hf-res-icon">${cfg.icon}</span>
       <span class="hf-res-val" style="color:${textColor};background:${bg}">${txt}</span>
@@ -4449,7 +4749,12 @@ function openHuntModal(idx) {
       ? `<span class="hf-blvl-badge">${st.blvl}</span>` : '';
 
     const resHtml = st.res
-      ? `<div class="hf-res">${st.res.map((v,i) => resBadge(v, ELEM_CFG[i])).join('')}</div>`
+      ? `<div class="hf-res">${st.res.map((v,i) => resBadge(v, ELEM_CFG[i])).join('')}</div>
+         <div style="display:flex;gap:8px;margin-top:4px;font-size:.6rem">
+           <span style="color:#f87171">■ imune/resistente</span>
+           <span style="color:#94a3b8">■ neutro</span>
+           <span style="color:#4ade80">■ fraqueza</span>
+         </div>`
       : '';
 
     return `<div class="hf-creature">
@@ -4489,7 +4794,164 @@ function openHuntModal(idx) {
   const supplies = getDefaultSupplies(h);
   const suppliesHtml = supplies.slice(0,6).map(s => itemSlot(typeof s==='string'?s:s.name)).join('');
 
+  // ── Imbuements recomendados
+  const imbuementsHtml = (h.imbuements && h.imbuements.length)
+    ? `<div style="display:flex;flex-wrap:wrap;gap:5px">${h.imbuements.map(im=>`<span class="hf-imbu-tag">🔷 ${im}</span>`).join('')}</div>`
+    : `<span style="font-size:.75rem;color:var(--muted);font-style:italic">Ver Imbuements →</span>`;
+
+  // ── Charms recomendados — auto-calculado a partir das fraquezas (res > 100%)
+  // Mapeamento índice de resistência → charm elemental
+  const ELEM_CHARM = ['Wound','Enflame','Freeze','Poison','Zap','Divine Wrath','Curse',null];
+  // Cor de cada charm para a badge
+  const CHARM_COLOR = {
+    'Wound':'#94a3b8','Enflame':'#f97316','Freeze':'#67e8f9',
+    'Poison':'#4ade80','Zap':'#a78bfa','Divine Wrath':'#fde047','Curse':'#c084fc',
+    'Carnage':'#ef4444','Dodge':'#60a5fa','Low Blow':'#f43f5e',
+    'Overpower':'#fb923c','Overflux':'#818cf8','Parry':'#34d399','Savage Blow':'#e11d48',
+  };
+  // Ícones reais de tibiawiki.com.br/wiki/Charms (caminhos diretos, sem hotlink block)
+  const CHARM_ICON_BASE = 'https://www.tibiawiki.com.br/images/';
+  const CHARM_ICON = {
+    'Wound':        'd/d9/Wound_Icon.gif',
+    'Freeze':       '7/72/Freeze_Icon.gif',
+    'Zap':          '2/2f/Zap_Icon.gif',
+    'Poison':       '5/59/Poison_Icon.gif',
+    'Enflame':      '7/74/Enflame_Icon.gif',
+    'Curse':        'e/e3/Curse_Icon.gif',
+    'Divine Wrath': 'c/cc/Divine_Wrath_Icon.gif',
+    'Carnage':      '3/30/Carnage_Icon.gif',
+    'Dodge':        '2/25/Dodge_Icon.gif',
+    'Low Blow':     '8/8c/Low_Blow_Icon.gif',
+    'Overpower':    '2/2b/Overpower_Icon.gif',
+    'Overflux':     '2/20/Overflux_Icon.gif',
+    'Parry':        'a/a8/Parry_Icon.gif',
+    'Savage Blow':  'e/e6/Savage_Blow_Icon.gif',
+    'Bless':        '6/6c/Bless_Icon.gif',
+    'Cleanse':      '9/92/Cleanse_Icon.gif',
+    'Cripple':      '9/9c/Cripple_Icon.gif',
+    'Fatal Hold':   'b/b8/Fatal_Hold_Icon.gif',
+    'Gut':          'f/f0/Gut_Icon.gif',
+    'Numb':         '0/03/Numb_Icon.gif',
+    'Scavenge':     '5/5f/Scavenge_Icon.gif',
+    'Adrenaline Burst':'1/1d/Adrenaline_Burst_Icon.gif',
+    'Vampiric Embrace':'4/41/Vampiric_Embrace_Icon.gif',
+    'Void Inversion':'7/79/Void_Inversion_Icon.gif',
+    "Void's Call":  'c/c6/Void%27s_Call_Icon.gif',
+  };
+
+  function autoCharms(creatures) {
+    // Regra: cada charm só pode ser atribuído a UMA criatura.
+    // Para cada criatura, lista todos os elementos com fraqueza (res > 100, exceto drain).
+    // Depois, atribui os charms sem repetição: prioridade pela maior fraqueza absoluta,
+    // se o charm já foi usado, pega o próximo elemento mais fraco disponível.
+
+    // 1. Coleta candidatos: para cada criatura, lista elementos fracos ordenados desc
+    const candidates = [];
+    creatures.forEach(c => {
+      const name = c.n || c;
+      const st   = CREATURE_STATS[name.toLowerCase()] || {};
+      if (!st.res) return;
+      // Pares [índice, valor] onde valor > 100 e tem charm mapeado, ordenados desc
+      const weak = st.res
+        .map((v, i) => ({ i, v: v || 0 }))
+        .filter(x => x.i !== 7 && x.v > 100 && ELEM_CHARM[x.i])
+        .sort((a, b) => b.v - a.v);
+      if (weak.length) candidates.push({ name, weak });
+    });
+
+    // 2. Greedy: ordena criaturas pela maior fraqueza individual desc,
+    //    atribui o melhor charm disponível para cada uma
+    // Ordena o array de criaturas pelo maior pico de fraqueza
+    candidates.sort((a, b) => b.weak[0].v - a.weak[0].v);
+
+    const usedCharms = new Set();
+    const result = [];
+    candidates.forEach(({ name, weak }) => {
+      for (const { i, v } of weak) {
+        const charm = ELEM_CHARM[i];
+        if (!usedCharms.has(charm)) {
+          usedCharms.add(charm);
+          result.push({ creature: name, charm, val: v });
+          break;
+        }
+      }
+      // Se todos os elementos fracos já têm charm usado, não adiciona
+    });
+    return result;
+  }
+
+  const charmData = (h.charms && h.charms.length) ? h.charms : autoCharms(h.creatures||[]);
+  const charmsHtml = charmData.length
+    ? `<div style="display:flex;flex-direction:column;gap:.45rem">`
+      + charmData.map(ch => {
+          const charmName    = ch.charm || ch.ch || '?';
+          const creatureName = ch.creature || ch.c || '?';
+          const col          = CHARM_COLOR[charmName] || '#94a3b8';
+          const pct          = ch.val ? ch.val + '%' : '';
+          const cSlug        = creatureSlug(creatureName);
+          const creatureImg  = `https://wsrv.nl/?url=${encodeURIComponent('https://cdn.tibiaroute.com/monsters/'+cSlug+'.gif')}`;
+          // Charm icon — URL direta do tibiawiki.com.br (sem hotlink block)
+          const charmIconPath = CHARM_ICON[charmName];
+          const charmImg     = charmIconPath ? (CHARM_ICON_BASE + charmIconPath) : '';
+          return `<div style="display:flex;align-items:center;gap:.5rem;
+            background:var(--bg-2);border:1px solid rgba(255,255,255,.07);
+            border-radius:9px;padding:.4rem .55rem;">
+            <!-- Criatura: imagem fixa + nome -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:44px;flex-shrink:0">
+              <img src="${creatureImg}"
+                style="width:36px;height:36px;object-fit:contain;image-rendering:pixelated;border-radius:5px;background:rgba(255,255,255,.05)"
+                onerror="this.style.opacity='.12'">
+              <span style="font-size:.52rem;color:var(--muted);text-align:center;line-height:1.2;width:44px;
+                overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${creatureName}</span>
+            </div>
+            <!-- Seta -->
+            <span style="color:var(--muted);font-size:.65rem;flex-shrink:0">→</span>
+            <!-- Charm: ícone + nome -->
+            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;width:44px;flex-shrink:0">
+              <div style="width:36px;height:36px;border-radius:6px;background:${col}18;border:1px solid ${col}44;
+                display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+                ${charmImg
+                  ? `<img src="${charmImg}" referrerpolicy="no-referrer"
+                      style="width:28px;height:28px;object-fit:contain;image-rendering:pixelated"
+                      onerror="this.style.display='none'">`
+                  : `<span style="font-size:15px">🔮</span>`
+                }
+              </div>
+              <span style="font-size:.52rem;font-weight:700;color:${col};text-align:center;line-height:1.2;white-space:nowrap">${charmName}</span>
+            </div>
+            <!-- % fraqueza — sempre visível, não clipado -->
+            ${pct ? `<span style="margin-left:auto;flex-shrink:0;font-size:.66rem;font-weight:800;
+              font-family:'JetBrains Mono',monospace;letter-spacing:-.3px;
+              color:${col};background:${col}1a;border:1px solid ${col}44;
+              padding:2px 5px;border-radius:6px;white-space:nowrap">${pct}</span>` : ''}
+          </div>`;
+        }).join('')
+      + `</div>`
+    : `<span style="font-size:.75rem;color:var(--muted);font-style:italic">Sem dados de fraqueza</span>`;
+
+  // ── Equipment sugerido
+  const equipHtml = (h.equipment && h.equipment.length)
+    ? (Array.isArray(h.equipment)
+        ? h.equipment.map(e=>`<div class="hf-equip-item"><span class="hf-equip-dot">●</span>${e}</div>`).join('')
+        : `<div class="hf-equip-text">${h.equipment}</div>`)
+    : `<span style="font-size:.75rem;color:var(--muted);font-style:italic">Sem dados</span>`;
+
+  // ── Loots animados via Supabase Intibia
+  // Supabase público: buxgrdbsynsvajxonqhf.supabase.co/storage/v1/object/public/items/animated/{id}.gif
+  // h.lootIds = array de item_ids numéricos (ex: [3031, 7643])
+  // h.loots = array de {name, id} ou strings (fallback para itemSlot estático)
   let loots = h.loots || [];
+  let animLootsHtml = '';
+  if (h.lootIds && h.lootIds.length) {
+    const SB_BASE = 'https://buxgrdbsynsvajxonqhf.supabase.co/storage/v1/object/public/items/animated/';
+    animLootsHtml = `<div class="hf-loot-anim-grid">`
+      + h.lootIds.map((id,i)=>{
+          const label = (h.lootNames && h.lootNames[i]) || ('Item #'+id);
+          return `<div class="hf-loot-anim-slot" title="${label}"><img src="${SB_BASE}${id}.gif" onerror="this.src='';this.parentElement.style.display='none'"><span class="hf-loot-anim-lbl">${label}</span></div>`;
+        }).join('')
+      + `</div>`;
+  }
+
   if (!loots.length) {
     const seen = new Set();
     (h.creatures||[]).forEach(c => {
@@ -4497,9 +4959,10 @@ function openHuntModal(idx) {
       (st.loot||[]).forEach(l => { if (!seen.has(l)) { seen.add(l); loots.push(l); } });
     });
   }
-  const lootsHtml = loots.length
+  const staticLootsHtml = loots.length
     ? loots.slice(0,10).map(l => itemSlot(typeof l==='string'?l:l.name)).join('')
     : `<span style="font-size:.75rem;color:var(--muted);font-style:italic">Sem dados</span>`;
+  const lootsHtml = animLootsHtml || `<div class="hf-item-grid">${staticLootsHtml}</div>`;
 
   // ── Location
   const firstCreature = (h.creatures||[])[0];
@@ -4532,6 +4995,9 @@ function openHuntModal(idx) {
   // Hunt coords lookup table (tibiaroute slug → [x, y, floor])
   const HUNT_COORDS = {
     'Haunted-Houses':    [33094, 31641, 7],
+    'Haunted-Nexus-(Temple)': [33094, 31641, 7],
+    'Haunted-Nexus-(Cellar)': [33094, 31680, 8],
+    'Haunted-Nexus-(Tomb)':   [33094, 31720, 8],
     'The-Barkless':      [32271, 31813, 7],
     'Draken-Walls-Zao':  [33484, 32046, 7],
     'Asura-Mirror':      [32869, 31284, 1],
@@ -4554,14 +5020,13 @@ function openHuntModal(idx) {
     'Flimsylostsoul':    [32950, 32475, 4],
   };
   const tibiarouteSlug = h.tibiaroute || h.name.split(' ').map(w=>w[0].toUpperCase()+w.slice(1)).join('-');
-  const coords = HUNT_COORDS[tibiarouteSlug] || [32271, 31813, 7];
+  const coords = h.coords
+    ? [h.coords.x, h.coords.y, h.coords.z]
+    : (HUNT_COORDS[tibiarouteSlug] || [32271, 31813, 7]);
   const mapHtml = `
     <div class="hf-sec-lbl">🗺 Mapa</div>
     <div class="hf-map-wrap" id="hf-map-wrap">
       <div id="hf-leaflet-map" style="width:100%;height:100%;border-radius:9px;"></div>
-    </div>
-    <div class="hf-map-controls">
-      <button class="hf-map-btn" onclick="openMapZoom(${coords[0]},${coords[1]},${coords[2]})">🔍 Zoom</button>
     </div>`;
 
   // ── External links — removed (no external site links)
@@ -4622,18 +5087,38 @@ function openHuntModal(idx) {
           ${mapHtml}
         </div>
 
-        <!-- COL 3: Suprimentos + Loots -->
+        <!-- COL 3: Suprimentos + Imbuements + Charms + Equipment + Loots -->
         <div style="display:flex;flex-direction:column;gap:.8rem">
           <div>
             <div class="hf-sec-lbl">Suprimentos</div>
             <div class="hf-item-grid">${suppliesHtml}</div>
           </div>
           <div>
-            <div class="hf-sec-lbl">Melhores loots</div>
-            <div class="hf-item-grid">${lootsHtml}</div>
+            <div class="hf-sec-lbl">🔷 Imbuements recomendados</div>
+            ${imbuementsHtml}
+          </div>
+          <div>
+            <div class="hf-sec-lbl">🔮 Charms recomendados</div>
+            <div style="background:var(--bg-2);border-radius:7px;padding:.5rem .65rem">${charmsHtml}</div>
+          </div>
+          <div>
+            <div class="hf-sec-lbl">🛡 Equipamento sugerido</div>
+            <div style="background:var(--bg-2);border-radius:7px;padding:.5rem .65rem">${equipHtml}</div>
+          </div>
+          <div>
+            <div class="hf-sec-lbl">💎 Melhores loots</div>
+            ${lootsHtml}
           </div>
         </div>
 
+      </div>
+
+      <!-- ─── COMMENTS ─── -->
+      <div class="hf-comments" id="hf-comments-section">
+        <div class="hf-sec-lbl">💬 Comentários da guild</div>
+        <div id="hf-comments-inner">
+          <div class="hf-comments-loading" style="font-size:.78rem;color:var(--muted);padding:.5rem 0">Carregando...</div>
+        </div>
       </div>
     </div>
   `;
@@ -4642,6 +5127,8 @@ function openHuntModal(idx) {
   document.body.style.overflow = 'hidden';
   // Init inline minimap after DOM settles
   setTimeout(() => initHfMiniMap(coords[0], coords[1], coords[2]), 60);
+  // Init comments
+  setTimeout(() => initHuntComments(h.name), 80);
 }
 
 function closeHuntModal() {
@@ -4649,69 +5136,152 @@ function closeHuntModal() {
   document.body.style.overflow = '';
   // Destroy inline minimap
   if (window._hfMiniMap) { window._hfMiniMap.remove(); window._hfMiniMap = null; }
+  window._hfMiniMapLayer  = null;
+  window._hfMiniMapMarker = null;
+  window._hfMapCoords     = null;
+  window._hfFloorLabel    = null;
 }
 
 // Initialize inline Leaflet minimap after modal renders
-function initHfMiniMap(x, y, floor) {
-  const el = document.getElementById('hf-leaflet-map');
-  if (!el || !window.L) return;
-  if (window._hfMiniMap) { window._hfMiniMap.remove(); window._hfMiniMap = null; }
+// Stores current x/y/floor globally so floor control can swap layers
+window._hfMapCoords = null;
 
+function _hfMakeTileLayer(map, floorNum) {
   const TILE_BASE = 'https://tibiamaps.github.io/tibia-map-data/mapper/';
-  L.CRS.TibiaSimple = L.extend({}, L.CRS.Simple, {
-    scale: function(zoom) { return 256 * Math.pow(2, zoom); },
-    latLngToPoint: function(latlng, zoom) {
-      const pt = this.projection.project(latlng);
-      const s = this.scale(zoom);
-      return this.transformation._transform(pt, s);
-    },
-    pointToLatLng: function(point, zoom) {
-      const s = this.scale(zoom);
-      const pt = this.transformation.untransform(point, s);
-      return this.projection.unproject(pt);
-    }
-  });
-
-  const map = window._hfMiniMap = L.map(el, {
-    crs: L.CRS.TibiaSimple,
-    minZoom: 0, maxZoom: 2,
-    zoomControl: true,
-    attributionControl: false,
-    fadeAnimation: false,
-  });
-
-  const layer = L.gridLayer({ floor });
-  layer.getTileSize = function() {
+  const lay = L.gridLayer({ floor: floorNum });
+  lay.getTileSize = function() {
     const s = L.GridLayer.prototype.getTileSize.call(this);
     const z = this._tileZoom;
     return z > 0 ? s.divideBy(map.getZoomScale(0, z)).round() : s;
   };
-  layer.createTile = function(coords) {
+  lay.createTile = function(coords) {
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = 256;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#111';
     ctx.fillRect(0, 0, 256, 256);
-    const px = Math.abs(Math.floor(coords.x * 256 / 1));
-    const py = Math.abs(Math.floor(coords.y * 256 / 1));
-    const key = `${px}_${py}_${floor}`;
+    const px = Math.abs(Math.floor(coords.x * 256));
+    const py = Math.abs(Math.floor(coords.y * 256));
+    const key = `${px}_${py}_${floorNum}`;
     const img = new Image();
     img.onload = () => { ctx.drawImage(img, 0, 0, 256, 256); };
     img.src = TILE_BASE + `Minimap_Color_${key}.png`;
     return canvas;
   };
-  layer.addTo(map);
+  return lay;
+}
 
-  // Marker
-  const Icon = L.divIcon({
+function initHfMiniMap(x, y, floor) {
+  const el = document.getElementById('hf-leaflet-map');
+  if (!el || !window.L) return;
+  if (window._hfMiniMap) { window._hfMiniMap.remove(); window._hfMiniMap = null; }
+
+  window._hfMapCoords = { x, y, floor };
+
+  if (!L.CRS.TibiaSimple) {
+    L.CRS.TibiaSimple = L.extend({}, L.CRS.Simple, {
+      scale: function(zoom) { return 256 * Math.pow(2, zoom); },
+      latLngToPoint: function(latlng, zoom) {
+        const pt = this.projection.project(latlng);
+        const s = this.scale(zoom);
+        return this.transformation._transform(pt, s);
+      },
+      pointToLatLng: function(point, zoom) {
+        const s = this.scale(zoom);
+        const pt = this.transformation.untransform(point, s);
+        return this.projection.unproject(pt);
+      }
+    });
+  }
+
+  const map = window._hfMiniMap = L.map(el, {
+    crs: L.CRS.TibiaSimple,
+    minZoom: 0, maxZoom: 2,
+    zoomControl: false,       // desativado — criamos controle unificado abaixo
+    attributionControl: false,
+    fadeAnimation: false,
+  });
+
+  window._hfMiniMapLayer = _hfMakeTileLayer(map, floor);
+  window._hfMiniMapLayer.addTo(map);
+
+  const markerIcon = L.divIcon({
     html: '<div style="width:10px;height:10px;background:#4ade80;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(74,222,128,.8)"></div>',
-    iconSize: [10, 10],
-    iconAnchor: [5, 5],
-    className: ''
+    iconSize: [10, 10], iconAnchor: [5, 5], className: ''
   });
   const latlng = map.unproject([x, y], 0);
-  L.marker(latlng, { icon: Icon }).addTo(map);
+  window._hfMiniMapMarker = L.marker(latlng, { icon: markerIcon }).addTo(map);
   map.setView(latlng, 0);
+
+  // ── Controle unificado: Zoom (+/−) + Andares (▲/Z/▼) num único leaflet-bar
+  const UnifiedControl = L.Control.extend({
+    options: { position: 'topleft' },
+    onAdd: function() {
+      const c = L.DomUtil.create('div', 'leaflet-bar leaflet-control');
+
+      // Zoom in
+      const zIn = L.DomUtil.create('a', 'leaflet-control-zoom-in', c);
+      zIn.href = '#'; zIn.title = 'Zoom in'; zIn.innerHTML = '+';
+      L.DomEvent.on(zIn, 'click', function(e) { L.DomEvent.preventDefault(e); map.zoomIn(); });
+
+      // Zoom out
+      const zOut = L.DomUtil.create('a', 'leaflet-control-zoom-out', c);
+      zOut.href = '#'; zOut.title = 'Zoom out'; zOut.innerHTML = '−';
+      L.DomEvent.on(zOut, 'click', function(e) { L.DomEvent.preventDefault(e); map.zoomOut(); });
+
+      // Separador visual
+      const sep = L.DomUtil.create('a', '', c);
+      sep.style.cssText = 'height:1px;background:rgba(255,255,255,.12);padding:0;pointer-events:none;cursor:default;min-height:1px';
+      sep.href = '#';
+
+      // Andar acima ▲
+      const fUp = L.DomUtil.create('a', '', c);
+      fUp.href = '#'; fUp.title = 'Andar acima'; fUp.innerHTML = '▲';
+      L.DomEvent.on(fUp, 'click', function(e) { L.DomEvent.preventDefault(e); hfChangeFloor(-1); });
+
+      // Label do andar
+      const fLbl = L.DomUtil.create('a', '', c);
+      fLbl.href = '#';
+      fLbl.style.cssText = 'cursor:default;pointer-events:none;font-family:monospace;font-size:10px;font-weight:700;letter-spacing:-.5px';
+      fLbl.textContent = 'Z' + floor;
+      window._hfFloorLabel = fLbl;
+
+      // Andar abaixo ▼
+      const fDn = L.DomUtil.create('a', '', c);
+      fDn.href = '#'; fDn.title = 'Andar abaixo'; fDn.innerHTML = '▼';
+      L.DomEvent.on(fDn, 'click', function(e) { L.DomEvent.preventDefault(e); hfChangeFloor(+1); });
+
+      L.DomEvent.disableClickPropagation(c);
+      return c;
+    }
+  });
+  new UnifiedControl().addTo(map);
+}
+
+// Change floor on inline minimap (delta: -1 = up, +1 = down)
+function hfChangeFloor(delta) {
+  if (!window._hfMapCoords || !window._hfMiniMap) return;
+  const c = window._hfMapCoords;
+  const newFloor = Math.max(0, Math.min(15, c.floor + delta));
+  if (newFloor === c.floor) return;
+  c.floor = newFloor;
+
+  if (window._hfFloorLabel) window._hfFloorLabel.textContent = 'Z' + newFloor;
+
+  const map = window._hfMiniMap;
+  if (window._hfMiniMapLayer) { map.removeLayer(window._hfMiniMapLayer); }
+  window._hfMiniMapLayer = _hfMakeTileLayer(map, newFloor);
+  window._hfMiniMapLayer.addTo(map);
+
+  // Manter marker no topo
+  if (window._hfMiniMapMarker) {
+    window._hfMiniMapMarker.remove();
+    const icon = L.divIcon({
+      html: '<div style="width:10px;height:10px;background:#4ade80;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(74,222,128,.8)"></div>',
+      iconSize: [10, 10], iconAnchor: [5, 5], className: ''
+    });
+    window._hfMiniMapMarker = L.marker(map.unproject([c.x, c.y], 0), { icon }).addTo(map);
+  }
 }
 
 function openMapZoom(x, y, floor) {
@@ -4771,6 +5341,178 @@ function SLUG_OVERRIDES_FN(name) {
   return name.split(' ').map(w=>w[0].toUpperCase()+w.slice(1)).join('-');
 }
 
+// ══════════════════════════════════════════════════
+//  SUPABASE COMMENTS — Hunt Finder
+// ══════════════════════════════════════════════════
+const SB_URL  = 'https://buxgrdbsynsvajxonqhf.supabase.co'; // Intibia public Supabase (items only)
+// Use own Supabase project for comments. Configure below:
+const PANDA_SB_URL    = ''; // ex: 'https://xxxxxxxx.supabase.co'
+const PANDA_SB_ANON   = ''; // anon public key
+
+// Guild member login state
+let hfLoginChar = null; // {name, vocation, level}
+
+// ADM accounts (hardcoded, always allowed)
+const PANDA_ADM = ['Bambu Admin', 'PandaGM']; // customize
+
+async function initHuntComments(huntName) {
+  const el = document.getElementById('hf-comments-inner');
+  if (!el) return;
+
+  if (!PANDA_SB_URL) {
+    el.innerHTML = _commentsNotConfiguredHtml();
+    return;
+  }
+
+  if (!hfLoginChar) {
+    el.innerHTML = _commentsLoginFormHtml();
+    return;
+  }
+
+  await _renderComments(huntName, el);
+}
+
+function _commentsNotConfiguredHtml() {
+  return `<div class="hf-comments-login">
+    <p style="font-size:.75rem;color:var(--muted)">Comentários disponíveis após configurar o Supabase próprio em <code>PANDA_SB_URL</code>.</p>
+  </div>`;
+}
+
+function _commentsLoginFormHtml() {
+  return `<div class="hf-comments-login">
+    <p style="margin-bottom:.6rem;color:var(--ink-2);font-size:.82rem">Faça login com seu personagem da guild para comentar.</p>
+    <div class="hf-comments-login-form">
+      <input id="hf-login-char-input" class="tool-input" type="text" placeholder="Nome do personagem" style="background:var(--bg-3);border:1px solid var(--border-2);border-radius:6px;padding:7px 11px;color:var(--ink);font-size:.82rem;width:100%;outline:none">
+      <button onclick="hfLoginWithChar()" class="hf-comment-submit" style="align-self:flex-start">
+        Verificar →
+      </button>
+      <div id="hf-login-err" style="display:none;font-size:.75rem;color:var(--red)"></div>
+    </div>
+  </div>`;
+}
+
+async function hfLoginWithChar() {
+  const input = document.getElementById('hf-login-char-input');
+  const errEl = document.getElementById('hf-login-err');
+  const name  = (input?.value || '').trim();
+  if (!name) return;
+  errEl.style.display = 'none';
+
+  // ADM bypass
+  if (PANDA_ADM.some(a => a.toLowerCase() === name.toLowerCase())) {
+    hfLoginChar = { name, vocation: 'ADM', level: 0 };
+    const el = document.getElementById('hf-comments-inner');
+    if (el) {
+      const huntName = document.querySelector('.hf-mhdr-title')?.textContent || '';
+      await _renderComments(huntName, el);
+    }
+    return;
+  }
+
+  try {
+    const data = await tibiaFetch('/v4/guild/Pandas do Bambuzal');
+    const members = data?.guild?.members || [];
+    const member  = members.find(m => m.name.toLowerCase() === name.toLowerCase());
+    if (!member) throw new Error('Personagem não é membro da guild Pandas do Bambuzal.');
+    hfLoginChar = { name: member.name, vocation: member.vocation, level: member.level };
+    const el = document.getElementById('hf-comments-inner');
+    if (el) {
+      const huntName = document.querySelector('.hf-mhdr-title')?.textContent || '';
+      await _renderComments(huntName, el);
+    }
+  } catch(e) {
+    if (errEl) { errEl.textContent = e.message || 'Erro ao verificar membro.'; errEl.style.display = 'block'; }
+  }
+}
+
+async function _renderComments(huntName, el) {
+  el.innerHTML = `<div style="font-size:.75rem;color:var(--muted)">Carregando comentários...</div>`;
+  const comments = await _fetchComments(huntName);
+  el.innerHTML = `
+    <div style="margin-bottom:.5rem;font-size:.75rem;color:var(--muted)">
+      Logado como <strong style="color:var(--bamboo-light)">${hfLoginChar.name}</strong>
+      <button onclick="hfLogout()" style="background:none;border:none;color:var(--red);font-size:.68rem;cursor:pointer;margin-left:.5rem">Sair</button>
+    </div>
+    <div class="hf-comment-form">
+      <textarea id="hf-comment-text" class="hf-comment-textarea" placeholder="Dica, observação ou estratégia para esta hunt..."></textarea>
+      <button class="hf-comment-submit" onclick="hfSubmitComment('${huntName.replace(/'/g,"\\'")}')">Publicar</button>
+    </div>
+    <div id="hf-comment-list">
+      ${comments.length
+        ? comments.map(c => `
+          <div class="hf-comment-item">
+            <div class="hf-comment-meta">
+              <span class="hf-comment-author">${_escHtml(c.autor)}</span>
+              <span class="hf-comment-date">${_fmtDate(c.data)}</span>
+            </div>
+            <div class="hf-comment-text">${_escHtml(c.texto)}</div>
+          </div>`).join('')
+        : '<div class="hf-comment-empty">Nenhum comentário ainda. Seja o primeiro!</div>'
+      }
+    </div>`;
+}
+
+async function _fetchComments(huntName) {
+  if (!PANDA_SB_URL || !PANDA_SB_ANON) return [];
+  try {
+    const url = `${PANDA_SB_URL}/rest/v1/comentarios_hunt?hunt_name=eq.${encodeURIComponent(huntName)}&order=data.desc&limit=30`;
+    const r = await fetch(url, { headers: { apikey: PANDA_SB_ANON, Authorization: 'Bearer ' + PANDA_SB_ANON, Accept: 'application/json' } });
+    if (!r.ok) return [];
+    return await r.json();
+  } catch { return []; }
+}
+
+async function hfSubmitComment(huntName) {
+  if (!hfLoginChar || !PANDA_SB_URL || !PANDA_SB_ANON) return;
+  const ta  = document.getElementById('hf-comment-text');
+  const btn = document.querySelector('.hf-comment-submit');
+  const text = (ta?.value || '').trim();
+  if (!text) return;
+  if (btn) btn.disabled = true;
+  try {
+    const url = `${PANDA_SB_URL}/rest/v1/comentarios_hunt`;
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { apikey: PANDA_SB_ANON, Authorization: 'Bearer ' + PANDA_SB_ANON,
+                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ hunt_name: huntName, autor: hfLoginChar.name, texto: text, data: new Date().toISOString() })
+    });
+    if (r.ok || r.status === 201) {
+      ta.value = '';
+      const listEl = document.getElementById('hf-comment-list');
+      if (listEl) {
+        const newItem = document.createElement('div');
+        newItem.className = 'hf-comment-item';
+        newItem.innerHTML = `
+          <div class="hf-comment-meta">
+            <span class="hf-comment-author">${_escHtml(hfLoginChar.name)}</span>
+            <span class="hf-comment-date">agora</span>
+          </div>
+          <div class="hf-comment-text">${_escHtml(text)}</div>`;
+        const emptyEl = listEl.querySelector('.hf-comment-empty');
+        if (emptyEl) emptyEl.remove();
+        listEl.prepend(newItem);
+      }
+    }
+  } catch(e) { console.error('Comment error', e); }
+  if (btn) btn.disabled = false;
+}
+
+function hfLogout() {
+  hfLoginChar = null;
+  const el = document.getElementById('hf-comments-inner');
+  if (el) el.innerHTML = _commentsLoginFormHtml();
+}
+
+function _escHtml(s) {
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function _fmtDate(iso) {
+  if (!iso) return '';
+  try { return new Date(iso).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+  catch { return iso; }
+}
+
 const HUNTS = [
   // ── LOW LEVEL (20-100) ────────────────────────────
   // Rotworm: 40xp, Carrion Worm: 70xp — conteúdo de iniciante absoluto, fácil
@@ -4778,9 +5520,14 @@ const HUNTS = [
     vocs:['all'], modes:['solo'], xph:'200k–500k', profit:'50k–150k', tipo:'xp', dif:'facil', task:true,
     req:'',
     access:'Edron, escada subterrânea (leste)',
+    coords:{x:32537,y:32380,z:9},
     supplies:[{name:'Strong Health Potion'},{name:'Blank Rune'}],
+    lootIds:[3031,3047,3040],lootNames:['Gold Coin','Platinum Coin','Club Ring'],
     loots:[{name:'Gold Coin'},{name:'Platinum Coin'},{name:'Club Ring'}],
     creatures:[{n:'Rotworm'},{n:'Carrion Worm'}],
+    imbuements:['Vampirism Basic','Life Leech Basic'],
+    charms:[{creature:'Rotworm',charm:'Wound'},{creature:'Carrion Worm',charm:'Poison'}],
+    equipment:['Qualquer armor de nível — sem requisito especial','Escudo recomendado para EK iniciante'],
     desc:'Hunt clássica de iniciante. Sem requisito de quest.', wiki:'https://tibia.fandom.com/wiki/Rotworm' },
 
   // Nomad: 60xp — nível 8 é possível mas range real começa em 15
@@ -4837,6 +5584,11 @@ const HUNTS = [
   { name:'Sea Serpents', xphNum:1050, minLvl:80, maxLvl:200,
     vocs:['all'], modes:['solo','duo'], xph:'600k–1.3kk', profit:'150k–400k', tipo:'profit', dif:'medio', task:true,
     req:'Hunt for the Sea Serpent Quest',
+    coords:{x:32700,y:31200,z:7},
+    imbuements:['Vampirism Strong','Strike Earth','Chilling Strike'],
+    charms:[{creature:'Sea Serpent',charm:'Freeze'},{creature:'Young Sea Serpent',charm:'Wound'}],
+    equipment:['Dragon Scale Mail ou melhor','Serpent Sword para EK baixo nível','Shield com bom def'],
+    lootIds:[3092,3035,3051,7643],lootNames:['Strong Mana Potion','Platinum Coin','Small Diamond','Serpent Scale'],
     creatures:[{n:'Sea Serpent'},{n:'Young Sea Serpent'}],
     desc:'XP e profit sólidos. Requer Hunt for the Sea Serpent Quest.', wiki:'https://tibia.fandom.com/wiki/Sea_Serpent' },
 
@@ -4971,11 +5723,23 @@ const HUNTS = [
     desc:'Imbue de bota powerful T3. The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Dream_Courts' },
 
   // Burster/Gazer/Ripper Spectre: 3000-4500xp — médio, range 220-400
-  { name:'Haunted Houses', xphNum:2100, minLvl:220, maxLvl:400,
+  { name:'Haunted Nexus (Temple)', xphNum:2900, minLvl:130, maxLvl:400,
     vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit', dif:'medio', task:false,
-    req:'Grave Danger Quest',
-    creatures:[{n:'Burster Spectre'},{n:'Gazer Spectre'},{n:'Ripper Spectre'}],
-    desc:'Rotação de boss diária com Spectres. Melhor profit da faixa 250–400. Grave Danger Quest.', wiki:'https://www.tibiawiki.com.br/index.php?title=The_Haunted_Houses' },
+    req:'The Dream Courts Quest (Haunted House)',
+    creatures:[{n:'Gazer Spectre'},{n:'Thanatursus'}],
+    desc:'Gazer Spectre + Thanatursus. Party a partir do 130, duo a partir do 200, solo a partir do 240. Acesso via The Dream Courts Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Temple)' },
+
+  { name:'Haunted Nexus (Cellar)', xphNum:2550, minLvl:250, maxLvl:400,
+    vocs:['all'], modes:['duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit', dif:'medio', task:false,
+    req:'The Dream Courts Quest (Haunted House)',
+    creatures:[{n:'Arachnophobica'},{n:'Ripper Spectre'}],
+    desc:'Arachnophobica + Ripper Spectre. Hunt em duo ou party a partir do 250. Acesso via The Dream Courts Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Cellar)' },
+
+  { name:'Haunted Nexus (Tomb)', xphNum:3000, minLvl:200, maxLvl:400,
+    vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit', dif:'medio', task:false,
+    req:'The Dream Courts Quest (Haunted House)',
+    creatures:[{n:'Burster Spectre'}],
+    desc:'Burster Spectre. Party/duo a partir do 200, solo a partir do 350. Acesso via The Dream Courts Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Tomb)' },
 
   // Grimeleech: 6800xp, Vexclaw: 5500xp, Hellflayer: 6500xp — difícil, range 280-500
   { name:'Heart of Destruction', xphNum:3600, minLvl:280, maxLvl:500,
@@ -5059,6 +5823,11 @@ const HUNTS = [
     vocs:['ek','rp'], modes:['solo','duo'], xph:'3.5kk–6kk', profit:'600k–900k', tipo:'xp', dif:'dificil', task:true,
     req:'A Piece of Cake Quest',
     tibiaroute:'Asura-Mirror',
+    coords:{x:32869,y:31284,z:1},
+    imbuements:['Strike Holy Powerful','Vampirism Powerful','Chilling Strike Powerful'],
+    charms:[{creature:'Dawnfire Asura',charm:'Holy Flash'},{creature:'Midnight Asura',charm:'Freeze'},{creature:'Frost Flower Asura',charm:'Wound'}],
+    equipment:['Falcon Axe ou Cobra Axe','Falcon Plate ou Falcon Shield','Helmet of the Deep'],
+    lootIds:[3035,3047,22418,3051],lootNames:['Platinum Coin','Gold Coin','Skullcracker Armor','Small Diamond'],
     creatures:[{n:'Dawnfire Asura'},{n:'Midnight Asura'},{n:'Frost Flower Asura'}],
     desc:'Área das Asuras com Hellspawns. XP e bestiary excelentes. A Piece of Cake Quest.', wiki:'https://tibia.fandom.com/wiki/Asura_Palace',
     tips:'Asuras são fracas para holy. Leve exori hur para os Hellspawns.' },
@@ -5067,6 +5836,11 @@ const HUNTS = [
     vocs:['ek'], modes:['solo'], xph:'3kk–4kk', profit:'1kk–1.5kk', tipo:'profit', dif:'medio', task:true,
     req:'Threatened Dreams Quest',
     tibiaroute:'Carnisylvans-EK',
+    coords:{x:32612,y:32158,z:7},
+    imbuements:['Strike Earth Powerful','Vampirism Powerful','Epiphany'],
+    charms:[{creature:'Carnisylvan Sapling',charm:'Wound'},{creature:'Dark Carnisylvan',charm:'Poison'},{creature:'Hulking Carnisylvan',charm:'Dodge'}],
+    equipment:['Falcon Axe','Falcon Plate / Cobra Armor','Gnome Shield ou Tower Shield'],
+    lootIds:[3035,3047,23553,23554],lootNames:['Platinum Coin','Gold Coin','Dark Carnisylvan Heart','Carnisylvan Branch'],
     creatures:[{n:'Carnisylvan Sapling'},{n:'Dark Carnisylvan'},{n:'Hulking Carnisylvan'}],
     desc:'Hunt de carnisylvans para EK. Profit e bestiary consistentes. Threatened Dreams Quest.', wiki:'https://tibia.fandom.com/wiki/Carnisylvan' },
 
@@ -5200,6 +5974,11 @@ const HUNTS = [
   { name:'Exotic Cave', xphNum:1200, minLvl:130, maxLvl:260,
     vocs:['ek'], modes:['solo'], xph:'900k–1.4kk', profit:'75k–185k', tipo:'profit', dif:'medio', task:true,
     req:'',
+    coords:{x:33053,y:31784,z:9},
+    imbuements:['Strike Earth Powerful','Vampirism Powerful'],
+    charms:[{creature:'Exotic Bat',charm:'Poison'},{creature:'Exotic Cave Spider',charm:'Wound'}],
+    equipment:['Full EK set nível 130+','Blessed Shield','Knight Legs ou melhor'],
+    lootIds:[3035,3047,9643,9644],lootNames:['Platinum Coin','Gold Coin','Exotic Bat Wing','Cave Spider Leg'],
     creatures:[{n:'Exotic Bat'},{n:'Exotic Cave Spider'}],
     desc:'Caverna com criaturas exóticas. Bom para bestiary.', wiki:'https://tibia.fandom.com/wiki/Exotic_Cave' },
 
@@ -6401,7 +7180,7 @@ const IMBU_DATA = {
   dragonhide3:{ name:'Dragon Hide T3', effect:'5% Fire Protection', items:[{n:'Dragon Scales',q:25},{n:'Magma Morel',q:20},{n:'Blazing Bone',q:5}], gold:{20:100000,1:5000} },
   cloud3:     { name:'Cloud Fabric T3', effect:'5% Ice Protection', items:[{n:'Cloud Fabric',q:25},{n:'Frosty Heart',q:20},{n:'Pair of Old Bracers',q:5}], gold:{20:100000,1:5000} },
   demon3:     { name:'Demon Presence T3', effect:'5% Energy Protection', items:[{n:'Demonic Essence',q:25},{n:'Orb of Destruction',q:20},{n:'Piece of Dead Brain',q:5}], gold:{20:100000,1:5000} },
-  blockade3:  { name:'Blockade T3', effect:'4% Physical Protection', items:[{n:'Rock Beetle Shell',q:25},{n:'Hardened Bone',q:20},{n:'Protective Charm',q:5}], gold:{20:100000,1:5000} },
+  blockade3:  { name:'Blockade T3', effect:'4% Physical Protection', items:[{n:'Piece of Scarab Shell',q:25},{n:'Hardened Bone',q:20},{n:'Protective Charm',q:5}], gold:{20:100000,1:5000} },
   precision3: { name:'Precision T3', effect:'+3% Critical Chance (Distance)', items:[{n:'Elven Hoof',q:25},{n:'Beastslayer Arrow',q:20},{n:'Flask of Warrior\'s Sweat',q:5}], gold:{20:100000,1:5000} },
   vibrancy3:  { name:'Vibrancy T3', effect:'Cures Paralysis', items:[{n:'Rorc Feather',q:25},{n:'Rorc Egg',q:20},{n:'Divine Egg',q:5}], gold:{20:100000,1:5000} },
   // Tier 2
@@ -7639,6 +8418,239 @@ function toggleDark() {
 })();
 
 document.addEventListener('DOMContentLoaded', pfInitGuildDropdown);
+
+// ══════════════════════════════════════════════════
+//  LOOT SPLIT
+// ══════════════════════════════════════════════════
+(function(){
+  const LS_COLS=[
+    {bg:'#3b82f622',tx:'#60a5fa'},{bg:'#22c55e22',tx:'#4ade80'},
+    {bg:'#ec489922',tx:'#f472b6'},{bg:'#f59e0b22',tx:'#fbbf24'},
+    {bg:'#8b5cf622',tx:'#a78bfa'},{bg:'#f9731622',tx:'#fb923c'},
+  ];
+  let LSP=null;
+
+  function lsFmt(n){return Math.round(n).toLocaleString('pt-BR');}
+  function lsParseMoney(s){return parseInt((s||'').replace(/[,.\s]/g,''),10)||0;}
+
+  function lsParseSession(raw){
+    const lines=raw.split('\n').map(l=>l.trim()).filter(Boolean);
+    let hdr={},players=[],cur=null;
+    for(const l of lines){
+      if(l.startsWith('Session data:')){const m=l.match(/From (.+?) to (.+)/);if(m){hdr.from=m[1].trim();hdr.to=m[2].trim();}}
+      else if(l.startsWith('Session:'))hdr.dur=l.replace('Session:','').trim();
+      else if(l.startsWith('Loot Type:'))hdr.lootType=l.replace('Loot Type:','').trim();
+      else if(l.startsWith('Loot:')&&!cur)hdr.loot=lsParseMoney(l.replace('Loot:',''));
+      else if(l.startsWith('Supplies:')&&!cur)hdr.supplies=lsParseMoney(l.replace('Supplies:',''));
+      else if(l.startsWith('Balance:')&&!cur)hdr.balance=lsParseMoney(l.replace('Balance:',''));
+      else if(l.startsWith('Loot:')&&cur)cur.loot=lsParseMoney(l.replace('Loot:',''));
+      else if(l.startsWith('Supplies:')&&cur)cur.supplies=lsParseMoney(l.replace('Supplies:',''));
+      else if(l.startsWith('Balance:')&&cur)cur.balance=lsParseMoney(l.replace('Balance:',''));
+      else if(l.startsWith('Damage:')&&cur)cur.damage=lsParseMoney(l.replace('Damage:',''));
+      else if(l.startsWith('Healing:')&&cur)cur.healing=lsParseMoney(l.replace('Healing:',''));
+      else if(!l.startsWith('Session')&&!l.startsWith('Loot')&&!l.startsWith('Supplies')&&!l.startsWith('Balance')&&!l.startsWith('Damage')&&!l.startsWith('Healing')&&!l.startsWith('From')){
+        const isL=l.includes('(Leader)');
+        const name=l.replace('(Leader)','').trim();
+        if(name){if(cur)players.push(cur);cur={name,isLeader:isL,loot:0,supplies:0,balance:0,damage:0,healing:0};}
+      }
+    }
+    if(cur)players.push(cur);
+    if(!players.length)throw new Error('Nenhum jogador encontrado. Verifique o formato da sessão.');
+    if(!hdr.loot)throw new Error('Dados inválidos. Cole o log completo do Tibia.');
+    return{hdr,players};
+  }
+
+  function lsGetState(){
+    const removed={},extraAdv={};
+    document.querySelectorAll('#ls-advgrid .ls-adv-p').forEach(el=>{
+      const name=el.dataset.name;
+      removed[name]=el.querySelector('.ls-rem').checked;
+      extraAdv[name]=parseFloat(el.querySelector('.ls-adv-extra').value)||0;
+    });
+    const extraLines=[];
+    document.querySelectorAll('#ls-extras .ls-extra-entry').forEach(row=>{
+      const pl=row.querySelector('.ls-epl').value;
+      const amt=parseFloat(row.querySelector('.ls-eamt').value)||0;
+      if(pl&&amt>0)extraLines.push({player:pl,amount:amt});
+    });
+    return{removed,extraAdv,extraLines};
+  }
+
+  function lsCalc(){
+    const{removed,extraAdv,extraLines}=lsGetState();
+    const active=LSP.players.filter(p=>!removed[p.name]);
+    if(!active.length)return null;
+    const n=active.length;
+    const gross=LSP.hdr.loot-LSP.hdr.supplies;
+    const splitEach=Math.round(gross/n);
+    const extraMap={};
+    active.forEach(p=>extraMap[p.name]=extraAdv[p.name]||0);
+    extraLines.forEach(e=>{if(extraMap[e.player]!==undefined)extraMap[e.player]+=e.amount;});
+    const results=active.map(p=>{
+      const extra=extraMap[p.name]||0;
+      // transfer > 0 → paga | transfer < 0 → recebe
+      const transfer=Math.round(p.balance-extra-splitEach);
+      return{...p,extra,splitEach,transfer};
+    });
+    return{gross,splitEach,results};
+  }
+
+  function lsBuildTransfers(results){
+    const payers=results.filter(p=>p.transfer>0).map(p=>({name:p.name,amount:p.transfer}));
+    const receivers=results.filter(p=>p.transfer<0).map(p=>({name:p.name,amount:-p.transfer}));
+    const out=[];
+    let pi=0,ri=0;
+    while(pi<payers.length&&ri<receivers.length){
+      const pay=payers[pi],rec=receivers[ri];
+      const amt=Math.min(pay.amount,rec.amount);
+      if(amt>5)out.push({from:pay.name,to:rec.name,amount:Math.round(amt)});
+      pay.amount-=amt;rec.amount-=amt;
+      if(pay.amount<=5)pi++;
+      if(rec.amount<=5)ri++;
+    }
+    return out;
+  }
+
+  window.lsGo=function(){
+    const raw=document.getElementById('ls-si').value.trim();
+    const err=document.getElementById('ls-err');
+    err.style.display='none';
+    try{LSP=lsParseSession(raw);}
+    catch(e){err.textContent=e.message;err.style.display='block';return;}
+    lsRenderAll();
+  };
+
+  window.lsReset=function(){
+    document.getElementById('ls-si').value='';
+    document.getElementById('ls-err').style.display='none';
+    document.getElementById('ls-results').style.display='none';
+    LSP=null;
+  };
+
+  window.lsRecalc=function(){lsRenderTransfers();};
+
+  window.lsAddExtra=function(){
+    const area=document.getElementById('ls-extras');
+    const div=document.createElement('div');
+    div.className='ls-extra-entry';
+    div.style.cssText='display:flex;gap:.45rem;align-items:center;margin-bottom:.4rem;flex-wrap:wrap';
+    const opts=LSP.players.map(p=>`<option value="${p.name}">${p.name}</option>`).join('');
+    div.innerHTML=`
+      <select class="ls-epl tool-select" style="font-size:.78rem;max-width:150px">${opts}</select>
+      <input type="text" class="tool-input" placeholder="Descrição (opcional)" style="flex:1;min-width:80px;font-size:.78rem">
+      <input type="number" class="ls-eamt tool-input" placeholder="Valor (gp)" min="0" style="width:130px;font-size:.78rem" oninput="lsRecalc()">
+      <button onclick="this.parentElement.remove();lsRecalc()" style="background:none;border:1px solid var(--rule);border-radius:5px;padding:.28rem .45rem;cursor:pointer;color:#ef4444;font-size:.8rem">✕</button>
+    `;
+    area.appendChild(div);
+  };
+
+  function lsRenderAll(){
+    document.getElementById('ls-results').style.display='block';
+    const{hdr,players}=LSP;
+
+    // Métricas
+    const mc=hdr.balance>=0?'var(--bamboo)':'#ef4444';
+    document.getElementById('ls-metrics').innerHTML=`
+      <div class="card" style="padding:.6rem .85rem;margin:0"><div style="font-size:1rem;font-weight:700;color:var(--ink)">${lsFmt(hdr.loot)}</div><div style="font-size:.7rem;color:var(--muted)">Loot total</div></div>
+      <div class="card" style="padding:.6rem .85rem;margin:0"><div style="font-size:1rem;font-weight:700;color:var(--ink)">${lsFmt(hdr.supplies)}</div><div style="font-size:.7rem;color:var(--muted)">Supplies total</div></div>
+      <div class="card" style="padding:.6rem .85rem;margin:0"><div style="font-size:1rem;font-weight:700;color:${mc}">${lsFmt(hdr.balance)}</div><div style="font-size:.7rem;color:var(--muted)">Balance da pt</div></div>
+      <div class="card" style="padding:.6rem .85rem;margin:0"><div style="font-size:1rem;font-weight:700;color:var(--ink)">${players.length}</div><div style="font-size:.7rem;color:var(--muted)">Jogadores</div></div>
+      <div class="card" style="padding:.6rem .85rem;margin:0"><div style="font-size:1rem;font-weight:700;color:var(--ink)">${hdr.dur||'—'}</div><div style="font-size:.7rem;color:var(--muted)">Duração</div></div>
+    `;
+
+    // Cards de jogadores
+    const pg=document.getElementById('ls-pgrid');
+    pg.innerHTML='';
+    players.forEach((p,i)=>{
+      const col=LS_COLS[i%LS_COLS.length];
+      const ini=p.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      const bc=p.balance>=0?'var(--bamboo)':'#ef4444';
+      pg.innerHTML+=`
+        <div style="border:1px solid var(--rule);border-radius:8px;padding:.8rem 1rem;margin-bottom:.5rem">
+          <div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.55rem">
+            <div style="width:30px;height:30px;border-radius:50%;background:${col.bg};color:${col.tx};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${ini}</div>
+            <span style="font-size:.9rem;font-weight:600;color:var(--ink)">${p.name}</span>
+            ${p.isLeader?'<span style="font-size:.62rem;padding:2px 6px;border-radius:20px;background:rgba(201,168,64,.15);color:var(--gold);font-weight:600">Líder</span>':''}
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.3rem;font-size:.72rem">
+            <div><div style="color:var(--muted)">Loot</div><div style="font-weight:600;color:var(--ink)">${lsFmt(p.loot)}</div></div>
+            <div><div style="color:var(--muted)">Supplies</div><div style="font-weight:600;color:var(--ink)">${lsFmt(p.supplies)}</div></div>
+            <div><div style="color:var(--muted)">Balance</div><div style="font-weight:600;color:${bc}">${lsFmt(p.balance)}</div></div>
+            <div><div style="color:var(--muted)">Damage</div><div style="font-weight:600;color:var(--ink)">${lsFmt(p.damage)}</div></div>
+            <div><div style="color:var(--muted)">Healing</div><div style="font-weight:600;color:var(--ink)">${lsFmt(p.healing)}</div></div>
+          </div>
+        </div>`;
+    });
+
+    // Cards avançados
+    const adv=document.getElementById('ls-advgrid');
+    adv.innerHTML='';
+    players.forEach((p,i)=>{
+      const col=LS_COLS[i%LS_COLS.length];
+      const ini=p.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+      const div=document.createElement('div');
+      div.className='ls-adv-p';
+      div.dataset.name=p.name;
+      div.style.cssText='background:var(--paper);border-radius:8px;padding:.7rem .85rem;border:1px solid var(--rule)';
+      div.innerHTML=`
+        <div style="display:flex;align-items:center;gap:.4rem;font-size:.82rem;font-weight:600;color:var(--ink);margin-bottom:.5rem">
+          <div style="width:20px;height:20px;border-radius:50%;background:${col.bg};color:${col.tx};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0">${ini}</div>
+          ${p.name}${p.isLeader?'<span style="font-size:.6rem;padding:2px 5px;border-radius:20px;background:rgba(201,168,64,.15);color:var(--gold);font-weight:600">Líder</span>':''}
+        </div>
+        <input type="number" class="ls-adv-extra tool-input" placeholder="Gasto extra (gp)" min="0" style="width:100%;font-size:.78rem;margin-bottom:.45rem" oninput="lsRecalc()">
+        <label style="display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--muted);cursor:pointer;user-select:none">
+          <input type="checkbox" class="ls-rem" onchange="lsRecalc()" style="cursor:pointer;accent-color:#ef4444"> Remover jogador
+        </label>
+      `;
+      adv.appendChild(div);
+    });
+
+    document.getElementById('ls-extras').innerHTML='';
+    lsRenderTransfers();
+  }
+
+  function lsRenderTransfers(){
+    if(!LSP)return;
+    const calc=lsCalc();
+    const tl=document.getElementById('ls-tlist');
+    if(!calc){
+      tl.innerHTML='<div style="font-size:.8rem;color:var(--muted)">Todos os jogadores foram removidos.</div>';
+      document.getElementById('ls-profit').textContent='— gp';
+      return;
+    }
+    const{splitEach,results}=calc;
+    const transfers=lsBuildTransfers(results);
+    if(!transfers.length){
+      tl.innerHTML='<div style="font-size:.8rem;color:var(--muted);padding:.4rem 0">Nenhuma transferência necessária.</div>';
+    } else {
+      tl.innerHTML=transfers.map(t=>{
+        const msg=`transfer ${t.amount} to ${t.to}`;
+        return `<div style="display:grid;grid-template-columns:1fr auto 1fr auto auto;align-items:center;gap:.55rem;padding:.55rem .85rem;border-radius:7px;background:var(--paper);border:1px solid var(--rule);margin-bottom:.4rem;font-size:.82rem">
+          <span style="font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.from}</span>
+          <span style="color:var(--muted);font-size:.75rem">→</span>
+          <span style="color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.to}</span>
+          <span style="font-weight:700;color:var(--bamboo);white-space:nowrap">${lsFmt(t.amount)} gp</span>
+          <button onclick="lsCopyTransfer('${msg}',this)" title="Copiar: ${msg}" style="background:none;border:1px solid var(--rule);border-radius:5px;padding:.28rem .45rem;cursor:pointer;color:var(--muted);font-size:.8rem;transition:all .15s" onmouseenter="this.style.borderColor='var(--bamboo)';this.style.color='var(--bamboo)'" onmouseleave="this.style.borderColor='var(--rule)';this.style.color='var(--muted)'">⎘</button>
+        </div>`;
+      }).join('');
+    }
+    const pv=document.getElementById('ls-profit');
+    pv.textContent=`${splitEach>=0?'+':''}${lsFmt(splitEach)} gp`;
+    pv.style.color=splitEach>=0?'var(--bamboo)':'#ef4444';
+    document.getElementById('ls-loot-banner').textContent=lsFmt(LSP.hdr.loot)+' gp';
+  }
+
+  window.lsCopyTransfer=function(msg,btn){
+    navigator.clipboard.writeText(msg).then(()=>{
+      const orig=btn.textContent;
+      btn.textContent='✓';
+      btn.style.color='var(--bamboo)';
+      btn.style.borderColor='var(--bamboo)';
+      setTimeout(()=>{btn.textContent=orig;btn.style.color='var(--muted)';btn.style.borderColor='var(--rule)';},1800);
+    });
+  };
+})();
+
 </script>
 </body>
 </html>
