@@ -1099,6 +1099,12 @@ footer strong{color:var(--ink-3);font-weight:500}
   background:#0d0d10;
   border-radius:9px;
 }
+/* Pixel-perfect canvas tiles — prevents browser from blurring on zoom */
+.hf-map-wrap .leaflet-tile-container canvas,
+#hf-leaflet-zoom-map .leaflet-tile-container canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
 /* Estilo nativo dos botões do floor control — igual ao zoom +/- */
 .hf-map-wrap .leaflet-control-zoom,
 .hf-map-wrap .leaflet-bar {
@@ -1124,6 +1130,41 @@ footer strong{color:var(--ink-3);font-weight:500}
 /* Hide leaflet attribution */
 .hf-map-wrap .leaflet-control-attribution,
 #hf-leaflet-zoom-map .leaflet-control-attribution { display:none; }
+/* Coordinate display bar */
+.hf-map-coords {
+  position:absolute;
+  bottom:0; left:0; right:0;
+  z-index:1000;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:rgba(10,10,14,.82);
+  backdrop-filter:blur(4px);
+  border-top:1px solid rgba(255,255,255,.07);
+  border-radius:0 0 9px 9px;
+  padding:3px 8px;
+  pointer-events:none;
+  gap:6px;
+}
+.hf-map-coords-xy {
+  font-family:'JetBrains Mono',monospace;
+  font-size:.6rem;
+  font-weight:600;
+  color:#94a3b8;
+  letter-spacing:.3px;
+  white-space:nowrap;
+}
+.hf-map-coords-xy span { color:#c2bfb8; }
+.hf-map-coords-link {
+  font-size:.55rem;
+  color:var(--bamboo-light);
+  text-decoration:none;
+  pointer-events:all;
+  opacity:.7;
+  transition:opacity .15s;
+  white-space:nowrap;
+}
+.hf-map-coords-link:hover { opacity:1; }
 #hf-leaflet-zoom-map { border-radius:13px; }
 #hf-leaflet-zoom-map .leaflet-container { background:#0d0d10; border-radius:13px; }
 .hf-map-controls {
@@ -1316,6 +1357,11 @@ async function tibiaFetch(path) {
       <button class="nav-btn" onclick="showPage('tools',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Ferramentas</span>
+      </button>
+
+      <button class="nav-btn" onclick="showPage('exercisecalc',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/></svg>
+        <span class="nav-label">Exercise Weapons</span>
       </button>
 
       <div class="nav-group-label" style="margin-top:.75rem">Guild</div>
@@ -2365,6 +2411,237 @@ PlayerName (Leader)
       <div class="tibia-text"><h3>Ver guild no Tibia.com</h3><p>Lista completa de membros, GH e estatísticas oficiais</p></div>
       <a id="tibia-guild-link-about2" href="#" class="tibia-link" target="_blank">Visitar página oficial →</a>
     </div>
+  </section>
+
+
+  <!-- ─── EXERCISE WEAPONS CALCULATOR ─── -->
+  <section class="page-section" id="exercisecalc">
+    <h2 class="sec-title">Exercise Weapons</h2>
+    <p class="sec-sub">Calcule quantas armas, o custo e o tempo para avançar de skill com Exercise Dummies.</p>
+
+    <div class="ew-layout">
+
+      <!-- ══ COLUNA ESQUERDA — Personagem ══ -->
+      <div class="ew-col-left">
+
+        <!-- Card Personagem -->
+        <div class="card ew-card">
+          <div class="ew-section-header">PERSONAGEM</div>
+
+          <!-- Vocação -->
+          <div class="ew-field-label">Vocação</div>
+          <div class="ew-voc-grid" id="ew-voc-chips">
+            <button class="ew-voc-btn" data-voc="knight"   onclick="ewSetVoc(this)">
+              <span class="ew-voc-check"></span>
+              <img src="https://static.wikia.nocookie.net/tibia/images/b/b9/Knight.gif" onerror="this.style.display='none'" style="width:16px;height:16px"> Knight
+            </button>
+            <button class="ew-voc-btn" data-voc="paladin"  onclick="ewSetVoc(this)">
+              <span class="ew-voc-check"></span>
+              <img src="https://static.wikia.nocookie.net/tibia/images/6/6e/Paladin.gif" onerror="this.style.display='none'" style="width:16px;height:16px"> Paladin
+            </button>
+            <button class="ew-voc-btn ew-voc-active" data-voc="sorcerer" onclick="ewSetVoc(this)">
+              <span class="ew-voc-check"></span>
+              <img src="https://static.wikia.nocookie.net/tibia/images/b/bd/Sorcerer.gif" onerror="this.style.display='none'" style="width:16px;height:16px"> Sorcerer
+            </button>
+            <button class="ew-voc-btn" data-voc="druid"    onclick="ewSetVoc(this)">
+              <span class="ew-voc-check"></span>
+              <img src="https://static.wikia.nocookie.net/tibia/images/9/9f/Druid.gif" onerror="this.style.display='none'" style="width:16px;height:16px"> Druid
+            </button>
+            <button class="ew-voc-btn" data-voc="monk"     onclick="ewSetVoc(this)">
+              <span class="ew-voc-check"></span>
+              <img src="https://static.wikia.nocookie.net/tibia/images/1/1c/Monk.gif" onerror="this.style.display='none'" style="width:16px;height:16px"> Monk
+            </button>
+          </div>
+
+          <!-- Skill -->
+          <div class="ew-field-label" style="margin-top:1rem">Skill</div>
+          <div class="ew-chip-row" id="ew-skill-chips">
+            <button class="ew-chip" data-sk="melee"    onclick="ewSetSkill(this)">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path d="M9.293 1.293a1 1 0 011.414 0l8 8a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-8-8a1 1 0 010-1.414l8-8z"/></svg>
+              Axe/Club/Sword
+            </button>
+            <button class="ew-chip" data-sk="dist"     onclick="ewSetSkill(this)">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/></svg>
+              Distance
+            </button>
+            <button class="ew-chip ew-chip-active" data-sk="ml" onclick="ewSetSkill(this)">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="10" cy="10" r="3" fill="currentColor"/></svg>
+              ML
+            </button>
+            <button class="ew-chip" data-sk="shield"   onclick="ewSetSkill(this)">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944z" clip-rule="evenodd"/></svg>
+              Shield
+            </button>
+            <button class="ew-chip" data-sk="fist"     onclick="ewSetSkill(this)">
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6.672 1.911a1 1 0 10-1.932.518l.259.966a1 1 0 001.932-.518l-.26-.966zM2.429 4.74a1 1 0 10-.517 1.932l.966.259a1 1 0 00.517-1.932l-.966-.26zm8.814-.569a1 1 0 00-1.415-1.414l-.707.707a1 1 0 101.415 1.415l.707-.708zm-7.071 7.072l.707-.707A1 1 0 003.465 9.12l-.708.707a1 1 0 001.415 1.415zm3.2-5.171a1 1 0 00-1.3 1.3l4 10a1 1 0 001.823.075l1.38-2.759 3.018 3.02a1 1 0 001.414-1.415l-3.019-3.02 2.76-1.379a1 1 0 00-.076-1.822l-10-4z" clip-rule="evenodd"/></svg>
+              Fist
+            </button>
+          </div>
+
+          <!-- Skill atual e desejado -->
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.5rem;margin-top:1rem">
+            <div>
+              <div class="ew-field-label">Skill atual</div>
+              <input type="number" class="tool-input" id="ew-current" min="0" max="200" value="97"
+                     oninput="ewCalc()" style="width:100%">
+            </div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="color:var(--muted);margin-top:20px"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            <div>
+              <div class="ew-field-label">Skill desejado</div>
+              <input type="number" class="tool-input" id="ew-target" min="0" max="200" value="100"
+                     oninput="ewCalc()" style="width:100%">
+            </div>
+          </div>
+
+          <!-- % restante -->
+          <div style="margin-top:1rem">
+            <div class="ew-field-label">% restante <strong id="ew-pct-display" style="color:var(--ink)">59,8</strong></div>
+            <input type="range" id="ew-pct-range" min="0" max="99.9" step="0.1" value="59.8"
+                   oninput="ewSyncPct(this.value)" style="width:100%;accent-color:var(--accent);margin:.35rem 0">
+            <input type="number" class="tool-input" id="ew-pct" min="0" max="99.9" step="0.1" value="59.8"
+                   oninput="ewSyncPct(this.value)" style="width:80px;text-align:right">
+          </div>
+
+          <!-- Loyalty slider -->
+          <div style="margin-top:1rem">
+            <div class="ew-field-label" style="display:flex;justify-content:space-between">
+              <span>Loyalty</span>
+              <span id="ew-loyalty-label" style="color:var(--ink);font-weight:600">360 Pontos</span>
+            </div>
+            <input type="range" id="ew-loyalty-range" min="0" max="10" step="1" value="1"
+                   oninput="ewSyncLoyalty(this.value)" style="width:100%;accent-color:#e07050;margin:.35rem 0">
+            <div class="ew-loyalty-ticks">
+              <span>None</span><span>5%</span><span>10%</span><span>15%</span><span>20%</span><span>25%</span>
+              <span>30%</span><span>35%</span><span>40%</span><span>45%</span><span>50%</span>
+            </div>
+          </div>
+        </div><!-- /card personagem -->
+
+        <!-- Card Extra -->
+        <div class="card ew-card" style="margin-top:.75rem">
+          <div class="ew-check-row">
+            <div class="ew-checks-col">
+              <label class="ew-check-label">
+                <input type="checkbox" id="ew-dummy" onchange="ewCalc()" checked>
+                <span class="ew-check-box"></span>
+                Exercise Dummy
+              </label>
+              <label class="ew-check-label" style="margin-top:.5rem">
+                <input type="checkbox" id="ew-double" onchange="ewCalc()">
+                <span class="ew-check-box"></span>
+                Double Event
+              </label>
+            </div>
+            <div class="ew-cargas-col">
+              <div class="ew-field-label">Cargas</div>
+              <select class="tool-select" id="ew-mode" onchange="ewCalc()" style="width:100%">
+                <option value="auto">Auto</option>
+                <option value="lasting">Lasting (14.400)</option>
+                <option value="durable">Durable (1.800)</option>
+                <option value="regular">Regular (500)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /col-left -->
+
+      <!-- ══ COLUNA DIREITA — Resultados ══ -->
+      <div class="ew-col-right">
+
+        <!-- Erro -->
+        <div id="ew-error" style="display:none;background:var(--red-pale);border:1px solid rgba(232,112,112,.2);border-radius:8px;padding:.85rem 1.1rem;font-size:.85rem;color:var(--red);margin-bottom:.75rem"></div>
+
+        <!-- Card Preços -->
+        <div class="card ew-card">
+          <div class="ew-section-header" style="display:flex;justify-content:space-between;align-items:center">
+            <span>PREÇOS</span>
+            <span style="display:flex;align-items:center;gap:.35rem;font-size:.7rem;color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none">
+              <svg width="11" height="11" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clip-rule="evenodd"/></svg>
+              Gentebra
+            </span>
+          </div>
+          <div class="ew-price-row">
+            <!-- NPC -->
+            <div class="ew-price-box" id="ew-npc-box">
+              <div class="ew-price-tag" id="ew-npc-best" style="display:none">MELHOR PREÇO</div>
+              <div class="ew-price-box-label">NPC</div>
+              <div class="ew-price-vals">
+                <span class="ew-price-pill ew-pill-coin" id="ew-npc-weapons">—</span>
+                <span class="ew-price-pill ew-pill-gold" id="ew-npc-gold">—</span>
+              </div>
+            </div>
+            <!-- Store -->
+            <div class="ew-price-box" id="ew-store-box">
+              <div class="ew-price-tag" id="ew-store-best" style="display:none">MELHOR PREÇO</div>
+              <div class="ew-price-box-label">STORE</div>
+              <div class="ew-price-vals">
+                <span class="ew-price-pill ew-pill-tc" id="ew-store-tc">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Weapons -->
+        <div class="card ew-card" style="margin-top:.75rem">
+          <div class="ew-section-header">WEAPONS</div>
+          <div class="ew-weapon-row" id="ew-weapon-row">
+            <div class="ew-weapon-pill" id="ew-lasting-pill">
+              <span class="ew-weapon-badge" id="ew-lasting-cnt">—</span>
+              <span class="ew-weapon-name">Lasting Weapons</span>
+            </div>
+            <div class="ew-weapon-pill" id="ew-durable-pill">
+              <span class="ew-weapon-badge" id="ew-durable-cnt">—</span>
+              <span class="ew-weapon-name">Durable Weapons</span>
+            </div>
+            <div class="ew-weapon-pill" id="ew-regular-pill">
+              <span class="ew-weapon-badge" id="ew-regular-cnt">—</span>
+              <span class="ew-weapon-name">Regular Weapons</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card Tempo -->
+        <div class="card ew-card" style="margin-top:.75rem">
+          <div class="ew-section-header">TEMPO</div>
+          <div class="ew-time-row">
+            <div class="ew-time-box"><div id="ew-time-h" class="ew-time-val">—</div><div class="ew-time-lbl">HORAS</div></div>
+            <div class="ew-time-box"><div id="ew-time-m" class="ew-time-val">—</div><div class="ew-time-lbl">MINUTOS</div></div>
+          </div>
+        </div>
+
+        <!-- Card Breakdown -->
+        <div class="card ew-card" style="margin-top:.75rem">
+          <div class="ew-section-header">DETALHAMENTO POR NÍVEL</div>
+          <div style="overflow-x:auto">
+            <table class="ew-table">
+              <thead>
+                <tr>
+                  <th style="text-align:left">Nível</th>
+                  <th style="text-align:right">Pts</th>
+                  <th style="text-align:right">Charges</th>
+                  <th style="text-align:right">Lasting</th>
+                  <th style="text-align:right">Tempo</th>
+                </tr>
+              </thead>
+              <tbody id="ew-breakdown-body">
+                <tr><td colspan="5" style="padding:1.25rem;text-align:center;color:var(--muted)">Configure os valores para ver o detalhamento.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="ew-breakdown-more" style="display:none;font-size:.7rem;color:var(--muted);margin-top:.5rem;text-align:center"></div>
+        </div>
+
+        <!-- Nota -->
+        <div style="font-size:.7rem;color:var(--muted);line-height:1.65;padding:.5rem 0;margin-top:.25rem">
+          Preços (Summer Update 2024): Lasting 720 TC / 10kk gp · Durable 90 TC / 1,25kk gp · Regular 25 TC / 347.222 gp.
+          Ponto de equilíbrio TC vs NPC: <strong style="color:var(--ink-3)">13.889 gp/TC</strong>.
+          Loyalty aumenta os skill points acumulados (não a velocidade): <code style="font-size:.68rem">pts_totais = pts_base × (1 + loyalty%/100)</code>.
+          Dummy privado (Demon/Ferumbras/Monk) = +10% eficiência.
+        </div>
+
+      </div><!-- /col-right -->
+    </div><!-- /ew-layout -->
   </section>
 
   </div><!-- /.main -->
@@ -3610,6 +3887,8 @@ const CREATURE_STATS = {
   'baron brute':{hp:62,xp:48,spd:0,HP:5025,XP:3000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,20,100,100,100,100,100,100],loc:'Zao (Isle of Strife).',loot:[]},
   'bashmu':{hp:65,xp:52,spd:57,HP:8200,XP:5000,armor:72,mit:2.16,charm:25,bclass:'Magical',blvl:'Hard',res:[95,100,105,80,95,110,110,100],loc:'Salt Caves.',loot:['Platinum Coin','Guardian Halberd','Bashmu Feather','Terra Amulet','Glacier Amulet']},
   'bat':{hp:25,xp:15,spd:29,HP:30,XP:10,armor:1,mit:0.15,charm:1,bclass:'Mammal',blvl:'Trivial',res:[100,100,100,110,100,100,100,100],loc:'Dark Cathedral, Tiquanda, Drefia, Mount Sternum, Folda, Ghostlands, Kazordoon, Femor Hills, Thais Ba',loot:['Bat Wing']},
+  'betrayed wraith':{hp:62,xp:50,spd:52,HP:5500,XP:4900,armor:30,mit:0.99,charm:25,bclass:'Undead',blvl:'Hard',res:[100,80,90,0,75,125,0,0],loc:'Roshamuul Prison.',loot:['Platinum Coin','Rusty Armor (Rare)','Small Diamond','Blue Crystal Shard','Violet Crystal Shard']},
+  'blightwalker':{hp:66,xp:53,spd:42,HP:9000,XP:6600,armor:55,mit:1.74,charm:25,bclass:'Undead',blvl:'Hard',res:[100,110,100,0,90,125,0,100],loc:'Roshamuul Prison.',loot:['Platinum Coin','Bundle of Cursed Straw','Blue Crystal Shard','Green Crystal Shard','Cluster of Solace']},
   'battlemaster zunzu':{hp:60,xp:47,spd:0,HP:4000,XP:2500,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[85,75,85,0,80,100,90,100],loc:'Zao (Muggy Plains, May Spawn somewhere between the following two coordinates {{Mapper Coords',loot:['Small Emerald','Great Health Potion','Red Lantern','Zaogun Flag','Zaoan Legs']},
   'bazir':{hp:84,xp:62,spd:0,HP:110000,XP:30000,armor:160,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,0,100,0,0,100,100,0],loc:'Unknown, never seen.',loot:[]},
   'bear':{hp:32,xp:19,spd:22,HP:80,XP:23,armor:6,mit:0.15,charm:5,bclass:'Mammal',blvl:'Easy',res:[100,100,110,100,100,90,105,100],loc:'Several spawns near Kazordoon, Femor Hills, north  of Thais, near the White Flower Temple, Rookgaard',loot:['Meat','Ham','Bear Paw','Honeycomb']},
@@ -4021,7 +4300,7 @@ const CREATURE_STATS = {
   'husky':{hp:36,xp:0,spd:38,HP:140,XP:0,armor:1,mit:0.13,charm:0,bclass:'Mammal',blvl:'Harmless',res:[100,100,100,100,100,100,100,100],loc:'Svargrond and Nibelor.',loot:[]},
   'hyaena':{hp:30,xp:18,spd:28,HP:60,XP:20,armor:1,mit:0.13,charm:5,bclass:'Mammal',blvl:'Easy',res:[100,100,100,100,100,100,100,100],loc:'Desert areas like those around Ankrahmun and Darashia.',loot:['Worm','Meat']},
   'hydra':{hp:56,xp:46,spd:51,HP:2350,XP:2100,armor:27,mit:1.18,charm:15,bclass:'Dragon',blvl:'Medium',res:[105,100,50,0,110,70,100,0],loc:'Many on the northern Hydra Mountain in east Tiquanda ({{Mapper Coords',loot:['Ham','Platinum Coin','Hydra Head','Small Sapphire','Cucumber']},
-  'icecold book':{hp:70,xp:57,spd:63,HP:17000,XP:11600,armor:82,mit:2.16,charm:50,bclass:'Inkborn',blvl:'Hard',res:[100,100,110,0,100,100,100,100],loc:'Secret Library ice section.',loot:['Platinum Coin','Book Page','Glowing Rune','Crystalline Armor','Crystal Mace']},
+  'icecold book':{hp:70,xp:57,spd:63,HP:17000,XP:11600,armor:82,mit:2.16,charm:50,bclass:'Inkborn',blvl:'Hard',res:[100,110,0,100,100,100,100,100],loc:'Secret Library ice section.',loot:['Platinum Coin','Book Page','Glowing Rune','Crystalline Armor','Crystal Mace']},
   'infected weeper':{hp:58,xp:43,spd:49,HP:3000,XP:1200,armor:76,mit:2.19,charm:25,bclass:'Construct',blvl:'Hard',res:[50,null,110,0,75,100,70,100],loc:'A total of 8 infected weepers spawn in Warzone 2, you can see the exact locations [https://tibia.fan',loot:['Platinum Coin','Coal']},
   'infernal demon':{hp:75,xp:59,spd:57,HP:32000,XP:17430,armor:120,mit:3.34,charm:50,bclass:'Demon',blvl:'Challenging',res:[70,60,120,100,100,125,50,100],loc:'Claustrophobic Inferno.',loot:['Crystal Coin','Ultimate Health Potion','Small Diamond','Gold Ingot','Blue Crystal Shard']},
   'infernal frog':{hp:47,xp:32,spd:29,HP:655,XP:190,armor:18,mit:0.91,charm:15,bclass:'Amphibic',blvl:'Medium',res:[100,100,100,0,100,100,100,100],loc:'Isle of Evil, [[Marapur',loot:[]},
@@ -4111,6 +4390,7 @@ const CREATURE_STATS = {
   'lost berserker':{hp:63,xp:51,spd:43,HP:5900,XP:4800,armor:80,mit:2.4,charm:25,bclass:'Humanoid',blvl:'Hard',res:[80,90,90,0,100,100,85,100],loc:'[[Warzone 2',loot:['Platinum Coin','Brown Crystal Splinter','Brown Mushroom','Drill Bolt','Great Health Potion']},
   'lost exile':{hp:53,xp:45,spd:36,HP:1600,XP:1800,armor:55,mit:1.35,charm:15,bclass:'Humanoid',blvl:'Medium',res:[95,75,85,0,90,110,80,100],loc:'South east of the Gnome Deep Hub\'s entrance.',loot:['Platinum Coin','Wimp Tooth Chain','Coal','Strong Health Potion','Brown Mushroom']},
   'lost gnome':{hp:67,xp:0,spd:0,HP:10000,XP:0,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,0,100],loc:'Gnome Deep Hub.',loot:['Torch']},
+  'lost soul':{hp:64,xp:52,spd:50,HP:7500,XP:5500,armor:40,mit:1.32,charm:25,bclass:'Undead',blvl:'Hard',res:[100,80,90,0,80,125,0,100],loc:'Roshamuul Prison.',loot:['Platinum Coin','Blue Crystal Shard','Violet Crystal Shard','Green Crystal Shard','Cluster of Solace']},
   'lost husher':{hp:53,xp:45,spd:36,HP:1600,XP:1800,armor:55,mit:1.35,charm:15,bclass:'Humanoid',blvl:'Medium',res:[95,75,105,0,90,110,80,100],loc:'Caves of the Lost, Lower Spike and in the [[Forsaken Mine/Lost Dwarves',loot:['Platinum Coin','Basalt Fetish','Basalt Figurine','Bone Fetish','Bonecarving Knife']},
   'lost thrower':{hp:54,xp:44,spd:34,HP:1700,XP:1500,armor:50,mit:1.4,charm:15,bclass:'Humanoid',blvl:'Medium',res:[90,85,105,0,90,100,90,100],loc:'Caves of the Lost, Lower Spike and in the [[Forsaken Mine/Lost Dwarves',loot:['Platinum Coin','Basalt Fetish','Basalt Figurine','Bloody Dwarven Beard','Broken Throwing Axe']},
   'lumbering carnivor':{hp:57,xp:44,spd:57,HP:2600,XP:1452,armor:65,mit:1.82,charm:15,bclass:'Magical',blvl:'Medium',res:[80,140,100,100,100,100,100,100],loc:'Carnivora\'s Rocks.',loot:['Platinum Coin','Blue Glass Plate','Sword','Axe','Ice Rapier']},
@@ -4371,6 +4651,7 @@ const CREATURE_STATS = {
   'renegade quara mantassin':{hp:51,xp:42,spd:84,HP:1200,XP:1000,armor:16,mit:0.7,charm:15,bclass:'Aquatic',blvl:'Medium',res:[100,0,0,110,125,100,100,100],loc:'Seacrest Grounds when Seacrest Serpents are not spawning.',loot:['Mantassin Tail','Mind Stone','Stealth Ring','Shrimp','Small Sapphire']},
   'renegade quara pincher':{hp:57,xp:47,spd:57,HP:2800,XP:2200,armor:85,mit:1.26,charm:15,bclass:'Aquatic',blvl:'Medium',res:[100,0,0,110,125,100,100,100],loc:'Seacrest Grounds when Seacrest Serpents are not spawning.',loot:['Platinum Coin','Quara Pincers','Great Mana Potion','Great Health Potion','Small Ruby']},
   'renegade quara predator':{hp:59,xp:48,spd:64,HP:3250,XP:2700,armor:40,mit:1.46,charm:15,bclass:'Aquatic',blvl:'Medium',res:[100,0,0,110,125,100,100,100],loc:'Seacrest Grounds when Seacrest Serpents are not spawning.',loot:['Platinum Coin','Quara Bone','Royal Spear','Mind Stone','Great Health Potion']},
+  'renegade knight':{hp:50,xp:41,spd:37,HP:1050,XP:950,armor:35,mit:1.3,charm:15,bclass:'Human',blvl:'Medium',res:[90,70,90,40,50,50,130,100],loc:'Old Fortress (north of Edron), Old Masonry, Forbidden Temple (Carlin)',loot:['Bolt','Crossbow','Meat','Great Health Potion','Small Ruby']},
   'retching horror':{hp:62,xp:50,spd:51,HP:5300,XP:4100,armor:74,mit:2.19,charm:25,bclass:'Magical',blvl:'Hard',res:[95,15,85,0,103,100,80,100],loc:'All over the surface of Upper Roshamuul and Nightmare Isles.',loot:['Platinum Coin','Goosebump Leather','Brown Mushroom','Pool of Chitinous Glue','Great Health Potion']},
   'retros treasure':{hp:76,xp:0,spd:0,HP:37500,XP:0,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,100,100],loc:'Boss room of Lord Retro.',loot:['7197 Theons','200 Theons','Platinum Coin','Violet Gem','Great Mana Potion']},
   'ribstride':{hp:50,xp:42,spd:0,HP:1000,XP:1100,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,110,100,0,100,120,0,0],loc:'Ankrahmun Peninsula Tomb, on the 6th floor ({{Mapper Coords',loot:['Small Diamond','Platinum Coin','Bonebeast Trophy','Bony Tail','Green Mushroom']},
@@ -4926,7 +5207,21 @@ function openHuntModal(idx) {
     return result;
   }
 
-  const charmData = (h.charms && h.charms.length) ? h.charms : autoCharms(h.creatures||[]);
+  // Enrich manual charms with val (% fraqueza) from CREATURE_STATS when not provided
+  function enrichCharms(charms) {
+    return charms.map(ch => {
+      if (ch.val) return ch;
+      const creatureName = ch.creature || ch.c || '';
+      const st = CREATURE_STATS[creatureName.toLowerCase()] || {};
+      if (!st.res) return ch;
+      const elemIdx = ELEM_CHARM.indexOf(ch.charm || ch.ch);
+      if (elemIdx >= 0 && st.res[elemIdx] != null && st.res[elemIdx] > 100) {
+        return { ...ch, val: st.res[elemIdx] };
+      }
+      return ch;
+    });
+  }
+  const charmData = (h.charms && h.charms.length) ? enrichCharms(h.charms) : autoCharms(h.creatures||[]);
   const charmsHtml = charmData.length
     ? `<div style="display:flex;flex-direction:column;gap:.45rem">`
       + charmData.map(ch => {
@@ -5073,6 +5368,9 @@ function openHuntModal(idx) {
     <div class="hf-sec-lbl">🗺 Mapa</div>
     <div class="hf-map-wrap" id="hf-map-wrap">
       <div id="hf-leaflet-map" style="width:100%;height:100%;border-radius:9px;"></div>
+      <div class="hf-map-coords" id="hf-map-coords">
+        <span class="hf-map-coords-xy" id="hf-map-coords-xy">X: <span>${coords[0]}</span> &nbsp;Y: <span>${coords[1]}</span> &nbsp;Z: <span id="hf-coords-z">${coords[2]}</span></span>
+      </div>
     </div>`;
 
   // ── External links — removed (no external site links)
@@ -5192,25 +5490,55 @@ function closeHuntModal() {
 // Stores current x/y/floor globally so floor control can swap layers
 window._hfMapCoords = null;
 
+// Converts Tibia floor number to display label relative to ground (floor 7).
+// Floor 7 = ground = "0", above ground: 6="+1"…0="+7", below: 8="-1"…15="-8"
+function hfFloorLabel(f) {
+  const rel = 7 - f; // positive = above ground, negative = below
+  if (rel === 0) return '0';
+  return (rel > 0 ? '+' : '') + rel;
+}
+
 function _hfMakeTileLayer(map, floorNum) {
+  // Tiles: tibiamaps.github.io/tibia-map-data/mapper/Minimap_Color_X_Y_floor.png
+  // Each PNG covers exactly 256x256 Tibia pixels at zoom 0.
+  //
+  // FIX: coords.x/y from Leaflet are tile indices at the CURRENT zoom, not zoom 0.
+  // At zoom N, there are 2^N times more tiles. We must divide by 2^N to get the
+  // zoom-0 tile index, then multiply by 256 to get the Tibia pixel origin.
+  // Without this, zoom > 0 produces coords that don't match any file → black tiles.
   const TILE_BASE = 'https://tibiamaps.github.io/tibia-map-data/mapper/';
   const lay = L.gridLayer({ floor: floorNum });
-  lay.getTileSize = function() {
-    const s = L.GridLayer.prototype.getTileSize.call(this);
-    const z = this._tileZoom;
-    return z > 0 ? s.divideBy(map.getZoomScale(0, z)).round() : s;
-  };
+
   lay.createTile = function(coords) {
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = 256;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#111';
     ctx.fillRect(0, 0, 256, 256);
-    const px = Math.abs(Math.floor(coords.x * 256));
-    const py = Math.abs(Math.floor(coords.y * 256));
+    ctx.imageSmoothingEnabled = false;
+
+    // Normalize to zoom-0 tile index, then convert to Tibia pixel coordinate
+    const scale = Math.pow(2, coords.z);          // 1 at z=0, 2 at z=1, 4 at z=2…
+    const tileX0 = Math.floor(coords.x / scale);  // zoom-0 tile index
+    const tileY0 = Math.floor(coords.y / scale);  // zoom-0 tile index
+    const px = Math.abs(tileX0 * 256);            // Tibia pixel X origin
+    const py = Math.abs(tileY0 * 256);            // Tibia pixel Y origin
+
+    // Sub-region within the zoom-0 tile to draw (for zoom > 0, each z0 tile
+    // is split into scale×scale sub-tiles; pick the right quadrant)
+    const subX = (coords.x - tileX0 * scale) * (256 / scale);
+    const subY = (coords.y - tileY0 * scale) * (256 / scale);
+    const subSize = 256 / scale;
+
     const key = `${px}_${py}_${floorNum}`;
     const img = new Image();
-    img.onload = () => { ctx.drawImage(img, 0, 0, 256, 256); };
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      ctx.imageSmoothingEnabled = false;
+      // Draw only the sub-region of the source tile that this canvas represents,
+      // scaled up to fill the full 256×256 canvas → crisp zoom without black tiles
+      ctx.drawImage(img, subX, subY, subSize, subSize, 0, 0, 256, 256);
+    };
     img.src = TILE_BASE + `Minimap_Color_${key}.png`;
     return canvas;
   };
@@ -5242,7 +5570,7 @@ function initHfMiniMap(x, y, floor) {
 
   const map = window._hfMiniMap = L.map(el, {
     crs: L.CRS.TibiaSimple,
-    minZoom: 0, maxZoom: 2,
+    minZoom: 0, maxZoom: 5,
     zoomControl: false,       // desativado — criamos controle unificado abaixo
     attributionControl: false,
     fadeAnimation: false,
@@ -5289,7 +5617,7 @@ function initHfMiniMap(x, y, floor) {
       const fLbl = L.DomUtil.create('a', '', c);
       fLbl.href = '#';
       fLbl.style.cssText = 'cursor:default;pointer-events:none;font-family:monospace;font-size:10px;font-weight:700;letter-spacing:-.5px';
-      fLbl.textContent = 'Z' + floor;
+      fLbl.textContent = hfFloorLabel(floor);
       window._hfFloorLabel = fLbl;
 
       // Andar abaixo ▼
@@ -5302,9 +5630,23 @@ function initHfMiniMap(x, y, floor) {
     }
   });
   new UnifiedControl().addTo(map);
-}
 
-// Change floor on inline minimap (delta: -1 = up, +1 = down)
+  // ── Coordinate display: update on mouse move
+  map.on('mousemove', function(e) {
+    const pt = map.project(e.latlng, 0);
+    const mx = Math.round(pt.x);
+    const my = Math.round(pt.y);
+    const mz = window._hfMapCoords ? window._hfMapCoords.floor : floor;
+    const xyEl = document.getElementById('hf-map-coords-xy');
+    if (xyEl) xyEl.innerHTML = `X: <span>${mx}</span> &nbsp;Y: <span>${my}</span> &nbsp;Z: <span id="hf-coords-z">${mz}</span>`;
+  });
+  // Reset to spawn coords when mouse leaves
+  map.on('mouseout', function() {
+    const c = window._hfMapCoords || { x, y, floor };
+    const xyEl = document.getElementById('hf-map-coords-xy');
+    if (xyEl) xyEl.innerHTML = `X: <span>${c.x}</span> &nbsp;Y: <span>${c.y}</span> &nbsp;Z: <span id="hf-coords-z">${c.floor}</span>`;
+  });
+}
 function hfChangeFloor(delta) {
   if (!window._hfMapCoords || !window._hfMiniMap) return;
   const c = window._hfMapCoords;
@@ -5312,7 +5654,11 @@ function hfChangeFloor(delta) {
   if (newFloor === c.floor) return;
   c.floor = newFloor;
 
-  if (window._hfFloorLabel) window._hfFloorLabel.textContent = 'Z' + newFloor;
+  if (window._hfFloorLabel) window._hfFloorLabel.textContent = hfFloorLabel(newFloor);
+
+  // Update coord bar Z value
+  const xyEl = document.getElementById('hf-map-coords-xy');
+  if (xyEl) xyEl.innerHTML = `X: <span>${c.x}</span> &nbsp;Y: <span>${c.y}</span> &nbsp;Z: <span id="hf-coords-z">${newFloor}</span>`;
 
   const map = window._hfMiniMap;
   if (window._hfMiniMapLayer) { map.removeLayer(window._hfMiniMapLayer); }
@@ -5340,29 +5686,37 @@ function openMapZoom(x, y, floor) {
     const TILE_BASE = 'https://tibiamaps.github.io/tibia-map-data/mapper/';
     const map = window._hfZoomMap = L.map(el, {
       crs: L.CRS.TibiaSimple || L.CRS.Simple,
-      minZoom: 0, maxZoom: 2,
+      minZoom: 0, maxZoom: 5,
       zoomControl: true,
       attributionControl: false,
       fadeAnimation: false,
     });
 
     const layer = L.gridLayer({ floor });
-    layer.getTileSize = function() {
-      const s = L.GridLayer.prototype.getTileSize.call(this);
-      const z = this._tileZoom;
-      return z > 0 ? s.divideBy(map.getZoomScale(0, z)).round() : s;
-    };
     layer.createTile = function(coords) {
       const canvas = document.createElement('canvas');
       canvas.width = canvas.height = 256;
       const ctx = canvas.getContext('2d');
       ctx.fillStyle = '#111';
       ctx.fillRect(0, 0, 256, 256);
-      const px = Math.abs(Math.floor(coords.x * 256));
-      const py = Math.abs(Math.floor(coords.y * 256));
+      ctx.imageSmoothingEnabled = false;
+
+      const scale = Math.pow(2, coords.z);
+      const tileX0 = Math.floor(coords.x / scale);
+      const tileY0 = Math.floor(coords.y / scale);
+      const px = Math.abs(tileX0 * 256);
+      const py = Math.abs(tileY0 * 256);
+      const subX = (coords.x - tileX0 * scale) * (256 / scale);
+      const subY = (coords.y - tileY0 * scale) * (256 / scale);
+      const subSize = 256 / scale;
+
       const key = `${px}_${py}_${floor}`;
       const img = new Image();
-      img.onload = () => { ctx.drawImage(img, 0, 0, 256, 256); };
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(img, subX, subY, subSize, subSize, 0, 0, 256, 256);
+      };
       img.src = TILE_BASE + `Minimap_Color_${key}.png`;
       return canvas;
     };
@@ -5374,7 +5728,7 @@ function openMapZoom(x, y, floor) {
     });
     const latlng = map.unproject([x, y], 0);
     L.marker(latlng, { icon: Icon }).addTo(map);
-    map.setView(latlng, 1);
+    map.setView(latlng, 2);
   }, 80);
 }
 
@@ -5562,7 +5916,7 @@ function _fmtDate(iso) {
 const HUNTS = [
   // ── LOW LEVEL (20-100) ────────────────────────────
   // Rotworm: 40xp, Carrion Worm: 70xp — conteúdo de iniciante absoluto, fácil
-  { name:'Rotworm Hell', xphNum:350, minLvl:20, maxLvl:70,
+  { name:'Rotworm Hell', xphNum:350, minLvl:8, maxLvl:17,
     vocs:['all'], modes:['solo'], xph:'200k–500k', profit:'50k–150k', tipo:'xp', dif:'facil', task:true,
     req:'',
     access:'Edron, escada subterrânea (leste)',
@@ -5577,7 +5931,7 @@ const HUNTS = [
     desc:'Hunt clássica de iniciante. Sem requisito de quest.', wiki:'https://tibia.fandom.com/wiki/Rotworm' },
 
   // Nomad: 60xp — nível 8 é possível mas range real começa em 15
-  { name:'Nomad Cave', xphNum:280, minLvl:15, maxLvl:60,
+  { name:'Nomad Cave', xphNum:280, minLvl:8, maxLvl:20,
     vocs:['all'], modes:['solo'], xph:'150k–400k', profit:'-50k a 0', tipo:'xp', dif:'facil', task:false,
     req:'Aristos Task Quest',
     creatures:[{n:'Nomad'}],
@@ -5667,11 +6021,29 @@ const HUNTS = [
     desc:'New Frontier + Children of the Revolution. Ótimo XP mid-game.', wiki:'https://tibia.fandom.com/wiki/Draken_Walls' },
 
   // Warzones 1-3: Gnomevil é boss, Mitmah Vanguard: 1600xp — médio, range 100-220
-  { name:'Warzone 1–3', xphNum:1500, minLvl:100, maxLvl:220,
+  { name:'Warzone 1', xphNum:1400, minLvl:100, maxLvl:220,
+    vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'150k–400k', tipo:'profit', dif:'medio', task:false,
+    req:"Bigfoot's Burden Quest",
+    tibiaroute:'Warzone-1',
+    creatures:[{n:'Armadile'},{n:'Hideous Fungus'},{n:'Humongous Fungus'},{n:'Stone Devourer'}],
+    charms:[{creature:'Armadile',charm:'Poison'},{creature:'Hideous Fungus',charm:'Enflame'},{creature:'Humongous Fungus',charm:'Enflame'},{creature:'Stone Devourer',charm:'Freeze'}],
+    desc:"Warzone 1 — Gnomegate Fungus Dungeon. Profit diário consistente. Requer Bigfoot's Burden Quest.", wiki:'https://www.tibiawiki.com.br/wiki/Gnomegate_Fungus_Dungeon' },
+
+  { name:'Warzone 2', xphNum:1500, minLvl:100, maxLvl:220,
+    vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'150k–450k', tipo:'profit', dif:'medio', task:false,
+    req:"Bigfoot's Burden Quest",
+    tibiaroute:'Warzone-2',
+    creatures:[{n:'Magma Crawler'},{n:'Lost Berserker'},{n:'Lava Golem'},{n:'Infected Weeper'},{n:'Weeper'}],
+    charms:[{creature:'Magma Crawler',charm:'Freeze'},{creature:'Lost Berserker',charm:'Poison'},{creature:'Lava Golem',charm:'Freeze'},{creature:'Weeper',charm:'Freeze'}],
+    desc:"Warzone 2 — criaturas de fogo e construção. Profit diário. Requer Bigfoot's Burden Quest.", wiki:'https://www.tibiawiki.com.br/wiki/Warzone_2' },
+
+  { name:'Warzone 3', xphNum:1600, minLvl:100, maxLvl:220,
     vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–500k', tipo:'profit', dif:'medio', task:false,
     req:"Bigfoot's Burden Quest",
-    creatures:[{n:'Gnomevil'},{n:'Mitmah Vanguard'}],
-    desc:"Profit diário consistente. Requer Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_1' },
+    tibiaroute:'Warzone-3',
+    creatures:[{n:'Cliff Strider'},{n:'Ironblight'},{n:'Lost Berserker'},{n:'Orewalker'}],
+    charms:[{creature:'Cliff Strider',charm:'Poison'},{creature:'Ironblight',charm:'Enflame'},{creature:'Lost Berserker',charm:'Poison'},{creature:'Orewalker',charm:'Zap'}],
+    desc:"Warzone 3 — criaturas de pedra e construção. Profit diário. Requer Bigfoot's Burden Quest.", wiki:'https://www.tibiawiki.com.br/wiki/Warzone_3' },
 
   // Cave Devourer: 4100xp — difícil, conteúdo pede 200+ real
   { name:'Gnome Deep Hub', xphNum:2000, minLvl:130, maxLvl:400,
@@ -5698,16 +6070,32 @@ const HUNTS = [
   { name:'Forbidden Temple (Carlin)', xphNum:1200, minLvl:100, maxLvl:200,
     vocs:['all'], modes:['solo','duo'], xph:'800k–1.5kk', profit:'50k–200k', tipo:'xp', dif:'medio', task:true,
     req:'Cults of Tibia Quest',
-    creatures:[{n:'Cult Believer'},{n:'Vicious Squire'}],
-    desc:'Áreas exclusivas com loot único. Cults of Tibia Quest.', wiki:'https://tibia.fandom.com/wiki/Cults_of_Tibia' },
+    coords:{x:32375,y:31811,z:8},
+    creatures:[{n:'Cult Believer'},{n:'Vicious Squire'},{n:'Renegade Knight'},{n:'Vile Grandmaster'}],
+    desc:'Áreas exclusivas com loot único. Requer Cults of Tibia Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Cults_of_Tibia_(The_Humans)' },
 
   // ── HIGH LEVEL (150-400) ──────────────────────────
   // Warzone 4-6 é claramente endgame das warzones, range 150-280
-  { name:'Warzone 4–6', xphNum:1500, minLvl:150, maxLvl:280,
+  { name:'Warzone 4', xphNum:1500, minLvl:150, maxLvl:280,
+    vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–500k', tipo:'profit', dif:'medio', task:false,
+    req:"Bigfoot's Burden Quest",
+    tibiaroute:'Warzone-4',
+    creatures:[{n:'Sandstone Scorpion'},{n:'Crypt Warden'},{n:'Wailing Widow'}],
+    desc:"Warzone 4 — itens Gnome. Continuação da Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_4' },
+
+  { name:'Warzone 5', xphNum:1600, minLvl:150, maxLvl:280,
+    vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–500k', tipo:'profit', dif:'medio', task:false,
+    req:"Bigfoot's Burden Quest",
+    tibiaroute:'Warzone-5',
+    creatures:[{n:'Cave Devourer'},{n:'Ravenous Lava Lurker'}],
+    desc:"Warzone 5 — itens Gnome. Continuação da Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_5' },
+
+  { name:'Warzone 6', xphNum:1700, minLvl:150, maxLvl:280,
     vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–600k', tipo:'profit', dif:'medio', task:false,
     req:"Bigfoot's Burden Quest",
-    creatures:[{n:'Gnomevil'},{n:'Sandstone Scorpion'}],
-    desc:"Itens Gnome. Continuação da Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_4' },
+    tibiaroute:'Warzone-6',
+    creatures:[{n:'Deepworm'},{n:'Diremaw'},{n:'Humongous Fungus'}],
+    desc:"Warzone 6 — itens Gnome. Continuação da Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_6' },
 
   // Pixie: 800xp, Nymph: 800xp, Swan Maiden: 1100xp — fácil p/ alto nível, range 130-280
   { name:'Feyrist', xphNum:2500, minLvl:130, maxLvl:280,
@@ -5773,6 +6161,7 @@ const HUNTS = [
     vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit', dif:'medio', task:false,
     req:'The Dream Courts Quest (Haunted House)',
     area:'Venore', location:'Norte de Tiquanda',
+    coords:{x:32663,y:32669,z:7},
     creatures:[{n:'Gazer Spectre'},{n:'Thanatursus'}],
     desc:'Gazer Spectre + Thanatursus. Nível recomendado 300+. Acesso via The Dream Courts Quest, norte de Tiquanda.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Temple)' },
 
@@ -5787,6 +6176,7 @@ const HUNTS = [
     vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit', dif:'medio', task:false,
     req:'The Dream Courts Quest (Haunted House)',
     area:'Venore', location:'Oeste de Darashia',
+    coords:{x:33075,y:32448,z:8},
     creatures:[{n:'Burster Spectre'}],
     desc:'Burster Spectre. Nível recomendado 300+. Acesso via The Dream Courts Quest, oeste de Darashia.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Tomb)' },
 
@@ -5838,7 +6228,7 @@ const HUNTS = [
     req:'The Secret Library Quest',
     tibiaroute:'Secret-Library-Ice',
     creatures:[{n:'Squid Warden'},{n:'Icecold Book'},{n:'Animated Feather'}],
-    charms:[{creature:'Squid Warden',charm:'Enflame'},{creature:'Animated Feather',charm:'Wound'},{creature:'Icecold Book',charm:'Freeze'}],
+    charms:[{creature:'Squid Warden',charm:'Enflame'},{creature:'Animated Feather',charm:'Wound'}],
     desc:'Seção gelo da Secret Library. Squid Warden é o mais comum; Animated Feather faz o maior dano explosivo. Requer The Secret Library Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Secret_Library_Ice_Section' },
 
   // Secret Library Energy — Energetic Book + Brain Squid + Energuardian + Biting Book + Knowledge Elemental — 400+
@@ -5860,11 +6250,14 @@ const HUNTS = [
     desc:'Seção fogo da Secret Library. Ink Blob faz o maior dano explosivo. Requer The Secret Library Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Secret_Library_Fire_Section' },
 
   // Frazzlemaw: 9000xp, Guzzlemaw: 10000xp — difícil, EK pede 400+
-  { name:'Roshamuul Prison', xphNum:3600, minLvl:400, maxLvl:999,
-    vocs:['ek'], modes:['solo','duo'], xph:'2.5kk–4kk', profit:'500k–1kk', tipo:'xp', dif:'dificil', task:true,
+  { name:'Roshamuul Prison', xphNum:5500, minLvl:250, maxLvl:550,
+    vocs:['all'], modes:['solo','duo','time'], xph:'3kk–6kk', profit:'500k–1.5kk', tipo:'xp', dif:'media', task:false,
     req:'',
-    creatures:[{n:'Frazzlemaw'},{n:'Guzzlemaw'}],
-    desc:'Alta densidade de criaturas. Hunt sólida para EKs 400+.', wiki:'https://tibia.fandom.com/wiki/Roshamuul' },
+    coords:{x:33538,y:32473,z:7},
+    tibiaroute:'Roshamuul-Prison',
+    creatures:[{n:'Betrayed Wraith'},{n:'Blightwalker'},{n:'Dark Torturer'},{n:'Demon Outcast'},{n:'Hellhound'},{n:'Juggernaut'},{n:'Lost Soul'},{n:'Nightmare'},{n:'Plaguesmith'}],
+    charms:[{creature:'Blightwalker',charm:'Enflame'},{creature:'Dark Torturer',charm:'Freeze'},{creature:'Demon Outcast',charm:'Zap'},{creature:'Hellhound',charm:'Freeze'},{creature:'Juggernaut',charm:'Wound'},{creature:'Nightmare',charm:'Poison'},{creature:'Plaguesmith',charm:'Freeze'}],
+    desc:'Prisão de Roshamuul. 9 criaturas demoníacas com bom XP e loot. Alta densidade em múltiplos andares.', wiki:'https://www.tibiawiki.com.br/wiki/Roshamuul_Prison' },
 
   // Inferniarch: 8000xp+ — difícil, conteúdo requer 500+
   { name:'No Rest for the Wicked', xphNum:0, minLvl:450, maxLvl:999,
@@ -5921,12 +6314,12 @@ const HUNTS = [
     desc:'Seal dos Dark Torturers + Inquisition. Muito bom profit para EK alto nível.', wiki:'https://tibia.fandom.com/wiki/Inquisition_Quest',
     tips:'Dark Torturer é fraco para holy. Escudo essencial.' },
 
-  { name:'Warzone 2', xphNum:2500, minLvl:450, maxLvl:700,
+  { name:'Warzone 2 (EK Solo)', xphNum:2500, minLvl:450, maxLvl:700,
     vocs:['ek'], modes:['solo'], xph:'2.5kk–4.3kk', profit:'700k–1kk', tipo:'profit', dif:'medio', task:false,
     req:"Bigfoot's Burden Quest",
     tibiaroute:'Warzone-2',
     creatures:[{n:'Lost Berserker'},{n:'Weeper'},{n:'Infected Weeper'}],
-    desc:"Warzone 2 solo EK. Profit consistente diário. Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_2' },
+    desc:"Warzone 2 solo EK alto nível. Profit consistente diário. Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_2' },
 
   { name:'Summer Court', xphNum:2800, minLvl:380, maxLvl:600,
     vocs:['ek','rp'], modes:['solo','duo'], xph:'2.5kk–4.5kk', profit:'200k–400k', tipo:'xp', dif:'dificil', task:true,
@@ -5935,12 +6328,12 @@ const HUNTS = [
     creatures:[{n:'Crazed Summer Rearguard'},{n:'Crazed Summer Vanguard'},{n:'Thanatursus'}],
     desc:'Summer Court do Dream Courts. Bom XP e bestiary. Requer The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Dream_Courts' },
 
-  { name:'Warzone 6', xphNum:2200, minLvl:350, maxLvl:600,
+  { name:'Warzone 6 (EK Solo)', xphNum:2200, minLvl:350, maxLvl:600,
     vocs:['ek'], modes:['solo','duo'], xph:'2.5kk–3.5kk', profit:'700k–1kk', tipo:'profit', dif:'dificil', task:false,
     req:'Too Hot to Handle Quest',
     tibiaroute:'Warzone-6',
     creatures:[{n:'Deepworm'},{n:'Diremaw'},{n:'Humongous Fungus'}],
-    desc:'Warzone 6 solo EK. Profit excelente. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_6' },
+    desc:'Warzone 6 solo EK alto nível. Profit excelente. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_6' },
 
   { name:'Burster Spectres', xphNum:2500, minLvl:350, maxLvl:600,
     vocs:['ek','rp'], modes:['solo'], xph:'2.5kk–4.5kk', profit:'300k–500k', tipo:'xp', dif:'dificil', task:true,
@@ -5951,8 +6344,9 @@ const HUNTS = [
 
   // Arachnophobica: 4700xp, Burster: 6000xp, Gazer: 4200xp, Ripper: 3500xp — difícil, range real 250-450
   { name:'Buried Cathedral', xphNum:4500, minLvl:250, maxLvl:450,
-    vocs:['ed','ms'], modes:['solo','duo'], xph:'3kk–5kk', profit:'100k–300k', tipo:'xp', dif:'dificil', task:true,
+    vocs:['ek','ed'], modes:['pt','duo'], xph:'3kk–5kk', profit:'100k–300k', tipo:'xp', dif:'dificil', task:true,
     req:'The Dream Courts Quest',
+    coords:{x:33528,y:32612,z:15},
     tibiaroute:'Buried-Cathedral-EDMS',
     creatures:[{n:'Arachnophobica'},{n:'Burster Spectre'},{n:'Gazer Spectre'},{n:'Ripper Spectre'}],
     desc:'Catedral submersa em Roshamuul. 4 criaturas com 50 charm pts cada. Requer The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Buried_Cathedral' },
@@ -5992,12 +6386,12 @@ const HUNTS = [
     creatures:[{n:'Lavafungus'},{n:'Lavaworm'},{n:'Streaked Devourer'}],
     desc:'Warzone 8 solo EK. Excelente profit. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_7' },
 
-  { name:'Warzone 3', xphNum:3800, minLvl:650, maxLvl:999,
+  { name:'Warzone 3 (EK Solo)', xphNum:3800, minLvl:650, maxLvl:999,
     vocs:['ek'], modes:['solo'], xph:'3kk–5.5kk', profit:'1.2kk–1.8kk', tipo:'profit', dif:'dificil', task:false,
     req:"Bigfoot's Burden Quest",
     tibiaroute:'Warzone-3-EK',
     creatures:[{n:'Cliff Strider'},{n:'Ironblight'},{n:'Lost Berserker'}],
-    desc:"Warzone 3 EK solo. Alta XP e profit. Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_3' },
+    desc:"Warzone 3 EK solo alto nível. Alta XP e profit. Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_3' },
 
   { name:'Feru Way', xphNum:3800, minLvl:500, maxLvl:999,
     vocs:['ek'], modes:['solo','duo'], xph:'3kk–4.5kk', profit:'1kk–1.5kk', tipo:'profit', dif:'dificil', task:false,
@@ -6678,6 +7072,9 @@ function showPage(id, btn) {
   }
   if (id === 'partyfinder') {
     loadPartyFinder();
+  }
+  if (id === 'exercisecalc') {
+    setTimeout(ewCalc, 0);
   }
 }
 
@@ -8859,5 +9256,616 @@ document.addEventListener('DOMContentLoaded', pfInitGuildDropdown);
 })();
 
 </script>
+
+<style>
+/* ══ Exercise Weapons Layout ══ */
+.ew-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .ew-layout { grid-template-columns: 1fr; }
+  .ew-col-left { position: static !important; }
+}
+.ew-col-left {
+  position: sticky;
+  top: 68px;
+}
+.ew-card { padding: 1.25rem 1.4rem; }
+
+/* Section header — Intibia style: small caps, spaced, muted */
+.ew-section-header {
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .85rem;
+}
+
+.ew-field-label {
+  font-size: .72rem;
+  color: var(--muted);
+  margin-bottom: .35rem;
+  font-weight: 400;
+}
+
+/* ── Vocação buttons — Intibia checkbox style ── */
+.ew-voc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .4rem;
+}
+.ew-voc-btn {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: .45rem .75rem;
+  font-size: .8rem;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: all .15s;
+  font-family: 'Inter', sans-serif;
+  text-align: left;
+}
+.ew-voc-btn:hover { background: var(--bg-3); color: var(--ink); border-color: var(--border-2); }
+.ew-voc-check {
+  width: 15px; height: 15px;
+  background: var(--bg-3);
+  border: 1.5px solid var(--border-2);
+  border-radius: 3px;
+  flex-shrink: 0;
+  position: relative;
+  transition: all .15s;
+}
+.ew-voc-active {
+  background: rgba(136,120,208,.12) !important;
+  border-color: var(--accent) !important;
+  color: var(--ink) !important;
+}
+.ew-voc-active .ew-voc-check {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.ew-voc-active .ew-voc-check::after {
+  content: '';
+  position: absolute;
+  left: 3px; top: 0px;
+  width: 5px; height: 9px;
+  border: 1.5px solid #fff;
+  border-top: none; border-left: none;
+  transform: rotate(45deg);
+}
+
+/* Skill chips */
+.ew-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+}
+.ew-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: .28rem .75rem;
+  font-size: .78rem;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: all .15s;
+  font-family: 'Inter', sans-serif;
+}
+.ew-chip:hover { background: var(--bg-3); color: var(--ink); }
+.ew-chip-active {
+  background: var(--accent) !important;
+  color: #fff !important;
+  border-color: var(--accent) !important;
+}
+
+/* Loyalty ticks */
+.ew-loyalty-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: .6rem;
+  color: var(--muted);
+  margin-top: .2rem;
+}
+.ew-loyalty-ticks span:first-child { color: var(--ink-3); }
+
+/* Checkbox custom */
+.ew-check-label {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  cursor: pointer;
+  font-size: .82rem;
+  color: var(--ink-2);
+  user-select: none;
+}
+.ew-check-label input[type="checkbox"] { display: none; }
+.ew-check-box {
+  width: 18px; height: 18px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  position: relative;
+  flex-shrink: 0;
+  transition: background .15s, border-color .15s;
+}
+.ew-check-label input:checked + .ew-check-box {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.ew-check-label input:checked + .ew-check-box::after {
+  content: '';
+  position: absolute;
+  left: 4px; top: 1px;
+  width: 6px; height: 10px;
+  border: 2px solid #fff;
+  border-top: none; border-left: none;
+  transform: rotate(45deg);
+}
+
+/* Check + Cargas row */
+.ew-check-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.ew-checks-col { flex: 1; }
+.ew-cargas-col { min-width: 130px; }
+
+/* Preço */
+.ew-price-row {
+  display: flex;
+  gap: .75rem;
+}
+.ew-price-box {
+  flex: 1;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: .85rem 1rem;
+  position: relative;
+  transition: border-color .2s, background .2s;
+}
+.ew-price-box-highlight {
+  border-color: var(--gold) !important;
+  background: var(--gold-dim) !important;
+}
+.ew-price-tag {
+  position: absolute;
+  top: -10px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--gold);
+  color: #000;
+  font-size: .58rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.ew-price-box-label {
+  font-size: .62rem;
+  color: var(--muted);
+  margin-bottom: .5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+.ew-price-vals { display: flex; flex-direction: column; gap: .35rem; }
+.ew-price-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  padding: .3rem .75rem;
+  border-radius: 6px;
+  font-size: .85rem;
+  font-weight: 600;
+  width: fit-content;
+}
+.ew-pill-coin { background: rgba(100,100,200,.1); color: var(--ink-2); }
+.ew-pill-gold { background: rgba(201,168,64,.12); color: var(--gold-light); }
+.ew-pill-tc   { background: rgba(77,158,58,.1);  color: var(--bamboo-light); }
+
+/* Weapons */
+.ew-weapon-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.ew-weapon-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: .4rem .85rem;
+  font-size: .8rem;
+  color: var(--ink-3);
+  position: relative;
+}
+.ew-weapon-badge {
+  position: absolute;
+  top: -9px; right: -9px;
+  background: var(--accent);
+  color: #fff;
+  font-size: .6rem;
+  font-weight: 700;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  border: 2px solid var(--bg-1);
+}
+.ew-weapon-name { font-size: .78rem; }
+
+/* Tempo */
+.ew-time-row {
+  display: flex;
+  gap: .75rem;
+}
+.ew-time-box {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: .65rem 1.25rem;
+  text-align: center;
+  min-width: 80px;
+}
+.ew-time-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+}
+.ew-time-lbl {
+  font-size: .58rem;
+  color: var(--muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+}
+
+/* Breakdown table */
+.ew-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .78rem;
+}
+.ew-table thead tr {
+  border-bottom: 1px solid var(--border);
+}
+.ew-table th {
+  padding: .35rem .5rem;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: .62rem;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+}
+.ew-table td {
+  padding: .38rem .5rem;
+  border-bottom: 1px solid rgba(42,42,48,.7);
+}
+.ew-table tbody tr:last-child td { border-bottom: none; }
+.ew-table tbody tr:hover td { background: rgba(255,255,255,.02); }
+</style>
+
+<script>
+(function(){
+/* ════════════════════════════════════════
+   ESTADO
+════════════════════════════════════════ */
+let EW = {
+  voc: 'sorcerer',
+  sk:  'ml',
+  loyalty: 1,   // índice 0-10 → 0,5,10,...50%
+};
+
+// Loyalty: índice → % e pontos
+const LOYALTY_STEPS = [
+  {pct:0,  pts:0},    {pct:5,  pts:360},  {pct:10, pts:720},
+  {pct:15, pts:1080}, {pct:20, pts:1440}, {pct:25, pts:1800},
+  {pct:30, pts:2160}, {pct:35, pts:2520}, {pct:40, pts:2880},
+  {pct:45, pts:3240}, {pct:50, pts:3600},
+];
+
+/* ════════════════════════════════════════
+   FÓRMULAS — Fonte: TibiaWiki Formulae
+   Magic: mana(ml) = base * mult^ml
+   Skill: hits(sk) = base * mult^(sk-10)
+════════════════════════════════════════ */
+function vocSkillParams(voc, sk) {
+  // Retorna {type:'magic'|'skill', ...params}
+  if (sk === 'ml') {
+    const MLP = {
+      sorcerer: {base:1600, mult:1.1},
+      druid:    {base:1600, mult:1.1},
+      paladin:  {base:400,  mult:1.4},
+      knight:   {base:1600, mult:3.0},
+      monk:     {base:800,  mult:1.4},
+    };
+    return {type:'magic', ...MLP[voc]};
+  }
+  // Skills físicas
+  const SP = {
+    melee:  {chargesPerPt: 1/7.2},
+    dist:   {chargesPerPt: 1/3.6},
+    shield: {chargesPerPt: 1/7.2},
+    fist:   {chargesPerPt: 1/7.2},
+  };
+  return {type:'skill', base:50, mult:1.1, ...SP[sk]};
+}
+
+// Pontos para avançar de sk para sk+1
+function ptsForLevel(voc, sk, level) {
+  const p = vocSkillParams(voc, sk);
+  if (p.type === 'magic') {
+    return Math.ceil(p.base * Math.pow(p.mult, level));
+  }
+  return Math.ceil(p.base * Math.pow(p.mult, Math.max(0, level-10)));
+}
+
+// Charges para uma quantidade de pontos (base, sem multiplicadores)
+function ptsToChargesRaw(voc, sk, pts) {
+  const p = vocSkillParams(voc, sk);
+  if (p.type === 'magic') return Math.ceil(pts / 600);
+  return Math.ceil(pts * p.chargesPerPt);
+}
+
+// Loyalty: os pts necessários são REDUZIDOS porque o bônus amplia os pts acumulados
+// skill_points_efetivos = pts_base * (1 + loyalty%/100)
+// → precisamos de menos pts_base para atingir o mesmo pts_efetivo
+// → pts_necessarios_real = pts_alvo / (1 + loyalty%/100)
+// Na prática: precisamos de (pts_alvo / loyaltyMult) pts_base para chegar a pts_alvo*loyaltyMult
+// Simplificando: charges_necessarias = charges_sem_loyalty / loyaltyMult
+function applyMult(charges, loyaltyPct, double_, dummy) {
+  let mult = 1 + loyaltyPct / 100;
+  if (double_) mult *= 2;
+  if (dummy)   mult *= 1.1;
+  return Math.ceil(charges / mult);
+}
+
+// Pontos brutos para ir de from+pct% até to
+function totalRawPts(voc, sk, from, pctFrom, to) {
+  const ptsAtFrom = ptsForLevel(voc, sk, from);
+  const done      = Math.floor(ptsAtFrom * (pctFrom / 100));
+  let total       = ptsAtFrom - done;
+  for (let lv = from + 1; lv < to; lv++) total += ptsForLevel(voc, sk, lv);
+  return total;
+}
+
+/* ════════════════════════════════════════
+   PREÇOS (Summer Update 2024)
+════════════════════════════════════════ */
+const WEAPONS = [
+  {name:'Lasting', charges:14400, gpNpc:10000000, tc:720},
+  {name:'Durable', charges:1800,  gpNpc:1250000,  tc:90},
+  {name:'Regular', charges:500,   gpNpc:347222,   tc:25},
+];
+const TC_BREAKEVEN = 13889; // gp/TC acima → NPC mais barato
+
+/* ════════════════════════════════════════
+   HELPERS UI
+════════════════════════════════════════ */
+function fmtN(n) {
+  if(!isFinite(n) || isNaN(n)) return '—';
+  return n.toLocaleString('pt-BR');
+}
+function fmtGp(n) {
+  if(!isFinite(n)) return '—';
+  if(n >= 1e9) return (n/1e9).toFixed(2).replace('.',',')+' kk gp';
+  if(n >= 1e6) return (n/1e6).toFixed(2).replace('.',',')+' kk';
+  if(n >= 1e3) return (n/1e3).toFixed(1).replace('.',',')+' k gp';
+  return fmtN(n)+' gp';
+}
+function fmtTime(secs) {
+  if(!secs || !isFinite(secs)) return ['—','—'];
+  const h = Math.floor(secs/3600);
+  const m = Math.floor((secs%3600)/60);
+  return [h, m];
+}
+
+/* ════════════════════════════════════════
+   CALC PRINCIPAL
+════════════════════════════════════════ */
+window.ewCalc = function() {
+  const current = parseInt(document.getElementById('ew-current').value)||0;
+  const target  = parseInt(document.getElementById('ew-target').value)||0;
+  const pct     = parseFloat(document.getElementById('ew-pct').value)||0;
+  const dummy   = document.getElementById('ew-dummy').checked;
+  const double_ = document.getElementById('ew-double').checked;
+  const mode    = document.getElementById('ew-mode').value;
+  const {voc, sk, loyalty} = EW;
+  const loyaltyPct = LOYALTY_STEPS[loyalty].pct;
+
+  const errEl = document.getElementById('ew-error');
+
+  if (target <= current || current < 0 || target > 200) {
+    errEl.style.display = 'block';
+    errEl.textContent = target <= current
+      ? 'Skill desejado precisa ser maior que o skill atual.'
+      : 'Valores de skill inválidos.';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  // Pts brutos
+  const rawPts     = totalRawPts(voc, sk, current, pct, target);
+  const rawCharges = ptsToChargesRaw(voc, sk, rawPts);
+  const effCharges = applyMult(rawCharges, loyaltyPct, double_, dummy);
+  const timeSecs   = effCharges * 2;
+
+  // Counts por tipo
+  const counts = WEAPONS.map(w => Math.ceil(effCharges / w.charges));
+
+  // Exibe armas com badges
+  const ids = ['ew-lasting-cnt','ew-durable-cnt','ew-regular-cnt'];
+  ids.forEach((id,i) => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = counts[i] + 'x';
+  });
+
+  // Tempo
+  const [h, m] = fmtTime(timeSecs);
+  document.getElementById('ew-time-h').textContent = h;
+  document.getElementById('ew-time-m').textContent = m;
+
+  // Custo — escolhe o tipo mostrado baseado em modo
+  const wIdx = mode === 'lasting' ? 0 : mode === 'durable' ? 1 : mode === 'regular' ? 2 : 0;
+  const w = WEAPONS[wIdx];
+  const cnt = counts[wIdx];
+  const costGp = cnt * w.gpNpc;
+  const costTc = cnt * w.tc;
+  // Custo em gp se comprar com TC ao preço de equilíbrio
+  // Usuário pode ajustar o TC price
+  const tcPrice = parseInt(document.getElementById('ew-tcprice')?document.getElementById('ew-tcprice').value:13889)||13889;
+  const costTcGp = costTc * tcPrice;
+  const npcIsBetter = costGp <= costTcGp;
+
+  // NPC
+  document.getElementById('ew-npc-weapons').textContent = '🪙 ' + fmtN(cnt);
+  document.getElementById('ew-npc-gold').textContent    = '💰 ' + fmtGp(costGp);
+
+  // Store
+  document.getElementById('ew-store-tc').textContent = '💎 ' + fmtN(costTc) + ' TC';
+
+  // Highlight melhor preço
+  const npcBox   = document.getElementById('ew-npc-box');
+  const storeBox = document.getElementById('ew-store-box');
+  const npcBest  = document.getElementById('ew-npc-best');
+  const storeBest= document.getElementById('ew-store-best');
+  if (npcIsBetter) {
+    npcBox.classList.add('ew-price-box-highlight');
+    storeBox.classList.remove('ew-price-box-highlight');
+    npcBest.style.display = 'block';
+    storeBest.style.display = 'none';
+  } else {
+    storeBox.classList.add('ew-price-box-highlight');
+    npcBox.classList.remove('ew-price-box-highlight');
+    storeBest.style.display = 'block';
+    npcBest.style.display = 'none';
+  }
+
+  // Breakdown
+  ewBreakdown(voc, sk, current, pct, target, loyaltyPct, double_, dummy);
+};
+
+function ewBreakdown(voc, sk, from, pct, to, loyaltyPct, double_, dummy) {
+  const tbody = document.getElementById('ew-breakdown-body');
+  const moreEl= document.getElementById('ew-breakdown-more');
+  const max = Math.min(to - from, 25);
+  let rows = '';
+  for (let lv = from; lv < from + max; lv++) {
+    const basePts = ptsForLevel(voc, sk, lv);
+    const adjPts  = lv === from ? Math.ceil(basePts * (1 - pct/100)) : basePts;
+    const rawChg  = ptsToChargesRaw(voc, sk, adjPts);
+    const effChg  = applyMult(rawChg, loyaltyPct, double_, dummy);
+    const lasting = Math.ceil(effChg / WEAPONS[0].charges);
+    const [h,m] = fmtTime(effChg * 2);
+    const timeStr = h > 0 ? h+'h '+m+'min' : m+'min';
+    rows += '<tr style="border-bottom:1px solid var(--border)">'
+      + '<td style="padding:.35rem .5rem;font-weight:600;color:var(--ink);font-family:\'JetBrains Mono\',monospace">'+lv+'→'+(lv+1)+'</td>'
+      + '<td style="padding:.35rem .5rem;text-align:right;color:var(--ink-3)">'+fmtN(adjPts)+'</td>'
+      + '<td style="padding:.35rem .5rem;text-align:right;color:var(--ink-2)">'+fmtN(effChg)+'</td>'
+      + '<td style="padding:.35rem .5rem;text-align:right;color:var(--bamboo);font-weight:600">'+lasting+'x</td>'
+      + '<td style="padding:.35rem .5rem;text-align:right;color:var(--muted)">'+timeStr+'</td>'
+      + '</tr>';
+  }
+  tbody.innerHTML = rows || '<tr><td colspan="5" style="padding:1rem;text-align:center;color:var(--muted)">Sem dados.</td></tr>';
+  if (to - from > 25) {
+    moreEl.style.display = 'block';
+    moreEl.textContent = 'Exibindo primeiros 25 de ' + (to - from) + ' níveis.';
+  } else {
+    moreEl.style.display = 'none';
+  }
+}
+
+/* ════════════════════════════════════════
+   CONTROLES UI
+════════════════════════════════════════ */
+window.ewSetVoc = function(btn) {
+  document.querySelectorAll('#ew-voc-chips .ew-voc-btn').forEach(b => b.classList.remove('ew-voc-active'));
+  btn.classList.add('ew-voc-active');
+  EW.voc = btn.dataset.voc;
+  ewUpdateSkillChips();
+  ewCalc();
+};
+
+window.ewSetSkill = function(btn) {
+  document.querySelectorAll('#ew-skill-chips .ew-chip').forEach(b => b.classList.remove('ew-chip-active'));
+  btn.classList.add('ew-chip-active');
+  EW.sk = btn.dataset.sk;
+  ewCalc();
+};
+
+function ewUpdateSkillChips() {
+  // Oculta/mostra chips irrelevantes
+  const voc = EW.voc;
+  const meleeBtn  = document.querySelector('[data-sk="melee"]');
+  const distBtn   = document.querySelector('[data-sk="dist"]');
+  const fistBtn   = document.querySelector('[data-sk="fist"]');
+  if (!meleeBtn) return;
+  // Monk só tem Fist+ML. Knight não tem dist. Paladin tem dist.
+  meleeBtn.style.display = (voc === 'monk') ? 'none' : '';
+  distBtn.style.display  = (voc === 'paladin') ? '' : (voc==='monk'?'none':'');
+  fistBtn.style.display  = (voc === 'monk') ? '' : 'none';
+  // Se skill ativo ficou oculto, volta para ml
+  const activeSkBtn = document.querySelector('#ew-skill-chips .ew-chip-active');
+  if (activeSkBtn && activeSkBtn.style.display === 'none') {
+    document.querySelectorAll('#ew-skill-chips .ew-chip').forEach(b => b.classList.remove('ew-chip-active'));
+    const mlBtn = document.querySelector('[data-sk="ml"]');
+    if (mlBtn) mlBtn.classList.add('ew-chip-active');
+    EW.sk = 'ml';
+  }
+}
+
+window.ewSyncPct = function(val) {
+  const v = parseFloat(val) || 0;
+  const clamped = Math.max(0, Math.min(99.9, v));
+  document.getElementById('ew-pct').value = clamped;
+  document.getElementById('ew-pct-range').value = clamped;
+  document.getElementById('ew-pct-display').textContent = clamped.toFixed(1).replace('.',',');
+  ewCalc();
+};
+
+window.ewSyncLoyalty = function(val) {
+  const idx = parseInt(val)||0;
+  EW.loyalty = idx;
+  const step = LOYALTY_STEPS[idx];
+  const lbl = document.getElementById('ew-loyalty-label');
+  if (lbl) lbl.textContent = step.pts > 0 ? step.pts + ' Pontos' : 'Nenhum';
+  // highlight ativo
+  const ticks = document.querySelectorAll('.ew-loyalty-ticks span');
+  ticks.forEach((t,i) => { t.style.color = i === idx ? 'var(--accent)' : ''; t.style.fontWeight = i === idx ? '600' : ''; });
+  ewCalc();
+};
+
+// TC price input (cria se não existir)
+function ewEnsureTcInput() {
+  if (document.getElementById('ew-tcprice')) return;
+  // Sem campo TC visível — usa padrão 13889
+}
+
+})();
+</script>
+
 </body>
 </html>
