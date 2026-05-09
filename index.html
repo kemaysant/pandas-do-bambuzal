@@ -5769,23 +5769,26 @@ const HUNTS = [
     desc:'Imbue de bota powerful T3. The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Dream_Courts' },
 
   // Burster/Gazer/Ripper Spectre: 3000-4500xp — médio, range 220-400
-  { name:'Haunted Nexus (Temple)', xphNum:2900, minLvl:130, maxLvl:400,
+  { name:'Haunted Nexus (Temple)', xphNum:2900, minLvl:300, maxLvl:400,
     vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit', dif:'medio', task:false,
     req:'The Dream Courts Quest (Haunted House)',
+    area:'Venore', location:'Norte de Tiquanda',
     creatures:[{n:'Gazer Spectre'},{n:'Thanatursus'}],
-    desc:'Gazer Spectre + Thanatursus. Party a partir do 130, duo a partir do 200, solo a partir do 240. Acesso via The Dream Courts Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Temple)' },
+    desc:'Gazer Spectre + Thanatursus. Nível recomendado 300+. Acesso via The Dream Courts Quest, norte de Tiquanda.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Temple)' },
 
-  { name:'Haunted Nexus (Cellar)', xphNum:2550, minLvl:250, maxLvl:400,
+  { name:'Haunted Nexus (Cellar)', xphNum:2550, minLvl:300, maxLvl:400,
     vocs:['all'], modes:['duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit', dif:'medio', task:false,
     req:'The Dream Courts Quest (Haunted House)',
+    area:'Venore', location:'Noroeste de Plains of Havoc',
     creatures:[{n:'Arachnophobica'},{n:'Ripper Spectre'}],
-    desc:'Arachnophobica + Ripper Spectre. Hunt em duo ou party a partir do 250. Acesso via The Dream Courts Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Cellar)' },
+    desc:'Arachnophobica + Ripper Spectre. Nível recomendado 300+. Acesso via The Dream Courts Quest, noroeste de Plains of Havoc.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Cellar)' },
 
-  { name:'Haunted Nexus (Tomb)', xphNum:3000, minLvl:200, maxLvl:400,
+  { name:'Haunted Nexus (Tomb)', xphNum:3000, minLvl:300, maxLvl:400,
     vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit', dif:'medio', task:false,
     req:'The Dream Courts Quest (Haunted House)',
+    area:'Venore', location:'Oeste de Darashia',
     creatures:[{n:'Burster Spectre'}],
-    desc:'Burster Spectre. Party/duo a partir do 200, solo a partir do 350. Acesso via The Dream Courts Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Tomb)' },
+    desc:'Burster Spectre. Nível recomendado 300+. Acesso via The Dream Courts Quest, oeste de Darashia.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Tomb)' },
 
   // Grimeleech: 6800xp, Vexclaw: 5500xp, Hellflayer: 6500xp — difícil, range 280-500
   { name:'Heart of Destruction', xphNum:3600, minLvl:280, maxLvl:500,
@@ -5835,7 +5838,7 @@ const HUNTS = [
     req:'The Secret Library Quest',
     tibiaroute:'Secret-Library-Ice',
     creatures:[{n:'Squid Warden'},{n:'Icecold Book'},{n:'Animated Feather'}],
-    charms:[{creature:'Squid Warden',charm:'Enflame'},{creature:'Icecold Book',charm:'Freeze'},{creature:'Animated Feather',charm:'Enflame'}],
+    charms:[{creature:'Squid Warden',charm:'Enflame'},{creature:'Animated Feather',charm:'Wound'},{creature:'Icecold Book',charm:'Freeze'}],
     desc:'Seção gelo da Secret Library. Squid Warden é o mais comum; Animated Feather faz o maior dano explosivo. Requer The Secret Library Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Secret_Library_Ice_Section' },
 
   // Secret Library Energy — Energetic Book + Brain Squid + Energuardian + Biting Book + Knowledge Elemental — 400+
@@ -5844,7 +5847,7 @@ const HUNTS = [
     req:'The Secret Library Quest',
     tibiaroute:'Secret-Library-Energy',
     creatures:[{n:'Energetic Book'},{n:'Brain Squid'},{n:'Energuardian Of Tales'},{n:'Biting Book'},{n:'Knowledge Elemental'}],
-    charms:[{creature:'Energetic Book',charm:'Poison'},{creature:'Brain Squid',charm:'Curse'},{creature:'Energuardian Of Tales',charm:'Poison'},{creature:'Knowledge Elemental',charm:'Curse'}],
+    charms:[{creature:'Brain Squid',charm:'Curse'},{creature:'Knowledge Elemental',charm:'Wound'},{creature:'Energuardian Of Tales',charm:'Poison'},{creature:'Energetic Book',charm:'Enflame'},{creature:'Biting Book',charm:'Freeze'}],
     desc:'Seção energia da Secret Library. Biting Book faz o maior dano explosivo. Requer The Secret Library Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Secret_Library_Energy_Section' },
 
   // Secret Library Fire — Burning Book + Guardian Of Tales + Rage Squid + Ink Blob — 500+
@@ -5853,7 +5856,7 @@ const HUNTS = [
     req:'The Secret Library Quest',
     tibiaroute:'Secret-Library-Fire',
     creatures:[{n:'Burning Book'},{n:'Guardian Of Tales'},{n:'Rage Squid'},{n:'Ink Blob'}],
-    charms:[{creature:'Burning Book',charm:'Freeze'},{creature:'Guardian Of Tales',charm:'Freeze'},{creature:'Rage Squid',charm:'Freeze'},{creature:'Ink Blob',charm:'Zap'}],
+    charms:[{creature:'Burning Book',charm:'Freeze'},{creature:'Guardian Of Tales',charm:'Wound'},{creature:'Rage Squid',charm:'Enflame'},{creature:'Ink Blob',charm:'Zap'}],
     desc:'Seção fogo da Secret Library. Ink Blob faz o maior dano explosivo. Requer The Secret Library Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Secret_Library_Fire_Section' },
 
   // Frazzlemaw: 9000xp, Guzzlemaw: 10000xp — difícil, EK pede 400+
