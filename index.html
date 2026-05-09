@@ -1159,6 +1159,7 @@ footer strong{color:var(--ink-3);font-weight:500}
 .hf-item-grid { display:flex;flex-wrap:wrap;gap:.4rem; }
 .hf-item-slot {
   display:flex;flex-direction:column;align-items:center;gap:3px;cursor:default;
+  position:relative;
 }
 .hf-item-slot-img {
   width:44px;height:44px;background:#16130e;
@@ -1172,6 +1173,17 @@ footer strong{color:var(--ink-3);font-weight:500}
 .hf-item-slot-lbl {
   font-size:.52rem;color:var(--ink-3);text-align:center;max-width:50px;line-height:1.2;
 }
+/* Task / imbui badges on loot items */
+.hf-item-slot.is-task .hf-item-slot-img { border-color: var(--gold); box-shadow: 0 0 6px var(--gold-dim), inset 0 1px 3px rgba(0,0,0,.5); }
+.hf-item-slot.is-imbu .hf-item-slot-img { border-color: var(--accent); box-shadow: 0 0 6px rgba(136,120,208,.3), inset 0 1px 3px rgba(0,0,0,.5); }
+.hf-loot-badge {
+  position:absolute; top:-4px; right:-4px;
+  font-size:.5rem; line-height:1; padding:1px 4px;
+  border-radius:6px; font-weight:700; z-index:1;
+  pointer-events:none;
+}
+.hf-loot-badge.task  { background:var(--gold);    color:#111; }
+.hf-loot-badge.imbu  { background:var(--accent);  color:#fff; }
 
 /* Tips / req / location */
 .hf-tips {
@@ -3554,7 +3566,7 @@ const CREATURE_STATS = {
   'angry sugar fairy':{hp:58,xp:49,spd:34,HP:3000,XP:3100,armor:37,mit:1.1,charm:25,bclass:'Fey',blvl:'Hard',res:[100,105,90,110,60,90,60,100],loc:'Dessert Dungeons',loot:['Platinum Coin','Small Enchanted Emerald','Small Enchanted Sapphire','Wild Flowers','Green Crystal Splinter']},
   'animated clomp':{hp:49,xp:37,spd:0,HP:900,XP:475,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,100,100],loc:'Museum of Tibian Arts',loot:['Raw Meat','Thick Fur','Hardened Bone']},
   'animated cyclops':{hp:40,xp:30,spd:0,HP:260,XP:150,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,100,100],loc:'Museum of Tibian Arts (only at Night)',loot:['Meat','Heavy Old Tome','Short Sword']},
-  'animated feather':{hp:69,xp:56,spd:60,HP:13000,XP:9860,armor:79,mit:2.02,charm:25,bclass:'Inkborn',blvl:'Hard',res:[100,118,0,100,100,100,100,100],loc:'The Secret Library ice section.',loot:['Small Sapphire','Platinum Coin','Glowing Rune','Glacier Mask','Energy Ring']},
+  'animated feather':{hp:69,xp:56,spd:60,HP:13000,XP:9860,armor:79,mit:2.02,charm:50,bclass:'Inkborn',blvl:'Hard',res:[100,118,0,100,100,100,100,100],loc:'The Secret Library ice section.',loot:['Small Sapphire','Platinum Coin','Glowing Rune','Glacier Mask','Energy Ring']},
   'animated guzzlemaw':{hp:63,xp:52,spd:0,HP:6400,XP:5500,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,100,100],loc:'Museum of Tibian Arts',loot:['Platinum Coin','Brown Crystal Splinter','Great Mana Potion','Fish Tail','Fishbone']},
   'animated moohtant':{hp:58,xp:48,spd:0,HP:3200,XP:2600,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,100,100],loc:'Museum of Tibian Arts (only at Night)',loot:['Platinum Coin','Minotaur Leather','Giant Pacifier','Great Health Potion','Great Mana Potion']},
   'animated ogre brute':{hp:50,xp:40,spd:0,HP:1000,XP:800,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,100,100],loc:'Museum of Tibian Arts (only at Night)',loot:['Ogre Ear Stud','Onyx Chip','Small Stone','White Pearl','Ogre Nose Ring']},
@@ -3607,7 +3619,7 @@ const CREATURE_STATS = {
   'berserker chicken':{hp:44,xp:33,spd:24,HP:465,XP:220,armor:12,mit:0.28,charm:15,bclass:'Bird',blvl:'Medium',res:[110,90,90,90,90,90,90,0],loc:'Isle of Evil and Deeper Ingol',loot:[]},
   'bibby bloodbath':{hp:51,xp:44,spd:0,HP:1200,XP:1500,armor:58,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,0,0,120,100,100,100,100],loc:'North of the Jakundaf Desert located ({{Mapper Coords',loot:['Platinum Coin','Fish','Meat','Throwing Star','Health Potion']},
   'big boss trolliver':{hp:36,xp:28,spd:0,HP:140,XP:105,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,100,100],loc:'Edron Troll Cave, spawns {{Mapper Coords',loot:['Meat','Spear','Studded Club','Leather Boots','Silver Amulet']},
-  'biting book':{hp:64,xp:55,spd:69,HP:6500,XP:9350,armor:76,mit:1.88,charm:25,bclass:'Inkborn',blvl:'Hard',res:[50,100,100,100,100,100,100,100],loc:'Secret Library earth, energy, fire and ice sections. Also two incarcerated in the Issavi prison {{Ma',loot:['Platinum Coin','Book Page','Glowing Rune','Silken Bookmark','Big Bone']},
+  'biting book':{hp:64,xp:55,spd:69,HP:6500,XP:9350,armor:76,mit:1.88,charm:50,bclass:'Inkborn',blvl:'Hard',res:[50,100,100,100,100,100,100,100],loc:'Secret Library earth, energy, fire and ice sections. Also two incarcerated in the Issavi prison {{Ma',loot:['Platinum Coin','Book Page','Glowing Rune','Silken Bookmark','Big Bone']},
   'black cobra':{hp:67,xp:0,spd:0,HP:10000,XP:0,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,100,100],loc:'In Gaffir boss room',loot:[]},
   'black knight':{hp:54,xp:45,spd:0,HP:1800,XP:1600,armor:42,mit:0.0,charm:0,bclass:'',blvl:'',res:[90,5,0,0,20,108,80,100],loc:'Only in Black Knight\'s Villa beneath the Green Claw Swamp (north-west of Venore, {{Mapper Coords',loot:['Spear','Brown Bread','Rope','Brass Legs','Dark Armor']},
   'blistering fire elemental':{hp:53,xp:43,spd:0,HP:1500,XP:1300,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[75,0,115,50,80,0,60,100],loc:'The Elemental Spheres Quest, Sorcerer\'s part - Fire Sphere.',loot:['Small Ruby','Fiery Heart','Glimmering Soil','Wand of Draconia','Coal']},
@@ -3627,6 +3639,7 @@ const CREATURE_STATS = {
   'brachiodemon':{hp:73,xp:58,spd:63,HP:25000,XP:15770,armor:100,mit:2.75,charm:50,bclass:'Demon',blvl:'Challenging',res:[100,70,125,100,100,135,50,100],loc:'Claustrophobic Inferno.',loot:['Crystal Coin','Ultimate Health Potion','Hand','Skull Staff','Epee']},
   'bragrumol':{hp:76,xp:59,spd:0,HP:38000,XP:18000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,30,110,100,100,100,50,100],loc:'Under Kilmaresh Central Steppe {{Mapper Coords',loot:['Flaming Arrow','Platinum Coin','Underworld Rod','Stone Skin Amulet','Giant Shimmering Pearl (Green)']},
   'brain head':{hp:89,xp:65,spd:0,HP:230000,XP:50000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,30,150,100,null,100,80,100],loc:'Netherworld',loot:['Crystal Coin','White Gem','Green Gem','Supreme Health Potion','Ultimate Spirit Potion']},
+  'brain squid':{hp:68,xp:57,spd:60,HP:13500,XP:10603,armor:77,mit:1.94,charm:50,bclass:'Inkborn',blvl:'Hard',res:[100,100,100,100,0,50,120,100],loc:'Secret Library energy section.',loot:['Platinum Coin','Book Page','Glowing Rune','Small Amethyst','Ultimate Mana Potion']},
   'branchy crawler':{hp:74,xp:59,spd:67,HP:27000,XP:17324,armor:100,mit:2.75,charm:50,bclass:'Plant',blvl:'Challenging',res:[100,109,100,50,105,60,115,100],loc:'Rotten Wasteland.',loot:['Crystal Coin','Ultimate Health Potion','Gold Ingot','Roots','Terra Legs']},
   'bretzecutioner':{hp:62,xp:50,spd:0,HP:5600,XP:3700,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,70,115,80,0,100,80,100],loc:'Formorgar Mines, after teleport {{Mapper Coords',loot:['Platinum Coin','Giant Shimmering Pearl','Crystal Necklace','Demonic Essence','Death Ring']},
   'bride of night':{hp:41,xp:37,spd:36,HP:275,XP:450,armor:15,mit:0.64,charm:15,bclass:'Human',blvl:'Medium',res:[100,100,100,110,85,90,110,100],loc:'Dwacatra (Kazordoon) around [https://tibia.fandom.com/wiki/Mapper?coords=127.86-124.158-14-4-1-1 the',loot:['Midnight Shard']},
@@ -3636,7 +3649,7 @@ const CREATURE_STATS = {
   'bruton':{hp:78,xp:0,spd:0,HP:50000,XP:0,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[0,95,80,100,55,100,70,100],loc:'Nimmersatt\'s Breeding Ground',loot:[]},
   'brutus bloodbeard':{hp:53,xp:40,spd:0,HP:1555,XP:795,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,101,100,101,99,100,100],loc:'Liberty Bay, the lighthouse south west of the depot during pirate raid. [[Killing in the Name of... ',loot:['Brutus Bloodbeard\'s Hat','Skull (Item)','Meat','Plate Armor','Small Diamond']},
   'bullwark':{hp:81,xp:61,spd:0,HP:72000,XP:22000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,95,85,0,85,100,90,100],loc:'Oramond Minotaur Camp, {{Mapper Coords',loot:['Platinum Coin','Ham','Meat','Great Health Potion','Great Mana Potion']},
-  'burning book':{hp:71,xp:57,spd:63,HP:18000,XP:13200,armor:82,mit:2.16,charm:25,bclass:'Inkborn',blvl:'Hard',res:[100,0,110,100,100,100,100,100],loc:'Secret Library fire section.',loot:['Platinum Coin','Book Page','Flask of Demonic Blood','Demonic Essence','Silken Bookmark']},
+  'burning book':{hp:71,xp:57,spd:63,HP:18000,XP:13200,armor:82,mit:2.16,charm:50,bclass:'Inkborn',blvl:'Hard',res:[100,0,110,100,100,100,100,100],loc:'Secret Library fire section.',loot:['Platinum Coin','Book Page','Flask of Demonic Blood','Demonic Essence','Silken Bookmark']},
   'burning gladiator':{hp:67,xp:54,spd:41,HP:10000,XP:7350,armor:89,mit:2.45,charm:25,bclass:'Human',blvl:'Hard',res:[80,70,120,100,80,100,100,100],loc:'Issavi Sewers, Kilmaresh Catacombs and Kilmaresh Mountains (above and under ground).',loot:['Platinum Coin','Fafnar Symbol','Dragon Necklace','Strange Talisman','Secret Instruction (Gryphon)']},
   'burster':{hp:67,xp:56,spd:0,HP:10000,XP:10000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,0,100,100,100],loc:'Otherworld (Dwarf Bridge). Shares a Varying Monster Spawn with an Instable Breach Brood, {{Mapper Co',loot:['Platinum Coin','Crystallized Anger','Curious Matter','Energy Bar','Energy Drink']},
   'candy floss elemental':{hp:59,xp:50,spd:30,HP:3700,XP:3850,armor:45,mit:1.26,charm:25,bclass:'Elemental',blvl:'Hard',res:[60,115,85,110,85,100,80,100],loc:'Dessert Dungeons',loot:['Platinum Coin','Fairy Wings','Violet Gem','Violet Crystal Shard','Opal']},
@@ -3706,7 +3719,7 @@ const CREATURE_STATS = {
   'cult scholar':{hp:54,xp:42,spd:37,HP:1650,XP:1100,armor:30,mit:1.18,charm:15,bclass:'Human',blvl:'Medium',res:[80,70,70,70,70,70,70,100],loc:'Forbidden Temple (Carlin)',loot:['Meat','Cultish Robe','Great Health Potion','Small Amethyst','Small Emerald']},
   'cunning werepanther':{hp:61,xp:50,spd:36,HP:4300,XP:3620,armor:72,mit:2.05,charm:25,bclass:'Lycanthrope',blvl:'Hard',res:[100,115,80,125,80,90,110,100],loc:'Oskayaat, Oskayaat Undercity',loot:['Platinum Coin','Werepanther Claw','Golden Sickle','Moonlight Crystals','Small Topaz']},
   'cursed ape':{hp:54,xp:46,spd:31,HP:1700,XP:2000,armor:38,mit:1.37,charm:15,bclass:'Undead',blvl:'Medium',res:[100,80,105,90,95,125,60,100],loc:'Iksupan, Iksupan Undercity, Iksupan Waterways',loot:['Platinum Coin','Banana','Small Amethyst','Kongra\'s Shoulderpad','Protection Amulet']},
-  'cursed book':{hp:72,xp:57,spd:63,HP:20000,XP:13345,armor:82,mit:2.16,charm:25,bclass:'Inkborn',blvl:'Hard',res:[100,100,100,0,110,100,100,100],loc:'Secret Library earth section.',loot:['Book Page','Platinum Coin','Silken Bookmark','Small Diamond','Small Topaz']},
+  'cursed book':{hp:72,xp:57,spd:63,HP:20000,XP:13345,armor:82,mit:2.16,charm:50,bclass:'Inkborn',blvl:'Hard',res:[100,100,100,0,110,100,100,100],loc:'Secret Library earth section.',loot:['Book Page','Platinum Coin','Silken Bookmark','Small Diamond','Small Topaz']},
   'cursed gladiator':{hp:44,xp:33,spd:0,HP:435,XP:215,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,105,100,80,100,100,100,100],loc:'In the Svargrond Arena.',loot:[]},
   'custodian':{hp:78,xp:62,spd:0,HP:47000,XP:27500,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[30,80,100,0,100,100,100,100],loc:'Cobra Bastion.',loot:['Platinum Coin','Club Ring','Cobra Club','Cobra Crest','Small Sapphire']},
   'cyclops':{hp:40,xp:30,spd:27,HP:260,XP:150,armor:17,mit:0.62,charm:5,bclass:'Giant',blvl:'Easy',res:[100,100,100,110,75,80,110,100],loc:'Plains of Havoc, Mount Sternum, Femor Hills, Cyclops Camp, Cyclopolis, Ancient Temple, Shadowthorn, ',loot:['Meat','Short Sword','Cyclops Toe','Plate Shield','Battle Shield']},
@@ -3823,9 +3836,9 @@ const CREATURE_STATS = {
   'elvira hammerthrust':{hp:40,xp:31,spd:0,HP:245,XP:165,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,105,100,80,100,100,100,100],loc:'Dwarf Mines, around {{Mapper Coords',loot:['Platinum Coin','Bag with Stolen Gold']},
   'emerald tortoise':{hp:72,xp:57,spd:51,HP:22300,XP:13040,armor:97,mit:2.57,charm:50,bclass:'Reptile',blvl:'Challenging',res:[80,90,90,115,90,90,100,100],loc:'Sparkling Pools',loot:['Emerald Tortoise Shell','Crystal Coin','Great Spirit Potion','White Pearl','Violet Gem']},
   'empowered glooth horror':{hp:73,xp:46,spd:0,HP:25000,XP:2150,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,100,100],loc:'Jaccus Maxxen\'s Dungeon.',loot:['Glooth Glider Hinge','Platinum Coin','Slightly Rusted Armor','Glooth Bag','Rusted Armor']},
-  'energetic book':{hp:71,xp:57,spd:63,HP:18500,XP:12034,armor:82,mit:2.16,charm:25,bclass:'Inkborn',blvl:'Hard',res:[100,100,100,110,0,0,100,100],loc:'Secret Library energy section.',loot:['Platinum Coin','Book Page','Glowing Rune','Ultimate Health Potion','Ultimate Mana Potion']},
+  'energetic book':{hp:71,xp:57,spd:63,HP:18500,XP:12034,armor:82,mit:2.16,charm:50,bclass:'Inkborn',blvl:'Hard',res:[100,100,100,110,0,0,100,100],loc:'Secret Library energy section.',loot:['Platinum Coin','Book Page','Glowing Rune','Ultimate Health Potion','Ultimate Mana Potion']},
   'energized raging mage':{hp:59,xp:0,spd:0,HP:3500,XP:0,armor:30,mit:0.0,charm:0,bclass:'',blvl:'',res:[150,0,100,100,0,90,100,100],loc:'[[Yielothax Dimension',loot:[]},
-  'energuardian of tales':{hp:69,xp:57,spd:60,HP:14000,XP:11361,armor:77,mit:1.94,charm:25,bclass:'Inkborn',blvl:'Hard',res:[100,100,100,112,0,100,100,100],loc:'The Secret Library energy section.',loot:['Book Page','Small Amethyst','Glowing Rune','Flash Arrow','Lightning Legs']},
+  'energuardian of tales':{hp:69,xp:57,spd:60,HP:14000,XP:11361,armor:77,mit:1.94,charm:50,bclass:'Inkborn',blvl:'Hard',res:[100,100,100,112,0,100,100,100],loc:'The Secret Library energy section.',loot:['Book Page','Small Amethyst','Glowing Rune','Flash Arrow','Lightning Legs']},
   'energy elemental':{hp:45,xp:38,spd:33,HP:500,XP:550,armor:25,mit:0.72,charm:15,bclass:'Elemental',blvl:'Medium',res:[65,0,0,115,0,95,95,0],loc:'Kha\'zeel, Energy Elemental Lair, Vandura Mountain, Vengoth\'s mountain.',loot:['Mana Potion','Flash Arrow','Throwing Star','Strong Mana Potion','Crystal Sword']},
   'energy overlord':{hp:60,xp:48,spd:0,HP:4000,XP:2800,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[50,80,0,110,0,100,100,100],loc:'The Elemental Spheres Quest, Knight\'s part - Energy Sphere.',loot:['Pure Energy','Platinum Coin','Voltage Armor']},
   'enfeebled silencer':{hp:51,xp:42,spd:47,HP:1100,XP:1100,armor:44,mit:1.43,charm:15,bclass:'Magical',blvl:'Medium',res:[95,70,85,40,85,125,35,100],loc:'Feyrist - Cave {{Mapper Coords',loot:['Platinum Coin','Fairy Wings','Assassin Star','Silencer Claws','Haunted Blade']},
@@ -3946,6 +3959,7 @@ const CREATURE_STATS = {
   'gorga':{hp:70,xp:57,spd:0,HP:15000,XP:13000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,0,100,100,100,100],loc:'Top floor of Medusa Tower, {{Mapper Coords',loot:['Platinum Coin','Strand of Medusa Hair','Great Mana Potion','Ultimate Health Potion','Small Emerald']},
   'gorgo':{hp:61,xp:54,spd:0,HP:4500,XP:7000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,105,80,0,110,100,100,0],loc:'Deeper Banuta, main quest floor (teleport {{Mapper Coords',loot:['Platinum Coin','Small Emerald','Great Mana Potion','Ultimate Health Potion','Medusa Shield']},
   'gorzindel':{hp:92,xp:66,spd:0,HP:350000,XP:55000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,null,100,100,95,100,100,100],loc:'The Secret Library.',loot:['Knowledgeable Book','Ominous Book','Sinister Book','Crystal Coin','Platinum Coin']},
+  'guardian of tales':{hp:70,xp:57,spd:63,HP:16000,XP:12500,armor:80,mit:2.09,charm:50,bclass:'Inkborn',blvl:'Hard',res:[100,100,110,0,100,100,100,100],loc:'Secret Library fire section.',loot:['Platinum Coin','Book Page','Flask of Demonic Blood','Demonic Essence','Silken Bookmark']},
   'gozzler':{hp:40,xp:31,spd:34,HP:240,XP:180,armor:25,mit:1.37,charm:5,bclass:'Demon',blvl:'Easy',res:[105,100,100,100,100,50,50,100],loc:'Magician Quarter, cave in Beregar, Farmine Mines.',loot:['Brown Flask','Sabre','Plate Shield','Battle Axe','Morning Star']},
   'gralvalon':{hp:75,xp:61,spd:0,HP:33000,XP:24000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,100,100],loc:'Azzilon -3 ({{Mapper Coords',loot:['Platinum Coin','Skin of Gralvalon','Dark Helmet','Demonic Matter','Onyx Arrow']},
   'grand canon dominus':{hp:70,xp:56,spd:0,HP:15000,XP:11000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[40,50,50,50,50,100,50,100],loc:'Falcon Bastion.',loot:['Platinum Coin','Great Mana Potion','Great Health Potion','Small Topaz','Small Diamond']},
@@ -4007,6 +4021,7 @@ const CREATURE_STATS = {
   'husky':{hp:36,xp:0,spd:38,HP:140,XP:0,armor:1,mit:0.13,charm:0,bclass:'Mammal',blvl:'Harmless',res:[100,100,100,100,100,100,100,100],loc:'Svargrond and Nibelor.',loot:[]},
   'hyaena':{hp:30,xp:18,spd:28,HP:60,XP:20,armor:1,mit:0.13,charm:5,bclass:'Mammal',blvl:'Easy',res:[100,100,100,100,100,100,100,100],loc:'Desert areas like those around Ankrahmun and Darashia.',loot:['Worm','Meat']},
   'hydra':{hp:56,xp:46,spd:51,HP:2350,XP:2100,armor:27,mit:1.18,charm:15,bclass:'Dragon',blvl:'Medium',res:[105,100,50,0,110,70,100,0],loc:'Many on the northern Hydra Mountain in east Tiquanda ({{Mapper Coords',loot:['Ham','Platinum Coin','Hydra Head','Small Sapphire','Cucumber']},
+  'icecold book':{hp:70,xp:57,spd:63,HP:17000,XP:11600,armor:82,mit:2.16,charm:50,bclass:'Inkborn',blvl:'Hard',res:[100,100,110,0,100,100,100,100],loc:'Secret Library ice section.',loot:['Platinum Coin','Book Page','Glowing Rune','Crystalline Armor','Crystal Mace']},
   'infected weeper':{hp:58,xp:43,spd:49,HP:3000,XP:1200,armor:76,mit:2.19,charm:25,bclass:'Construct',blvl:'Hard',res:[50,null,110,0,75,100,70,100],loc:'A total of 8 infected weepers spawn in Warzone 2, you can see the exact locations [https://tibia.fan',loot:['Platinum Coin','Coal']},
   'infernal demon':{hp:75,xp:59,spd:57,HP:32000,XP:17430,armor:120,mit:3.34,charm:50,bclass:'Demon',blvl:'Challenging',res:[70,60,120,100,100,125,50,100],loc:'Claustrophobic Inferno.',loot:['Crystal Coin','Ultimate Health Potion','Small Diamond','Gold Ingot','Blue Crystal Shard']},
   'infernal frog':{hp:47,xp:32,spd:29,HP:655,XP:190,armor:18,mit:0.91,charm:15,bclass:'Amphibic',blvl:'Medium',res:[100,100,100,0,100,100,100,100],loc:'Isle of Evil, [[Marapur',loot:[]},
@@ -4016,7 +4031,7 @@ const CREATURE_STATS = {
   'infernoid hound':{hp:32,xp:28,spd:27,HP:86,XP:102,armor:3,mit:0.07,charm:5,bclass:'Elemental',blvl:'Easy',res:[100,85,110,95,105,110,95,100],loc:'Crimson Court',loot:['Arrow','Health Potion','Infernoid Ember','Wolf Paw','Meat']},
   'infernoid soul':{hp:33,xp:29,spd:26,HP:95,XP:115,armor:2,mit:0.07,charm:5,bclass:'Elemental',blvl:'Easy',res:[100,70,115,100,110,100,95,100],loc:'Crimson Court',loot:['Burst Arrow','Mana Potion','Infernoid Ember','Torch','Fire Mushroom']},
   'infernoid spiritual':{hp:34,xp:29,spd:26,HP:102,XP:120,armor:3,mit:0.13,charm:5,bclass:'Elemental',blvl:'Easy',res:[95,70,110,100,110,100,100,100],loc:'Crimson Court',loot:['Burst Arrow','Mana Potion','Health Potion','Infernoid Ember','Fire Mushroom']},
-  'ink blob':{hp:66,xp:58,spd:54,HP:9500,XP:14450,armor:70,mit:2.02,charm:25,bclass:'Inkborn',blvl:'Hard',res:[100,100,100,0,108,100,100,100],loc:'Secret Library earth, fire and ice sections.',loot:['Small Diamond','Platinum Coin','Small Topaz','Poisonous Slime','Envenomed Arrow']},
+  'ink blob':{hp:66,xp:58,spd:54,HP:9500,XP:14450,armor:70,mit:2.02,charm:50,bclass:'Inkborn',blvl:'Hard',res:[100,100,100,0,108,100,100,100],loc:'Secret Library earth, fire and ice sections.',loot:['Small Diamond','Platinum Coin','Small Topaz','Poisonous Slime','Envenomed Arrow']},
   'ink splash':{hp:55,xp:44,spd:54,HP:1950,XP:1450,armor:36,mit:0.99,charm:15,bclass:'Inkborn',blvl:'Medium',res:[90,105,100,85,110,100,85,100],loc:'Fields of Glory - {{Mapper Coords',loot:['Platinum Coin','Star Ink','Giant Shimmering Pearl','Poisonous Slime','Inkwell (Black)']},
   'inkwing':{hp:68,xp:59,spd:0,HP:12000,XP:17500,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,100,100],loc:'Fields of Glory - {{Mapper Coords',loot:['Platinum Coin','Proficiency Catalyst','Dragon Ham','Book with a Dragon','Strong Mana Potion']},
   'inky':{hp:48,xp:40,spd:0,HP:750,XP:700,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,0,0,10,105,100,100,100],loc:'At Yalahar, Sunken Quarter. When entering the Sunken Quarter step down from the underwater hill and ',loot:[]},
@@ -4040,7 +4055,7 @@ const CREATURE_STATS = {
   'killer caiman':{hp:53,xp:41,spd:27,HP:1500,XP:900,armor:40,mit:0.38,charm:15,bclass:'Reptile',blvl:'Medium',res:[90,100,90,80,105,100,100,100],loc:'Northern Zao Plantations, Souleater Mountains, Muggy Plains, Killer Caiman Cave in the Zao Steppe ({',loot:['Ham','Piece of Crocodile Leather','Small Emerald','Bunch of Ripe Rice','Obsidian Lance']},
   'killer rabbit':{hp:39,xp:31,spd:49,HP:205,XP:160,armor:17,mit:0.51,charm:5,bclass:'Mammal',blvl:'Easy',res:[100,100,100,100,100,100,100,100],loc:'Isle of Evil and Deeper Ingol',loot:[]},
   'king zelos':{hp:95,xp:68,spd:0,HP:480000,XP:75000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,null,100],loc:'Isle of the Kings',loot:['Crystal Coin','Silver Token','Gold Token','Ultimate Spirit Potion','Ultimate Mana Potion']},
-  'knowledge elemental':{hp:67,xp:56,spd:66,HP:10500,XP:10603,armor:76,mit:2.08,charm:25,bclass:'Elemental',blvl:'Hard',res:[100,100,100,100,0,50,120,100],loc:'Secret Library energy section.',loot:['Platinum Coin','Silken Bookmark','Book Page','Glowing Rune','Small Amethyst']},
+  'knowledge elemental':{hp:67,xp:56,spd:66,HP:10500,XP:10603,armor:76,mit:2.08,charm:50,bclass:'Elemental',blvl:'Hard',res:[100,100,100,100,0,50,120,100],loc:'Secret Library energy section.',loot:['Platinum Coin','Silken Bookmark','Book Page','Glowing Rune','Small Amethyst']},
   'kongra':{hp:42,xp:29,spd:26,HP:340,XP:115,armor:18,mit:0.36,charm:5,bclass:'Mammal',blvl:'Easy',res:[100,80,115,90,95,100,105,100],loc:'In Banuta, northeast of Port Hope, Arena and Zoo Quarter.',loot:['Banana','Kongra\'s Shoulderpad','Ape Fur','Health Potion','Plate Armor']},
   'kongra (anti-botter)':{hp:72,xp:0,spd:0,HP:20000,XP:0,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,100,100,100,100,100],loc:'In Banuta, northeast of Port Hope.',loot:[]},
   'koshei the deathless':{hp:58,xp:0,spd:0,HP:3000,XP:0,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[80,110,80,0,10,115,0,0],loc:'Under Darashia crypt, {{Mapper Coords',loot:[]},
@@ -4339,6 +4354,7 @@ const CREATURE_STATS = {
   'rabbit':{hp:20,xp:0,spd:26,HP:15,XP:0,armor:1,mit:0.05,charm:1,bclass:'Mammal',blvl:'Trivial',res:[100,100,100,100,100,100,100,100],loc:'In most grass areas of Tibia, for example on Tutorial Island.',loot:['Meat','Carrot']},
   'rabid wolf':{hp:31,xp:27,spd:26,HP:75,XP:90,armor:1,mit:0.05,charm:5,bclass:'Mammal',blvl:'Easy',res:[100,110,110,100,100,100,100,100],loc:'Thais Wolf Den - {{Mapper Coords',loot:['Arrow','Meat','Wolf Paw','Small Health Potion','Mana Potion']},
   'rage of mazoran':{hp:61,xp:35,spd:0,HP:4500,XP:300,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,0,125,100,80,100,100,100],loc:'Ferumbras\' Ascension Quest area.',loot:[]},
+  'rage squid':{hp:70,xp:57,spd:66,HP:15000,XP:11900,armor:78,mit:2.04,charm:50,bclass:'Inkborn',blvl:'Hard',res:[100,100,110,0,100,100,100,100],loc:'Secret Library fire section.',loot:['Platinum Coin','Book Page','Flask of Demonic Blood','Demonic Essence','Glowing Rune']},
   'ragged rabid wolf':{hp:35,xp:29,spd:30,HP:120,XP:126,armor:3,mit:0.07,charm:5,bclass:'Mammal',blvl:'Easy',res:[100,110,110,100,100,100,100,100],loc:'Thais Wolf Den - {{Mapper Coords',loot:['Arrow','Meat','Ham','Health Potion','Mana Potion']},
   'ragiaz':{hp:91,xp:79,spd:0,HP:290000,XP:500000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,80,100,100,50,100],loc:'Grounds of Undeath, a Ferumbras\' Ascension Quest area.',loot:['Yellow Gem','Small Ruby','Amber Staff','Green Crystal Fragment','Cyan Crystal Fragment']},
   'raging fire':{hp:54,xp:44,spd:29,HP:1800,XP:1500,armor:50,mit:1.32,charm:15,bclass:'Elemental',blvl:'Medium',res:[100,0,110,100,100,100,80,100],loc:'Jaccus Maxxen\'s Dungeon.',loot:[]},
@@ -4446,6 +4462,7 @@ const CREATURE_STATS = {
   'spit nettle':{hp:36,xp:18,spd:11,HP:150,XP:20,armor:12,mit:0.86,charm:5,bclass:'Plant',blvl:'Easy',res:[100,110,80,0,0,100,100,100],loc:'Tiquanda, Trapwood, the outskirts of Chor and Forbidden Lands, Alchemist Quarter in Yalahar, Tiquand',loot:['Shadow Herb','Nettle Spit','Sling Herb','Grave Flower','Nettle Blossom']},
   'spite of the emperor':{hp:78,xp:38,spd:0,HP:48000,XP:500,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[110,90,50,0,110,115,0,100],loc:'Inner Sanctum deep below Razachai.',loot:[]},
   'splasher':{hp:54,xp:44,spd:0,HP:1700,XP:1500,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,0,0,115,125,100,100,100],loc:'At Yalahar, Sunken Quarter. When entering the Sunken Quarter step down from the underwater hill and ',loot:[]},
+  'squid warden':{hp:68,xp:57,spd:60,HP:13000,XP:9500,armor:74,mit:1.85,charm:50,bclass:'Inkborn',blvl:'Hard',res:[100,118,0,100,100,100,100,100],loc:'Secret Library ice section.',loot:['Platinum Coin','Book Page','Glowing Rune','Small Sapphire','Ultimate Health Potion']},
   'squidgy slime':{hp:36,xp:24,spd:17,HP:150,XP:55,armor:3,mit:0.25,charm:5,bclass:'Slime',blvl:'Easy',res:[100,110,80,0,110,100,100,100],loc:'Horestis Tomb during one of the states of The Mummy\'s Curse World Change. As summons, anywhere wher',loot:[]},
   'squirrel':{hp:22,xp:0,spd:69,HP:20,XP:0,armor:1,mit:0.05,charm:1,bclass:'Mammal',blvl:'Trivial',res:[100,100,100,100,100,100,100,100],loc:'North of Carlin, Northwest of Thais, East of Kazordoon, Yalahar, Dawnport, Edron Hunters Camp, Plain',loot:['Acorn','Peanut','Walnut']},
   'srezz yellow eyes':{hp:63,xp:51,spd:0,HP:6200,XP:4800,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,70,100,60,90,100,100,100],loc:'Lion Sanctum.',loot:['Srezz\' Eye','Platinum Coin','Ultimate Health Potion','Gold Ingot','Snake Skin']},
@@ -4652,6 +4669,7 @@ const CREATURE_STATS = {
   'yaga the crone':{hp:47,xp:36,spd:0,HP:620,XP:375,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[101,100,100,99,0,100,105,100],loc:'Four levels underground, on the way to Blood Herb Quest, {{Mapper Coords',loot:['Cookie','Broom','Coat','Cape','Star Herb']},
   'yakchal':{hp:63,xp:51,spd:0,HP:5750,XP:4400,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,100,20,105,50,100,100],loc:'Yakchal Crypt - {{Mapper Coords',loot:['Blue Piece of Cloth','Mastermind Potion','Gold Ingot','Crystal Sword','Dragon Necklace']},
   'yalahari (creature)':{hp:36,xp:11,spd:0,HP:150,XP:5,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[0,100,100,0,100,100,0,100],loc:'Inner City (Yalahar).',loot:[]},
+  'yielothax':{hp:63,xp:52,spd:56,HP:5000,XP:5000,armor:55,mit:1.48,charm:25,bclass:'Magical',blvl:'Hard',res:[100,100,100,100,0,100,100,100],loc:'Yielothax Dimension.',loot:['Platinum Coin','Ultimate Mana Potion','Small Amethyst','Glowing Rune','Demonic Essence']},
   'zanakeph':{hp:69,xp:56,spd:0,HP:13000,XP:9900,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[80,0,50,0,110,100,0,100],loc:'Razachai, behind the teleport located {{Mapper Coords',loot:['Platinum Coin','Death Ring','Dragonbone Staff','Golden Mug','Unholy Bone']},
   'zarabustor':{hp:62,xp:54,spd:0,HP:5100,XP:8000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[101,0,0,10,0,101,100,100],loc:'Demona, in the room Northeast of the pentagram room, {{Mapper Coords',loot:['Small Sapphire','Assassin Star','Poison Dagger','Blue Robe','Might Ring']},
   'zavarash':{hp:76,xp:60,spd:0,HP:35000,XP:21000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[90,70,60,60,60,120,65,100],loc:'Roshamuul Prison',loot:['Platinum Coin','Violet Crystal Shard','Green Crystal Shard','Blue Crystal Shard','Demon Horn']},
@@ -4696,6 +4714,8 @@ function openHuntModal(idx) {
     'freakishlostsoul':'Freakish-Lost-Soul','gnomevil':'Gnomevil',
     'branchycrawler':'Branchy-Crawler','adeptofthecult':'Adept-Of-The-Cult',
     'soulbrokenharbinger':'Soul-Broken-Harbinger',
+    'guardianoftales':'Guardian-of-Tales',
+    'energuardianoftales':'Energuardian-of-Tales',
   };
   function creatureSlug(name) {
     const key = name.toLowerCase().replace(/[^a-z0-9]/g,'');
@@ -4740,7 +4760,15 @@ function openHuntModal(idx) {
   // ── Item slot (supply / loot) using new CSS classes
   function itemSlot(name) {
     const label = name.replace(/ Potion$/,'').replace(/^Ultimate /,'Ult. ').replace(/^Strong /,'Str. ').replace(/^Great /,'');
-    return `<div class="hf-item-slot" title="${name}">
+    const key = name.toLowerCase();
+    const isTask = getDeliverySet().has(key);
+    const isImbu = getImbuItemSet().has(key);
+    const cls = 'hf-item-slot' + (isTask ? ' is-task' : '') + (isImbu ? ' is-imbu' : '');
+    const badge = isTask
+      ? `<span class="hf-loot-badge task" title="Item de weekly task">📦</span>`
+      : (isImbu ? `<span class="hf-loot-badge imbu" title="Item de imbuement">💎</span>` : '');
+    return `<div class="${cls}" title="${name}${isTask ? ' · Weekly Task' : ''}${isImbu ? ' · Imbuement' : ''}">
+      ${badge}
       <div class="hf-item-slot-img">
         <img src="${itemImgUrl(name)}" onerror="this.style.opacity='.1'">
       </div>
@@ -5652,25 +5680,25 @@ const HUNTS = [
     creatures:[{n:'Ravenous Lava Lurker'},{n:'Cave Devourer'}],
     desc:'Alta XP mas alto waste. Andares mais profundos pedem 200+.', wiki:'https://tibia.fandom.com/wiki/Gnome_Deep_Hub' },
 
-  // Naga Archer: 1800xp, Naga Warrior: 2000xp — médio, range real 100-220
-  { name:'Nykri Delta (Nagas)', xphNum:1500, minLvl:100, maxLvl:220,
+  // Naga Archer: 4640xp, Naga Warrior: 5480xp — médio, range real 400+
+  { name:'Nykri Delta (Nagas)', xphNum:1500, minLvl:400, maxLvl:600,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'1kk–1.8kk', profit:'-70k a 20k', tipo:'xp', dif:'medio', task:true,
     req:'',
     creatures:[{n:'Naga Archer'},{n:'Naga Warrior'}],
     desc:'Hunt nova com criaturas Naga. Bom bestiary.', wiki:'https://tibia.fandom.com/wiki/Nykri_Delta' },
 
-  // Boar Man: 1200xp, Moohtant: 1600xp — fácil, range real 100-220
+  // Glooth Blob: 700xp, Rot Elemental: 750xp, Blood Beast: 1000xp, Devourer: 1755xp — fácil, range real 100-220
   { name:'Oramond Western Plains', xphNum:1350, minLvl:100, maxLvl:220,
     vocs:['ed','ms'], modes:['solo','duo'], xph:'900k–1.7kk', profit:'-150k a -70k', tipo:'xp', dif:'facil', task:true,
     req:'',
-    creatures:[{n:'Boar Man'},{n:'Moohtant'}],
+    creatures:[{n:'Glooth Blob'},{n:'Rot Elemental'},{n:'Blood Beast'},{n:'Devourer'}],
     desc:'XP sólida, alto waste. Popular no servidor Gentebra.', wiki:'https://tibia.fandom.com/wiki/Oramond_Western_Plains' },
 
-  // Cult creatures: 400-900xp — médio, range real 100-200
-  { name:'Cults of Tibia', xphNum:1200, minLvl:100, maxLvl:200,
+  // Cult Believer: 850xp, Vicious Squire: 900xp — médio, range real 100-200
+  { name:'Forbidden Temple (Carlin)', xphNum:1200, minLvl:100, maxLvl:200,
     vocs:['all'], modes:['solo','duo'], xph:'800k–1.5kk', profit:'50k–200k', tipo:'xp', dif:'medio', task:true,
     req:'Cults of Tibia Quest',
-    creatures:[{n:'Cult Believer'},{n:'Adept of the Cult'}],
+    creatures:[{n:'Cult Believer'},{n:'Vicious Squire'}],
     desc:'Áreas exclusivas com loot único. Cults of Tibia Quest.', wiki:'https://tibia.fandom.com/wiki/Cults_of_Tibia' },
 
   // ── HIGH LEVEL (150-400) ──────────────────────────
@@ -5801,12 +5829,32 @@ const HUNTS = [
     creatures:[{n:'Hellspawn'},{n:'Lava Golem'}],
     desc:'Itens Eldritch. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_7' },
 
-  // Icecold/Energetic/Burning Book: 5500-6500xp — difícil, range 330-999
-  { name:'Secret Library', xphNum:6200, minLvl:330, maxLvl:999,
-    vocs:['all'], modes:['solo','duo','time'], xph:'3kk–8kk', profit:'400k–1.5kk', tipo:'xp', dif:'dificil', task:false,
+  // Secret Library Ice — Icecold Book + Squid Warden + Animated Feather — 400+
+  { name:'Secret Library Ice', xphNum:5500, minLvl:400, maxLvl:999,
+    vocs:['all'], modes:['time'], xph:'3kk–6kk', profit:'300k–800k', tipo:'xp', dif:'dificil', task:false,
     req:'The Secret Library Quest',
-    creatures:[{n:'Icecold Book'},{n:'Energetic Book'},{n:'Burning Book'}],
-    desc:'Hunt meta + rotação de boss lucrativa. The Secret Library Quest.', wiki:'https://tibia.fandom.com/wiki/The_Secret_Library' },
+    tibiaroute:'Secret-Library-Ice',
+    creatures:[{n:'Squid Warden'},{n:'Icecold Book'},{n:'Animated Feather'}],
+    charms:[{creature:'Squid Warden',charm:'Enflame'},{creature:'Icecold Book',charm:'Freeze'},{creature:'Animated Feather',charm:'Enflame'}],
+    desc:'Seção gelo da Secret Library. Squid Warden é o mais comum; Animated Feather faz o maior dano explosivo. Requer The Secret Library Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Secret_Library_Ice_Section' },
+
+  // Secret Library Energy — Energetic Book + Brain Squid + Energuardian + Biting Book + Knowledge Elemental — 400+
+  { name:'Secret Library Energy', xphNum:5800, minLvl:400, maxLvl:999,
+    vocs:['all'], modes:['time'], xph:'3kk–7kk', profit:'350k–900k', tipo:'xp', dif:'dificil', task:false,
+    req:'The Secret Library Quest',
+    tibiaroute:'Secret-Library-Energy',
+    creatures:[{n:'Energetic Book'},{n:'Brain Squid'},{n:'Energuardian Of Tales'},{n:'Biting Book'},{n:'Knowledge Elemental'}],
+    charms:[{creature:'Energetic Book',charm:'Poison'},{creature:'Brain Squid',charm:'Curse'},{creature:'Energuardian Of Tales',charm:'Poison'},{creature:'Knowledge Elemental',charm:'Curse'}],
+    desc:'Seção energia da Secret Library. Biting Book faz o maior dano explosivo. Requer The Secret Library Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Secret_Library_Energy_Section' },
+
+  // Secret Library Fire — Burning Book + Guardian Of Tales + Rage Squid + Ink Blob — 500+
+  { name:'Secret Library Fire', xphNum:6500, minLvl:500, maxLvl:999,
+    vocs:['all'], modes:['time'], xph:'4kk–8kk', profit:'500k–1.5kk', tipo:'xp', dif:'dificil', task:false,
+    req:'The Secret Library Quest',
+    tibiaroute:'Secret-Library-Fire',
+    creatures:[{n:'Burning Book'},{n:'Guardian Of Tales'},{n:'Rage Squid'},{n:'Ink Blob'}],
+    charms:[{creature:'Burning Book',charm:'Freeze'},{creature:'Guardian Of Tales',charm:'Freeze'},{creature:'Rage Squid',charm:'Freeze'},{creature:'Ink Blob',charm:'Zap'}],
+    desc:'Seção fogo da Secret Library. Ink Blob faz o maior dano explosivo. Requer The Secret Library Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Secret_Library_Fire_Section' },
 
   // Frazzlemaw: 9000xp, Guzzlemaw: 10000xp — difícil, EK pede 400+
   { name:'Roshamuul Prison', xphNum:3600, minLvl:400, maxLvl:999,
@@ -5897,6 +5945,14 @@ const HUNTS = [
     tibiaroute:'Burster-Spectres',
     creatures:[{n:'Burster Spectre'}],
     desc:'Hunt solo de Burster Spectres. Grave Danger Quest. XP e profit sólidos.', wiki:'https://tibia.fandom.com/wiki/Grave_Danger' },
+
+  // Arachnophobica: 4700xp, Burster: 6000xp, Gazer: 4200xp, Ripper: 3500xp — difícil, range real 250-450
+  { name:'Buried Cathedral', xphNum:4500, minLvl:250, maxLvl:450,
+    vocs:['ed','ms'], modes:['solo','duo'], xph:'3kk–5kk', profit:'100k–300k', tipo:'xp', dif:'dificil', task:true,
+    req:'The Dream Courts Quest',
+    tibiaroute:'Buried-Cathedral-EDMS',
+    creatures:[{n:'Arachnophobica'},{n:'Burster Spectre'},{n:'Gazer Spectre'},{n:'Ripper Spectre'}],
+    desc:'Catedral submersa em Roshamuul. 4 criaturas com 50 charm pts cada. Requer The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Buried_Cathedral' },
 
   { name:'Flimsy Lost Souls Venore', xphNum:3000, minLvl:500, maxLvl:999,
     vocs:['ek'], modes:['solo'], xph:'3.5kk–5kk', profit:'700k–1.1kk', tipo:'xp', dif:'dificil', task:true,
@@ -6144,11 +6200,11 @@ const HUNTS = [
     desc:'Bairro dos Magos em Yalahar. Lizards e profit moderado.', wiki:'https://tibia.fandom.com/wiki/Magician_Quarter' },
 
   // Orc Fortress: minLvl 45
-  { name:'Orc Fortress', xphNum:55, minLvl:45, maxLvl:120,
+  { name:'Orc Fortress (iniciante)', xphNum:55, minLvl:45, maxLvl:100,
     vocs:['ek'], modes:['solo'], xph:'25k–60k', profit:'-5k a 10k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Orc Leader'},{n:'Orc Warlord'},{n:'Orc Rider'}],
-    desc:'Fortaleza dos Orcs. Bestiary e hunt clássica.', wiki:'https://tibia.fandom.com/wiki/Orc_Fortress' },
+    desc:'Fortaleza dos Orcs para EKs iniciantes. Bestiary e hunt clássica.', wiki:'https://tibia.fandom.com/wiki/Orc_Fortress' },
 
   // Fenrock: minLvl 13
   { name:'Fenrock', xphNum:35, minLvl:13, maxLvl:60,
@@ -6179,13 +6235,6 @@ const HUNTS = [
     req:'',
     creatures:[{n:'Crab'},{n:'Scorpion'},{n:'Water Elemental'}],
     desc:'Cavernas de crustáceos em Tiquanda.', wiki:'https://tibia.fandom.com/wiki/Tiquanda' },
-
-  // Nomad Cave: minLvl 15
-  { name:'Nomad Cave', xphNum:20, minLvl:15, maxLvl:60,
-    vocs:['ek'], modes:['solo'], xph:'15k–20k', profit:'30k–40k', tipo:'profit', dif:'facil', task:true,
-    req:'',
-    creatures:[{n:'Nomad'},{n:'Nomad (Blue)'}],
-    desc:'Caverna dos Nomads. Bestiary fácil e rápido.', wiki:'https://tibia.fandom.com/wiki/Nomad_Cave' },
 
   // Venore Rotworm Cave: minLvl 8
   { name:'Venore Rotworm Cave', xphNum:12, minLvl:8, maxLvl:40,
@@ -7298,6 +7347,26 @@ function toggleBoss(id, el) {
 // ══════════════════════════════════════════════════
 //  IMBUEMENTS CALCULATOR
 // ══════════════════════════════════════════════════
+
+// Sets derivados — usados para destacar itens no modal de hunt
+// Populados após DELIVERY_ITEMS e IMBU_DATA serem declarados
+let DELIVERY_SET = null; // Set com nomes de itens de weekly task
+let IMBU_ITEM_SET = null; // Set com nomes de itens de imbue
+
+function getDeliverySet() {
+  if (!DELIVERY_SET) DELIVERY_SET = new Set(DELIVERY_ITEMS.map(i => i.n.toLowerCase()));
+  return DELIVERY_SET;
+}
+function getImbuItemSet() {
+  if (!IMBU_ITEM_SET) {
+    IMBU_ITEM_SET = new Set();
+    Object.values(IMBU_DATA).forEach(imbu => {
+      (imbu.items||[]).forEach(it => IMBU_ITEM_SET.add(it.n.toLowerCase()));
+    });
+  }
+  return IMBU_ITEM_SET;
+}
+
 const IMBU_DATA = {
   // Tier 3
   vampirism3: { name:'Vampirism T3', effect:'25% Life Leech', items:[{n:'Vampire Teeth',q:25},{n:'Bloody Pincers',q:15},{n:'Wereboar Tusks',q:5}], gold:{20:100000,1:5000} },
