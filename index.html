@@ -2398,12 +2398,12 @@ PlayerName (Leader)
       #profile .pf-avatar .pf-init{font-size:2rem;font-weight:800;color:var(--bamboo,#8b5cf6)}
       #profile .pf-id{flex:1;min-width:220px}
       #profile .pf-username{font-size:1.35rem;font-weight:800;line-height:1.1;display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
-      #profile .pf-lvlbadge{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:3px 9px;border-radius:5px;background:#20242c;border:1px solid #0d0f14;box-shadow:inset 0 0 0 1px #454b57;color:var(--gold,#f0b429)}
+      #profile .pf-lvlbadge{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:3px 10px;border-radius:999px;background:rgba(139,92,246,.16);border:1px solid rgba(139,92,246,.42);color:var(--bamboo-light,#a78bfa)}
       #profile .pf-mainchar{font-size:.85rem;color:var(--muted);margin:.15rem 0 .6rem}
       #profile .pf-mainchar b{color:var(--ink,#e8e6f0);font-weight:700}
       #profile .pf-prog-top{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:.3rem}
-      #profile .pf-prog-bar{height:13px;border-radius:4px;background:#12141a;border:1px solid #0d0f14;box-shadow:inset 0 0 0 1px #3a3f49,inset 0 1px 3px rgba(0,0,0,.5);overflow:hidden;padding:1px}
-      #profile .pf-prog-fill{height:100%;width:0;border-radius:3px;background:#5a9c2e;transition:width .5s cubic-bezier(.4,0,.2,1)}
+      #profile .pf-prog-bar{height:9px;border-radius:999px;background:var(--bg-3,#23212f);overflow:hidden}
+      #profile .pf-prog-fill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--bamboo,#8b5cf6),var(--bamboo-light,#a78bfa));transition:width .5s cubic-bezier(.4,0,.2,1)}
       #profile .pf-prog-hint{font-size:.72rem;color:var(--muted);margin-top:.4rem}
       #profile .pf-tabs{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:1rem;border-bottom:1px solid var(--rule);padding-bottom:0}
       #profile .pf-tab{background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:.55rem .8rem;cursor:pointer;font-size:.9rem;font-weight:600;transition:color .15s,border-color .15s;margin-bottom:-1px}
@@ -2413,8 +2413,10 @@ PlayerName (Leader)
       @keyframes pfFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
       #profile .pf-field{margin-bottom:.85rem}
       #profile .pf-field label{display:block;font-size:.78rem;color:var(--muted);margin-bottom:.3rem;font-weight:600}
-      #profile .pf-field input,#profile .pf-field textarea{width:100%;box-sizing:border-box;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:8px;color:var(--ink,#e8e6f0);padding:.55rem .7rem;font:inherit}
-      #profile .pf-field textarea{resize:vertical;min-height:70px}
+      #profile .pf-field input,#profile .pf-field textarea{width:100%;box-sizing:border-box;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:9px;color:var(--ink,#e8e6f0);padding:.6rem .75rem;font:inherit;transition:border-color .15s,box-shadow .15s}
+      #profile .pf-field input:focus,#profile .pf-field textarea:focus{outline:none;border-color:var(--bamboo,#8b5cf6);box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+      #profile .pf-field input:disabled{opacity:.55;cursor:not-allowed}
+      #profile .pf-field textarea{resize:vertical;min-height:76px}
       #profile .pf-coins{display:inline-flex;align-items:center;gap:.25rem;font-size:.78rem;font-weight:700;color:var(--gold,#f0b429);background:rgba(240,180,41,.1);border:1px solid rgba(240,180,41,.28);border-radius:999px;padding:.12rem .55rem;margin-left:.5rem}
       #profile .gami-hero{display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap}
       #profile .gami-lvl{display:flex;flex-direction:column;align-items:center;justify-content:center;width:76px;height:76px;border-radius:50%;flex:none;background:#201f2c;border:2px solid var(--bamboo,#8b5cf6);box-shadow:0 0 0 4px rgba(139,92,246,.12)}
@@ -2424,7 +2426,7 @@ PlayerName (Leader)
       #profile .gami-rank{font-size:.95rem;font-weight:700;color:var(--ink,#e8e6f0);margin-bottom:.1rem}
       #profile .gami-next{font-size:.72rem;color:var(--bamboo-light,#a78bfa);margin-bottom:.3rem}
       #profile .gami-xpbar{height:11px;border-radius:6px;background:#141320;border:1px solid var(--rule);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.4)}
-      #profile .gami-xpfill{height:100%;border-radius:5px;background:#5a9c2e;transition:width .5s cubic-bezier(.4,0,.2,1)}
+      #profile .gami-xpfill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--bamboo,#8b5cf6),var(--bamboo-light,#a78bfa));transition:width .5s cubic-bezier(.4,0,.2,1)}
       #profile .gami-xptxt{font-size:.72rem;color:var(--muted);margin-top:.28rem}
       #profile .gami-stats{display:flex;gap:.6rem;flex-wrap:wrap}
       #profile .gami-stat{background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:10px;padding:.5rem .8rem;text-align:center;min-width:76px}
@@ -2450,6 +2452,29 @@ PlayerName (Leader)
       #profile .gami-lock{margin-left:auto;font-size:.72rem;color:var(--gold,#f0b429);background:rgba(240,180,41,.1);border:1px solid rgba(240,180,41,.28);border-radius:999px;padding:.1rem .55rem}
       #profile .gami-catwrap.locked .gami-cat-t{color:var(--muted)}
       #profile .gami-catwrap.locked .gami-m{opacity:.5}
+      /* fix: inputs preenchidos pelo navegador (autofill) nao ficam brancos */
+      input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus,textarea:-webkit-autofill{-webkit-text-fill-color:var(--ink,#eae8f2)!important;-webkit-box-shadow:0 0 0 1000px var(--bg-2,#1b1a25) inset!important;caret-color:var(--ink,#eae8f2);transition:background-color 9999s ease-in-out 0s}
+      /* switch de privacidade */
+      #profile .pf-lblrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem}
+      #profile .pf-lblrow label{margin:0}
+      #profile .pf-switch{display:inline-flex;align-items:center;gap:.45rem;cursor:pointer;font-size:.72rem;font-weight:700;color:var(--muted);user-select:none}
+      #profile .pf-switch input{position:absolute;opacity:0;width:0;height:0}
+      #profile .pf-switch .track{width:34px;height:20px;border-radius:999px;background:var(--bg-3,#23212f);border:1px solid var(--rule);position:relative;transition:background .15s,border-color .15s;flex:none}
+      #profile .pf-switch .track::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--muted);transition:transform .15s,background .15s}
+      #profile .pf-switch input:checked + .track{background:rgba(139,92,246,.35);border-color:var(--bamboo,#8b5cf6)}
+      #profile .pf-switch input:checked + .track::after{transform:translateX(14px);background:var(--bamboo-light,#a78bfa)}
+      /* Vitrine de conquistas */
+      #profile .vit-summary{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem}
+      #profile .vit-kpi{flex:1;min-width:120px;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:12px;padding:.7rem .9rem}
+      #profile .vit-kpi .v{font-size:1.3rem;font-weight:800;color:var(--ink,#eae8f2)}
+      #profile .vit-kpi .k{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+      #profile .vit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:.6rem}
+      #profile .vit-item{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-left-width:3px;border-radius:10px;padding:.6rem .75rem;transition:transform .12s,border-color .15s}
+      #profile .vit-item:hover{transform:translateY(-2px)}
+      #profile .vit-item .nm{font-size:.84rem;font-weight:700;color:var(--ink,#eae8f2);line-height:1.2}
+      #profile .vit-item .mt{font-size:.68rem;color:var(--muted);margin-top:.25rem;display:flex;justify-content:space-between;gap:.4rem}
+      #profile .vit-item .rar{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+      #profile .vit-empty{font-size:.85rem;color:var(--muted);line-height:1.6;background:var(--bg-2,#1b1a25);border:1px dashed var(--rule);border-radius:12px;padding:1.1rem 1.2rem;text-align:center}
     </style>
     <h2 class="sec-title">Meu Perfil</h2>
     <p class="sec-sub">Sua conta, seus personagens e seu desempenho pessoal no Tibia Panda.</p>
@@ -2468,6 +2493,7 @@ PlayerName (Leader)
     <div class="pf-tabs">
       <button class="pf-tab on" data-tab="chars" onclick="tpProfTab('chars',this)">🎽 Personagens</button>
       <button class="pf-tab" data-tab="prog" onclick="tpProfTab('prog',this)">🎮 Progressão</button>
+      <button class="pf-tab" data-tab="vit" onclick="tpProfTab('vit',this)">🏆 Conquistas</button>
       <button class="pf-tab" data-tab="dados" onclick="tpProfTab('dados',this)">📝 Dados pessoais</button>
       <button class="pf-tab" data-tab="seg" onclick="tpProfTab('seg',this)">🔒 Segurança</button>
     </div>
@@ -2519,17 +2545,38 @@ PlayerName (Leader)
       </div>
     </div>
 
+    <div class="pf-panel" data-panel="vit" style="display:none">
+      <div class="card">
+        <div class="tool-title" style="font-size:1.05rem;margin-bottom:.3rem">🏆 Vitrine de Conquistas</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:1rem;line-height:1.55">As conquistas do seu <b>personagem principal</b>, com raridade e categoria. Deixe seus achievements <b>públicos</b> no Tibia.com (Characters → Edit → "Show Achievements") pra elas aparecerem aqui.</div>
+        <div id="pf-vit-body"><div class="api-loading"><div class="spinner"></div> Carregando conquistas...</div></div>
+      </div>
+    </div>
+
     <div class="pf-panel" data-panel="dados" style="display:none">
       <div class="card">
-        <div class="tool-title" style="font-size:1rem;margin-bottom:.4rem">Dados pessoais</div>
-        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.9rem">Seu nome de exibição no site é sempre o seu <b>personagem principal</b> — não precisa preencher aqui.</div>
-        <div class="pf-field"><label>Nome completo</label><input id="pf-in-fullname" placeholder="Seu nome completo"></div>
-        <div class="pf-field"><label>E-mail</label><input id="pf-in-email2" disabled style="opacity:.7"></div>
-        <div style="display:flex;gap:.7rem;flex-wrap:wrap">
-          <div class="pf-field" style="flex:1;min-width:160px"><label>Telefone</label><input id="pf-in-phone" placeholder="(11) 90000-0000"></div>
-          <div class="pf-field" style="flex:1;min-width:160px"><label>País</label><input id="pf-in-country" placeholder="Brasil"></div>
+        <div class="tool-title" style="font-size:1.05rem;margin-bottom:.3rem">Dados pessoais</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:.4rem;line-height:1.55">Seu nome de exibição no site é sempre o seu <b>personagem principal</b>. Use os interruptores <span style="color:var(--bamboo-light,#a78bfa);font-weight:700">roxos</span> pra escolher o que fica <b>visível no seu perfil público</b> — o resto fica só pra você.</div>
+        <div style="font-size:.74rem;color:var(--muted);background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:8px;padding:.5rem .7rem;margin-bottom:1.1rem">🔒 Seu <b>e-mail</b> nunca é exibido publicamente.</div>
+        <div class="pf-field">
+          <div class="pf-lblrow"><label>Nome completo</label><label class="pf-switch"><input type="checkbox" id="pf-pub-full_name" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-full_name">Oculto</span></label></div>
+          <input id="pf-in-fullname" placeholder="Seu nome completo">
         </div>
-        <div class="pf-field"><label>Bio</label><textarea id="pf-in-bio" placeholder="Fale um pouco sobre você e sua jogatina..."></textarea></div>
+        <div class="pf-field"><label>E-mail</label><input id="pf-in-email2" disabled></div>
+        <div style="display:flex;gap:.8rem;flex-wrap:wrap">
+          <div class="pf-field" style="flex:1;min-width:170px">
+            <div class="pf-lblrow"><label>Telefone</label><label class="pf-switch"><input type="checkbox" id="pf-pub-phone" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-phone">Oculto</span></label></div>
+            <input id="pf-in-phone" placeholder="(11) 90000-0000">
+          </div>
+          <div class="pf-field" style="flex:1;min-width:170px">
+            <div class="pf-lblrow"><label>País</label><label class="pf-switch"><input type="checkbox" id="pf-pub-country" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-country">Oculto</span></label></div>
+            <input id="pf-in-country" placeholder="Brasil">
+          </div>
+        </div>
+        <div class="pf-field">
+          <div class="pf-lblrow"><label>Bio</label><label class="pf-switch"><input type="checkbox" id="pf-pub-bio" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-bio">Oculto</span></label></div>
+          <textarea id="pf-in-bio" placeholder="Fale um pouco sobre você e sua jogatina..."></textarea>
+        </div>
         <button class="calc-btn" style="margin-top:.2rem" onclick="tpSavePersonal()" id="pf-save-personal">Salvar dados</button>
       </div>
     </div>
@@ -3095,7 +3142,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-11q</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-11s</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6111,7 +6158,7 @@ const PANDA_SB_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const OUTFIT_BASE = 'outfits-pack';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-11q';
+window.TP_BUILD = '2026-08-11s';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11008,6 +11055,63 @@ function ewEnsureTcInput() {
     document.querySelectorAll('#profile .pf-tab').forEach(function(b){b.classList.toggle('on',b===btn);});
     document.querySelectorAll('#profile .pf-panel').forEach(function(p){p.style.display=(p.dataset.panel===name)?'':'none';});
     if(name==='prog') tpLoadGamify();
+    if(name==='vit') tpLoadVitrine();
+  };
+  window.tpSyncPrivLabels=function(){
+    ['full_name','phone','country','bio'].forEach(function(k){
+      var cb=g('pf-pub-'+k), l=g('pf-publbl-'+k); if(!l) return;
+      var on=cb&&cb.checked; l.textContent=on?'Público':'Oculto'; l.style.color=on?'var(--bamboo-light,#a78bfa)':'var(--muted)';
+    });
+  };
+  var VIT_RAR={comum:['#8a8a99','Comum'],incomum:['#3ecf8e','Incomum'],raro:['#4a9eff','Raro'],'épico':['#a78bfa','Épico'],epico:['#a78bfa','Épico'],'lendário':['#f0b429','Lendário'],lendario:['#f0b429','Lendário']};
+  function vitRar(r){ return VIT_RAR[(r||'').toLowerCase()]||['#8a8a99',(r||'Comum')]; }
+  async function vitCatalog(){
+    if(window.__ACHV_CAT) return window.__ACHV_CAT;
+    var map={};
+    try{
+      var r=await (window.tpAuthFetch||fetch)(SB+'/rest/v1/tibia_achievements?select=name,rarity,category,points,secret');
+      var rows=await r.json();
+      (Array.isArray(rows)?rows:[]).forEach(function(a){ map[(a.name||'').toLowerCase()]=a; });
+    }catch(e){}
+    window.__ACHV_CAT=map; return map;
+  }
+  window.tpLoadVitrine=async function(){
+    var body=g('pf-vit-body'); if(!body||!AUTH) return;
+    var prof=AUTH.profile||{};
+    var feat=pfFeatured(window.__tpChars||[], prof.main_char);
+    if(!feat){ body.innerHTML='<div class="vit-empty">Defina um <b>personagem principal verificado</b> na aba Personagens pra ver a vitrine dele aqui. 🐼</div>'; return; }
+    body.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando conquistas de '+feat.name+'...</div>';
+    try{
+      var cat=await vitCatalog();
+      var data=await tibiaFetch('/v4/character/'+encodeURIComponent(feat.name));
+      var ch=data&&data.character&&data.character.character;
+      var achs=(ch&&ch.achievements)||[];
+      var pts=(ch&&ch.achievement_points)||0;
+      var rarCount={};
+      var enriched=achs.map(function(a){
+        var meta=cat[(a.name||'').toLowerCase()]||{};
+        var rar=meta.rarity||'comum'; rarCount[rar]=(rarCount[rar]||0)+1;
+        return {name:a.name,secret:a.secret,rarity:rar,category:meta.category||'—',points:(meta.points!=null?meta.points:(a.grade||1))};
+      }).sort(function(x,y){ var o={'lendário':5,lendario:5,'épico':4,epico:4,raro:3,incomum:2,comum:1}; return (o[(y.rarity||'').toLowerCase()]||0)-(o[(x.rarity||'').toLowerCase()]||0) || (y.points-x.points); });
+      var epleg=(rarCount['lendário']||0)+(rarCount.lendario||0)+(rarCount['épico']||0)+(rarCount.epico||0);
+      var kpis='<div class="vit-summary">'
+        +'<div class="vit-kpi"><div class="v">'+pts+'</div><div class="k">Pontos (main)</div></div>'
+        +'<div class="vit-kpi"><div class="v">'+achs.length+'</div><div class="k">Conquistas públicas</div></div>'
+        +'<div class="vit-kpi"><div class="v">'+epleg+'</div><div class="k">Épicas + Lendárias</div></div>'
+        +'</div>';
+      if(!achs.length){
+        body.innerHTML=kpis+'<div class="vit-empty">'+feat.name+' tem <b>'+pts+' pontos</b> de achievement, mas a lista está <b>privada</b> no Tibia.com.<br><br>Ative em <em>tibia.com → sua conta → Characters → Edit → marque "Show Achievements"</em> pra montar sua vitrine aqui. 🐼</div>';
+        return;
+      }
+      var grid='<div class="vit-grid">'+enriched.map(function(a){
+        var rc=vitRar(a.rarity);
+        return '<div class="vit-item" style="border-left-color:'+rc[0]+'">'
+          +'<div class="nm">'+(a.secret?'🔒 ':'')+a.name+'</div>'
+          +'<div class="mt"><span class="rar" style="color:'+rc[0]+'">'+rc[1]+'</span><span>'+a.category+'</span></div>'
+          +'</div>';
+      }).join('')+'</div>';
+      body.innerHTML=kpis+grid;
+    }catch(e){ body.innerHTML='<div class="vit-empty">Não foi possível carregar as conquistas agora. Tente de novo em instantes.</div>'; }
   };
   function tpSyncDisplayName(name){
     if(!AUTH||!name) return;
@@ -11042,6 +11146,7 @@ function ewEnsureTcInput() {
   function tpHeaderProgress(){
     var badge=g('pf-level'),fill=g('pf-prog-fill'),pct=g('pf-prog-pct'),lbl=g('pf-prog-top-lbl'),hint=g('pf-prog-hint'),coins=g('pf-coins');
     var st=window.__GAMI;
+    if(!st||!st.progress){ try{ var _cp=JSON.parse(localStorage.getItem('tp-gami')||'null'); if(_cp&&_cp.xp!=null) st={progress:_cp}; }catch(e){} }
     if(st&&st.progress){
       var pr=st.progress, lv=gmLevel(pr.xp);
       if(badge) badge.textContent='Nível '+lv.level;
@@ -11051,11 +11156,12 @@ function ewEnsureTcInput() {
       if(coins){ coins.style.display=''; coins.textContent='🪙 '+(pr.coins||0); }
       if(hint){ var cl=0; if(st.categories){ st.categories.forEach(function(c){ if(!c.locked)(c.missions||[]).forEach(function(m){ if(m.progress>=m.target&&!m.claimed) cl++; }); }); } else { cl=(st.missions||[]).filter(function(m){return m.progress>=m.target&&!m.claimed;}).length; } hint.textContent=cl?('🎁 '+cl+' recompensa(s) pra resgatar em Progressão!'):('🔥 Streak: '+(pr.streak||0)+' dia(s)'); }
     } else {
+      // gm_state ainda não carregou: NUNCA rotular completude de perfil como "Nível".
       var pc=window.__PFCOMP; if(!pc) return;
       if(fill) fill.style.width=pc.pct+'%';
       if(pct) pct.textContent=pc.pct+'%';
       if(lbl) lbl.textContent='Perfil completo';
-      if(badge) badge.textContent='Nível '+(1+pc.done);
+      // badge mantém o nível real (cache/HTML) até o gm_state chegar — evita número falso.
       if(hint) hint.textContent=pc.next?('Próximo: '+pc.next.label):'Perfil completo! 🎉';
     }
   }
@@ -11066,7 +11172,7 @@ function ewEnsureTcInput() {
   }
   window.tpLoadGamify=async function(){
     if(!AUTH) return;
-    try{ var st=await gmCall('gm_state',{}); window.__GAMI=st; tpRenderGamify(st); tpHeaderProgress(); }
+    try{ var st=await gmCall('gm_state',{}); window.__GAMI=st; try{localStorage.setItem('tp-gami',JSON.stringify(st.progress||{}));}catch(e){} tpRenderGamify(st); tpHeaderProgress(); }
     catch(e){ /* silencioso: cabeçalho mantém o modo perfil-completo */ }
   };
   window.tpRenderGamify=function(st){
@@ -11246,6 +11352,9 @@ function ewEnsureTcInput() {
     if(g('pf-in-country')) g('pf-in-country').value=prof.country||'';
     if(g('pf-in-email')) g('pf-in-email').value=AUTH.user.email||'';
     if(g('pf-in-email2')) g('pf-in-email2').value=AUTH.user.email||'';
+    var pv=prof.privacy||{};
+    ['full_name','phone','country','bio'].forEach(function(k){ var cb=g('pf-pub-'+k); if(cb) cb.checked=!!pv[k]; });
+    if(window.tpSyncPrivLabels) tpSyncPrivLabels();
     tpLoadChars();
   };
   window.tpLoadChars=async function(){
@@ -11297,6 +11406,7 @@ function ewEnsureTcInput() {
   window.tpSavePersonal=async function(){
     if(!AUTH) return;
     var patch={ full_name:((g('pf-in-fullname').value||'').trim())||null, phone:((g('pf-in-phone').value||'').trim())||null, bio:((g('pf-in-bio').value||'').trim())||null, country:((g('pf-in-country').value||'').trim())||null, updated_at:new Date().toISOString() };
+    patch.privacy={ full_name:!!(g('pf-pub-full_name')&&g('pf-pub-full_name').checked), phone:!!(g('pf-pub-phone')&&g('pf-pub-phone').checked), country:!!(g('pf-pub-country')&&g('pf-pub-country').checked), bio:!!(g('pf-pub-bio')&&g('pf-pub-bio').checked) };
     var btn=g('pf-save-personal'); if(btn){btn.disabled=true;btn.textContent='Salvando...';}
     try{
       var res=await tpAuthFetch(SB+'/rest/v1/profiles?id=eq.'+AUTH.user.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(patch)});
