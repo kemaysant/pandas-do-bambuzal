@@ -1389,6 +1389,10 @@ async function tibiaFetch(path) {
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 12.094A5.973 5.973 0 004 15v1H1v-1a3 3 0 013.75-2.906z"/></svg>
         <span class="nav-label">Party Finder</span>
       </button>
+      <button class="nav-btn" onclick="showPage('character',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Personagem</span>
+      </button>
       <button class="nav-btn" onclick="showPage('quests',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
         <span class="nav-label">Guia de Quests</span>
@@ -1720,6 +1724,96 @@ async function tibiaFetch(path) {
   </section>
 
   <!-- ─── EVENTS ─── -->
+  <section class="page-section" id="character">
+    <style>
+    #character .cpg-search{display:flex;gap:8px;margin-bottom:18px}
+    #character .cpg-search input{flex:1;background:var(--bg-2);border:1px solid var(--border);color:var(--ink);padding:12px 16px;border-radius:10px;font-size:.95rem;outline:none;transition:border-color .2s, box-shadow .2s}
+    #character .cpg-search input:focus{border-color:var(--bamboo);box-shadow:0 0 0 3px rgba(139,92,246,.15)}
+    #character .cpg-search button{background:var(--bamboo);color:#fff;border:none;padding:0 20px;border-radius:10px;font-weight:600;cursor:pointer;transition:background .2s, transform .05s}
+    #character .cpg-search button:hover{background:var(--bamboo-light)} #character .cpg-search button:active{transform:translateY(1px)}
+    #character .cpg-card{background:linear-gradient(180deg,var(--bg-1),var(--surface));border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.35)}
+    #character .cpg-hero{display:flex;flex-wrap:wrap;gap:16px;align-items:center;padding:20px 22px;margin-bottom:14px}
+    #character .cpg-avatar{width:64px;height:64px;border-radius:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:30px;background:radial-gradient(circle at 30% 25%,var(--bamboo-light),var(--bamboo));box-shadow:0 6px 18px rgba(139,92,246,.35), inset 0 0 0 1px rgba(255,255,255,.08)}
+    #character .cpg-main{flex:1;min-width:220px}
+    #character .cpg-name{font-size:1.6rem;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+    #character .cpg-sub{color:var(--ink-3);font-size:.85rem;margin-top:2px}
+    #character .cpg-sub b{color:var(--bamboo-light);font-weight:600}
+    #character .cpg-lvlrow{display:flex;align-items:center;gap:10px;margin-top:9px;flex-wrap:wrap}
+    #character .cpg-lvltag{font-size:.8rem;color:var(--ink-2)} #character .cpg-lvltag b{color:var(--ink);font-weight:700}
+    #character .cpg-lvlbar{flex:1;max-width:180px;height:7px;background:var(--bg-3);border-radius:99px;overflow:hidden}
+    #character .cpg-lvlbar>i{display:block;height:100%;background:linear-gradient(90deg,#54c98a,#7ee0aa);border-radius:99px;transition:width .8s cubic-bezier(.2,.8,.2,1)}
+    #character .cpg-voc{font-size:.78rem;color:#54c98a;font-weight:600}
+    #character .cpg-stats{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px 22px;min-width:290px}
+    #character .cpg-stat{display:flex;align-items:center;gap:9px;font-size:.86rem}
+    #character .cpg-stat .ic{font-size:1rem;width:18px;text-align:center;flex-shrink:0}
+    #character .cpg-stat .track{flex:1;height:8px;background:var(--bg-3);border-radius:99px;overflow:hidden;min-width:40px}
+    #character .cpg-stat .track>i{display:block;height:100%;border-radius:99px;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+    #character .cpg-stat .val{font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink);white-space:nowrap}
+    #character .cpg-fhp{background:linear-gradient(90deg,#c0392b,#e87070)}
+    #character .cpg-fmana{background:linear-gradient(90deg,#2f5fc0,#5b8def)}
+    #character .cpg-tabs{display:flex;gap:2px;padding:6px;background:var(--bg-1);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow-x:auto}
+    #character .cpg-tab{position:relative;border:none;background:transparent;color:var(--ink-3);font-size:.9rem;font-weight:600;padding:10px 16px;border-radius:8px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:7px;transition:color .22s, background .22s}
+    #character .cpg-tab:hover{color:var(--ink-2);background:var(--bg-2)}
+    #character .cpg-tab.on{color:#fff;background:var(--bamboo-dim)}
+    #character .cpg-tab.on::after{content:"";position:absolute;left:14px;right:14px;bottom:3px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--bamboo),var(--bamboo-light))}
+    #character .cpg-tab .bdg{font-size:.6rem;background:var(--bg-3);color:var(--ink-3);padding:1px 6px;border-radius:99px}
+    #character .cpg-panel{padding:20px 22px;display:none;animation:cpgfade .35s cubic-bezier(.2,.8,.2,1)}
+    #character .cpg-panel.on{display:block}
+    @keyframes cpgfade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+    #character .cpg-panel h2{font-size:1.05rem;display:flex;align-items:center;gap:9px;margin-bottom:2px}
+    #character .cpg-panel .upd{margin-left:auto;font-size:.72rem;color:var(--muted);font-weight:400}
+    #character .cpg-info{display:grid;grid-template-columns:1fr 1fr;gap:0 40px;margin-top:14px}
+    #character .cpg-kv{display:flex;justify-content:space-between;gap:12px;padding:12px 2px;border-bottom:1px solid var(--border)}
+    #character .cpg-kv .k{color:var(--ink-3);font-size:.86rem}
+    #character .cpg-kv .v{color:var(--ink);font-weight:600;font-size:.9rem;text-align:right}
+    #character .cpg-kv .v.lk{color:#54c98a}
+    #character .cpg-tbl{width:100%;border-collapse:collapse;margin-top:12px}
+    #character .cpg-tbl thead th{text-align:left;color:var(--ink-3);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:0 14px 10px;border-bottom:1px solid var(--border-2)}
+    #character .cpg-tbl th.r,#character .cpg-tbl td.r{text-align:right}
+    #character .cpg-tbl tbody td{padding:13px 14px;border-bottom:1px solid var(--border);font-size:.88rem}
+    #character .cpg-tbl tbody tr{transition:background .18s} #character .cpg-tbl tbody tr:hover{background:var(--bg-2)}
+    #character .cpg-tbl td.pos{color:#54c98a;font-weight:700;font-variant-numeric:tabular-nums}
+    #character .cpg-empty{color:var(--muted);text-align:center;padding:30px;font-size:.9rem}
+    #character .cpg-soon{margin-top:14px;padding:20px;border:1px dashed var(--border-2);border-radius:12px;color:var(--ink-3);font-size:.88rem;text-align:center;background:var(--bg-1)}
+    #character .cpg-soon b{color:var(--bamboo-light)}
+    @media(max-width:640px){#character .cpg-info{grid-template-columns:1fr}#character .cpg-stats{grid-template-columns:1fr}}
+    </style>
+
+    <h2 class="sec-title">🐼 Personagem</h2>
+    <p class="sec-sub">Perfil completo de qualquer personagem — dados ao vivo via TibiaData.</p>
+
+    <div class="cpg-search">
+      <input id="cpg-q" placeholder="Buscar personagem no Tibia…" onkeydown="if(event.key==='Enter')cpgGo()">
+      <button onclick="cpgGo()">Buscar</button>
+    </div>
+
+    <div id="cpg-err" style="display:none;background:var(--red-dim);border:1px solid var(--red);color:var(--red);padding:12px 16px;border-radius:10px;margin-bottom:14px;font-size:.88rem"></div>
+    <div id="cpg-load" style="display:none;align-items:center;gap:10px;color:var(--muted);padding:20px"><div class="spinner"></div> Buscando personagem…</div>
+
+    <div id="cpg-body" style="display:none">
+      <div class="cpg-card cpg-hero" id="cpg-hero"></div>
+      <div class="cpg-tabs" id="cpg-tabs">
+        <button class="cpg-tab on" data-t="personagem">👤 Personagem</button>
+        <button class="cpg-tab" data-t="mortes">💀 Mortes</button>
+        <button class="cpg-tab" data-t="rankings">🏆 Rankings</button>
+        <button class="cpg-tab" data-t="historico">📈 Histórico <span class="bdg">em breve</span></button>
+        <button class="cpg-tab" data-t="exp">⚡ Experiência <span class="bdg">em breve</span></button>
+      </div>
+      <div class="cpg-card">
+        <div class="cpg-panel on" data-p="personagem"></div>
+        <div class="cpg-panel" data-p="mortes"></div>
+        <div class="cpg-panel" data-p="rankings"></div>
+        <div class="cpg-panel" data-p="historico"></div>
+        <div class="cpg-panel" data-p="exp"></div>
+      </div>
+    </div>
+
+    <div id="cpg-placeholder" style="text-align:center;color:var(--muted);padding:50px 20px">
+      <div style="font-size:2.5rem;margin-bottom:10px">🔎</div>
+      Digite o nome de um personagem pra ver o perfil completo.
+    </div>
+  </section>
+
   <section class="page-section" id="events">
     <h2 class="sec-title">Eventos</h2>
     <p class="sec-sub">Novidades e eventos oficiais do Tibia (ao vivo) + eventos internos da guild.</p>
@@ -3001,7 +3095,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-11n</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-11q</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6017,7 +6111,7 @@ const PANDA_SB_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const OUTFIT_BASE = 'outfits-pack';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-11n';
+window.TP_BUILD = '2026-08-11q';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -7327,6 +7421,187 @@ function calcLoot() {
 //  NAVEGAÇÃO
 // ══════════════════════════════════════════════════
 let dtReady = false;
+// ══════════════════════════════════════════════════
+//  CHARACTER PAGE (cpg) — perfil completo estilo guildstats
+// ══════════════════════════════════════════════════
+var CPG_LAST=null;
+function cpgVoc(v){v=(v||'').toLowerCase();
+  if(v.indexOf('knight')>=0)return{g:[15,5,25],e:'⚔️'};
+  if(v.indexOf('paladin')>=0)return{g:[10,15,20],e:'🏹'};
+  if(v.indexOf('druid')>=0||v.indexOf('sorcerer')>=0)return{g:[5,30,10],e:'🔮'};
+  if(v.indexOf('monk')>=0)return{g:[10,10,15],e:'🧘'};
+  return{g:[5,5,10],e:'🐼'};}
+function cpgNf(n){return Number(n||0).toLocaleString('pt-BR');}
+function cpgDT(s){if(!s)return'—';var d=new Date(s);if(isNaN(d))return'—';
+  return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+function cpgDate(s){if(!s)return'—';var d=new Date(s);return isNaN(d)?'—':d.toLocaleDateString('pt-BR');}
+function cpgYears(s){var d=new Date(s);if(isNaN(d))return'';var y=Math.floor((Date.now()-d)/3.156e10);return y>0?'('+y+' anos atrás)':'';}
+function cpgStats(voc,lvl){var g=cpgVoc(voc).g;var n=Math.max(0,lvl-8);
+  return{hp:185+g[0]*n,mana:90+g[1]*n,cap:470+g[2]*n,smin:Math.round(lvl*2/3),smax:Math.round(lvl*3/2)};}
+function cpgTibAge(created){var d=new Date(created);if(isNaN(d))return'—';
+  var months=(Date.now()-d)/8.64e7;var years=Math.floor(months/12);var rem=Math.floor(months%12);
+  return years+' anos, '+rem+' meses';}
+function cpgHero(D){
+  var c=D.character;var s=cpgStats(c.vocation,c.level);var ic=cpgVoc(c.vocation).e;
+  var online=c.status==='online';
+  document.getElementById('cpg-hero').innerHTML=
+    '<div class="cpg-avatar">'+ic+'</div>'+
+    '<div class="cpg-main">'+
+      '<div class="cpg-name">'+c.name+(online?' <span style="font-size:.7rem;color:#54c98a">● online</span>':'')+'</div>'+
+      '<div class="cpg-sub">Guilda <b>'+((c.guild&&c.guild.name)||'—')+'</b> · '+c.world+' · '+(c.residence||'—')+'</div>'+
+      '<div class="cpg-lvlrow">'+
+        '<span class="cpg-lvltag">Level <b>'+c.level+'</b></span>'+
+        '<div class="cpg-lvlbar"><i style="width:'+Math.min(95,25+c.level*0.06)+'%"></i></div>'+
+        '<span class="cpg-voc">⬆ '+c.vocation+'</span>'+
+      '</div>'+
+    '</div>'+
+    '<div class="cpg-stats">'+
+      '<div class="cpg-stat"><span class="ic">❤️</span><div class="track"><i class="cpg-fhp" style="width:58%"></i></div><span class="val">'+cpgNf(s.hp)+'</span></div>'+
+      '<div class="cpg-stat"><span class="ic">💰</span><span class="val">'+cpgNf(s.cap)+'</span></div>'+
+      '<div class="cpg-stat"><span class="ic">⚡</span><div class="track"><i class="cpg-fmana" style="width:74%"></i></div><span class="val">'+cpgNf(s.mana)+'</span></div>'+
+      '<div class="cpg-stat"><span class="ic">🛡️</span><span class="val">'+s.smin+'–'+s.smax+'</span></div>'+
+    '</div>';
+}
+function cpgPersonagem(D){
+  var c=D.character;var ai=D.account_information||{};
+  function kv(k,v,lk){return '<div class="cpg-kv"><span class="k">'+k+'</span><span class="v'+(lk?' lk':'')+'">'+v+'</span></div>';}
+  document.querySelector('#character [data-p="personagem"]').innerHTML=
+    '<h2>👤 Personagem <span class="upd">via TibiaData</span></h2>'+
+    '<div class="cpg-info">'+
+      kv('Mundo',c.world,true)+
+      kv('Vocação',c.vocation)+
+      kv('Sexo',c.sex==='female'?'Female ♀':'Male ♂')+
+      kv('Residência',c.residence||'—')+
+      kv('Último login',cpgDT(c.last_login))+
+      kv('Status da conta',c.account_status||'—')+
+      kv('Pontos de Achievements',cpgNf(c.achievement_points))+
+      kv('Títulos',c.unlocked_titles||0)+
+      kv('Idade tibiana',cpgTibAge(ai.created))+
+      kv('Conta criada',cpgDate(ai.created)+' '+cpgYears(ai.created))+
+    '</div>';
+}
+function cpgMortes(D){
+  var dd=D.deaths||[];var rows;
+  if(dd.length){rows=dd.map(function(d){return '<tr><td>'+cpgDT(d.time||d.date)+'</td>'+
+    '<td class="r" style="color:var(--red);font-weight:700">nv '+d.level+'</td>'+
+    '<td>'+String(d.reason||'').replace(/</g,'&lt;')+'</td></tr>';}).join('');}
+  else{rows='<tr><td colspan="3"><div class="cpg-empty">Sem mortes recentes 🎉</div></td></tr>';}
+  document.querySelector('#character [data-p="mortes"]').innerHTML=
+    '<h2>💀 Mortes <span class="upd">últimas registradas</span></h2>'+
+    '<table class="cpg-tbl"><thead><tr><th>Quando</th><th class="r">Level</th><th>Motivo</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function cpgRankings(){
+  document.querySelector('#character [data-p="rankings"]').innerHTML=
+    '<h2>🏆 Rankings</h2>'+
+    '<div class="cpg-soon">A posição no ranking (Experience/Magic + pontos) precisa do <b>rastreador diário</b> — próxima peça do módulo. Estrutura já pronta:'+
+    '<table class="cpg-tbl" style="margin-top:16px;text-align:left"><thead><tr><th>Habilidade</th><th class="r">Valor</th><th class="r">Posição</th></tr></thead><tbody>'+
+    '<tr><td>⭐ Experience</td><td class="r">—</td><td class="r pos">#—</td></tr>'+
+    '<tr><td>🔵 Magic Level</td><td class="r">—</td><td class="r pos">#—</td></tr>'+
+    '</tbody></table></div>';
+}
+function cpgSoon(name){
+  var map={historico:['📈 Histórico','Lista de cada level up com data — vem do snapshot diário.'],
+           exp:['⚡ Experiência','Gráfico de exp ao longo do tempo, exp/dia, melhor dia e previsão de nível.']};
+  var m=map[name];
+  document.querySelector('#character [data-p="'+name+'"]').innerHTML='<h2>'+m[0]+'</h2>'+
+    '<div class="cpg-soon">'+m[1]+'<br><br>Fica pronto quando ligarmos o <b>rastreador de personagem</b> (job diário no Supabase).</div>';
+}
+function cpgRenderAll(D){CPG_LAST=D;cpgHero(D);cpgPersonagem(D);cpgMortes(D);cpgRankings();cpgSoon('historico');cpgSoon('exp');
+  document.getElementById('cpg-body').style.display='block';
+  document.getElementById('cpg-placeholder').style.display='none';}
+async function cpgGo(){
+  var el=document.getElementById('cpg-q');var name=(el&&el.value||'').trim();if(!name)return;
+  var err=document.getElementById('cpg-err'),load=document.getElementById('cpg-load'),ph=document.getElementById('cpg-placeholder');
+  err.style.display='none';ph.style.display='none';load.style.display='flex';
+  try{
+    var data=await tibiaFetch('/v4/character/'+encodeURIComponent(name));
+    var c=data&&data.character&&data.character.character;
+    if(!c)throw new Error('Personagem não encontrado no Tibia.');
+    cpgRenderAll({character:c,account_information:data.character.account_information||{},deaths:data.character.deaths||[]});
+  }catch(e){
+    err.textContent=(e&&e.message)||'Erro ao buscar personagem.';err.style.display='block';
+    if(!CPG_LAST){document.getElementById('cpg-body').style.display='none';ph.style.display='block';}
+  }finally{load.style.display='none';}
+}
+if(document.getElementById('cpg-tabs')){
+  document.getElementById('cpg-tabs').addEventListener('click',function(e){
+    var b=e.target.closest('.cpg-tab');if(!b)return;
+    document.querySelectorAll('#character .cpg-tab').forEach(function(t){t.classList.remove('on');});
+    b.classList.add('on');var t=b.dataset.t;
+    document.querySelectorAll('#character .cpg-panel').forEach(function(p){p.classList.toggle('on',p.dataset.p===t);});
+  });
+}
+
+// abre a página Personagem já preenchida com um char verificado da conta
+window.tpOpenCharPage=function(id){
+  var c=(window.__tpChars||[]).filter(function(x){return String(x.id)===String(id);})[0];
+  if(!c) return;
+  var nav=document.querySelector('.nav-btn[onclick*="character"]');
+  showPage('character', nav);
+  var inp=document.getElementById('cpg-q'); if(inp) inp.value=c.name;
+  if(typeof cpgGo==='function') cpgGo();
+};
+
+// Painel expansível do char DENTRO do Meu Perfil (não navega)
+function tpCharExpandHTML(c, ai, deaths){
+  var s=cpgStats(c.vocation, c.level);
+  var online=c.status==='online';
+  function stat(ic, val, fill, col){
+    return '<div style="display:flex;align-items:center;gap:8px;font-size:.82rem">'
+      +'<span style="width:16px;text-align:center">'+ic+'</span>'
+      +(fill?'<div style="flex:1;height:7px;background:var(--bg-3);border-radius:99px;overflow:hidden;min-width:36px"><i style="display:block;height:100%;width:'+fill+'%;background:'+col+';border-radius:99px"></i></div>':'')
+      +'<span style="font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap">'+val+'</span></div>';
+  }
+  function kv(k,v){
+    return '<div style="display:flex;justify-content:space-between;gap:10px;padding:8px 2px;border-bottom:1px solid var(--rule)">'
+      +'<span style="color:var(--muted);font-size:.78rem">'+k+'</span>'
+      +'<span style="font-weight:600;font-size:.82rem;text-align:right">'+v+'</span></div>';
+  }
+  var statBox='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 18px;background:var(--bg-2);border:1px solid var(--rule);border-radius:10px;padding:10px 12px;margin-bottom:10px">'
+    + stat('❤️', cpgNf(s.hp), 58, 'linear-gradient(90deg,#c0392b,#e87070)')
+    + stat('💰', cpgNf(s.cap), 0, '')
+    + stat('⚡', cpgNf(s.mana), 74, 'linear-gradient(90deg,#2f5fc0,#5b8def)')
+    + stat('🛡️', s.smin+'–'+s.smax, 0, '')
+    + '</div>';
+  var info='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 22px">'
+    + kv('Mundo', c.world)
+    + kv('Vocação', c.vocation)
+    + kv('Sexo', c.sex==='female'?'Female ♀':'Male ♂')
+    + kv('Residência', c.residence||'—')
+    + kv('Último login', cpgDT(c.last_login))
+    + kv('Status', c.account_status||'—')
+    + kv('Pontos de Achievements', cpgNf(c.achievement_points))
+    + kv('Títulos', c.unlocked_titles||0)
+    + kv('Idade tibiana', cpgTibAge(ai.created))
+    + kv('Conta criada', cpgDate(ai.created)+' '+cpgYears(ai.created))
+    + '</div>';
+  var dd=(deaths||[]).slice(0,3);
+  var deathsHtml='';
+  if(dd.length){
+    deathsHtml='<div style="margin-top:10px"><div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:6px">💀 Mortes recentes</div>'
+      + dd.map(function(d){return '<div style="display:flex;gap:8px;font-size:.78rem;padding:5px 0;border-bottom:1px solid var(--rule)"><span style="color:var(--muted);white-space:nowrap">'+cpgDT(d.time||d.date)+'</span><span style="color:#e87070;font-weight:700;white-space:nowrap">nv '+d.level+'</span><span style="color:var(--ink-2);min-width:0">'+String(d.reason||'').replace(/</g,'&lt;')+'</span></div>';}).join('')
+      + '</div>';
+  }
+  return '<div style="background:linear-gradient(180deg,var(--bg-1),var(--surface,var(--bg-2)));border:1px solid var(--rule);border-radius:10px;padding:14px 16px">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
+      + '<span style="font-weight:700;font-size:.9rem">'+c.name+(online?' <span style="font-size:.68rem;color:#54c98a">● online</span>':'')+'</span>'
+      + '<span style="font-size:.7rem;color:var(--muted)">via TibiaData</span></div>'
+    + statBox + info + deathsHtml + '</div>';
+}
+window.tpToggleCharExpand=function(id){
+  var c=(window.__tpChars||[]).filter(function(x){return String(x.id)===String(id);})[0]; if(!c) return;
+  var box=document.getElementById('tpexp-'+id); if(!box) return;
+  var btn=document.getElementById('tpexpbtn-'+id);
+  if(box.style.display!=='none'){ box.style.display='none'; if(btn) btn.textContent='📊 Perfil'; return; }
+  box.style.display='block'; if(btn) btn.textContent='📊 Ocultar';
+  box.innerHTML='<div style="padding:.7rem;color:var(--muted);font-size:.8rem">Carregando dados de '+c.name+'…</div>';
+  tibiaFetch('/v4/character/'+encodeURIComponent(c.name)).then(function(data){
+    var ch=data&&data.character&&data.character.character;
+    if(!ch){ box.innerHTML='<div style="padding:.7rem;color:#f8746a;font-size:.8rem">Não foi possível carregar este personagem.</div>'; return; }
+    box.innerHTML=tpCharExpandHTML(ch, data.character.account_information||{}, data.character.deaths||[]);
+  }).catch(function(){ box.innerHTML='<div style="padding:.7rem;color:#f8746a;font-size:.8rem">Erro ao carregar (API indisponível).</div>'; });
+};
+
 function showPage(id, btn) {
   const _sec=document.getElementById(id); if(!_sec) return;
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
@@ -10995,12 +11270,16 @@ function ewEnsureTcInput() {
           ? '<span title="Personagem principal" style="font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:20px;background:rgba(240,180,41,.18);color:var(--gold,#f0b429)">★ Principal</span>'
           : (eligible ? '<button onclick="tpSetMain(\''+c.id+'\')" style="background:none;border:1px solid var(--rule);border-radius:6px;padding:.28rem .5rem;color:var(--gold,#f0b429);cursor:pointer;font-size:.78rem">☆ Principal</button>' : '');
         var av='<canvas id="tpav-'+c.id+'" width="64" height="64" style="width:46px;height:46px;image-rendering:pixelated;background:#12111a;border-radius:8px;flex:none"></canvas>';
-        return '<div style="display:flex;align-items:center;gap:.7rem;padding:.6rem .85rem;border:1px solid '+(isFeat?'var(--gold,#f0b429)':'var(--rule)')+';border-radius:8px;margin-bottom:.5rem">'+av
+        return '<div style="margin-bottom:.5rem">'
+          +'<div style="display:flex;align-items:center;gap:.7rem;padding:.6rem .85rem;border:1px solid '+(isFeat?'var(--gold,#f0b429)':'var(--rule)')+';border-radius:8px">'+av
           +'<div style="flex:1;min-width:0"><div style="font-weight:600;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">'+c.name+' '+badge+' '+mainCtl+'</div>'
           +'<div style="font-size:.75rem;color:var(--muted)">'+([c.vocation,c.level?('Lvl '+c.level):null,c.world].filter(Boolean).join(' · ')||'—')+'</div></div>'
           +(!c.verified ? '<button onclick="tpShowVerify(\''+c.id+'\')" style="background:rgba(62,207,142,.12);border:1px solid rgba(62,207,142,.4);border-radius:6px;padding:.28rem .55rem;color:#3ecf8e;cursor:pointer;font-size:.8rem;font-weight:700">✓ Verificar</button>' : '')
+          +(c.verified ? '<button id="tpexpbtn-'+c.id+'" onclick="tpToggleCharExpand(\''+c.id+'\')" style="background:none;border:1px solid var(--rule);border-radius:6px;padding:.28rem .55rem;color:#54c98a;cursor:pointer;font-size:.8rem">📊 Perfil</button>' : '')
           +'<button onclick="tpOpenOutfit(\''+c.id+'\')" style="background:none;border:1px solid var(--rule);border-radius:6px;padding:.28rem .55rem;color:var(--bamboo);cursor:pointer;font-size:.8rem">🎨 Outfit</button>'
-          +'<button onclick="tpDelChar(\''+c.id+'\')" style="background:none;border:1px solid var(--rule);border-radius:6px;padding:.28rem .5rem;color:#f8746a;cursor:pointer;font-size:.8rem">Remover</button></div>';
+          +'<button onclick="tpDelChar(\''+c.id+'\')" style="background:none;border:1px solid var(--rule);border-radius:6px;padding:.28rem .5rem;color:#f8746a;cursor:pointer;font-size:.8rem">Remover</button></div>'
+          +'<div id="tpexp-'+c.id+'" style="display:none;margin-top:.4rem"></div>'
+          +'</div>';
       }).join('');
       tpDrawAvatars(window.__tpChars);
     }catch(e){ list.innerHTML='<div style="color:#f8746a;font-size:.85rem">Erro: '+e.message+'</div>'; }
