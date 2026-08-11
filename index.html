@@ -2457,6 +2457,10 @@ PlayerName (Leader)
   <style>
     #store .store-tab{background:var(--bg-2,#1c1b26);border:1px solid var(--rule);color:var(--muted);border-radius:999px;padding:.45rem 1.05rem;cursor:pointer;font:inherit;font-weight:700;font-size:.85rem}
     #store .store-tab.on{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6);color:#fff}
+    #store .store-mode-btn{background:transparent;border:1px solid var(--rule);color:var(--muted);border-radius:10px;padding:.55rem 1.2rem;cursor:pointer;font:inherit;font-weight:800;font-size:.95rem}
+    #store .store-mode-btn.on{background:#241f38;border-color:#3a2f57;color:#fff}
+    #store .sc-buy.lvllock{background:#2a2415;color:#c9a24a;border:1px solid #4a3d18}
+    #store .sc-buy.lvlok{background:#16281d;color:#5fc27e;border:1px solid #2a5238}
     #store .store-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.8rem}
     #store .store-card{background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:14px;padding:.8rem;display:flex;flex-direction:column;align-items:center;gap:.5rem;position:relative}
     #store .store-card .sc-thumb{width:84px;height:84px;display:flex;align-items:center;justify-content:center;background:#0d0f14;border-radius:10px;box-shadow:inset 0 0 0 1px var(--rule);overflow:hidden}
@@ -2494,6 +2498,13 @@ PlayerName (Leader)
     </div>
 
     <div id="store-main" style="display:none">
+      <div class="store-mode" style="display:flex;gap:.5rem;margin-bottom:.9rem">
+        <button class="store-mode-btn on" data-smode="outfits" onclick="tpStoreMode('outfits',this)">🎽 Outfits</button>
+        <button class="store-mode-btn" data-smode="mounts" onclick="tpStoreMode('mounts',this)">🐎 Montarias</button>
+      </div>
+
+      <!-- ── OUTFITS ── -->
+      <div id="store-wrap-outfits">
       <div class="store-tabs" style="display:flex;gap:.4rem;margin-bottom:1rem">
         <button class="store-tab on" data-stab="loja" onclick="tpStoreTab('loja',this)">Loja</button>
         <button class="store-tab" data-stab="meus" onclick="tpStoreTab('meus',this)">Meus outfits <span id="store-owned-count" style="opacity:.7"></span></button>
@@ -2511,6 +2522,18 @@ PlayerName (Leader)
       <div class="store-panel" data-spanel="meus" style="display:none">
         <div id="store-owned-grid" class="store-grid"></div>
         <div id="store-owned-empty" style="display:none;color:var(--muted);text-align:center;padding:2rem">Você ainda não desbloqueou nenhum outfit da Store. Ganhe Panda Coins em missões e volte aqui! 🐼</div>
+      </div>
+      </div><!-- /store-wrap-outfits -->
+
+      <!-- ── MONTARIAS ── -->
+      <div id="store-wrap-mounts" style="display:none">
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem">
+          <input id="mstore-search" placeholder="Buscar montaria..." oninput="tpMStoreRender()" style="flex:1;min-width:180px;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);color:var(--ink,#e8e6f0);border-radius:9px;padding:.55rem .8rem;font:inherit">
+          <div id="mstore-rarity" style="display:flex;gap:.35rem;flex-wrap:wrap"></div>
+        </div>
+        <p style="font-size:.78rem;color:var(--muted);margin:-.4rem 0 .9rem">🐼 Algumas montarias são <b style="color:var(--gold,#f0b429)">recompensa de nível</b> (grátis ao chegar no nível) — o resto compra com Panda Coins.</p>
+        <div id="mstore-grid" class="store-grid"></div>
+        <div id="mstore-empty" style="display:none;color:var(--muted);text-align:center;padding:2rem">Nenhuma montaria encontrada.</div>
       </div>
     </div>
   </section>
@@ -2978,7 +3001,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-11j</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-11l</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -5994,7 +6017,7 @@ const PANDA_SB_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const OUTFIT_BASE = 'outfits-pack';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-11j';
+window.TP_BUILD = '2026-08-11l';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -10605,8 +10628,10 @@ function ewEnsureTcInput() {
       const nm=(AUTH.profile&&AUTH.profile.display_name)||(AUTH.user.email||'').split('@')[0];
       area.innerHTML='<button class="tp-btn-ghost" onclick="tpOpenProfile()">🪪 '+nm+'</button><button class="tp-btn-ghost" onclick="tpLogout()">Sair</button>';
       if(window.tpLoadOwnedOutfits) try{ window.tpLoadOwnedOutfits(); }catch(e){}
+      if(window.tpLoadOwnedMounts) try{ window.tpLoadOwnedMounts(); }catch(e){}
+      if(window.tpLoadMountCatalog) try{ window.tpLoadMountCatalog(); }catch(e){}
     } else {
-      window.__TP_OWNED_OUTFITS={};
+      window.__TP_OWNED_OUTFITS={}; window.__TP_OWNED_MOUNTS={};
       area.innerHTML='<button class="tp-btn-ghost" onclick="tpOpenAuth(\'login\')">Entrar</button><button class="tp-btn-primary" onclick="tpOpenAuth(\'signup\')">Criar conta</button>';
     }
   }
@@ -11086,12 +11111,13 @@ function ewEnsureTcInput() {
     if(modal) modal.style.display='flex';
     body.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando outfits...</div>';
     var lv=await tpUserLevel();
+    try{ if(window.tpLoadMountCatalog && !window.__TP_MOUNT_CAT) await window.tpLoadMountCatalog(); }catch(e){}
     tpOutfitter().then(function(of){
       body.innerHTML='';
-      _ofApi=of.mountPicker(body,{value:cfgFrom(c),level:lv,owned:(window.__TP_OWNED_OUTFITS||{}),onChange:function(){}});
+      _ofApi=of.mountPicker(body,{value:cfgFrom(c),level:lv,owned:(window.__TP_OWNED_OUTFITS||{}),ownedMounts:(window.__TP_OWNED_MOUNTS||{}),mountCat:(window.__TP_MOUNT_CAT||{}),onChange:function(){}});
     }).catch(function(e){ body.innerHTML='<div style="color:#f8746a;font-size:.85rem;padding:.5rem">Não consegui carregar o pacote de outfits em <code>'+((typeof OUTFIT_BASE!=='undefined')?OUTFIT_BASE:'?')+'</code>. Confira o <code>OUTFIT_BASE</code> / hospedagem do pacote.</div>'; });
   };
-  window.tpCloseOutfit=function(){ var m=g('tp-of-modal'); if(m) m.style.display='none'; _ofApi=null; _ofCharId=null; };
+  window.tpCloseOutfit=function(){ if(window.__tpSpinStop) window.__tpSpinStop(); var m=g('tp-of-modal'); if(m) m.style.display='none'; _ofApi=null; _ofCharId=null; };
   window.tpSaveOutfit=async function(){
     if(!_ofApi||!_ofCharId||!AUTH) return;
     var v=_ofApi.getValue(); var btn=g('tp-of-save'); if(btn){ btn.disabled=true; btn.textContent='Salvando...'; }
@@ -11284,6 +11310,8 @@ window.tpToast=function(msg,type){
 (function () {
   if (typeof window === 'undefined' || !window.TPOutfitter) return;
   var P = window.TPOutfitter.prototype;
+  var _activeSpin = null; // preview girando (compartilhado; limpo ao reabrir o picker)
+  window.__tpSpinStop = function(){ if(_activeSpin){ clearInterval(_activeSpin); _activeSpin=null; } };
   var REGIONS = [['head','Head'],['body','Primary'],['legs','Secondary'],['feet','Detail']];
   function injectCSS() {
     if (document.getElementById('tp-of-style')) return;
@@ -11324,7 +11352,8 @@ window.tpToast=function(msg,type){
       '.tp-compass button{position:absolute;width:24px;height:24px;border:2px solid #0d0f14;border-radius:4px;background:linear-gradient(#464c57,#333842);color:var(--gold);cursor:pointer;font-size:11px;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}',
       '.tp-compass button:hover{background:linear-gradient(#525967,#3b414c)}.tp-compass button.on{background:var(--acc);border-color:var(--acc);color:#fff}',
       '.tp-compass .n{top:0;left:25px}.tp-compass .s{bottom:0;left:25px}.tp-compass .w{left:0;top:25px}.tp-compass .e{right:0;top:25px}',
-      '.tp-compass .c{position:absolute;left:25px;top:25px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:#5b6270;font-size:14px}',
+      '.tp-compass .c{position:absolute;left:25px;top:25px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:#8b93a3;font-size:14px;padding:0}',
+      '.tp-compass .c.on{background:var(--acc);border-color:var(--acc);color:#fff}',
       '.tp-addons{display:flex;flex-direction:column;gap:9px}',
       '.tp-addons label{display:inline-flex;align-items:center;gap:8px;cursor:pointer;color:#cdd2dc}.tp-addons input{accent-color:var(--acc);width:16px;height:16px}'
     ].join('');
@@ -11337,7 +11366,11 @@ window.tpToast=function(msg,type){
     // ── Gating: nível do usuário + outfits que ele já possui (compra/convite) ──
     var LV = (opts.level==null ? Infinity : (+opts.level||0));   // desconhecido → não trava (fallback seguro)
     var OWNED = opts.owned || {}; // {outfitId:1} das categorias store/recruiter que o usuário desbloqueou
+    var OWNEDM = opts.ownedMounts || {}; // {mountId:1} compradas
+    var MCAT = opts.mountCat || {};      // {mountId:{unlock_level,...}}
     var toast = window.tpToast || function(m){ };
+    // Montaria usável? liberada por nível (unlock_level>0 e LV>= ) OU comprada. Senão fica na Store.
+    function mountUsable(id){ if(!id) return true; if(id===cfg.mount) return true; if(OWNEDM[id]) return true; var mc=MCAT[id]; if(mc && mc.unlock_level>0 && LV>=mc.unlock_level) return true; return false; }
     // Retorna null se o outfit pode ser usado, ou {icon,label,kind} se está bloqueado.
     function lockInfo(o){
       if(o.id===cfg.outfit) return null;              // o outfit já equipado nunca aparece bloqueado
@@ -11358,7 +11391,7 @@ window.tpToast=function(msg,type){
       + '</div>'
       + '<div class="tp-pan"><div class="tp-stage"><canvas class="tp-cav" width="192" height="192"></canvas></div></div>'
       + '<div class="tp-pan"><div class="tp-ctabs">'+REGIONS.map(function(r){return '<button data-region="'+r[0]+'"><span class="tp-sw" data-swatch="'+r[0]+'"></span>'+r[1]+'</button>';}).join('')+'</div><div class="tp-pal"></div></div>'
-      + '<div class="tp-pan tp-bottom"><div class="tp-compass"><button class="n" data-dir="0">▲</button><button class="e" data-dir="1">▶</button><button class="s" data-dir="2">▼</button><button class="w" data-dir="3">◀</button><div class="c">✦</div></div>'
+      + '<div class="tp-pan tp-bottom"><div class="tp-compass"><button class="n" data-dir="0">▲</button><button class="e" data-dir="1">▶</button><button class="s" data-dir="2">▼</button><button class="w" data-dir="3">◀</button><button class="c tp-spin" title="Ver girando">⟳</button></div>'
       + '<div class="tp-addons"><label><input type="checkbox" data-addon="1">Addon 1</label><label><input type="checkbox" data-addon="2">Addon 2</label><div class="tp-adnote" style="display:none"></div></div></div>';
     container.appendChild(el);
     var ol=el.querySelector('.tp-ol'), osearch=el.querySelector('.tp-osearch');
@@ -11371,25 +11404,37 @@ window.tpToast=function(msg,type){
     function draw(){ self.render(cfg,el.querySelector('.tp-cav'),3).catch(function(){}); }
     function emit(){ onChange(Object.assign({},cfg)); }
     function buildOutfits(q){ q=(q||'').toLowerCase().trim(); ol.innerHTML='';
-      var items=q?all.filter(function(o){return o.name.toLowerCase().indexOf(q)>=0;}):all;
+      // Só mostra o que a pessoa PODE usar (padrão + premium liberada por nível + comprados na Store).
+      // Os bloqueados moram na Store — não poluem o guarda-roupa.
+      var usable=all.filter(function(o){ return !lockInfo(o); });
+      var items=q?usable.filter(function(o){return o.name.toLowerCase().indexOf(q)>=0;}):usable;
       var frag=document.createDocumentFragment();
       items.forEach(function(o){ var lk=lockInfo(o); var d=document.createElement('div'); d.className='tp-item'+(o.id===cfg.outfit?' on':'')+(lk?' locked':''); d.dataset.id=o.id;
         if(lk){ d.dataset.locked='1'; d.dataset.lockmsg=(lk.kind==='lvl'?('Bloqueado — chega ao nível '+(o.unlockLevel||1)+' pra desbloquear '+o.name):(lk.kind==='buy'?('“'+o.name+'” é da Store — compre com Panda Coins'):('“'+o.name+'” libera trazendo amigos (convites)'))); }
         d.innerHTML='<span class="tp-radio"></span>'+o.name+(o.gender?' <span class="g">'+(o.gender==='female'?'♀':'♂')+'</span>':'')+(lk?'<span class="tp-lock '+(lk.kind==='buy'?'buy':lk.kind==='inv'?'inv':'')+'">'+lk.icon+' '+lk.label+'</span>':''); frag.appendChild(d); });
       ol.appendChild(frag);
+      if(!q){ var hint=document.createElement('div'); hint.style.cssText='padding:7px 9px;font-size:11px;color:#8b93a3;border-top:1px solid #14171d;text-align:center'; hint.innerHTML='🛍️ Mais outfits na <b style="color:#d8b567">Store</b>'; ol.appendChild(hint); }
       var on=ol.querySelector('.tp-item.on'); if(on&&!q) on.scrollIntoView({block:'center'});
     }
     function buildMounts(q){ q=(q||'').toLowerCase().trim(); ml.innerHTML='';
       var frag=document.createDocumentFragment();
       var none=document.createElement('div'); none.className='tp-item'+(!cfg.mount?' on':''); none.dataset.mid='0';
       none.innerHTML='<span class="tp-radio"></span>Nenhuma'; frag.appendChild(none);
-      var items=q?mounts.filter(function(m){return m.name.toLowerCase().indexOf(q)>=0;}):mounts;
+      // Só as montarias liberadas/compradas — as bloqueadas ficam na Store
+      var usableM=mounts.filter(function(m){ return mountUsable(m.id); });
+      var items=q?usableM.filter(function(m){return m.name.toLowerCase().indexOf(q)>=0;}):usableM;
       items.forEach(function(m){ var d=document.createElement('div'); d.className='tp-item'+(m.id===cfg.mount?' on':''); d.dataset.mid=m.id;
         d.innerHTML='<span class="tp-radio"></span>'+m.name; frag.appendChild(d); });
       ml.appendChild(frag);
+      if(!q){ var mh=document.createElement('div'); mh.style.cssText='padding:7px 9px;font-size:11px;color:#8b93a3;border-top:1px solid #14171d;text-align:center'; mh.innerHTML='🛍️ Mais montarias na <b style="color:#d8b567">Store</b>'; ml.appendChild(mh); }
       var on=ml.querySelector('.tp-item.on'); if(on&&!q&&cfg.mount) on.scrollIntoView({block:'center'});
     }
-    el.querySelectorAll('.tp-compass button').forEach(function(b){b.onclick=function(){cfg.dir=+b.dataset.dir;setDir();draw();emit();};});
+    // Preview girando: o boneco vira pelas 4 direções (dá sensação de movimento sem quadros de caminhada)
+    if(_activeSpin){ clearInterval(_activeSpin); _activeSpin=null; }
+    function stopSpin(){ if(_activeSpin){ clearInterval(_activeSpin); _activeSpin=null; } var sb=el.querySelector('.tp-spin'); if(sb) sb.classList.remove('on'); }
+    var spinBtn=el.querySelector('.tp-spin');
+    if(spinBtn) spinBtn.onclick=function(){ if(_activeSpin){ stopSpin(); return; } spinBtn.classList.add('on'); _activeSpin=setInterval(function(){ cfg.dir=(cfg.dir+1)%4; setDir(); draw(); },450); };
+    el.querySelectorAll('.tp-compass button[data-dir]').forEach(function(b){b.onclick=function(){stopSpin();cfg.dir=+b.dataset.dir;setDir();draw();emit();};});
     var addonsLocked = LV < 10;
     el.querySelectorAll('[data-addon]').forEach(function(cb){cb.checked=!!(cfg.addons&+cb.dataset.addon);
       if(addonsLocked){ cb.disabled=true; cb.checked=false; if(cb.parentNode) cb.parentNode.classList.add('dis'); }
@@ -11429,6 +11474,26 @@ window.tpToast=function(msg,type){
       (Array.isArray(rows)?rows:[]).forEach(function(x){ OWNED[x.outfit_id]=1; });
       window.__TP_OWNED_OUTFITS=OWNED; return OWNED;
     }catch(e){ return window.__TP_OWNED_OUTFITS||{}; }
+  };
+
+  // ── Montarias: posse + catálogo (unlock_level) pro gating no picker ──
+  var MCAT=null, OWNEDM={};
+  window.tpLoadMountCatalog=async function(){
+    if(MCAT) return MCAT;
+    try{
+      var r=await fetch(SB+'/rest/v1/store_mounts?select=mount_id,name,rarity,price_coins,unlock_level,sort&active=eq.true&order=sort.asc',{headers:{apikey:KEY}});
+      var rows=await r.json(); if(!Array.isArray(rows)) rows=[];
+      MCAT=rows; var byId={}; rows.forEach(function(m){ byId[m.mount_id]=m; }); window.__TP_MOUNT_CAT=byId; return MCAT;
+    }catch(e){ MCAT=[]; window.__TP_MOUNT_CAT={}; return MCAT; }
+  };
+  window.tpLoadOwnedMounts=async function(){
+    var A=window.TP_AUTH; if(!A||!A.user){ window.__TP_OWNED_MOUNTS={}; OWNEDM={}; return {}; }
+    try{
+      var r=await af(SB+'/rest/v1/user_mounts?select=mount_id');
+      var rows=await r.json(); OWNEDM={};
+      (Array.isArray(rows)?rows:[]).forEach(function(x){ OWNEDM[x.mount_id]=1; });
+      window.__TP_OWNED_MOUNTS=OWNEDM; return OWNEDM;
+    }catch(e){ return window.__TP_OWNED_MOUNTS||{}; }
   };
 
   async function loadCatalog(){
@@ -11545,19 +11610,115 @@ window.tpToast=function(msg,type){
     }catch(e){ if(window.tpToast) tpToast('Erro de conexão ao comprar.','error'); btn.disabled=false; btn.textContent='🪙 '+num(price); }
   }
 
-  // Thumbnails lazy (IntersectionObserver) renderizadas pelo TPOutfitter
+  // Thumbnails: renderiza tudo, mas com no máx. N em paralelo (confiável, sem depender de observer).
   function lazyThumbs(grid){
-    if(!window.tpGetOutfitter||typeof IntersectionObserver==='undefined') return;
-    if(_io) _io.disconnect();
-    _io=new IntersectionObserver(function(entries){ entries.forEach(function(en){ if(!en.isIntersecting) return; var h=en.target; _io.unobserve(h); renderThumb(h); }); },{root:null,rootMargin:'150px'});
-    grid.querySelectorAll('.sc-thumb[data-thumb]').forEach(function(h){ _io.observe(h); });
+    if(!window.tpGetOutfitter) return;
+    var hosts=Array.prototype.slice.call(grid.querySelectorAll('.sc-thumb[data-thumb]:not([data-done])'));
+    var i=0, MAX=6;
+    function next(){ if(i>=hosts.length) return; var h=hosts[i++]; renderThumb(h, next); }
+    for(var k=0;k<MAX;k++) next();
   }
-  function renderThumb(host){
+  function renderThumb(host, done){
+    host.setAttribute('data-done','1');
     var id=+host.dataset.thumb;
     window.tpGetOutfitter().then(function(of){
       var cv=document.createElement('canvas');
-      of.render({outfit:id,head:0,body:0,legs:0,feet:0,addons:0,dir:2,mount:0},cv,2).then(function(){ host.innerHTML=''; host.appendChild(cv); }).catch(function(){});
-    }).catch(function(){});
+      of.render({outfit:id,head:0,body:0,legs:0,feet:0,addons:0,dir:2,mount:0},cv,2)
+        .then(function(){ host.innerHTML=''; host.appendChild(cv); if(done) done(); })
+        .catch(function(){ if(done) done(); });
+    }).catch(function(){ if(done) done(); });
+  }
+
+  /* ══ Store — Montarias ══ */
+  var MSTORE=null, OWNEDM2={}, mCurRar='todas';
+  function myLevel(){ var xp=(window.__GAMI&&window.__GAMI.progress&&+window.__GAMI.progress.xp)||0; var lvl=1,acc=0,need=100; while(xp>=acc+need){acc+=need;lvl++;need=100*lvl;} return lvl; }
+  window.tpStoreMode=function(mode,btn){
+    document.querySelectorAll('#store .store-mode-btn').forEach(function(b){ b.classList.toggle('on',b===btn); });
+    var wo=g('store-wrap-outfits'), wm=g('store-wrap-mounts');
+    if(mode==='mounts'){ if(wo)wo.style.display='none'; if(wm)wm.style.display=''; tpMStoreLoad(); }
+    else { if(wo)wo.style.display=''; if(wm)wm.style.display='none'; }
+  };
+  window.tpMStoreLoad=async function(){
+    buildMRarity();
+    try{ await Promise.all([ (window.tpLoadMountCatalog?window.tpLoadMountCatalog():null), (window.tpLoadOwnedMounts?window.tpLoadOwnedMounts():null), refreshCoins() ]); }catch(e){}
+    MSTORE=window.__TP_MOUNT_CAT?Object.keys(window.__TP_MOUNT_CAT).map(function(k){return window.__TP_MOUNT_CAT[k];}):[];
+    MSTORE.sort(function(a,b){return (a.sort||0)-(b.sort||0);});
+    OWNEDM2=window.__TP_OWNED_MOUNTS||{};
+    tpMStoreRender();
+  };
+  function buildMRarity(){
+    var host=g('mstore-rarity'); if(!host||host.dataset.built) return; host.dataset.built='1';
+    host.innerHTML=RARITY.map(function(r){ return '<button class="store-tab'+(r[0]===mCurRar?' on':'')+'" data-mrar="'+r[0]+'" onclick="tpMStoreRar(\''+r[0]+'\',this)" style="padding:.35rem .8rem;font-size:.76rem">'+r[1]+'</button>'; }).join('');
+  }
+  window.tpMStoreRar=function(r,btn){ mCurRar=r; var host=g('mstore-rarity'); if(host) host.querySelectorAll('[data-mrar]').forEach(function(b){ b.classList.toggle('on',b===btn); }); tpMStoreRender(); };
+  function mCard(m){
+    var lv=myLevel(), btn;
+    if(m.unlock_level>0){
+      btn = (lv>=m.unlock_level) ? '<button class="sc-buy lvlok" disabled>✓ Nível '+m.unlock_level+'</button>'
+                                 : '<button class="sc-buy lvllock" disabled>🔒 Nível '+m.unlock_level+'</button>';
+    } else if(OWNEDM2[m.mount_id]) btn='<button class="sc-buy owned" disabled>✓ Possui</button>';
+    else if(COINS>=m.price_coins) btn='<button class="sc-buy" data-mbuy="'+m.mount_id+'" data-name="'+encodeURIComponent(m.name)+'" data-price="'+m.price_coins+'">🪙 '+num(m.price_coins)+'</button>';
+    else btn='<button class="sc-buy cant" disabled>🪙 '+num(m.price_coins)+'</button>';
+    var owned=(m.unlock_level>0 ? lv>=m.unlock_level : !!OWNEDM2[m.mount_id]);
+    return '<div class="store-card'+(owned?' owned':'')+'">'
+      +'<div class="sc-thumb" data-mthumb="'+m.mount_id+'"><span class="sc-fallback">🐎</span></div>'
+      +'<div class="sc-name">'+m.name+'</div>'+rarBadge(m.rarity)+btn+'</div>';
+  }
+  window.tpMStoreRender=function(){
+    var grid=g('mstore-grid'); if(!grid||!MSTORE) return;
+    var q=((g('mstore-search')&&g('mstore-search').value)||'').toLowerCase().trim();
+    var items=MSTORE.filter(function(m){ if(mCurRar!=='todas'&&m.rarity!==mCurRar) return false; if(q&&m.name.toLowerCase().indexOf(q)<0) return false; return true; });
+    var emp=g('mstore-empty'); if(emp) emp.style.display=items.length?'none':'';
+    grid.innerHTML=items.map(mCard).join('');
+    wireMBuys(grid); lazyMThumbs(grid);
+  };
+  function wireMBuys(grid){
+    grid.querySelectorAll('[data-mbuy]').forEach(function(btn){
+      btn.onclick=function(){
+        if(btn.dataset.confirm){ doMBuy(btn); return; }
+        grid.querySelectorAll('[data-mbuy].confirm').forEach(function(b){ if(b!==btn){ b.classList.remove('confirm'); b.textContent='🪙 '+num(+b.dataset.price); delete b.dataset.confirm; } });
+        btn.dataset.confirm='1'; btn.classList.add('confirm'); btn.textContent='Confirmar?';
+        setTimeout(function(){ if(btn&&btn.dataset.confirm){ btn.classList.remove('confirm'); btn.textContent='🪙 '+num(+btn.dataset.price); delete btn.dataset.confirm; } },3500);
+      };
+    });
+  }
+  async function doMBuy(btn){
+    var id=+btn.dataset.mbuy, name=decodeURIComponent(btn.dataset.name||''), price=+btn.dataset.price;
+    btn.disabled=true; btn.classList.remove('confirm'); delete btn.dataset.confirm; btn.textContent='Comprando...';
+    try{
+      var r=await af(SB+'/rest/v1/rpc/gm_buy_mount',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({p_mount_id:id})});
+      var d=await r.json().catch(function(){return null;});
+      if(!r.ok||!d||d.ok!==true){
+        var reason=(d&&d.reason)||'erro';
+        if(reason==='insufficient'){ if(window.tpToast) tpToast('Panda Coins insuficientes — precisa de '+num(price)+' 🪙','error'); }
+        else if(reason==='owned'){ if(window.tpToast) tpToast('Você já tem essa montaria.','info'); }
+        else if(window.tpToast) tpToast('Não foi possível comprar ('+reason+').','error');
+        btn.disabled=false; btn.textContent='🪙 '+num(price); return;
+      }
+      OWNEDM2[id]=1; window.__TP_OWNED_MOUNTS=OWNEDM2;
+      if(d.progress){ COINS=+d.progress.coins||0; if(window.__GAMI&&window.__GAMI.progress) window.__GAMI.progress.coins=COINS; }
+      var cel=g('store-coins'); if(cel) cel.textContent=num(COINS);
+      if(window.tpToast) tpToast('🎉 '+name+' desbloqueada! Equipe no Outfitter.','success');
+      tpMStoreRender();
+      if(window.tpHeaderProgress) try{ window.tpHeaderProgress(); }catch(e){}
+    }catch(e){ if(window.tpToast) tpToast('Erro de conexão ao comprar.','error'); btn.disabled=false; btn.textContent='🪙 '+num(price); }
+  }
+  function lazyMThumbs(grid){
+    if(!window.tpGetOutfitter) return;
+    var hosts=Array.prototype.slice.call(grid.querySelectorAll('.sc-thumb[data-mthumb]:not([data-done])'));
+    var i=0, MAX=6;
+    function next(){ if(i>=hosts.length) return; var h=hosts[i++]; renderMThumb(h, next); }
+    for(var k=0;k<MAX;k++) next();
+  }
+  function renderMThumb(host, done){
+    host.setAttribute('data-done','1');
+    var id=+host.dataset.mthumb;
+    window.tpGetOutfitter().then(function(of){
+      var cv=document.createElement('canvas');
+      of.render({outfit:128,head:0,body:0,legs:0,feet:0,addons:0,dir:2,mount:id},cv,2)
+        .then(function(){ host.innerHTML=''; host.appendChild(cv); if(done) done(); })
+        .catch(function(){ if(done) done(); });
+    }).catch(function(){ if(done) done(); });
   }
 })();
 </script>
