@@ -3001,7 +3001,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-11l</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-11n</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6017,7 +6017,7 @@ const PANDA_SB_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const OUTFIT_BASE = 'outfits-pack';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-11l';
+window.TP_BUILD = '2026-08-11n';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -10998,6 +10998,7 @@ function ewEnsureTcInput() {
         return '<div style="display:flex;align-items:center;gap:.7rem;padding:.6rem .85rem;border:1px solid '+(isFeat?'var(--gold,#f0b429)':'var(--rule)')+';border-radius:8px;margin-bottom:.5rem">'+av
           +'<div style="flex:1;min-width:0"><div style="font-weight:600;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">'+c.name+' '+badge+' '+mainCtl+'</div>'
           +'<div style="font-size:.75rem;color:var(--muted)">'+([c.vocation,c.level?('Lvl '+c.level):null,c.world].filter(Boolean).join(' · ')||'—')+'</div></div>'
+          +(!c.verified ? '<button onclick="tpShowVerify(\''+c.id+'\')" style="background:rgba(62,207,142,.12);border:1px solid rgba(62,207,142,.4);border-radius:6px;padding:.28rem .55rem;color:#3ecf8e;cursor:pointer;font-size:.8rem;font-weight:700">✓ Verificar</button>' : '')
           +'<button onclick="tpOpenOutfit(\''+c.id+'\')" style="background:none;border:1px solid var(--rule);border-radius:6px;padding:.28rem .55rem;color:var(--bamboo);cursor:pointer;font-size:.8rem">🎨 Outfit</button>'
           +'<button onclick="tpDelChar(\''+c.id+'\')" style="background:none;border:1px solid var(--rule);border-radius:6px;padding:.28rem .5rem;color:#f8746a;cursor:pointer;font-size:.8rem">Remover</button></div>';
       }).join('');
@@ -11060,6 +11061,20 @@ function ewEnsureTcInput() {
     }catch(e){ set(fnErr(e.message),'#f8746a'); }
   };
   window.tpCopyToken=function(){ const t=g('pf-token').textContent; if(navigator.clipboard) navigator.clipboard.writeText(t); const s=g('pf-char-status'); if(s){s.textContent='Token copiado!';s.style.color='var(--bamboo)';} };
+  // Reabre o token PERSISTENTE de um char não-verificado (não gera novo — usa o que já está salvo).
+  window.tpShowVerify=function(id){
+    var c=(window.__tpChars||[]).filter(function(x){return String(x.id)===String(id);})[0]; if(!c) return;
+    var box=g('pf-verify-box'), tok=g('pf-token'), st=g('pf-char-status');
+    if(c.verify_token){
+      PENDING_CHAR=c.name;
+      if(tok) tok.textContent=c.verify_token;
+      if(box){ box.style.display='block'; box.scrollIntoView({behavior:'smooth',block:'center'}); }
+      if(st){ st.textContent='Cole o token na descrição de '+c.name+' no Tibia.com e clique em Verificar agora.'; st.style.color='var(--bamboo)'; }
+    } else {
+      // char antigo sem token salvo → gera um novo pelo fluxo normal
+      g('pf-char-input').value=c.name; tpStartChar();
+    }
+  };
   window.tpVerifyChar=async function(){
     if(!PENDING_CHAR||!AUTH){ return; }
     const st=g('pf-char-status'); const set=(t,c)=>{st.textContent=t;st.style.color=c||'var(--muted)';};
@@ -11286,11 +11301,19 @@ window.tpToast=function(msg,type){
       var pPose  = mounted  ? self._getMounted(cfg.outfit).catch(function(){return img;}) : Promise.resolve(img);
       return Promise.all([pMount, pPose]).then(function (arr) {
         var mImg = arr[0], pose = arr[1] || img;
-        var ph = o.addonLayers || 1, ys = [0];
-        if (ph > 1 && (cfg.addons & 1)) ys.push(1);
-        if (ph > 2 && (cfg.addons & 2)) ys.push(2);
+        var ph = o.addonLayers || 1;
+        // Animação: cada quadro ocupa 'ph' linhas no atlas. frame=0 (pack antigo) => comportamento igual.
+        var frames = o.frames || 1;
+        var frame = (((cfg.frame|0) % frames) + frames) % frames;
+        var frow = frame * ph;
+        var ys = [frow+0];
+        if (ph > 1 && (cfg.addons & 1)) ys.push(frow+1);
+        if (ph > 2 && (cfg.addons & 2)) ys.push(frow+2);
         self._octx.clearRect(0,0,64,64);
-        if (mImg) self._octx.drawImage(mImg, (dir*2)*64, 0, 64,64, 0,0,64,64);
+        if (mImg) {
+          var mf = (self.mounts[mountCid] && self.mounts[mountCid].frames) || 1;
+          self._octx.drawImage(mImg, (dir*2)*64, (frame % mf)*64, 64,64, 0,0,64,64);
+        }
         ys.forEach(function (y) { self._drawLayer(pose, dir, y, colors, false); });
         if (targetCanvas) {
           var s = scale, ctx = targetCanvas.getContext('2d');
@@ -11337,6 +11360,9 @@ window.tpToast=function(msg,type){
       '.tp-addons label.dis{opacity:.5;cursor:not-allowed}.tp-addons label.dis input{cursor:not-allowed}',
       '.tp-search{width:100%;box-sizing:border-box;background:#20242c;border:0;border-bottom:2px solid #0d0f14;box-shadow:inset 0 0 0 1px #454b57;color:#e8ecf3;padding:6px 9px;font:12px Verdana,sans-serif}',
       '.tp-search::placeholder{color:#6b7280}',
+      '.tp-gender{display:flex;gap:4px;padding:6px 6px 0}',
+      '.tp-gender button{flex:1;background:#20242c;border:1px solid #0d0f14;box-shadow:inset 0 0 0 1px #454b57;color:#9aa0ad;border-radius:4px;padding:4px;cursor:pointer;font:700 11px Verdana,sans-serif}',
+      '.tp-gender button.on{background:var(--acc);border-color:var(--acc);color:#fff;box-shadow:none}',
       '.tp-stage{height:138px;display:flex;align-items:center;justify-content:center;background:#0d0f14;border-radius:3px;box-shadow:inset 0 0 0 1px #454b57;position:relative;overflow:hidden}',
       '.tp-stage:after{content:"";position:absolute;bottom:22px;width:86px;height:16px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent)}',
       '.tp-cav{image-rendering:pixelated;width:124px;height:124px;position:relative;z-index:1}',
@@ -11383,10 +11409,13 @@ window.tpToast=function(msg,type){
     }
     injectCSS(); container.innerHTML=''; container.classList.add('tp-of');
     var all = self.outfitList(), mounts = self.mountList();
+    // Filtro de gênero: começa no gênero do outfit atual (encolhe a lista pela metade)
+    var _cur = all.filter(function(o){ return o.id===cfg.outfit; })[0];
+    var genderFilter = (_cur && _cur.gender==='female') ? 'female' : 'male';
     var el = document.createElement('div');
     el.innerHTML =
       '<div class="tp-cols">'
-      + '<div class="tp-col"><div class="tp-colhd">🎽 Outfits</div><input class="tp-search tp-osearch" placeholder="Buscar..."><div class="tp-list tp-ol"></div></div>'
+      + '<div class="tp-col"><div class="tp-colhd">🎽 Outfits</div><div class="tp-gender"><button data-g="male">♂ Masc</button><button data-g="female">♀ Fem</button></div><input class="tp-search tp-osearch" placeholder="Buscar..."><div class="tp-list tp-ol"></div></div>'
       + '<div class="tp-col"><div class="tp-colhd">🐎 Montarias</div><input class="tp-search tp-msearch" placeholder="Buscar..."><div class="tp-list tp-ml"></div></div>'
       + '</div>'
       + '<div class="tp-pan"><div class="tp-stage"><canvas class="tp-cav" width="192" height="192"></canvas></div></div>'
@@ -11406,7 +11435,7 @@ window.tpToast=function(msg,type){
     function buildOutfits(q){ q=(q||'').toLowerCase().trim(); ol.innerHTML='';
       // Só mostra o que a pessoa PODE usar (padrão + premium liberada por nível + comprados na Store).
       // Os bloqueados moram na Store — não poluem o guarda-roupa.
-      var usable=all.filter(function(o){ return !lockInfo(o); });
+      var usable=all.filter(function(o){ return !lockInfo(o) && (!o.gender || o.gender===genderFilter); });
       var items=q?usable.filter(function(o){return o.name.toLowerCase().indexOf(q)>=0;}):usable;
       var frag=document.createDocumentFragment();
       items.forEach(function(o){ var lk=lockInfo(o); var d=document.createElement('div'); d.className='tp-item'+(o.id===cfg.outfit?' on':'')+(lk?' locked':''); d.dataset.id=o.id;
@@ -11433,7 +11462,8 @@ window.tpToast=function(msg,type){
     if(_activeSpin){ clearInterval(_activeSpin); _activeSpin=null; }
     function stopSpin(){ if(_activeSpin){ clearInterval(_activeSpin); _activeSpin=null; } var sb=el.querySelector('.tp-spin'); if(sb) sb.classList.remove('on'); }
     var spinBtn=el.querySelector('.tp-spin');
-    if(spinBtn) spinBtn.onclick=function(){ if(_activeSpin){ stopSpin(); return; } spinBtn.classList.add('on'); _activeSpin=setInterval(function(){ cfg.dir=(cfg.dir+1)%4; setDir(); draw(); },450); };
+    // ⟳ = ANDAR: cicla os quadros de caminhada (se o pacote for animado). Sem frames, só balança de leve.
+    if(spinBtn) spinBtn.onclick=function(){ if(_activeSpin){ stopSpin(); cfg.frame=0; draw(); return; } spinBtn.classList.add('on'); _activeSpin=setInterval(function(){ cfg.frame=((cfg.frame||0)+1); draw(); },140); };
     el.querySelectorAll('.tp-compass button[data-dir]').forEach(function(b){b.onclick=function(){stopSpin();cfg.dir=+b.dataset.dir;setDir();draw();emit();};});
     var addonsLocked = LV < 10;
     el.querySelectorAll('[data-addon]').forEach(function(cb){cb.checked=!!(cfg.addons&+cb.dataset.addon);
@@ -11445,6 +11475,9 @@ window.tpToast=function(msg,type){
     ol.onclick=function(e){var d=e.target.closest('.tp-item');if(!d)return;if(d.dataset.locked){toast(d.dataset.lockmsg||'Outfit bloqueado','info');return;}cfg.outfit=+d.dataset.id;ol.querySelectorAll('.tp-item').forEach(function(x){x.classList.toggle('on',x===d);});buildOutfits(osearch.value);draw();emit();};
     ml.onclick=function(e){var d=e.target.closest('.tp-item');if(!d)return;cfg.mount=+d.dataset.mid;ml.querySelectorAll('.tp-item').forEach(function(x){x.classList.toggle('on',x===d);});draw();emit();};
     osearch.oninput=function(){buildOutfits(osearch.value);};
+    function syncGender(){ el.querySelectorAll('.tp-gender button').forEach(function(b){ b.classList.toggle('on',b.dataset.g===genderFilter); }); }
+    el.querySelectorAll('.tp-gender button').forEach(function(b){ b.onclick=function(){ genderFilter=b.dataset.g; syncGender(); buildOutfits(osearch.value); }; });
+    syncGender();
     msearch.oninput=function(){buildMounts(msearch.value);};
     setDir(); buildSwatches(); buildPal(); buildOutfits(''); buildMounts(''); draw();
     return { getValue:function(){return Object.assign({},cfg);}, setValue:function(v){Object.assign(cfg,v);setDir();buildSwatches();buildPal();buildOutfits('');buildMounts('');draw();} };
