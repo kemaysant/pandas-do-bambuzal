@@ -2392,11 +2392,11 @@ PlayerName (Leader)
   <!-- ─── MEU PERFIL ─── -->
   <section class="page-section" id="profile">
     <style>
-      #profile .pf-header{display:flex;gap:1.1rem;align-items:center;flex-wrap:wrap;margin-bottom:1.1rem}
+      #profile .pf-header{display:flex;gap:0;align-items:stretch;flex-wrap:wrap;margin-bottom:1.1rem;padding:0;overflow:hidden}
       #profile .pf-avatar{width:92px;height:92px;border-radius:16px;background:radial-gradient(120% 90% at 50% 20%,var(--bg-3,#26243a),#12111a);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;position:relative}
       #profile .pf-avatar canvas{image-rendering:pixelated;width:76px;height:76px}
       #profile .pf-avatar .pf-init{font-size:2rem;font-weight:800;color:var(--bamboo,#8b5cf6)}
-      #profile .pf-id{flex:1;min-width:220px}
+      #profile .pf-id{flex:1;min-width:240px;padding:1.15rem 1.3rem;display:flex;flex-direction:column;justify-content:center;gap:.15rem}
       #profile .pf-username{font-size:1.35rem;font-weight:800;line-height:1.1;display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
       #profile .pf-lvlbadge{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:3px 10px;border-radius:999px;background:rgba(139,92,246,.16);border:1px solid rgba(139,92,246,.42);color:var(--bamboo-light,#a78bfa)}
       #profile .pf-mainchar{font-size:.85rem;color:var(--muted);margin:.15rem 0 .6rem}
@@ -2501,13 +2501,19 @@ PlayerName (Leader)
     <p class="sec-sub">Sua conta, seus personagens e seu desempenho pessoal no Tibia Panda.</p>
 
     <div class="card pf-header">
-      <div class="pf-avatar"><canvas id="pf-avatar-cv" width="152" height="152" style="display:none"></canvas><span class="pf-init" id="pf-avatar-init">?</span></div>
+      <div class="pf-hero-stage" id="pf-hero-stage">
+        <canvas id="pf-hero-cv" width="192" height="192"></canvas>
+        <span class="pf-init" id="pf-avatar-init" style="display:none">?</span>
+        <button class="pf-hero-animbtn" id="pf-hero-animbtn" onclick="tpHeroAnim()">▶ Girar</button>
+      </div>
       <div class="pf-id">
         <div class="pf-username"><span id="pf-username">—</span><span class="pf-lvlbadge" id="pf-level">Nível 1</span><span class="pf-coins" id="pf-coins" style="display:none">🪙 0</span></div>
         <div class="pf-mainchar" id="pf-mainchar"></div>
+        <div class="pf-hero-stats" id="pf-hero-stats"></div>
         <div class="pf-prog-top"><span id="pf-prog-top-lbl">Perfil completo</span><span id="pf-prog-pct">0%</span></div>
         <div class="pf-prog-bar"><div class="pf-prog-fill" id="pf-prog-fill"></div></div>
         <div class="pf-prog-hint" id="pf-prog-hint"></div>
+        <div class="pf-hero-floorwrap"><div class="lbl">🤺 Piso da vitrine</div><div class="pf-hero-floors" id="pf-hero-floors"></div></div>
       </div>
     </div>
 
@@ -2520,18 +2526,6 @@ PlayerName (Leader)
     </div>
 
     <div class="pf-panel" data-panel="chars">
-      <div class="card pf-hero-card" id="pf-hero-card" style="display:none">
-        <div class="pf-hero-stage" id="pf-hero-stage">
-          <canvas id="pf-hero-cv" width="192" height="192"></canvas>
-          <button class="pf-hero-animbtn" id="pf-hero-animbtn" onclick="tpHeroAnim()">▶ Animar</button>
-        </div>
-        <div class="pf-hero-info">
-          <div class="pf-hero-name" id="pf-hero-name">—</div>
-          <div class="pf-hero-sub" id="pf-hero-sub"></div>
-          <div class="pf-hero-stats" id="pf-hero-stats"></div>
-          <div class="pf-hero-floorwrap"><div class="lbl">🤺 Piso da vitrine</div><div class="pf-hero-floors" id="pf-hero-floors"></div></div>
-        </div>
-      </div>
       <div class="card">
         <div class="tool-title" style="font-size:1rem;margin-bottom:.6rem">Registrar personagem</div>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem">
@@ -3175,7 +3169,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-11w</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-11x</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6193,7 +6187,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-11w';
+window.TP_BUILD = '2026-08-11x';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11160,13 +11154,8 @@ function ewEnsureTcInput() {
     var un=g('pf-username'); if(un) un.textContent=uname;
     var mc=g('pf-mainchar');
     if(mc){ mc.innerHTML = feat
-      ? ('Principal: <b>'+feat.name+'</b>'+(feat.level?(' · Lvl '+feat.level):'')+(feat.vocation?(' · '+feat.vocation):''))
+      ? ([feat.vocation,(feat.level?('Lvl '+feat.level):null),feat.world].filter(Boolean).join(' · '))
       : 'Nenhum personagem verificado ainda — verifique um personagem para virar sua identidade.'; }
-    var cv=g('pf-avatar-cv'), init=g('pf-avatar-init');
-    if(feat && cv){
-      if(init) init.style.display='none'; cv.style.display='block';
-      tpOutfitter().then(function(of){ of.render(cfgFrom(feat), cv, 2).catch(function(){ cv.style.display='none'; if(init) init.style.display='block'; }); }).catch(function(){ cv.style.display='none'; if(init) init.style.display='block'; });
-    } else { if(cv) cv.style.display='none'; if(init){ init.style.display='block'; init.textContent=(uname||'?').charAt(0).toUpperCase(); } }
     window.__PFCOMP=pfProgress(chars, prof, feat);
     tpHeaderProgress();
   }
@@ -11536,12 +11525,12 @@ function ewEnsureTcInput() {
   function tpFloorUrl(id){ return (typeof FLOOR_BASE!=='undefined'?FLOOR_BASE:'floors')+'/'+id+'.png?v='+((window.TP_BUILD)||'1'); }
   function tpFloorById(id){ for(var i=0;i<TP_FLOORS.length;i++){ if(TP_FLOORS[i].id===id) return TP_FLOORS[i]; } return TP_FLOORS[0]; }
   var _heroAnim=null, _heroCfg=null;
-  function tpHeroStop(){ if(_heroAnim){ clearInterval(_heroAnim); _heroAnim=null; } var b=g('pf-hero-animbtn'); if(b){ b.classList.remove('on'); b.textContent='▶ Animar'; } }
+  function tpHeroStop(){ if(_heroAnim){ clearInterval(_heroAnim); _heroAnim=null; } var b=g('pf-hero-animbtn'); if(b){ b.classList.remove('on'); b.textContent='▶ Girar'; } }
   window.tpHeroAnim=function(){
     var cv=g('pf-hero-cv'); if(!cv||!_heroCfg) return;
     if(_heroAnim){ tpHeroStop(); _heroCfg.frame=0; tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).catch(function(){}); }); return; }
     var b=g('pf-hero-animbtn'); if(b){ b.classList.add('on'); b.textContent='⏸ Parar'; }
-    _heroAnim=setInterval(function(){ _heroCfg.frame=((_heroCfg.frame||0)+1); tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).catch(function(){}); }); },150);
+    _heroAnim=setInterval(function(){ _heroCfg.dir=(((_heroCfg.dir|0)+1)%4); _heroCfg.frame=((_heroCfg.frame||0)+1); tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).catch(function(){}); }); },400);
   };
   window.tpSetFloor=function(id){
     var f=tpFloorById(id); if(!f) return;
@@ -11553,29 +11542,24 @@ function ewEnsureTcInput() {
       tpAuthFetch(SB+'/rest/v1/profiles?id=eq.'+AUTH.user.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({profile_floor:id})}).catch(function(){}); }
   };
   window.tpRenderHero=function(feat, prof){
-    var card=g('pf-hero-card'); if(!card) return;
-    if(!feat){ card.style.display='none'; tpHeroStop(); return; }
-    card.style.display='';
+    var stage=g('pf-hero-stage'); if(!stage) return;
     var floorId=(prof&&prof.profile_floor)||'stone', f=tpFloorById(floorId);
-    var stage=g('pf-hero-stage'); if(stage) stage.style.backgroundImage='url('+tpFloorUrl(f.id)+')';
-    g('pf-hero-name').textContent=feat.name;
-    g('pf-hero-sub').innerHTML=[feat.vocation,(feat.level?('Lvl '+feat.level):null),feat.world].filter(Boolean).join(' · ');
-    // status
+    stage.style.backgroundImage='url('+tpFloorUrl(f.id)+')';
+    var statsEl=g('pf-hero-stats'), floorsEl=g('pf-hero-floors'), cv=g('pf-hero-cv'), init=g('pf-avatar-init');
+    if(!feat){ if(statsEl) statsEl.innerHTML=''; if(floorsEl) floorsEl.innerHTML=''; tpHeroStop(); if(cv) cv.style.display='none'; if(init){ init.style.display='block'; } return; }
     var s=(typeof cpgStats==='function')?cpgStats(feat.vocation,feat.level):{hp:0,mana:0,cap:0,smin:0,smax:0};
     var nf=(typeof cpgNf==='function')?cpgNf:function(x){return x;};
-    g('pf-hero-stats').innerHTML=
+    if(statsEl) statsEl.innerHTML=
       '<div class="pf-hstat"><span class="ic">❤️</span><div class="track"><i style="width:62%;background:linear-gradient(90deg,#e05a5a,#f08a8a)"></i></div><span class="val">'+nf(s.hp)+'</span></div>'+
       '<div class="pf-hstat"><span class="ic">⚡</span><div class="track"><i style="width:78%;background:linear-gradient(90deg,#4a7de0,#7fa8f0)"></i></div><span class="val">'+nf(s.mana)+'</span></div>'+
       '<div class="pf-hstat"><span class="ic">💰</span><span class="val">'+nf(s.cap)+'</span></div>'+
       '<div class="pf-hstat"><span class="ic">🛡️</span><span class="val">'+s.smin+'–'+s.smax+'</span></div>';
-    // pisos
     var owned=window.__TP_OWNED_FLOORS||{};
-    g('pf-hero-floors').innerHTML=TP_FLOORS.map(function(fl){
+    if(floorsEl) floorsEl.innerHTML=TP_FLOORS.map(function(fl){
       var locked=fl.price>0 && !owned[fl.id];
       return '<div class="pf-floor'+(fl.id===floorId?' on':'')+(locked?' locked':'')+'" data-floor="'+fl.id+'" title="'+fl.name+(locked?' (Store)':'')+'" onclick="tpSetFloor(\''+fl.id+'\')" style="background-image:url('+tpFloorUrl(fl.id)+')">'+(locked?'<span class="lk">🔒</span>':'')+'</div>';
     }).join('');
-    // render outfit
-    var cv=g('pf-hero-cv'); if(cv){ _heroCfg=cfgFrom(feat); tpHeroStop(); tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).catch(function(){}); }).catch(function(){}); }
+    if(cv){ if(init) init.style.display='none'; cv.style.display='block'; _heroCfg=cfgFrom(feat); tpHeroStop(); tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).catch(function(){ cv.style.display='none'; if(init) init.style.display='block'; }); }).catch(function(){}); }
   };
 
   window.tpDrawAvatars=function(chars){
