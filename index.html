@@ -2475,6 +2475,27 @@ PlayerName (Leader)
       #profile .vit-item .mt{font-size:.68rem;color:var(--muted);margin-top:.25rem;display:flex;justify-content:space-between;gap:.4rem}
       #profile .vit-item .rar{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
       #profile .vit-empty{font-size:.85rem;color:var(--muted);line-height:1.6;background:var(--bg-2,#1b1a25);border:1px dashed var(--rule);border-radius:12px;padding:1.1rem 1.2rem;text-align:center}
+      #profile .pf-hero-card{display:flex;gap:0;flex-wrap:wrap;align-items:stretch;padding:0;overflow:hidden;margin-bottom:1rem}
+      #profile .pf-hero-stage{position:relative;width:210px;flex:none;min-height:210px;display:flex;align-items:center;justify-content:center;image-rendering:pixelated;background-size:64px 64px;background-color:#3a3a44;box-shadow:inset 0 0 0 1px var(--rule),inset 0 0 50px rgba(0,0,0,.55)}
+      #profile .pf-hero-stage canvas{image-rendering:pixelated;width:156px;height:156px;position:relative;z-index:1;filter:drop-shadow(0 6px 5px rgba(0,0,0,.55))}
+      #profile .pf-hero-animbtn{position:absolute;bottom:9px;right:9px;z-index:2;background:rgba(20,19,28,.82);border:1px solid var(--rule);color:var(--ink,#eae8f2);border-radius:8px;padding:.32rem .62rem;cursor:pointer;font-size:.72rem;font-weight:700}
+      #profile .pf-hero-animbtn.on{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6);color:#fff}
+      #profile .pf-hero-info{flex:1;min-width:230px;padding:1.15rem 1.25rem;display:flex;flex-direction:column;gap:.55rem}
+      #profile .pf-hero-name{font-size:1.2rem;font-weight:800;color:var(--ink,#eae8f2);display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+      #profile .pf-hero-sub{font-size:.82rem;color:var(--muted)}
+      #profile .pf-hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.15rem}
+      #profile .pf-hstat{display:flex;align-items:center;gap:.5rem;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:9px;padding:.42rem .62rem}
+      #profile .pf-hstat .ic{font-size:.95rem;flex:none}
+      #profile .pf-hstat .track{flex:1;height:6px;border-radius:999px;background:var(--bg-3,#23212f);overflow:hidden;min-width:24px}
+      #profile .pf-hstat .track i{display:block;height:100%;border-radius:999px}
+      #profile .pf-hstat .val{font-size:.82rem;font-weight:800;color:var(--ink,#eae8f2);white-space:nowrap;margin-left:auto}
+      #profile .pf-hero-floorwrap{margin-top:.5rem}
+      #profile .pf-hero-floorwrap .lbl{font-size:.72rem;color:var(--muted);margin-bottom:.35rem;font-weight:600}
+      #profile .pf-hero-floors{display:flex;gap:.45rem;flex-wrap:wrap}
+      #profile .pf-floor{position:relative;width:36px;height:36px;border-radius:8px;border:2px solid var(--rule);cursor:pointer;image-rendering:pixelated;background-size:24px 24px;background-color:#3a3a44}
+      #profile .pf-floor.on{border-color:var(--bamboo,#8b5cf6);box-shadow:0 0 0 2px rgba(139,92,246,.3)}
+      #profile .pf-floor.locked{opacity:.5;cursor:default}
+      #profile .pf-floor .lk{position:absolute;top:-6px;right:-6px;font-size:.62rem;background:var(--bg-3,#23212f);border:1px solid var(--rule);border-radius:999px;padding:0 3px}
     </style>
     <h2 class="sec-title">Meu Perfil</h2>
     <p class="sec-sub">Sua conta, seus personagens e seu desempenho pessoal no Tibia Panda.</p>
@@ -2499,6 +2520,18 @@ PlayerName (Leader)
     </div>
 
     <div class="pf-panel" data-panel="chars">
+      <div class="card pf-hero-card" id="pf-hero-card" style="display:none">
+        <div class="pf-hero-stage" id="pf-hero-stage">
+          <canvas id="pf-hero-cv" width="192" height="192"></canvas>
+          <button class="pf-hero-animbtn" id="pf-hero-animbtn" onclick="tpHeroAnim()">▶ Animar</button>
+        </div>
+        <div class="pf-hero-info">
+          <div class="pf-hero-name" id="pf-hero-name">—</div>
+          <div class="pf-hero-sub" id="pf-hero-sub"></div>
+          <div class="pf-hero-stats" id="pf-hero-stats"></div>
+          <div class="pf-hero-floorwrap"><div class="lbl">🤺 Piso da vitrine</div><div class="pf-hero-floors" id="pf-hero-floors"></div></div>
+        </div>
+      </div>
       <div class="card">
         <div class="tool-title" style="font-size:1rem;margin-bottom:.6rem">Registrar personagem</div>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem">
@@ -3142,7 +3175,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-11u</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-11v</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6158,7 +6191,7 @@ const PANDA_SB_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const OUTFIT_BASE = 'outfits-pack';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-11u';
+window.TP_BUILD = '2026-08-11v';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11367,6 +11400,7 @@ function ewEnsureTcInput() {
       window.__tpChars=Array.isArray(chars)?chars:[];
       var feat=pfFeatured(window.__tpChars, prof.main_char);
       tpUpdateHeader(window.__tpChars, prof, feat);
+      if(window.tpRenderHero) tpRenderHero(feat, prof);
       tpRenderPerf(window.__tpChars, feat);
       if(!window.__tpChars.length){ list.innerHTML='<div style="color:var(--muted);font-size:.85rem;padding:.5rem 0">Nenhum personagem registrado ainda.</div>'; return; }
       list.innerHTML=window.__tpChars.map(function(c){
@@ -11495,6 +11529,52 @@ function ewEnsureTcInput() {
   window.tpGetOutfitter=tpOutfitter;
   var TP_DEFAULT_OUTFIT={outfit:128,head:114,body:88,legs:40,feet:76,addons:0,dir:2,mount:0}; // Citizen padrão (cores clássicas)
   function cfgFrom(c){ if(!c||c.outfit_id==null) return Object.assign({},TP_DEFAULT_OUTFIT,{dir:(c&&c.direction!=null?c.direction:2),mount:(c&&c.mount_id)||0}); return {outfit:c.outfit_id, head:c.head||0, body:c.body||0, legs:c.legs||0, feet:c.feet||0, addons:c.addons||0, dir:(c.direction!=null?c.direction:2), mount:c.mount_id||0}; }
+
+  window.TP_FLOORS=[{id:'stone',name:'Pedra',rarity:'comum',price:0,img:'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'},{id:'grass',name:'Grama',rarity:'comum',price:0,img:'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'},{id:'sand',name:'Areia',rarity:'incomum',price:300,img:'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'},{id:'marble',name:'Mármore',rarity:'raro',price:900,img:'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'}];
+  function tpFloorById(id){ for(var i=0;i<TP_FLOORS.length;i++){ if(TP_FLOORS[i].id===id) return TP_FLOORS[i]; } return TP_FLOORS[0]; }
+  var _heroAnim=null, _heroCfg=null;
+  function tpHeroStop(){ if(_heroAnim){ clearInterval(_heroAnim); _heroAnim=null; } var b=g('pf-hero-animbtn'); if(b){ b.classList.remove('on'); b.textContent='▶ Animar'; } }
+  window.tpHeroAnim=function(){
+    var cv=g('pf-hero-cv'); if(!cv||!_heroCfg) return;
+    if(_heroAnim){ tpHeroStop(); _heroCfg.frame=0; tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).catch(function(){}); }); return; }
+    var b=g('pf-hero-animbtn'); if(b){ b.classList.add('on'); b.textContent='⏸ Parar'; }
+    _heroAnim=setInterval(function(){ _heroCfg.frame=((_heroCfg.frame||0)+1); tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).catch(function(){}); }); },150);
+  };
+  window.tpSetFloor=function(id){
+    var f=tpFloorById(id); if(!f) return;
+    // pisos pagos: por enquanto só os gratuitos são selecionáveis (venda vem com a Store)
+    if(f.price>0 && !((window.__TP_OWNED_FLOORS||{})[id])){ if(window.tpToast) tpToast('Esse piso é da Store — em breve.','info'); return; }
+    var stage=g('pf-hero-stage'); if(stage) stage.style.backgroundImage='url(data:image/png;base64,'+f.img+')';
+    document.querySelectorAll('#pf-hero-floors .pf-floor').forEach(function(el){ el.classList.toggle('on', el.dataset.floor===id); });
+    if(AUTH){ AUTH.profile=Object.assign(AUTH.profile||{},{profile_floor:id}); saveAuth(AUTH);
+      tpAuthFetch(SB+'/rest/v1/profiles?id=eq.'+AUTH.user.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({profile_floor:id})}).catch(function(){}); }
+  };
+  window.tpRenderHero=function(feat, prof){
+    var card=g('pf-hero-card'); if(!card) return;
+    if(!feat){ card.style.display='none'; tpHeroStop(); return; }
+    card.style.display='';
+    var floorId=(prof&&prof.profile_floor)||'stone', f=tpFloorById(floorId);
+    var stage=g('pf-hero-stage'); if(stage) stage.style.backgroundImage='url(data:image/png;base64,'+f.img+')';
+    g('pf-hero-name').textContent=feat.name;
+    g('pf-hero-sub').innerHTML=[feat.vocation,(feat.level?('Lvl '+feat.level):null),feat.world].filter(Boolean).join(' · ');
+    // status
+    var s=(typeof cpgStats==='function')?cpgStats(feat.vocation,feat.level):{hp:0,mana:0,cap:0,smin:0,smax:0};
+    var nf=(typeof cpgNf==='function')?cpgNf:function(x){return x;};
+    g('pf-hero-stats').innerHTML=
+      '<div class="pf-hstat"><span class="ic">❤️</span><div class="track"><i style="width:62%;background:linear-gradient(90deg,#e05a5a,#f08a8a)"></i></div><span class="val">'+nf(s.hp)+'</span></div>'+
+      '<div class="pf-hstat"><span class="ic">⚡</span><div class="track"><i style="width:78%;background:linear-gradient(90deg,#4a7de0,#7fa8f0)"></i></div><span class="val">'+nf(s.mana)+'</span></div>'+
+      '<div class="pf-hstat"><span class="ic">💰</span><span class="val">'+nf(s.cap)+'</span></div>'+
+      '<div class="pf-hstat"><span class="ic">🛡️</span><span class="val">'+s.smin+'–'+s.smax+'</span></div>';
+    // pisos
+    var owned=window.__TP_OWNED_FLOORS||{};
+    g('pf-hero-floors').innerHTML=TP_FLOORS.map(function(fl){
+      var locked=fl.price>0 && !owned[fl.id];
+      return '<div class="pf-floor'+(fl.id===floorId?' on':'')+(locked?' locked':'')+'" data-floor="'+fl.id+'" title="'+fl.name+(locked?' (Store)':'')+'" onclick="tpSetFloor(\''+fl.id+'\')" style="background-image:url(data:image/png;base64,'+fl.img+')">'+(locked?'<span class="lk">🔒</span>':'')+'</div>';
+    }).join('');
+    // render outfit
+    var cv=g('pf-hero-cv'); if(cv){ _heroCfg=cfgFrom(feat); tpHeroStop(); tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).catch(function(){}); }).catch(function(){}); }
+  };
+
   window.tpDrawAvatars=function(chars){
     if(!chars||!chars.length) return;
     tpOutfitter().then(function(of){ chars.forEach(function(c){ var cv=g('tpav-'+c.id); if(cv) of.render(cfgFrom(c),cv,1).catch(function(){}); }); }).catch(function(){});
