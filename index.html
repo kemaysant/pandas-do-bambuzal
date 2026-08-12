@@ -2728,7 +2728,7 @@ PlayerName (Leader)
             <div class="gami-stat"><div class="v" id="gami-streak">0</div><div class="k">🔥 Streak</div></div>
           </div>
         </div>
-        <div style="font-size:.74rem;color:var(--muted);margin-top:.9rem">O <b>XP do site</b> e as <b>Panda Coins</b> são da comunidade (não é o XP do Tibia). Complete missões pra evoluir e, no futuro, trocar coins por cosméticos na Store.</div>
+        <div style="font-size:.74rem;color:var(--muted);margin-top:.9rem">O <b>XP do site</b> e as <b>Panda Coins</b> são da comunidade (não é o XP do Tibia). Complete missões pra evoluir, resgatar recompensas no <b>Passe</b> e trocar coins por cosméticos na <b>Store</b>.</div>
       </div>
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;margin-bottom:.2rem">
@@ -3447,7 +3447,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13r</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13t</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6465,7 +6465,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13r';
+window.TP_BUILD = '2026-08-13t';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -13394,12 +13394,24 @@ window.tpToast=function(msg,type){
   function friendById(id){ return FRIENDS.filter(function(x){return x.id===id;})[0]; }
   function popOpen(){ var p=document.getElementById('tp-social-pop'); return p&&p.classList.contains('open'); }
 
+  var _liveBound=false, _lastPoll=0;
+  function tpPollNow(){ if(!me()) return; var t=Date.now(); if(t-_lastPoll<800) return; _lastPoll=t; try{ pollChats(); }catch(e){} try{ refreshInbox(); }catch(e){} }
+  window.tpPollNow=tpPollNow;
+  function bindLive(){
+    if(_liveBound) return; _liveBound=true;
+    // navegadores congelam setInterval em aba/janela sem foco — força sync ao voltar
+    document.addEventListener('visibilitychange',function(){ if(!document.hidden) tpPollNow(); });
+    window.addEventListener('focus',tpPollNow);
+    // digitou/clicou no dock ou numa janela de chat → sincroniza na hora
+    document.addEventListener('click',function(e){ if(e.target&&e.target.closest&&e.target.closest('#tp-social,.soc-chat')) tpPollNow(); },true);
+  }
   function startSocial(){ if(started||!me()) return; started=true;
     var dock=document.getElementById('tp-social'); if(dock) dock.style.display='';
+    bindLive();
     rpc('tp_touch_presence'); tPres=setInterval(function(){ rpc('tp_touch_presence'); },60000);
     refreshFriends(); tFr=setInterval(refreshFriends,45000);
-    refreshInbox(); tIn=setInterval(refreshInbox,12000);
-    tChat=setInterval(pollChats,4000);
+    refreshInbox(); tIn=setInterval(refreshInbox,8000);
+    tChat=setInterval(pollChats,2500);
   }
   function stopSocial(){ started=false; [tPres,tFr,tIn,tChat].forEach(function(x){ if(x) clearInterval(x); }); tPres=tFr=tIn=tChat=null;
     FRIENDS=[];INCOMING=[];OUTGOING=[];INBOX=[];chats={};MSGS={};
@@ -13466,7 +13478,7 @@ window.tpToast=function(msg,type){
     c.el.innerHTML='<div class="soc-chat-hd"><span class="soc-dot '+(on?'on':'')+'"></span><span class="soc-chat-nm">'+esc(c.name)+'</span>'
       +'<span class="soc-chat-btns"><span class="soc-chat-mi" title="Minimizar" onclick="tpChatMin(\''+id+'\',true)">—</span><span class="soc-chat-x" title="Fechar" onclick="tpChatClose(\''+id+'\')">✕</span></span></div>'
       +'<div class="soc-chat-body" id="soc-body-'+id+'"></div>'
-      +'<div class="soc-chat-input"><input id="soc-inp-'+id+'" placeholder="Mensagem..." onkeydown="if(event.key===\'Enter\')tpChatSend(\''+id+'\')"><button onclick="tpChatSend(\''+id+'\')">➤</button></div>';
+      +'<div class="soc-chat-input"><input id="soc-inp-'+id+'" placeholder="Mensagem..." onfocus="if(window.tpPollNow)tpPollNow()" onkeydown="if(event.key===\'Enter\')tpChatSend(\''+id+'\')"><button onclick="tpChatSend(\''+id+'\')">➤</button></div>';
     renderMsgs(id); }
   function renderMsgs(id){ var body=document.getElementById('soc-body-'+id); if(!body) return; var arr=MSGS[id]||[];
     body.innerHTML=arr.map(function(m){ return '<div class="soc-msg '+(m.sender===me()?'me':'them')+'"><span>'+esc(m.body)+'</span></div>'; }).join('');
