@@ -2511,7 +2511,11 @@ PlayerName (Leader)
       #profile .gami-m.claimed{opacity:.6}
       #profile .gami-m.ready{background:rgba(139,92,246,.06);border-radius:10px}
       #profile .pass-cta{font-size:.78rem;font-weight:800;color:#3ecf8e;margin-bottom:.6rem}
-      #profile .pass-row{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.5rem;scroll-snap-type:x proximity}
+      #profile .pass-row{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.7rem;scroll-snap-type:x proximity;scrollbar-width:thin;scrollbar-color:var(--rule,#2b2938) transparent}
+      #profile .pass-row::-webkit-scrollbar{height:8px}
+      #profile .pass-row::-webkit-scrollbar-track{background:transparent}
+      #profile .pass-row::-webkit-scrollbar-thumb{background:var(--rule,#2b2938);border-radius:99px}
+      #profile .pass-row::-webkit-scrollbar-thumb:hover{background:var(--bamboo,#8b5cf6)}
       #profile .pass-node{flex:0 0 128px;scroll-snap-align:start;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:12px;padding:.6rem .5rem;text-align:center;display:flex;flex-direction:column;align-items:center;gap:.25rem;position:relative}
       #profile .pass-node.claimable{border-color:#3ecf8e;box-shadow:0 0 0 1px rgba(62,207,142,.4) inset}
       #profile .pass-node.locked{opacity:.5}
@@ -3447,7 +3451,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13u</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13v</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6465,7 +6469,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13u';
+window.TP_BUILD = '2026-08-13v';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11772,6 +11776,7 @@ function ewEnsureTcInput() {
     if(b){ if((st.xp_boost_missions||0)>0){ b.style.display=''; b.textContent='🔥 XP em dobro nas próximas '+st.xp_boost_missions+' missõe'+(st.xp_boost_missions===1?'':'s'); } else b.style.display='none'; }
     var claimable=rewards.filter(function(r){return r.status==='claimable';}).length;
     var hdr=claimable?('<div class="pass-cta">🎁 '+claimable+' recompensa'+(claimable>1?'s':'')+' pra resgatar!</div>'):'';
+    var _oldRow=host.querySelector('.pass-row'); var _sl=_oldRow?_oldRow.scrollLeft:0;   // preserva o scroll horizontal ao re-renderizar
     host.innerHTML=hdr+'<div class="pass-row">'+rewards.map(function(r){
       var s=r.status;
       var btn = s==='claimable' ? '<button class="pass-claim" onclick="tpPassClaim('+r.level+')">Resgatar</button>'
@@ -11783,6 +11788,7 @@ function ewEnsureTcInput() {
       else ic='<div class="pass-ic">'+passIcon(r)+'</div>';
       return '<div class="pass-node '+s+'"><div class="pass-lvl">Nv '+r.level+'</div>'+ic+'<div class="pass-lbl">'+esc(r.label)+'</div>'+btn+'</div>';
     }).join('')+'</div>';
+    var _nr=host.querySelector('.pass-row'); if(_nr) _nr.scrollLeft=_sl;   // restaura posição
     passRenderThumbs(host);
   };
   function passIcon(r){
@@ -13340,8 +13346,17 @@ window.tpToast=function(msg,type){
   .soc-empty{padding:.9rem;font-size:.78rem;color:var(--muted);text-align:center}
   .soc-sec{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:.55rem .9rem .25rem}
   /* chat */
-  .soc-chat{width:280px;height:360px;background:var(--bg-1,#14131c);border:1px solid var(--rule,#2b2938);border-radius:12px 12px 0 0;box-shadow:0 -14px 44px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden}
-  .soc-chat.min{height:auto;width:210px}
+  #tp-social{max-width:calc(100vw - 24px)}
+  #tp-chat-wins{flex-wrap:wrap-reverse;justify-content:flex-end}
+  .soc-chat{width:290px;height:370px;max-width:calc(100vw - 32px);background:var(--bg-1,#14131c);border:1px solid var(--rule,#2b2938);border-radius:12px 12px 0 0;box-shadow:0 -14px 44px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden}
+  .soc-chat.min{height:auto;width:230px}
+  @media (max-width:640px){
+    #tp-social{right:8px;left:8px;justify-content:flex-end}
+    .soc-chat{width:calc(100vw - 24px);height:60vh}
+    .soc-chat.min{width:calc(100vw - 24px)}
+    #tp-chat-wins{width:100%}
+    .tp-social-pop{width:calc(100vw - 24px);max-width:320px}
+  }
   .soc-chat-hd{display:flex;align-items:center;gap:.5rem;padding:.5rem .6rem;background:var(--bg-2,#1b1a25);border-bottom:1px solid var(--rule,#2b2938);cursor:pointer}
   .soc-chat-meta{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}
   .soc-chat-nm{font-weight:700;font-size:.82rem;color:var(--ink,#eae8f2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -13519,9 +13534,9 @@ window.tpToast=function(msg,type){
       c.el.innerHTML='<div class="soc-chat-hd" onclick="tpChatMin(\''+id+'\',false)">'+frAvatar(f||{id:id})+'<span class="soc-chat-nm">'+esc(c.name)+'</span>'+lvl+'<span class="soc-chat-x" onclick="event.stopPropagation();tpChatClose(\''+id+'\')">✕</span></div>';
       socRenderAvatars(c.el); return; }
     c.el.className='soc-chat';
-    c.el.innerHTML='<div class="soc-chat-hd">'+frAvatar(f||{id:id})
+    c.el.innerHTML='<div class="soc-chat-hd" title="Clique pra minimizar" onclick="tpChatMin(\''+id+'\',true)">'+frAvatar(f||{id:id})
       +'<div class="soc-chat-meta"><span class="soc-chat-nm">'+esc(c.name)+'</span><span class="soc-chat-st'+(on?' on':'')+'">'+(f?esc(frStatus(f)):(on?'Disponível':'Offline'))+'</span></div>'+lvl
-      +'<span class="soc-chat-btns"><span class="soc-chat-mi" title="Minimizar" onclick="tpChatMin(\''+id+'\',true)">—</span><span class="soc-chat-x" title="Fechar" onclick="tpChatClose(\''+id+'\')">✕</span></span></div>'
+      +'<span class="soc-chat-btns"><span class="soc-chat-mi" title="Minimizar" onclick="event.stopPropagation();tpChatMin(\''+id+'\',true)">—</span><span class="soc-chat-x" title="Fechar" onclick="event.stopPropagation();tpChatClose(\''+id+'\')">✕</span></span></div>'
       +'<div class="soc-chat-body" id="soc-body-'+id+'"></div>'
       +'<div class="soc-emoji-bar" id="soc-emoji-'+id+'" style="display:none"></div>'
       +'<div class="soc-chat-input"><button class="soc-emoji-btn" title="Emojis" onclick="tpChatEmoji(\''+id+'\')">😊</button><input id="soc-inp-'+id+'" placeholder="Mensagem..." onfocus="if(window.tpPollNow)tpPollNow()" onkeydown="if(event.key===\'Enter\')tpChatSend(\''+id+'\')"><button class="soc-send" onclick="tpChatSend(\''+id+'\')">➤</button></div>';
@@ -13543,6 +13558,7 @@ window.tpToast=function(msg,type){
   async function markRead(id){ try{ await af()(SB+'/rest/v1/dm_messages?sender=eq.'+id+'&recipient=eq.'+me()+'&read_at=is.null',{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({read_at:new Date().toISOString()})}); }catch(e){}
     INBOX.forEach(function(x){ if(x.id===id) x.unread=0; }); updateBadges(); if(popOpen()) renderDockPop(); }
   window.tpChatSend=async function(id){ var inp=document.getElementById('soc-inp-'+id); if(!inp) return; var body=(inp.value||'').trim(); if(!body) return; inp.value='';
+    var _eb=document.getElementById('soc-emoji-'+id); if(_eb) _eb.style.display='none';
     try{ var r=await af()(SB+'/rest/v1/dm_messages',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify({sender:me(),recipient:id,body:body})});
       if(r.ok){ var rows=await r.json(); if(Array.isArray(rows)&&rows[0]){ MSGS[id]=(MSGS[id]||[]).concat(rows[0]); chats[id].lastTs=rows[0].created_at; renderMsgs(id); } }
       else toast('Não consegui enviar (vocês são amigos?)','error'); }catch(e){ toast('Erro ao enviar.','error'); } };
