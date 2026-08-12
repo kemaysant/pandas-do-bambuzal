@@ -3447,7 +3447,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13t</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13u</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6465,7 +6465,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13t';
+window.TP_BUILD = '2026-08-13u';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11599,12 +11599,18 @@ function ewEnsureTcInput() {
       +'</div></div>';
   }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
-  window.tpLoadVitrine=async function(){
+  window.__VIT_CACHE=window.__VIT_CACHE||{};
+  window.tpLoadVitrine=async function(force){
     var body=g('pf-vit-body'); if(!body||!AUTH) return;
     var prof=AUTH.profile||{};
     var feat=pfFeatured(window.__tpChars||[], prof.main_char);
+    if(!feat){ var bb=''; try{ if(window.tpBestSummary){ bb=vitBestBlock(await window.tpBestSummary()); } }catch(e){}
+      body.innerHTML=bb+'<div class="vit-empty">Defina um <b>personagem principal verificado</b> na aba Personagens pra ver a vitrine de conquistas dele aqui. 🐼</div>'; return; }
+    // cache: revisita é instantânea e não refaz a chamada lenta ao TibiaData
+    if(!force && window.__VIT_CACHE[feat.name]){ window.__VIT=window.__VIT_CACHE[feat.name]; tpVitRender(); return; }
+    // guarda contra chamadas concorrentes (showPage + aba) que deixavam o "Carregando" preso
+    if(window.__VIT_LOADING===feat.name) return; window.__VIT_LOADING=feat.name;
     var bestBlock=''; try{ if(window.tpBestSummary){ bestBlock=vitBestBlock(await window.tpBestSummary()); } }catch(e){}
-    if(!feat){ body.innerHTML=bestBlock+'<div class="vit-empty">Defina um <b>personagem principal verificado</b> na aba Personagens pra ver a vitrine de conquistas dele aqui. 🐼</div>'; return; }
     body.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando conquistas de '+feat.name+'...</div>';
     try{
       var cat=await vitCatalog();
@@ -11632,8 +11638,10 @@ function ewEnsureTcInput() {
       }
       // cacheia tudo pra re-render local (toggle mostra/oculta) sem refazer a chamada ao TibiaData
       window.__VIT={feat:feat, enriched:enriched, kpis:kpis, bestBlock:bestBlock};
+      window.__VIT_CACHE[feat.name]=window.__VIT;
       tpVitRender();
     }catch(e){ body.innerHTML=bestBlock+'<div class="vit-empty">Não foi possível carregar as conquistas agora. Tente de novo em instantes.</div>'; }
+    finally{ window.__VIT_LOADING=null; }
   };
   // showcase = lista de nomes OCULTOS no perfil (vazio = mostra todas as públicas)
   function vitHidden(){ var p=(AUTH&&AUTH.profile)||{}; var s=p.showcase; try{ if(typeof s==='string') s=JSON.parse(s||'[]'); }catch(e){ s=[]; } return Array.isArray(s)?s.map(function(n){return (n||'').toLowerCase();}):[]; }
@@ -13334,18 +13342,35 @@ window.tpToast=function(msg,type){
   /* chat */
   .soc-chat{width:280px;height:360px;background:var(--bg-1,#14131c);border:1px solid var(--rule,#2b2938);border-radius:12px 12px 0 0;box-shadow:0 -14px 44px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden}
   .soc-chat.min{height:auto;width:210px}
-  .soc-chat-hd{display:flex;align-items:center;gap:.5rem;padding:.55rem .7rem;background:var(--bg-2,#1b1a25);border-bottom:1px solid var(--rule,#2b2938);cursor:pointer}
-  .soc-chat-nm{flex:1;font-weight:700;font-size:.82rem;color:var(--ink,#eae8f2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .soc-chat-btns{display:flex;gap:.4rem}
+  .soc-chat-hd{display:flex;align-items:center;gap:.5rem;padding:.5rem .6rem;background:var(--bg-2,#1b1a25);border-bottom:1px solid var(--rule,#2b2938);cursor:pointer}
+  .soc-chat-meta{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2}
+  .soc-chat-nm{font-weight:700;font-size:.82rem;color:var(--ink,#eae8f2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .soc-chat-st{font-size:.66rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .soc-chat-st.on{color:#3ecf8e}
+  .soc-chat.min .soc-chat-nm{flex:1}
+  .soc-chat-btns{display:flex;gap:.4rem;flex:none}
   .soc-chat-mi,.soc-chat-x{cursor:pointer;color:var(--muted);font-weight:800;padding:0 .2rem}
   .soc-chat-mi:hover,.soc-chat-x:hover{color:var(--ink,#eae8f2)}
-  .soc-chat-body{flex:1;overflow-y:auto;padding:.6rem;display:flex;flex-direction:column;gap:.35rem}
-  .soc-msg{max-width:80%;padding:.4rem .6rem;border-radius:10px;font-size:.8rem;line-height:1.35;word-break:break-word}
-  .soc-msg.me{align-self:flex-end;background:var(--bamboo,#8b5cf6);color:#fff;border-bottom-right-radius:3px}
-  .soc-msg.them{align-self:flex-start;background:var(--bg-3,#23212f);color:var(--ink,#eae8f2);border-bottom-left-radius:3px}
-  .soc-chat-input{display:flex;gap:.4rem;padding:.5rem;border-top:1px solid var(--rule,#2b2938)}
+  .soc-chat-body{flex:1;overflow-y:auto;padding:.6rem;display:flex;flex-direction:column;gap:.3rem}
+  .soc-msg{max-width:82%;display:flex;flex-direction:column;gap:1px}
+  .soc-msg.me{align-self:flex-end;align-items:flex-end}
+  .soc-msg.them{align-self:flex-start;align-items:flex-start}
+  .soc-bub{padding:.4rem .6rem;border-radius:12px;font-size:.8rem;line-height:1.35;word-break:break-word}
+  .soc-msg.me .soc-bub{background:var(--bamboo,#8b5cf6);color:#fff;border-bottom-right-radius:3px}
+  .soc-msg.them .soc-bub{background:var(--bg-3,#23212f);color:var(--ink,#eae8f2);border-bottom-left-radius:3px}
+  .soc-time{font-size:.58rem;color:var(--muted);padding:0 .25rem}
+  .soc-emoji-bar{display:flex;flex-wrap:wrap;gap:.1rem;padding:.35rem .5rem;border-top:1px solid var(--rule,#2b2938);max-height:96px;overflow-y:auto}
+  .soc-emo{cursor:pointer;font-size:1.15rem;padding:.1rem .18rem;border-radius:6px}
+  .soc-emo:hover{background:var(--bg-3,#23212f)}
+  .soc-chat-input{display:flex;gap:.35rem;align-items:center;padding:.5rem;border-top:1px solid var(--rule,#2b2938)}
+  .soc-emoji-btn{background:none;border:none;cursor:pointer;font-size:1.1rem;padding:0 .1rem;flex:none}
   .soc-chat-input input{flex:1;min-width:0;background:var(--bg-2,#1b1a25);border:1px solid var(--rule,#2b2938);color:var(--ink,#eae8f2);border-radius:8px;padding:.45rem .6rem;font:inherit;font-size:.8rem;outline:none}
-  .soc-chat-input button{background:var(--bamboo,#8b5cf6);border:none;color:#fff;border-radius:8px;padding:0 .7rem;cursor:pointer;font-size:.9rem}
+  .soc-chat-input .soc-send{background:var(--bamboo,#8b5cf6);border:none;color:#fff;border-radius:8px;padding:0 .7rem;cursor:pointer;font-size:.9rem;flex:none}
+  /* miniatura de perfil (avatar do outfit) */
+  .soc-av{width:34px;height:34px;flex:none;border-radius:9px;background:#25232f;border:2px solid var(--rule,#2b2938);overflow:hidden;display:flex;align-items:center;justify-content:center;image-rendering:pixelated}
+  .soc-av.on{border-color:#3ecf8e}
+  .soc-av canvas{max-width:150%;max-height:150%;image-rendering:pixelated}
+  .soc-av-fb{font-size:1rem;opacity:.6}
   /* profile friends + depo */
   .fr-row,.fr-req{display:flex;align-items:center;gap:.6rem;padding:.6rem .2rem;border-bottom:1px solid var(--rule,#2b2938)}
   .fr-info{flex:1;display:flex;flex-direction:column;min-width:0}
@@ -13426,8 +13451,25 @@ window.tpToast=function(msg,type){
   // status legível (Disponível / Última vez online há X) + badge de level
   function frStatus(f){ return f.online?'Disponível':('Última vez online '+rel(f.last_seen_at)); }
   function frLvlBadge(f){ var lv=(f&&f.level!=null&&f.level!=='')?f.level:null; if(lv==null) return ''; return '<span class="soc-lvl'+(f.online?' on':'')+'" title="Level do personagem principal">'+lv+'</span>'; }
+  // miniatura de perfil = sprite do outfit do char principal do amigo
+  var SOC_OUT={};
+  function frAvatar(f){ if(f&&f.outfit) SOC_OUT[f.id]=f.outfit;
+    return '<span class="soc-av'+(f.online?' on':'')+'" data-fid="'+f.id+'"><span class="soc-av-fb">🐼</span></span>'; }
+  function socRenderAvatars(root){ if(!window.tpGetOutfitter||!root) return;
+    var els=[].slice.call(root.querySelectorAll('.soc-av[data-fid]:not([data-avdone])'));
+    var i=0, MAX=6;
+    function next(){ if(i>=els.length) return; var el=els[i++]; el.setAttribute('data-avdone','1');
+      var o=SOC_OUT[el.getAttribute('data-fid')];
+      if(!o||o.outfit_id==null){ next(); return; }
+      window.tpGetOutfitter().then(function(of){ var cv=document.createElement('canvas');
+        of.render({outfit:+o.outfit_id,head:+o.head||0,body:+o.body||0,legs:+o.legs||0,feet:+o.feet||0,addons:+o.addons||0,dir:2,mount:0},cv,1)
+          .then(function(){ el.innerHTML=''; el.appendChild(cv); next(); }).catch(function(){ next(); }); }).catch(function(){ next(); });
+    }
+    for(var k=0;k<MAX;k++) next();
+  }
+  window.tpSocRenderAvatars=socRenderAvatars;
   function frRow2(f, un){ var u=un[f.id]||0;
-    return '<div class="soc-frow2" onclick="tpOpenChat(\''+f.id+'\')"><span class="soc-dot '+(f.online?'on':'')+'"></span>'
+    return '<div class="soc-frow2" onclick="tpOpenChat(\''+f.id+'\')">'+frAvatar(f)
       +'<div class="soc-fmeta"><span class="soc-fn2'+(f.online?' on':'')+'">'+esc(lbl(f))+(u>0?' <span class="soc-unb">'+u+'</span>':'')+'</span>'
       +'<span class="soc-fsub'+(f.online?' on':'')+'">'+esc(frStatus(f))+(sub(f)?(' · '+esc(sub(f))):'')+'</span></div>'
       +frLvlBadge(f)+'</div>'; }
@@ -13436,7 +13478,7 @@ window.tpToast=function(msg,type){
     if(cnt) cnt.textContent=FRIENDS.length?('('+FRIENDS.length+')'):'';
     if(!FRIENDS.length){ host.innerHTML='<div style="font-size:.78rem;color:var(--muted)">Sem amigos ainda. Adicione na aba Amigos.</div>'; return; }
     var un={}; INBOX.forEach(function(x){ un[x.id]=+x.unread||0; });
-    host.innerHTML=FRIENDS.slice(0,20).map(function(f){ return frRow2(f,un); }).join(''); }
+    host.innerHTML=FRIENDS.slice(0,20).map(function(f){ return frRow2(f,un); }).join(''); socRenderAvatars(host); }
   window.tpRenderMiniFriends=renderMiniFriends;
   async function refreshInbox(){ if(!me()) return; var d=await rpc('tp_dm_inbox'); INBOX=Array.isArray(d)?d:[]; renderDock(); updateBadges(); }
   function updateBadges(){
@@ -13461,7 +13503,7 @@ window.tpToast=function(msg,type){
       if(onl.length){ rows+='<div class="soc-sec">Online — '+onl.length+'</div>'+onl.map(function(f){ return frRow2(f,un); }).join(''); }
       if(off.length){ rows+='<div class="soc-sec">Offline — '+off.length+'</div>'+off.map(function(f){ return frRow2(f,un); }).join(''); }
     } else { rows='<div class="soc-empty">Sem amigos ainda. Adicione na aba <b>Amigos</b> do perfil.</div>'; }
-    host.innerHTML=req+rows+'<div class="soc-manage" onclick="tpGoFriends()">⚙️ Gerenciar amigos</div>'; }
+    host.innerHTML=req+rows+'<div class="soc-manage" onclick="tpGoFriends()">⚙️ Gerenciar amigos</div>'; socRenderAvatars(host); }
   window.tpSocialToggle=function(){ var p=document.getElementById('tp-social-pop'); if(!p) return; p.classList.toggle('open'); if(p.classList.contains('open')) renderDockPop(); };
   window.tpGoFriends=function(){ if(typeof showPage==='function'){ var b=document.querySelector('.nav-btn[onclick*="profile"]'); showPage('profile',b); } var t=document.querySelector('#profile .pf-tab[data-tab=amigos]'); if(t) t.click(); var p=document.getElementById('tp-social-pop'); if(p) p.classList.remove('open'); };
 
@@ -13472,16 +13514,26 @@ window.tpToast=function(msg,type){
   function mountChat(id){ var host=document.getElementById('tp-chat-wins'); if(!host) return;
     var el=document.createElement('div'); el.className='soc-chat'; el.id='soc-chat-'+id; chats[id].el=el; host.appendChild(el); renderChat(id); }
   function renderChat(id){ var c=chats[id]; if(!c||!c.el) return; var f=friendById(id); var on=f&&f.online;
+    var lvl=frLvlBadge(f);
     if(c.min){ c.el.className='soc-chat min';
-      c.el.innerHTML='<div class="soc-chat-hd" onclick="tpChatMin(\''+id+'\',false)"><span class="soc-dot '+(on?'on':'')+'"></span><span class="soc-chat-nm">'+esc(c.name)+'</span><span class="soc-chat-x" onclick="event.stopPropagation();tpChatClose(\''+id+'\')">✕</span></div>'; return; }
+      c.el.innerHTML='<div class="soc-chat-hd" onclick="tpChatMin(\''+id+'\',false)">'+frAvatar(f||{id:id})+'<span class="soc-chat-nm">'+esc(c.name)+'</span>'+lvl+'<span class="soc-chat-x" onclick="event.stopPropagation();tpChatClose(\''+id+'\')">✕</span></div>';
+      socRenderAvatars(c.el); return; }
     c.el.className='soc-chat';
-    c.el.innerHTML='<div class="soc-chat-hd"><span class="soc-dot '+(on?'on':'')+'"></span><span class="soc-chat-nm">'+esc(c.name)+'</span>'
+    c.el.innerHTML='<div class="soc-chat-hd">'+frAvatar(f||{id:id})
+      +'<div class="soc-chat-meta"><span class="soc-chat-nm">'+esc(c.name)+'</span><span class="soc-chat-st'+(on?' on':'')+'">'+(f?esc(frStatus(f)):(on?'Disponível':'Offline'))+'</span></div>'+lvl
       +'<span class="soc-chat-btns"><span class="soc-chat-mi" title="Minimizar" onclick="tpChatMin(\''+id+'\',true)">—</span><span class="soc-chat-x" title="Fechar" onclick="tpChatClose(\''+id+'\')">✕</span></span></div>'
       +'<div class="soc-chat-body" id="soc-body-'+id+'"></div>'
-      +'<div class="soc-chat-input"><input id="soc-inp-'+id+'" placeholder="Mensagem..." onfocus="if(window.tpPollNow)tpPollNow()" onkeydown="if(event.key===\'Enter\')tpChatSend(\''+id+'\')"><button onclick="tpChatSend(\''+id+'\')">➤</button></div>';
-    renderMsgs(id); }
+      +'<div class="soc-emoji-bar" id="soc-emoji-'+id+'" style="display:none"></div>'
+      +'<div class="soc-chat-input"><button class="soc-emoji-btn" title="Emojis" onclick="tpChatEmoji(\''+id+'\')">😊</button><input id="soc-inp-'+id+'" placeholder="Mensagem..." onfocus="if(window.tpPollNow)tpPollNow()" onkeydown="if(event.key===\'Enter\')tpChatSend(\''+id+'\')"><button class="soc-send" onclick="tpChatSend(\''+id+'\')">➤</button></div>';
+    socRenderAvatars(c.el); renderMsgs(id); }
+  var SOC_EMOJIS=['😀','😂','😍','😎','😭','😡','👍','👎','❤️','🔥','🎉','😱','🤔','👀','🙏','💪','🐼','⚔️','🛡️','💰','☠️','✨','🥳','😅'];
+  window.tpChatEmoji=function(id){ var bar=document.getElementById('soc-emoji-'+id); if(!bar) return;
+    if(bar.style.display==='none'){ bar.innerHTML=SOC_EMOJIS.map(function(e){ return '<span class="soc-emo" onclick="tpEmojiIns(\''+id+'\',\''+e+'\')">'+e+'</span>'; }).join(''); bar.style.display='flex'; }
+    else bar.style.display='none'; };
+  window.tpEmojiIns=function(id,e){ var i=document.getElementById('soc-inp-'+id); if(!i) return; i.value=(i.value||'')+e; i.focus(); };
   function renderMsgs(id){ var body=document.getElementById('soc-body-'+id); if(!body) return; var arr=MSGS[id]||[];
-    body.innerHTML=arr.map(function(m){ return '<div class="soc-msg '+(m.sender===me()?'me':'them')+'"><span>'+esc(m.body)+'</span></div>'; }).join('');
+    body.innerHTML=arr.map(function(m){ var t=''; try{ t=new Date(m.created_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }catch(e){}
+      return '<div class="soc-msg '+(m.sender===me()?'me':'them')+'"><span class="soc-bub">'+esc(m.body)+'</span><span class="soc-time">'+t+'</span></div>'; }).join('');
     body.scrollTop=body.scrollHeight; }
   async function loadThread(id,full){ var c=chats[id]; if(!c) return;
     var d=await rpc('tp_dm_thread',{other:id,since:full?null:c.lastTs});
@@ -13575,10 +13627,10 @@ window.tpToast=function(msg,type){
         return '<div class="fr-req"><span class="soc-dot"></span><b>'+esc(lbl(r))+'</b><span class="fr-actions"><button class="fr-dec" onclick="tpFriendDelReq(\''+r.fid+'\')">Cancelar</button></span></div>'; }).join('')+'</div>'; }
       reqs.innerHTML=h; }
     if(list){ list.innerHTML=FRIENDS.length? FRIENDS.map(function(f){
-      return '<div class="fr-row"><span class="soc-dot '+(f.online?'on':'')+'"></span>'+frLvlBadge(f)+'<div class="fr-info"><b'+(f.online?' style="color:#8fe3bf"':'')+'>'+esc(lbl(f))+'</b>'
+      return '<div class="fr-row">'+frAvatar(f)+frLvlBadge(f)+'<div class="fr-info"><b'+(f.online?' style="color:#8fe3bf"':'')+'>'+esc(lbl(f))+'</b>'
         +'<span class="fr-sub'+(f.online?' on':'')+'">'+esc(frStatus(f))+(sub(f)?' · '+esc(sub(f)):'')+'</span></div>'
         +'<span class="fr-actions"><button class="fr-chat" title="Conversar" onclick="tpOpenChat(\''+f.id+'\')">💬</button><button class="fr-depo" title="Deixar depoimento" onclick="tpDepoCompose(\''+f.id+'\')">✍️</button><button class="fr-rm" onclick="tpFriendRemove(\''+f.id+'\')">Remover</button></span></div>';
-    }).join(''):'<div class="soc-empty">Você ainda não tem amigos. Busque acima pra adicionar. 🐼</div>'; }
+    }).join(''):'<div class="soc-empty">Você ainda não tem amigos. Busque acima pra adicionar. 🐼</div>'; socRenderAvatars(list); }
   }
   var _st=null;
   window.tpFriendSearch=function(){ clearTimeout(_st); _st=setTimeout(doSearch,300); };
