@@ -2539,6 +2539,16 @@ PlayerName (Leader)
       #profile .vit-item .mt{font-size:.68rem;color:var(--muted);margin-top:.25rem;display:flex;justify-content:space-between;gap:.4rem}
       #profile .vit-item .rar{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
       #profile .vit-empty{font-size:.85rem;color:var(--muted);line-height:1.6;background:var(--bg-2,#1b1a25);border:1px dashed var(--rule);border-radius:12px;padding:1.1rem 1.2rem;text-align:center}
+      #profile .inv-sec{margin-bottom:1.4rem}
+      #profile .inv-sec-h{font-size:.9rem;font-weight:700;color:var(--ink,#eae8f2);margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem}
+      #profile .inv-sec-h span{font-size:.68rem;font-weight:800;color:var(--muted);background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:999px;padding:.05rem .5rem}
+      #profile .inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.6rem}
+      #profile .inv-card{position:relative;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-left-width:3px;border-radius:10px;padding:.6rem .75rem}
+      #profile .inv-card.inv-eq{box-shadow:0 0 0 1px var(--bamboo,#8b5cf6) inset}
+      #profile .inv-nm{font-size:.84rem;font-weight:700;color:var(--ink,#eae8f2);line-height:1.2}
+      #profile .inv-rar{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-top:.25rem}
+      #profile .inv-badge{position:absolute;top:.4rem;right:.4rem;font-size:.6rem;font-weight:800;color:var(--muted);background:var(--bg-3,#242230);border:1px solid var(--rule);border-radius:6px;padding:.1rem .35rem}
+      #profile .inv-badge-eq{color:var(--bamboo-light,#a78bfa);background:rgba(139,92,246,.14)}
       #profile .vit-item{position:relative}
       #profile .vit-item .nm{padding-right:1.6rem}
       #profile .vit-card-clk{cursor:pointer}
@@ -2609,6 +2619,7 @@ PlayerName (Leader)
       <button class="pf-tab on" data-tab="visao" onclick="tpProfTab('visao',this)">✨ Visão</button>
       <button class="pf-tab" data-tab="chars" onclick="tpProfTab('chars',this)">🎽 Personagens</button>
       <button class="pf-tab" data-tab="prog" onclick="tpProfTab('prog',this)">🎮 Progressão</button>
+      <button class="pf-tab" data-tab="inventario" onclick="tpProfTab('inventario',this)">🎒 Inventário</button>
       <button class="pf-tab" data-tab="amigos" onclick="tpProfTab('amigos',this)">👥 Amigos <span id="pf-amigos-badge" class="pf-tabbadge" style="display:none">0</span></button>
     </div>
 
@@ -2664,6 +2675,14 @@ PlayerName (Leader)
       </div>
     </div>
 
+    <div class="pf-panel" data-panel="inventario" style="display:none">
+      <div class="card">
+        <div class="tool-title" style="font-size:1.05rem;margin-bottom:.3rem">🎒 Inventário</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:.9rem">Tudo que você comprou na <b>Store</b> com Panda Coins — outfits, montarias e fundos de perfil. O que está <b>equipado</b> aparece marcado.</div>
+        <div id="pf-inv-body"><div class="api-loading"><div class="spinner"></div> Carregando inventário...</div></div>
+      </div>
+    </div>
+
     <div class="pf-panel" data-panel="prog" style="display:none">
       <div class="card">
         <div class="gami-hero" id="gami-head">
@@ -2695,9 +2714,11 @@ PlayerName (Leader)
         <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
           <span style="font-size:1.1rem;color:var(--muted)">@</span>
           <input id="pf-handle-input" class="tool-input" placeholder="seu_apelido" style="flex:1;min-width:160px;max-width:240px" maxlength="20">
-          <button class="calc-btn" style="margin-top:0" onclick="if(window.tpSaveHandle)tpSaveHandle()">Salvar</button>
+          <button id="pf-handle-save" class="calc-btn" style="margin-top:0" onclick="if(window.tpSaveHandle)tpSaveHandle()">Salvar</button>
+          <button id="pf-handle-edit" class="filter-btn" style="display:none" onclick="if(window.tpHandleEdit)tpHandleEdit()">✏️ Editar</button>
           <span id="pf-handle-status" style="font-size:.78rem;color:var(--muted)"></span>
         </div>
+        <div id="pf-handle-lock" style="font-size:.72rem;color:var(--muted);margin-top:.5rem;display:none"></div>
       </div>
       <div class="card" style="margin-bottom:1rem">
         <div class="tool-title" style="font-size:1.05rem;margin-bottom:.3rem">👥 Adicionar amigo</div>
@@ -3394,7 +3415,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13m</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13o</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6412,7 +6433,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13m';
+window.TP_BUILD = '2026-08-13o';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11491,6 +11512,7 @@ function ewEnsureTcInput() {
     document.querySelectorAll('#profile .pf-panel').forEach(function(p){p.style.display=(p.dataset.panel===name)?'':'none';});
     if(name==='visao'){ if(window.tpLoadVitrine) tpLoadVitrine(); if(window.tpDepoLoad) tpDepoLoad(); if(window.tpVisaoHome) tpVisaoHome(); }
     if(name==='prog') tpLoadGamify();
+    if(name==='inventario' && window.tpLoadInventory) tpLoadInventory();
     if(name==='amigos' && window.tpFriendsLoad) tpFriendsLoad();
   };
   // Página de conta no menu lateral (Dados / Segurança) — mostra o painel sem aba destacada
@@ -11563,7 +11585,8 @@ function ewEnsureTcInput() {
       var enriched=achs.map(function(a){
         var meta=cat[(a.name||'').toLowerCase()]||{};
         var rar=meta.rarity||'comum'; rarCount[rar]=(rarCount[rar]||0)+1;
-        return {name:a.name,secret:a.secret,rarity:rar,category:meta.category||'—',points:(meta.points!=null?meta.points:(a.grade||1)),grade:meta.grade||a.grade||null,premium:!!meta.premium,descr:meta.descr||''};
+        // usa o nome canônico do catálogo (casing igual ao da TibiaWiki); TibiaData vem title-cased
+        return {name:(meta.name||a.name),secret:a.secret,rarity:rar,category:meta.category||'—',points:(meta.points!=null?meta.points:(a.grade||1)),grade:meta.grade||a.grade||null,premium:!!meta.premium,descr:meta.descr||''};
       }).sort(function(x,y){ var o={'lendário':5,lendario:5,'épico':4,epico:4,raro:3,incomum:2,comum:1}; return (o[(y.rarity||'').toLowerCase()]||0)-(o[(x.rarity||'').toLowerCase()]||0) || (y.points-x.points); });
       var epleg=(rarCount['lendário']||0)+(rarCount.lendario||0)+(rarCount['épico']||0)+(rarCount.epico||0);
       var kpis='<div class="vit-summary">'
@@ -11619,7 +11642,7 @@ function ewEnsureTcInput() {
     var V=window.__VIT; if(!V||!V.enriched[i]) return; var a=V.enriched[i]; var rc=vitRar(a.rarity);
     var m=document.getElementById('tp-vitinfo-modal');
     if(!m){ m=document.createElement('div'); m.id='tp-vitinfo-modal'; m.className='tp-modal'; document.body.appendChild(m); }
-    var wiki='https://www.tibiawiki.com.br/wiki/'+encodeURIComponent(a.name.replace(/ /g,'_'));
+    var wiki='https://www.tibiawiki.com.br/wiki/'+encodeURIComponent(a.name.replace(/ /g,'_'))+'_(Achievement)';
     var meta=[];
     meta.push('<span class="rar" style="color:'+rc[0]+';font-weight:800">'+rc[1]+'</span>');
     if(a.category&&a.category!=='—') meta.push(esc(a.category));
@@ -12611,6 +12634,56 @@ window.tpToast=function(msg,type){
     return CAT;
   }
 
+  // ── Inventário do perfil: outfits, montarias e fundos comprados ──
+  var INV_RAR={comum:'#8a8a99',incomum:'#3ecf8e',raro:'#4a9eff','épico':'#a78bfa',epico:'#a78bfa','lendário':'#f0b429',lendario:'#f0b429'};
+  function invRarC(r){ return INV_RAR[(r||'').toLowerCase()]||'#8a8a99'; }
+  function invRarL(r){ r=(r||'comum'); return r.charAt(0).toUpperCase()+r.slice(1); }
+  function invEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function invCard(name,rarity,badge){ var c=invRarC(rarity); var eq=/equipado/i.test(badge||'');
+    return '<div class="inv-card'+(eq?' inv-eq':'')+'" style="border-left-color:'+c+'">'
+      +(badge?'<span class="inv-badge'+(eq?' inv-badge-eq':'')+'">'+badge+'</span>':'')
+      +'<div class="inv-nm">'+invEsc(name)+'</div>'
+      +'<div class="inv-rar" style="color:'+c+'">'+invRarL(rarity)+'</div></div>'; }
+  function invSec(title,icon,items){
+    if(!items.length) return '';
+    return '<div class="inv-sec"><div class="inv-sec-h">'+icon+' '+title+' <span>'+items.length+'</span></div><div class="inv-grid">'+items.join('')+'</div></div>';
+  }
+  window.tpLoadInventory=async function(){
+    var body=document.getElementById('pf-inv-body'); if(!body) return;
+    var A=window.TP_AUTH; if(!A||!A.user){ body.innerHTML='<div class="vit-empty">Entre na sua conta pra ver seu inventário. 🐼</div>'; return; }
+    body.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando inventário...</div>';
+    try{
+      var cat=await loadCatalog();
+      await Promise.all([
+        (window.tpLoadMountCatalog?window.tpLoadMountCatalog():null),
+        (window.tpLoadFloorCatalog?window.tpLoadFloorCatalog():null),
+        window.tpLoadOwnedOutfits(), window.tpLoadOwnedMounts(),
+        (window.tpLoadOwnedFloors?window.tpLoadOwnedFloors():null)
+      ]);
+      // OUTFITS: cada nome tem várias cores (ids). Agrupa por nome e conta cores possuídas.
+      var oMeta={}; cat.forEach(function(e){ (e.ids||[]).forEach(function(id){ oMeta[id]={name:e.name,rarity:e.rarity}; }); });
+      var ownedO=window.__TP_OWNED_OUTFITS||{}; var byName={};
+      Object.keys(ownedO).forEach(function(id){ var m=oMeta[id]; if(!m) return; if(!byName[m.name]) byName[m.name]={name:m.name,rarity:m.rarity,colors:0}; byName[m.name].colors++; });
+      var outfitCards=Object.keys(byName).map(function(k){ var e=byName[k]; return invCard(e.name,e.rarity, e.colors>1?(e.colors+' cores'):''); });
+      // MONTARIAS
+      var mcat=window.__TP_MOUNT_CAT||{}; var ownedM=window.__TP_OWNED_MOUNTS||{};
+      var mountCards=Object.keys(ownedM).map(function(id){ var m=mcat[id]||{}; return invCard(m.name||('Montaria #'+id), m.rarity||'comum',''); });
+      // FUNDOS (inclui os grátis Pedra e Grama)
+      var fcat=window.__TP_FLOOR_CAT||[]; var ownedF=window.__TP_OWNED_FLOORS||{};
+      var activeFloor=(A.profile&&A.profile.profile_floor)||'stone';
+      var floorList=[{floor_id:'stone',name:'Pedra',rarity:'comum'},{floor_id:'grass',name:'Grama',rarity:'comum'}];
+      fcat.forEach(function(f){ if(f.floor_id!=='stone'&&f.floor_id!=='grass') floorList.push({floor_id:f.floor_id,name:f.name,rarity:f.rarity}); });
+      var seen={}; var floorCards=[];
+      floorList.forEach(function(f){ if(seen[f.floor_id]) return; seen[f.floor_id]=1;
+        var owned = ownedF[f.floor_id] || f.floor_id==='stone' || f.floor_id==='grass';
+        if(!owned) return;
+        floorCards.push(invCard(f.name||f.floor_id, f.rarity||'comum', f.floor_id===activeFloor?'✓ equipado':'')); });
+      var total=outfitCards.length+mountCards.length+floorCards.length;
+      if(!total){ body.innerHTML='<div class="vit-empty">Você ainda não comprou nada na Store.<br><br><button class="tp-btn-primary" onclick="var b=document.querySelector(\'.nav-btn[onclick*=store]\');if(b)b.click()">🛍️ Ir à Store</button></div>'; return; }
+      body.innerHTML=invSec('Outfits','🎽',outfitCards)+invSec('Montarias','🐴',mountCards)+invSec('Fundos de perfil','🖼️',floorCards);
+    }catch(e){ body.innerHTML='<div class="vit-empty">Não consegui carregar seu inventário agora. Tente de novo.</div>'; }
+  };
+
   async function refreshCoins(){
     var A=window.TP_AUTH; if(!A||!A.user){ COINS=0; }
     else if(window.__GAMI&&window.__GAMI.progress){ COINS=+window.__GAMI.progress.coins||0; }
@@ -13077,8 +13150,22 @@ window.tpToast=function(msg,type){
   .soc-onl{font-size:.68rem;color:#3ecf8e}.soc-off{font-size:.68rem;color:var(--muted)}
   .soc-unb{background:#e05a5a;color:#fff;border-radius:999px;font-size:.62rem;font-weight:800;padding:0 6px}
   .soc-reqrow{color:var(--bamboo-light,#a78bfa);font-weight:600;border-bottom:1px solid var(--rule,#2b2938)}
+  /* linha de amigo estilo Steam: status + level badge */
+  .soc-frow2{display:flex;align-items:center;gap:.6rem;padding:.45rem .7rem;border-radius:8px;cursor:pointer;transition:background .12s}
+  .soc-frow2:hover{background:var(--bg-2,#1b1a25)}
+  .soc-fmeta{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+  .soc-fn2{font-weight:600;font-size:.84rem;color:var(--ink,#eae8f2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .soc-fn2.on{color:#8fe3bf}
+  .soc-fsub{font-size:.67rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .soc-fsub.on{color:#3ecf8e}
+  .fr-sub.on{color:#3ecf8e}
+  .soc-lvl{flex:none;min-width:30px;height:30px;padding:0 .3rem;display:flex;align-items:center;justify-content:center;font-size:.74rem;font-weight:800;color:var(--muted);border:2px solid var(--rule,#2b2938);border-radius:9px;background:var(--bg-2,#1b1a25)}
+  .soc-lvl.on{border-color:#3ecf8e;color:#8fe3bf}
+  .soc-actbtn{background:none;border:1px solid var(--rule,#2b2938);border-radius:7px;color:var(--muted);font-size:.8rem;padding:.2rem .4rem;cursor:pointer;flex:none}
+  .soc-actbtn:hover{color:var(--ink,#eae8f2);border-color:var(--bamboo,#8b5cf6)}
   .soc-manage{border-top:1px solid var(--rule,#2b2938);color:var(--muted);font-weight:600;justify-content:center}
   .soc-empty{padding:.9rem;font-size:.78rem;color:var(--muted);text-align:center}
+  .soc-sec{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:.55rem .9rem .25rem}
   /* chat */
   .soc-chat{width:280px;height:360px;background:var(--bg-1,#14131c);border:1px solid var(--rule,#2b2938);border-radius:12px 12px 0 0;box-shadow:0 -14px 44px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden}
   .soc-chat.min{height:auto;width:210px}
@@ -13116,7 +13203,7 @@ window.tpToast=function(msg,type){
 <div id="tp-social" style="display:none">
   <div id="tp-chat-wins"></div>
   <div class="tp-social-bar">
-    <div id="tp-social-pop" class="tp-social-pop"><div class="tp-social-pop-hd">Amigos</div><div id="tp-social-pop-body"></div></div>
+    <div id="tp-social-pop" class="tp-social-pop"><div class="tp-social-pop-hd" id="tp-social-pop-hd">Amigos</div><div id="tp-social-pop-body"></div></div>
     <button class="tp-social-launch" onclick="tpSocialToggle()"><span>👥</span><span id="tp-social-lbl">Amigos</span><span id="tp-social-unread" class="tp-social-unread" style="display:none">0</span></button>
   </div>
 </div>
@@ -13159,16 +13246,20 @@ window.tpToast=function(msg,type){
     if(!d){ var l=document.getElementById('pf-friend-list'); if(l&&l.innerHTML.indexOf('Carregando')>=0) l.innerHTML='<div class="soc-empty">Não consegui carregar agora. <button class="fr-acc" onclick="tpFriendsLoad()">Tentar de novo</button></div>'; return; }
     FRIENDS=d.friends||[]; INCOMING=d.incoming||[]; OUTGOING=d.outgoing||[];
     renderDock(); renderProfileFriends(); renderMiniFriends(); updateBadges(); }
+  // status legível (Disponível / Última vez online há X) + badge de level
+  function frStatus(f){ return f.online?'Disponível':('Última vez online '+rel(f.last_seen_at)); }
+  function frLvlBadge(f){ var lv=(f&&f.level!=null&&f.level!=='')?f.level:null; if(lv==null) return ''; return '<span class="soc-lvl'+(f.online?' on':'')+'" title="Level do personagem principal">'+lv+'</span>'; }
+  function frRow2(f, un){ var u=un[f.id]||0;
+    return '<div class="soc-frow2" onclick="tpOpenChat(\''+f.id+'\')"><span class="soc-dot '+(f.online?'on':'')+'"></span>'
+      +'<div class="soc-fmeta"><span class="soc-fn2'+(f.online?' on':'')+'">'+esc(lbl(f))+(u>0?' <span class="soc-unb">'+u+'</span>':'')+'</span>'
+      +'<span class="soc-fsub'+(f.online?' on':'')+'">'+esc(frStatus(f))+(sub(f)?(' · '+esc(sub(f))):'')+'</span></div>'
+      +frLvlBadge(f)+'</div>'; }
   function renderMiniFriends(){
     var host=document.getElementById('pf-visao-friends'), cnt=document.getElementById('pf-visao-fcount'); if(!host) return;
     if(cnt) cnt.textContent=FRIENDS.length?('('+FRIENDS.length+')'):'';
     if(!FRIENDS.length){ host.innerHTML='<div style="font-size:.78rem;color:var(--muted)">Sem amigos ainda. Adicione na aba Amigos.</div>'; return; }
     var un={}; INBOX.forEach(function(x){ un[x.id]=+x.unread||0; });
-    host.innerHTML=FRIENDS.slice(0,20).map(function(f){ var u=un[f.id]||0;
-      return '<div class="pf-mf" onclick="tpOpenChat(\''+f.id+'\')"><span class="soc-dot '+(f.online?'on':'')+'"></span><span class="pf-mf-n">'+esc(lbl(f))+'</span>'
-        +(f.online?'<span class="soc-onl">online</span>':'<span class="soc-off">'+rel(f.last_seen_at)+'</span>')
-        +(u>0?'<span class="soc-unb">'+u+'</span>':'')+'</div>';
-    }).join(''); }
+    host.innerHTML=FRIENDS.slice(0,20).map(function(f){ return frRow2(f,un); }).join(''); }
   window.tpRenderMiniFriends=renderMiniFriends;
   async function refreshInbox(){ if(!me()) return; var d=await rpc('tp_dm_inbox'); INBOX=Array.isArray(d)?d:[]; renderDock(); updateBadges(); }
   function updateBadges(){
@@ -13183,13 +13274,16 @@ window.tpToast=function(msg,type){
     if(popOpen()) renderDockPop(); }
   function renderDockPop(){ var host=document.getElementById('tp-social-pop-body'); if(!host) return;
     var un={}; INBOX.forEach(function(x){ un[x.id]=+x.unread||0; });
+    var online=FRIENDS.filter(function(f){return f.online;}).length;
+    var hd=document.getElementById('tp-social-pop-hd'); if(hd) hd.innerHTML='Amigos <span style="color:var(--muted);font-weight:600">· '+online+' online de '+FRIENDS.length+'</span>';
     var req=INCOMING.length?'<div class="soc-reqrow" onclick="tpGoFriends()">📥 '+INCOMING.length+' pedido(s) — abrir</div>':'';
-    var rows=FRIENDS.length? FRIENDS.map(function(f){ var u=un[f.id]||0;
-      return '<div class="soc-frow" onclick="tpOpenChat(\''+f.id+'\')"><span class="soc-dot '+(f.online?'on':'')+'"></span>'
-        +'<span class="soc-fn">'+esc(lbl(f))+'</span>'
-        +(f.online?'<span class="soc-onl">online</span>':'<span class="soc-off">'+rel(f.last_seen_at)+'</span>')
-        +(u>0?'<span class="soc-unb">'+u+'</span>':'')+'</div>';
-    }).join(''):'<div class="soc-empty">Sem amigos ainda. Adicione na aba <b>Amigos</b> do perfil.</div>';
+    // ordena: online primeiro (já vem ordenado do RPC), separa seção
+    var onl=FRIENDS.filter(function(f){return f.online;}), off=FRIENDS.filter(function(f){return !f.online;});
+    var rows='';
+    if(FRIENDS.length){
+      if(onl.length){ rows+='<div class="soc-sec">Online — '+onl.length+'</div>'+onl.map(function(f){ return frRow2(f,un); }).join(''); }
+      if(off.length){ rows+='<div class="soc-sec">Offline — '+off.length+'</div>'+off.map(function(f){ return frRow2(f,un); }).join(''); }
+    } else { rows='<div class="soc-empty">Sem amigos ainda. Adicione na aba <b>Amigos</b> do perfil.</div>'; }
     host.innerHTML=req+rows+'<div class="soc-manage" onclick="tpGoFriends()">⚙️ Gerenciar amigos</div>'; }
   window.tpSocialToggle=function(){ var p=document.getElementById('tp-social-pop'); if(!p) return; p.classList.toggle('open'); if(p.classList.contains('open')) renderDockPop(); };
   window.tpGoFriends=function(){ if(typeof showPage==='function'){ var b=document.querySelector('.nav-btn[onclick*="profile"]'); showPage('profile',b); } var t=document.querySelector('#profile .pf-tab[data-tab=amigos]'); if(t) t.click(); var p=document.getElementById('tp-social-pop'); if(p) p.classList.remove('open'); };
@@ -13228,8 +13322,52 @@ window.tpToast=function(msg,type){
   function pollChats(){ if(!me()) return; Object.keys(chats).forEach(function(id){ if(!chats[id].min) loadThread(id,false); }); }
 
   // ---- profile: friends + handle ----
-  async function loadHandle(){ var inp=document.getElementById('pf-handle-input'); if(!inp) return; var h=await rpc('tp_my_handle');
-    if(typeof h==='string' && h){ inp.value=h; var st=document.getElementById('pf-handle-status'); if(st){ st.textContent='@'+h; st.style.color='var(--bamboo-light,#a78bfa)'; } } }
+  var HANDLE_STATE=null;
+  function fmtDate(iso){ try{ var d=new Date(iso); if(isNaN(d)) return ''; return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'}); }catch(e){ return ''; } }
+  function daysUntil(iso){ try{ var ms=new Date(iso).getTime()-Date.now(); return Math.max(0,Math.ceil(ms/86400000)); }catch(e){ return 0; } }
+  function applyHandleLockUI(){
+    var inp=document.getElementById('pf-handle-input'), save=document.getElementById('pf-handle-save'),
+        edit=document.getElementById('pf-handle-edit'), lock=document.getElementById('pf-handle-lock'),
+        st=document.getElementById('pf-handle-status');
+    if(!inp) return; var s=HANDLE_STATE||{};
+    var hasHandle=!!s.handle;
+    if(hasHandle && !s.can_change){
+      // travado: mostra @ fixo + botão editar desabilitado com contagem
+      inp.value=s.handle; inp.disabled=true;
+      if(save) save.style.display='none';
+      if(edit){ edit.style.display=''; edit.disabled=true; edit.style.opacity='.5'; edit.style.cursor='not-allowed'; }
+      if(st){ st.textContent='@'+s.handle+' · fixo'; st.style.color='var(--bamboo-light,#a78bfa)'; }
+      if(lock){ var d=daysUntil(s.next_change_at); lock.style.display=''; lock.innerHTML='🔒 Apelido travado por 30 dias. Poderá alterar em <b>'+d+' dia'+(d===1?'':'s')+'</b> (a partir de '+fmtDate(s.next_change_at)+').'; }
+    } else if(hasHandle && s.can_change){
+      // tem handle e já pode trocar: mostra fixo + botão Editar ativo
+      inp.value=s.handle; inp.disabled=true;
+      if(save) save.style.display='none';
+      if(edit){ edit.style.display=''; edit.disabled=false; edit.style.opacity=''; edit.style.cursor=''; }
+      if(st){ st.textContent='@'+s.handle; st.style.color='var(--bamboo-light,#a78bfa)'; }
+      if(lock){ lock.style.display=''; lock.innerHTML='✅ Você já pode alterar seu apelido. Ao salvar um novo, ele trava por mais 30 dias.'; }
+    } else {
+      // sem handle: livre pra definir
+      inp.disabled=false;
+      if(save) save.style.display='';
+      if(edit) edit.style.display='none';
+      if(lock) lock.style.display='none';
+    }
+  }
+  window.tpHandleEdit=function(){
+    var s=HANDLE_STATE||{}; if(!s.can_change) return;
+    var inp=document.getElementById('pf-handle-input'), save=document.getElementById('pf-handle-save'),
+        edit=document.getElementById('pf-handle-edit'), st=document.getElementById('pf-handle-status');
+    if(inp){ inp.disabled=false; inp.focus(); inp.select(); }
+    if(save) save.style.display='';
+    if(edit) edit.style.display='none';
+    if(st){ st.textContent='digite o novo apelido e salve'; st.style.color='var(--muted)'; }
+  };
+  async function loadHandle(){
+    var inp=document.getElementById('pf-handle-input'); if(!inp) return;
+    var s=await rpc('tp_handle_state');
+    HANDLE_STATE=(s&&typeof s==='object')?s:{handle:null,can_change:true};
+    applyHandleLockUI();
+  }
   window.tpSaveHandle=async function(){
     var inp=document.getElementById('pf-handle-input'), st=document.getElementById('pf-handle-status'); if(!inp) return;
     var v=(inp.value||'').trim().replace(/^@/,'');
@@ -13242,9 +13380,10 @@ window.tpToast=function(msg,type){
       if(res.ok){ r=await res.json().catch(function(){ return null; }); }
       else { var t=await res.text().catch(function(){ return ''; }); httpErr='HTTP '+res.status+(t?(' · '+t.slice(0,120)):''); console.warn('tp_set_handle',httpErr); }
     }catch(e){ httpErr=e.message||'network'; console.warn('tp_set_handle',e); }
-    if(r==='ok'){ v=v.toLowerCase(); inp.value=v; if(st){ st.textContent='@'+v+' salvo ✓'; st.style.color='#3ecf8e'; } toast('Identificador salvo: @'+v,'success'); refreshFriends(); }
+    if(r==='ok'){ v=v.toLowerCase(); inp.value=v; toast('Identificador salvo: @'+v,'success'); await loadHandle(); refreshFriends(); }
     else if(r==='taken'){ if(st){ st.textContent='esse @ já está em uso'; st.style.color='#e05a5a'; } }
     else if(r==='invalid'){ if(st){ st.textContent='inválido (3–20 · a-z, 0-9, _)'; st.style.color='#e05a5a'; } }
+    else if(r==='locked'){ if(st){ st.textContent='apelido travado — aguarde os 30 dias'; st.style.color='#e05a5a'; } await loadHandle(); }
     else { if(st){ st.textContent=httpErr?('falhou ('+httpErr+')'):'erro de conexão — tente de novo'; st.style.color='#e05a5a'; } }
   };
   window.tpFriendsLoad=function(){ refreshFriends(); loadHandle(); };
@@ -13259,8 +13398,8 @@ window.tpToast=function(msg,type){
         return '<div class="fr-req"><span class="soc-dot"></span><b>'+esc(lbl(r))+'</b><span class="fr-actions"><button class="fr-dec" onclick="tpFriendDelReq(\''+r.fid+'\')">Cancelar</button></span></div>'; }).join('')+'</div>'; }
       reqs.innerHTML=h; }
     if(list){ list.innerHTML=FRIENDS.length? FRIENDS.map(function(f){
-      return '<div class="fr-row"><span class="soc-dot '+(f.online?'on':'')+'"></span><div class="fr-info"><b>'+esc(lbl(f))+'</b>'
-        +'<span class="fr-sub">'+(f.online?'online agora':'visto '+rel(f.last_seen_at))+(sub(f)?' · '+esc(sub(f)):'')+'</span></div>'
+      return '<div class="fr-row"><span class="soc-dot '+(f.online?'on':'')+'"></span>'+frLvlBadge(f)+'<div class="fr-info"><b'+(f.online?' style="color:#8fe3bf"':'')+'>'+esc(lbl(f))+'</b>'
+        +'<span class="fr-sub'+(f.online?' on':'')+'">'+esc(frStatus(f))+(sub(f)?' · '+esc(sub(f)):'')+'</span></div>'
         +'<span class="fr-actions"><button class="fr-chat" title="Conversar" onclick="tpOpenChat(\''+f.id+'\')">💬</button><button class="fr-depo" title="Deixar depoimento" onclick="tpDepoCompose(\''+f.id+'\')">✍️</button><button class="fr-rm" onclick="tpFriendRemove(\''+f.id+'\')">Remover</button></span></div>';
     }).join(''):'<div class="soc-empty">Você ainda não tem amigos. Busque acima pra adicionar. 🐼</div>'; }
   }
