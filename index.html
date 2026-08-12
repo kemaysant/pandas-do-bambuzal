@@ -2510,26 +2510,55 @@ PlayerName (Leader)
       #profile .gami-prog{font-size:.8rem;color:var(--muted);font-weight:700}
       #profile .gami-m.claimed{opacity:.6}
       #profile .gami-m.ready{background:rgba(139,92,246,.06);border-radius:10px}
-      #profile .pass-cta{font-size:.78rem;font-weight:800;color:#3ecf8e;margin-bottom:.6rem}
-      #profile .pass-row{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.7rem;scroll-snap-type:x proximity;scrollbar-width:thin;scrollbar-color:var(--rule,#2b2938) transparent}
-      #profile .pass-row::-webkit-scrollbar{height:8px}
-      #profile .pass-row::-webkit-scrollbar-track{background:transparent}
-      #profile .pass-row::-webkit-scrollbar-thumb{background:var(--rule,#2b2938);border-radius:99px}
-      #profile .pass-row::-webkit-scrollbar-thumb:hover{background:var(--bamboo,#8b5cf6)}
-      #profile .pass-node{flex:0 0 128px;scroll-snap-align:start;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:12px;padding:.6rem .5rem;text-align:center;display:flex;flex-direction:column;align-items:center;gap:.25rem;position:relative}
-      #profile .pass-node.claimable{border-color:#3ecf8e;box-shadow:0 0 0 1px rgba(62,207,142,.4) inset}
-      #profile .pass-node.locked{opacity:.5}
-      #profile .pass-node.claimed{opacity:.75}
-      #profile .pass-lvl{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-      #profile .pass-ic{font-size:1.6rem;line-height:1;height:52px;display:flex;align-items:center;justify-content:center}
-      #profile .pass-thumb{width:52px;height:52px;background:#25232f;border:1px solid var(--rule);border-radius:9px;overflow:hidden;image-rendering:pixelated}
-      #profile .pass-thumb canvas{max-width:100%;max-height:100%;image-rendering:pixelated}
-      #profile .pass-fb{font-size:1.3rem;opacity:.5}
-      #profile .pass-xp{font-size:.8rem;font-weight:900;color:#0c2b1d;background:#3ecf8e;border-radius:6px;padding:.15rem .3rem;letter-spacing:-.02em}
-      #profile .pass-lbl{font-size:.72rem;color:var(--ink,#eae8f2);line-height:1.2;min-height:2.4em;display:flex;align-items:center;justify-content:center}
-      #profile .pass-claim{background:#3ecf8e;border:0;color:#0c2b1d;border-radius:8px;padding:.35rem .6rem;cursor:pointer;font-weight:800;font-size:.74rem;width:100%}
-      #profile .pass-got{font-size:.68rem;color:#3ecf8e;font-weight:700}
-      #profile .pass-lock{font-size:.66rem;color:var(--muted)}
+      #profile .pass-cta{font-size:.78rem;font-weight:800;color:#3ecf8e;margin-bottom:.7rem}
+      /* ── destaque da recompensa ── */
+      #profile .pass-feature{display:flex;gap:1rem;align-items:center;background:linear-gradient(120deg,rgba(139,92,246,.12),rgba(20,19,28,.2));border:1px solid var(--rule);border-radius:14px;padding:1rem;margin-bottom:1rem}
+      #profile .pf-art{width:104px;height:104px;flex:none;border-radius:12px;background:#201e2b;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;overflow:hidden;image-rendering:pixelated}
+      #profile .pf-art canvas{max-width:150%;max-height:150%;image-rendering:pixelated}
+      #profile .pf-art-icon{font-size:2.6rem}
+      #profile .pf-info{flex:1;min-width:0}
+      #profile .pf-badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem}
+      #profile .pf-badge{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--rule);border-radius:999px;padding:.12rem .55rem;color:var(--muted)}
+      #profile .pf-type{color:var(--bamboo-light,#a78bfa)}
+      #profile .pf-name{font-size:1.15rem;font-weight:800;color:var(--ink,#eae8f2);line-height:1.15}
+      #profile .pf-lvl{font-size:.74rem;color:var(--muted);margin:.15rem 0 .7rem}
+      #profile .pf-claim{background:#3ecf8e;border:0;color:#0c2b1d;border-radius:9px;padding:.5rem 1.2rem;cursor:pointer;font-weight:800;font-size:.85rem}
+      #profile .pf-status{font-size:.82rem;font-weight:700}
+      #profile .pf-status.got{color:#3ecf8e}
+      #profile .pf-status.locked{color:var(--muted)}
+      /* ── trilha conectada ── */
+      #profile .pass-rail{display:flex;gap:0;overflow-x:auto;padding:.4rem 0 .8rem;scrollbar-width:thin;scrollbar-color:var(--rule,#2b2938) transparent}
+      #profile .pass-rail::-webkit-scrollbar{height:8px}
+      #profile .pass-rail::-webkit-scrollbar-track{background:transparent}
+      #profile .pass-rail::-webkit-scrollbar-thumb{background:var(--rule,#2b2938);border-radius:99px}
+      #profile .pass-rail::-webkit-scrollbar-thumb:hover{background:var(--bamboo,#8b5cf6)}
+      #profile .pass-gem{flex:0 0 74px;position:relative;display:flex;flex-direction:column;align-items:center;gap:.3rem;cursor:pointer;padding-top:.2rem}
+      /* conector (linha entre gems) */
+      #profile .pass-gem::before{content:'';position:absolute;top:28px;left:-50%;width:100%;height:4px;background:var(--rule,#2b2938);z-index:0}
+      #profile .pass-gem:first-child::before{display:none}
+      #profile .pass-gem.reached::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa)}
+      #profile .gem-body{position:relative;z-index:1;width:52px;height:52px;border-radius:50%;background:var(--bg-2,#1b1a25);border:2px solid var(--rule,#2b2938);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:transform .15s,border-color .15s,box-shadow .15s}
+      #profile .pass-gem.reached .gem-body{border-color:var(--bamboo,#8b5cf6)}
+      #profile .pass-gem.claimed .gem-body{border-color:#3ecf8e}
+      #profile .pass-gem.sel .gem-body{transform:scale(1.12);box-shadow:0 0 0 3px rgba(167,139,250,.35)}
+      #profile .pass-gem.pulse .gem-body{animation:passPulse 1.4s ease-in-out infinite;border-color:#3ecf8e}
+      @keyframes passPulse{0%,100%{box-shadow:0 0 0 0 rgba(62,207,142,.5)}50%{box-shadow:0 0 0 7px rgba(62,207,142,0)}}
+      #profile .pass-gem.locked .gem-body{opacity:.55}
+      #profile .gem-ic{font-size:1.35rem;line-height:1}
+      #profile .gem-th{width:46px;height:46px;display:flex;align-items:center;justify-content:center;overflow:hidden;image-rendering:pixelated}
+      #profile .gem-th canvas{max-width:150%;max-height:150%;image-rendering:pixelated}
+      #profile .gem-tick{position:absolute;bottom:-2px;right:-2px;font-size:.62rem;background:var(--bg-1,#14131c);border-radius:50%;padding:0 .12rem}
+      #profile .gem-tick.got{color:#3ecf8e}
+      #profile .gem-lvl{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
+      #profile .pass-gem.sel .gem-lvl{color:var(--bamboo-light,#a78bfa)}
+      #profile .pass-fb{font-size:1.2rem;opacity:.5}
+      #profile .pass-xp{font-size:.7rem;font-weight:900;color:#0c2b1d;background:#3ecf8e;border-radius:6px;padding:.1rem .25rem;letter-spacing:-.02em}
+      #profile .pf-art .pass-xp{font-size:1.1rem;padding:.25rem .5rem;border-radius:9px}
+      @media (max-width:560px){
+        #profile .pass-feature{flex-direction:column;text-align:center}
+        #profile .pf-badges{justify-content:center}
+        #profile .pass-gem{flex-basis:64px}
+      }
       #profile .cons-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.6rem;margin-bottom:1.1rem}
       #profile .cons-card{display:flex;align-items:center;gap:.7rem;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:12px;padding:.7rem .85rem}
       #profile .cons-card.on{border-color:#e0a44a;box-shadow:0 0 0 1px rgba(224,164,74,.35) inset}
@@ -3451,7 +3480,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13v</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13w</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6469,7 +6498,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13v';
+window.TP_BUILD = '2026-08-13w';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11769,28 +11798,6 @@ function ewEnsureTcInput() {
     try{ var st=await gmCall('pass_state',{}); window.__PASS=st; tpRenderPass(st); }
     catch(e){ host.innerHTML='<div style="font-size:.8rem;color:var(--muted)">Não consegui carregar o passe agora.</div>'; }
   };
-  window.tpRenderPass=function(st){
-    var host=document.getElementById('pass-track'); if(!host||!st) return;
-    var rewards=st.rewards||[];
-    var b=document.getElementById('pass-boost');
-    if(b){ if((st.xp_boost_missions||0)>0){ b.style.display=''; b.textContent='🔥 XP em dobro nas próximas '+st.xp_boost_missions+' missõe'+(st.xp_boost_missions===1?'':'s'); } else b.style.display='none'; }
-    var claimable=rewards.filter(function(r){return r.status==='claimable';}).length;
-    var hdr=claimable?('<div class="pass-cta">🎁 '+claimable+' recompensa'+(claimable>1?'s':'')+' pra resgatar!</div>'):'';
-    var _oldRow=host.querySelector('.pass-row'); var _sl=_oldRow?_oldRow.scrollLeft:0;   // preserva o scroll horizontal ao re-renderizar
-    host.innerHTML=hdr+'<div class="pass-row">'+rewards.map(function(r){
-      var s=r.status;
-      var btn = s==='claimable' ? '<button class="pass-claim" onclick="tpPassClaim('+r.level+')">Resgatar</button>'
-              : s==='claimed' ? '<span class="pass-got">✓ Resgatado</span>'
-              : '<span class="pass-lock">🔒 Nv '+r.level+'</span>';
-      var ic;
-      if(r.kind==='outfit') ic='<div class="pass-ic pass-thumb" data-othumb="'+r.item_id+'"><span class="pass-fb">🎽</span></div>';
-      else if(r.kind==='mount') ic='<div class="pass-ic pass-thumb" data-mthumb="'+r.item_id+'"><span class="pass-fb">🐴</span></div>';
-      else ic='<div class="pass-ic">'+passIcon(r)+'</div>';
-      return '<div class="pass-node '+s+'"><div class="pass-lvl">Nv '+r.level+'</div>'+ic+'<div class="pass-lbl">'+esc(r.label)+'</div>'+btn+'</div>';
-    }).join('')+'</div>';
-    var _nr=host.querySelector('.pass-row'); if(_nr) _nr.scrollLeft=_sl;   // restaura posição
-    passRenderThumbs(host);
-  };
   function passIcon(r){
     if(r.kind==='xp_boost') return '<span class="pass-xp">XP▲</span>';
     if(r.kind==='duplex')   return '⚡';
@@ -11798,17 +11805,77 @@ function ewEnsureTcInput() {
     if(r.kind==='coins')    return '🪙';
     return r.icon||'🎁';
   }
+  function passType(k){ return ({outfit:'Outfit',mount:'Montaria',coins:'Panda Coins',xp_boost:'XP Boost',kooldown:'Consumível',duplex:'Consumível',floor:'Fundo'})[k]||'Recompensa'; }
+  function passRewardOf(st,lvl){ var a=(st.rewards||[]); for(var i=0;i<a.length;i++){ if(a[i].level===lvl) return a[i]; } return null; }
+  function passArt(r,cls,scale){
+    if(r.kind==='outfit') return '<div class="'+cls+' pass-thumb" data-othumb="'+r.item_id+'" data-scale="'+scale+'"><span class="pass-fb">🎽</span></div>';
+    if(r.kind==='mount')  return '<div class="'+cls+' pass-thumb" data-mthumb="'+r.item_id+'" data-scale="'+scale+'"><span class="pass-fb">🐴</span></div>';
+    return '<div class="'+cls+' pass-art-icon">'+passIcon(r)+'</div>';
+  }
+  function passFeature(st,sel){
+    var r=passRewardOf(st,sel); if(!r) return '<div class="pass-feature"></div>';
+    var rc=r.rarity?vitRar(r.rarity):null;
+    var badges=(rc?'<span class="pf-badge" style="color:'+rc[0]+';border-color:'+rc[0]+'">'+rc[1]+'</span>':'')
+      +'<span class="pf-badge pf-type">'+passType(r.kind)+'</span>';
+    var action = r.status==='claimed' ? '<span class="pf-status got">✓ Resgatado</span>'
+      : r.status==='claimable' ? '<button class="pf-claim" onclick="tpPassClaim('+r.level+')">Resgatar</button>'
+      : '<span class="pf-status locked">🔒 Chegue ao nível '+r.level+'</span>';
+    return '<div class="pass-feature">'+passArt(r,'pf-art',4)
+      +'<div class="pf-info"><div class="pf-badges">'+badges+'</div>'
+      +'<div class="pf-name">'+esc(r.label)+'</div>'
+      +'<div class="pf-lvl">Recompensa do nível '+r.level+'</div>'
+      +'<div class="pf-action">'+action+'</div></div></div>';
+  }
+  function passRail(st,sel){
+    var lvl=st.level||1; var rewards=st.rewards||[];
+    var firstClaim=(rewards.filter(function(r){return r.status==='claimable';})[0]||{}).level;
+    return '<div class="pass-rail">'+rewards.map(function(r){
+      var reached=r.level<=lvl;
+      var cls='pass-gem '+r.status+(r.level===sel?' sel':'')+(reached?' reached':'')+(r.level===firstClaim?' pulse':'');
+      var ic=(r.kind==='outfit'||r.kind==='mount')
+        ? passArt(r,'gem-th',2)
+        : '<div class="gem-ic">'+passIcon(r)+'</div>';
+      var tick=r.status==='claimed'?'<span class="gem-tick got">✓</span>':(r.status==='claimable'?'<span class="gem-tick claim">🎁</span>':'');
+      return '<div class="'+cls+'" data-lvl="'+r.level+'" onclick="tpPassSelect('+r.level+')"><div class="gem-body">'+ic+tick+'</div><div class="gem-lvl">Nv '+r.level+'</div></div>';
+    }).join('')+'</div>';
+  }
+  window.tpRenderPass=function(st){
+    var host=document.getElementById('pass-track'); if(!host||!st) return;
+    window.__PASS_ST=st;
+    var rewards=st.rewards||[];
+    var b=document.getElementById('pass-boost');
+    if(b){ if((st.xp_boost_missions||0)>0){ b.style.display=''; b.textContent='🔥 XP em dobro nas próximas '+st.xp_boost_missions+' missõe'+(st.xp_boost_missions===1?'':'s'); } else b.style.display='none'; }
+    // seleção: mantém a anterior; senão a última resgatável; senão a mais próxima do nível
+    var sel=window.__PASS_SEL;
+    if(!rewards.some(function(r){return r.level===sel;})) sel=null;
+    if(sel==null){ var cl=rewards.filter(function(r){return r.status==='claimable';}); sel=cl.length?cl[cl.length-1].level:((rewards[Math.min(rewards.length-1,Math.max(0,(st.level||1)-1))]||rewards[0]||{}).level); }
+    window.__PASS_SEL=sel;
+    var claimable=rewards.filter(function(r){return r.status==='claimable';}).length;
+    var cta=claimable?('<div class="pass-cta">🎁 '+claimable+' recompensa'+(claimable>1?'s':'')+' pra resgatar!</div>'):'';
+    var oldRail=host.querySelector('.pass-rail'); var sl=oldRail?oldRail.scrollLeft:null;
+    host.innerHTML=cta+passFeature(st,sel)+passRail(st,sel);
+    var rail=host.querySelector('.pass-rail');
+    if(rail){ if(sl!=null) rail.scrollLeft=sl; else { var g=rail.querySelector('.pass-gem.sel'); if(g) rail.scrollLeft=Math.max(0,g.offsetLeft-rail.clientWidth/2+g.offsetWidth/2); } }
+    passRenderThumbs(host);
+  };
+  window.tpPassSelect=function(level){
+    var st=window.__PASS_ST; if(!st) return; window.__PASS_SEL=level;
+    var host=document.getElementById('pass-track'); if(!host) return;
+    var feat=host.querySelector('.pass-feature'); if(feat){ var tmp=document.createElement('div'); tmp.innerHTML=passFeature(st,level); feat.replaceWith(tmp.firstChild); }
+    host.querySelectorAll('.pass-gem').forEach(function(g){ g.classList.toggle('sel', g.getAttribute('data-lvl')===String(level)); });
+    passRenderThumbs(host);
+  };
   function passRenderThumbs(root){
     if(!window.tpGetOutfitter) return;
-    var hosts=[].slice.call(root.querySelectorAll('.pass-thumb[data-othumb],.pass-thumb[data-mthumb]'));
+    var hosts=[].slice.call(root.querySelectorAll('.pass-thumb[data-othumb]:not([data-tdone]),.pass-thumb[data-mthumb]:not([data-tdone])'));
     var i=0, MAX=4;
-    function next(){ if(i>=hosts.length) return; var h=hosts[i++];
-      var oid=h.getAttribute('data-othumb'), mid=h.getAttribute('data-mthumb');
+    function next(){ if(i>=hosts.length) return; var h=hosts[i++]; h.setAttribute('data-tdone','1');
+      var oid=h.getAttribute('data-othumb'), mid=h.getAttribute('data-mthumb'), sc=+h.getAttribute('data-scale')||2;
       window.tpGetOutfitter().then(function(of){
         var cv=document.createElement('canvas');
         var cfg=(oid!=null&&oid!=='')?{outfit:+oid,head:0,body:0,legs:0,feet:0,addons:3,dir:2,mount:0}
                                      :{outfit:0,head:0,body:0,legs:0,feet:0,addons:0,dir:2,mount:+mid,mountOnly:true};
-        of.render(cfg,cv,2).then(function(){ h.innerHTML=''; h.appendChild(cv); next(); }).catch(function(){ next(); });
+        of.render(cfg,cv,sc).then(function(){ h.innerHTML=''; h.appendChild(cv); next(); }).catch(function(){ next(); });
       }).catch(function(){ next(); });
     }
     for(var k=0;k<MAX;k++) next();
