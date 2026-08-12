@@ -2280,7 +2280,7 @@ PlayerName (Leader)
         <div class="table-wrap">
           <table class="member-table">
             <thead><tr>
-              <th style="width:28px">#</th><th>Personagem</th><th>Hunts</th><th>Profit <span title="Sua parte depois da divisão igual da party — o que você realmente levou pra casa." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Supplies <span title="Quanto VOCÊ gastou de supplies (poções, runas, etc.) nesta hunt. É só informação — o Profit já é o valor final." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Dano méd. <span title="Dano médio que você causou por hunt." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Cura méd. <span title="Cura média que você fez por hunt." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Tempo</th>
+              <th style="width:28px">#</th><th>Personagem</th><th>Hunts</th><th>Profit <span title="Sua parte depois da divisão igual da party — o que você realmente levou pra casa." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Supplies <span title="Quanto VOCÊ gastou de supplies (poções, runas, etc.) nesta hunt. É só informação — o Profit já é o valor final." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>XP total <span title="Soma do XP Gain das hunts em que você colou o SEU Hunt Analyser pessoal. O analyser da party não traz XP." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>XP/h <span title="XP por hora médio (ponderado pelo tempo das hunts que têm XP)." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Maior XP/dia <span title="Maior XP somado em um único dia." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Dano méd. <span title="Dano médio que você causou por hunt." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Cura méd. <span title="Cura média que você fez por hunt." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Tempo</th>
             </tr></thead>
             <tbody id="pt-body-mine"></tbody>
           </table>
@@ -2530,7 +2530,7 @@ PlayerName (Leader)
       <div class="pf-hero-stage" id="pf-hero-stage">
         <canvas id="pf-hero-cv" width="192" height="192"></canvas>
         <span class="pf-init" id="pf-avatar-init" style="display:none">?</span>
-        <button class="pf-hero-animbtn" id="pf-hero-animbtn" onclick="tpHeroAnim()">▶ Girar</button>
+        <button class="pf-hero-animbtn" id="pf-hero-animbtn" onclick="tpHeroAnim()">▶ Andar</button>
       </div>
       <div class="pf-id">
         <div class="pf-username"><span id="pf-username">—</span><span class="pf-lvlbadge" id="pf-level">Nível 1</span><span class="pf-coins" id="pf-coins" style="display:none">🪙 0</span></div>
@@ -3286,7 +3286,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13b</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13d</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6304,7 +6304,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13b';
+window.TP_BUILD = '2026-08-13d';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -10947,20 +10947,27 @@ function ewEnsureTcInput() {
   function aggregate(rows){
     const by={};
     rows.forEach(r=>{ const k=r.player; if(!k) return;
-      if(!by[k]) by[k]={player:k, sessions:0, lucro:0, saldo:0, loot:0, supplies:0, minutos:0, dmg:0, heal:0, n:0, _rows:[]};
+      if(!by[k]) by[k]={player:k, sessions:0, lucro:0, saldo:0, loot:0, supplies:0, minutos:0, dmg:0, heal:0, n:0, xp:0, xpMin:0, xpN:0, _xpByDay:{}, _rows:[]};
       const a=by[k]; a.sessions++;
       a.lucro+=(+r.split_each||0);        // profit (parte igual do split)
       a.saldo+=(+r.balance||0);           // saldo bruto individual (loot - supplies)
       a.loot+=(+r.loot||0); a.supplies+=(+r.supplies||0);
       a.minutos+=(+r.duration_min||0); a.dmg+=(+r.damage||0); a.heal+=(+r.healing||0); a.n++;
-      a._rows.push({d:String(r.session_date||r.created_at||''), dmg:+r.damage||0, heal:+r.healing||0, dur:+r.duration_min||0});
+      var xpv=(r.xp!=null && r.xp!=='')?(+r.xp||0):null;
+      if(xpv!=null){ a.xp+=xpv; a.xpMin+=(+r.duration_min||0); a.xpN++;
+        var day=String(r.session_date||r.created_at||'').slice(0,10);
+        a._xpByDay[day]=(a._xpByDay[day]||0)+xpv; }
+      a._rows.push({d:String(r.session_date||r.created_at||''), dmg:+r.damage||0, heal:+r.healing||0, dur:+r.duration_min||0, xp:xpv||0});
     });
     return Object.values(by).map(a=>{ a._rows.sort((x,y)=>x.d.localeCompare(y.d));
+      var bestDayXp=0; for(var dk in a._xpByDay){ if(a._xpByDay[dk]>bestDayXp) bestDayXp=a._xpByDay[dk]; }
       return { ...a,
         gpH: a.minutos>0 ? Math.round(a.lucro/a.minutos*60) : 0,
         dmgAvg: a.n>0 ? Math.round(a.dmg/a.n) : 0,
         healAvg: a.n>0 ? Math.round(a.heal/a.n) : 0,
-        tDmg: trendOf(a._rows.map(r=>r.dmg)), tHeal: trendOf(a._rows.map(r=>r.heal)), tDur: trendOf(a._rows.map(r=>r.dur)),
+        xph: a.xpMin>0 ? Math.round(a.xp/a.xpMin*60) : 0,
+        bestDayXp: bestDayXp,
+        tDmg: trendOf(a._rows.map(r=>r.dmg)), tHeal: trendOf(a._rows.map(r=>r.heal)), tDur: trendOf(a._rows.map(r=>r.dur)), tXp: trendOf(a._rows.map(r=>r.xp)),
       };
     }).sort((x,y)=>y.lucro-x.lucro);
   }
@@ -10999,13 +11006,16 @@ function ewEnsureTcInput() {
       .map(r=>({...r, players:sizeBy[r.session_id]||1}))
       .sort((a,b)=>String(b.session_date||b.created_at||'').localeCompare(String(a.session_date||a.created_at||'')));
   }
-  function ptDetailHtml(player){
+  function ptDetailHtml(player, showXp){
     const rows=ptSessionsFor(player);
     if(!rows.length) return '<div style="padding:.7rem;color:var(--muted);font-size:.8rem">Sem sessões no período.</div>';
-    const th='<tr style="color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.03em"><th style="text-align:left;padding:.35rem .5rem">Data</th><th style="text-align:left;padding:.35rem .5rem">Local</th><th style="text-align:right;padding:.35rem .5rem">Players</th><th style="text-align:right;padding:.35rem .5rem" title="Quanto você gastou de supplies (poções/runas) nesta hunt.">Supplies</th><th style="text-align:right;padding:.35rem .5rem" title="Sua parte depois da divisão igual — o valor final que você levou pra casa.">Você levou</th><th style="text-align:right;padding:.35rem .5rem" title="O acerto pra todo mundo ficar igual: quem lootou mais paga, quem lootou menos recebe.">Pagou / Recebeu</th><th style="text-align:right;padding:.35rem .5rem">Tempo</th><th style="padding:.35rem .5rem"></th></tr>';
+    const xpTh = showXp ? '<th style="text-align:right;padding:.35rem .5rem" title="XP Gain da hunt (só nas que você colou o seu Hunt Analyser pessoal).">XP</th>' : '';
+    const th='<tr style="color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.03em"><th style="text-align:left;padding:.35rem .5rem">Data</th><th style="text-align:left;padding:.35rem .5rem">Local</th><th style="text-align:right;padding:.35rem .5rem">Players</th>'+xpTh+'<th style="text-align:right;padding:.35rem .5rem" title="Quanto você gastou de supplies (poções/runas) nesta hunt.">Supplies</th><th style="text-align:right;padding:.35rem .5rem" title="Sua parte depois da divisão igual — o valor final que você levou pra casa.">Você levou</th><th style="text-align:right;padding:.35rem .5rem" title="O acerto pra todo mundo ficar igual: quem lootou mais paga, quem lootou menos recebe.">Pagou / Recebeu</th><th style="text-align:right;padding:.35rem .5rem">Tempo</th><th style="padding:.35rem .5rem"></th></tr>';
     const body=rows.map(r=>{ const d=String(r.session_date||r.created_at||'').slice(0,10);
-      return `<tr style="border-top:1px solid var(--rule)"><td style="padding:.35rem .5rem">${d}</td><td style="padding:.35rem .5rem">${r.hunt_place||'<span style=\"color:var(--muted)\">—</span>'}</td><td style="text-align:right;padding:.35rem .5rem">${r.players}</td><td style="text-align:right;padding:.35rem .5rem">${fmt(+r.supplies||0)}</td><td style="text-align:right;padding:.35rem .5rem;font-weight:700">${fmt(+r.split_each||0)}</td><td style="text-align:right;padding:.35rem .5rem">${ptTransferHtml(r.transfer)}</td><td style="text-align:right;padding:.35rem .5rem">${fmtTime(r.duration_min||0)}</td><td style="padding:.35rem .5rem;text-align:right"><button title="Apagar esta sessão" onclick="event.stopPropagation();ptDeleteSession('${String(r.session_id||'').replace(/'/g,'')}')" style="background:rgba(192,101,95,.12);border:1px solid rgba(192,101,95,.35);color:#d98a84;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:.72rem">🗑</button></td></tr>`; }).join('');
-    return `<div style="background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:10px;overflow:auto;margin:.15rem 0 .35rem"><div style="font-size:.68rem;color:var(--muted);padding:.55rem .6rem .15rem;line-height:1.5"><b style="color:var(--ink)">Você levou</b> = sua parte final da hunt (valor que fica) · <b style="color:var(--ink)">Supplies</b> = quanto você gastou · <b style="color:var(--ink)">Pagou/Recebeu</b> = o acerto pra ficar tudo igual.</div><table style="width:100%;border-collapse:collapse;font-size:.79rem">${th}${body}</table></div>`;
+      const xpTd = showXp ? ('<td style="text-align:right;padding:.35rem .5rem;color:#a78bfa;font-weight:600" title="'+((r.xp!=null&&r.xp!=='')?('XP/h: '+fmt(+r.xp_h||0)):'Sem XP — analyser da party não traz; cole o seu Hunt Analyser pessoal ao salvar.')+'">'+((r.xp!=null&&r.xp!=='')?fmt(+r.xp||0):'<span style="color:var(--muted)">—</span>')+'</td>') : '';
+      return `<tr style="border-top:1px solid var(--rule)"><td style="padding:.35rem .5rem">${d}</td><td style="padding:.35rem .5rem">${r.hunt_place||'<span style=\"color:var(--muted)\">—</span>'}</td><td style="text-align:right;padding:.35rem .5rem">${r.players}</td>${xpTd}<td style="text-align:right;padding:.35rem .5rem">${fmt(+r.supplies||0)}</td><td style="text-align:right;padding:.35rem .5rem;font-weight:700">${fmt(+r.split_each||0)}</td><td style="text-align:right;padding:.35rem .5rem">${ptTransferHtml(r.transfer)}</td><td style="text-align:right;padding:.35rem .5rem">${fmtTime(r.duration_min||0)}</td><td style="padding:.35rem .5rem;text-align:right"><button title="Apagar esta sessão" onclick="event.stopPropagation();ptDeleteSession('${String(r.session_id||'').replace(/'/g,'')}')" style="background:rgba(192,101,95,.12);border:1px solid rgba(192,101,95,.35);color:#d98a84;border-radius:6px;padding:2px 8px;cursor:pointer;font-size:.72rem">🗑</button></td></tr>`; }).join('');
+    const xpNote = showXp ? ' · <b style="color:#a78bfa">XP</b> = do seu Hunt Analyser pessoal (o da party não traz XP)' : '';
+    return `<div style="background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:10px;overflow:auto;margin:.15rem 0 .35rem"><div style="font-size:.68rem;color:var(--muted);padding:.55rem .6rem .15rem;line-height:1.5"><b style="color:var(--ink)">Você levou</b> = sua parte final da hunt (valor que fica) · <b style="color:var(--ink)">Supplies</b> = quanto você gastou · <b style="color:var(--ink)">Pagou/Recebeu</b> = o acerto pra ficar tudo igual${xpNote}.</div><table style="width:100%;border-collapse:collapse;font-size:.79rem">${th}${body}</table></div>`;
   }
   window.ptToggle=function(did){ const el=g('ptd-'+did); if(!el) return; const open=el.style.display==='none'; el.style.display=open?'':'none'; const car=g('ptc-'+did); if(car) car.textContent=open?'▾':'▸'; };
   window.ptDeleteSession=async function(sid){
@@ -11020,16 +11030,24 @@ function ewEnsureTcInput() {
     }catch(e){ if(window.tpToast) tpToast('Erro ao apagar a sessão.','error'); }
   };
   function ptRowsHtml(list,emptyMsg,prefix){
-    if(!list.length) return `<tr><td colspan="8" style="color:var(--muted);text-align:center;padding:1.2rem">${emptyMsg}</td></tr>`;
+    const mine = prefix==='mine';
+    const cols = mine?11:8;
+    if(!list.length) return `<tr><td colspan="${cols}" style="color:var(--muted);text-align:center;padding:1.2rem">${emptyMsg}</td></tr>`;
     return list.map((a,i)=>{ const did=prefix+'-'+i;
+      const xpCells = mine ? (
+        `<td class="pth-num" style="font-weight:700;color:#a78bfa" title="${a.xpN?(a.xpN+' de '+a.sessions+' hunts com XP'):'Cole o seu Hunt Analyser pessoal ao salvar pra registrar XP'}">${a.xp? fmt(a.xp):'<span style=\"color:var(--muted)\">—</span>'}</td>`
+        +`<td class="pth-num">${a.xph? fmt(a.xph)+arrow(a.tXp):'<span style=\"color:var(--muted)\">—</span>'}</td>`
+        +`<td class="pth-num">${a.bestDayXp? fmt(a.bestDayXp):'<span style=\"color:var(--muted)\">—</span>'}</td>`
+      ) : '';
       return `<tr class="pth-row" onclick="ptToggle('${did}')" style="cursor:pointer">
         <td>${i+1}</td><td style="font-weight:600"><span id="ptc-${did}" style="color:var(--bamboo-light,#a78bfa);display:inline-block;width:1em">▸</span> ${a.player}</td><td class="pth-num">${a.sessions}</td>
         <td class="pth-num" style="font-weight:700">${fmt(a.lucro)}</td>
         <td class="pth-num">${fmt(a.supplies)}</td>
+        ${xpCells}
         <td class="pth-num">${fmt(a.dmgAvg)}${arrow(a.tDmg)}</td>
         <td class="pth-num">${fmt(a.healAvg)}${arrow(a.tHeal)}</td>
         <td class="pth-num">${fmtTime(a.minutos)}${arrow(a.tDur)}</td></tr>
-        <tr class="pth-detail" id="ptd-${did}" style="display:none"><td colspan="8" style="padding:0 .3rem">${ptDetailHtml(a.player)}</td></tr>`;
+        <tr class="pth-detail" id="ptd-${did}" style="display:none"><td colspan="${cols}" style="padding:0 .3rem">${ptDetailHtml(a.player, mine)}</td></tr>`;
     }).join('');
   }
   window.ptTab=function(name,btn){
@@ -11046,8 +11064,14 @@ function ewEnsureTcInput() {
     const meuLucro=mine.reduce((s,a)=>s+a.lucro,0);
     const meuSupp=mine.reduce((s,a)=>s+(a.supplies||0),0);
     const meuMin=mine.reduce((s,a)=>s+a.minutos,0);
+    const meuXp=mine.reduce((s,a)=>s+(a.xp||0),0);
+    const meuXpMin=mine.reduce((s,a)=>s+(a.xpMin||0),0);
+    const meuXpH=meuXpMin>0?Math.round(meuXp/meuXpMin*60):0;
+    const bestXpDay=mine.reduce((s,a)=>Math.max(s,a.bestDayXp||0),0);
     const m=g('pt-metrics');
-    if(m) m.innerHTML=[['Sessões',totalSessions],['Meu profit',fmt(meuLucro)+' gp'],['Meus gastos (supplies)',fmt(meuSupp)+' gp'],['Meu tempo',fmtTime(meuMin)]]
+    const cards=[['Sessões',totalSessions],['Meu profit',fmt(meuLucro)+' gp'],['Meus gastos (supplies)',fmt(meuSupp)+' gp'],['Meu tempo',fmtTime(meuMin)]];
+    if(meuXp>0){ cards.push(['XP total',fmt(meuXp)],['XP/h médio',fmt(meuXpH)],['Maior XP/dia',fmt(bestXpDay)]); }
+    if(m) m.innerHTML=cards
       .map(([k,v])=>`<div class="card" style="padding:.6rem .85rem;margin:0"><div style="font-size:1.05rem;font-weight:700;color:var(--ink)">${v}</div><div style="font-size:.7rem;color:var(--muted)">${k}</div></div>`).join('');
     const bm=g('pt-body-mine'); if(bm) bm.innerHTML=ptRowsHtml(mine, MY_CHARS.size? 'Nenhuma sessão dos seus personagens no período.' : 'Verifique um personagem no seu perfil para separar os seus aqui.','mine');
     const bo=g('pt-body-others'); if(bo) bo.innerHTML=ptRowsHtml(others,'Nenhum companheiro de PT no período.','others');
@@ -11307,11 +11331,24 @@ function ewEnsureTcInput() {
     }catch(e){}
     window.__ACHV_CAT=map; return map;
   }
+  function vitBestBlock(bs){
+    if(!bs) return '';
+    var pct=bs.total?Math.round(bs.discovered/bs.total*100):0;
+    return '<div style="margin:.2rem 0 1.1rem">'
+      +'<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem"><span style="font-size:.95rem">🐾</span><b style="color:var(--ink,#eae8f2)">Bestiary</b>'
+        +'<button onclick="var b=document.querySelector(\'.nav-btn[onclick*=bestiary]\');if(b)b.click()" style="margin-left:auto;background:none;border:0;color:var(--bamboo-light,#a78bfa);font-size:.75rem;cursor:pointer">Ver bestiário completo →</button></div>'
+      +'<div class="vit-summary">'
+        +'<div class="vit-kpi"><div class="v">'+bs.discovered+' / '+bs.total+'</div><div class="k">Descobertas ('+pct+'%)</div></div>'
+        +'<div class="vit-kpi"><div class="v">'+bs.done+' / '+bs.total+'</div><div class="k">Completas (charm)</div></div>'
+        +'<div class="vit-kpi"><div class="v">'+bs.charmGot.toLocaleString('pt-BR')+' / '+bs.charmTotal.toLocaleString('pt-BR')+'</div><div class="k">Charm points</div></div>'
+      +'</div></div>';
+  }
   window.tpLoadVitrine=async function(){
     var body=g('pf-vit-body'); if(!body||!AUTH) return;
     var prof=AUTH.profile||{};
     var feat=pfFeatured(window.__tpChars||[], prof.main_char);
-    if(!feat){ body.innerHTML='<div class="vit-empty">Defina um <b>personagem principal verificado</b> na aba Personagens pra ver a vitrine dele aqui. 🐼</div>'; return; }
+    var bestBlock=''; try{ if(window.tpBestSummary){ bestBlock=vitBestBlock(await window.tpBestSummary()); } }catch(e){}
+    if(!feat){ body.innerHTML=bestBlock+'<div class="vit-empty">Defina um <b>personagem principal verificado</b> na aba Personagens pra ver a vitrine de conquistas dele aqui. 🐼</div>'; return; }
     body.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando conquistas de '+feat.name+'...</div>';
     try{
       var cat=await vitCatalog();
@@ -11332,7 +11369,7 @@ function ewEnsureTcInput() {
         +'<div class="vit-kpi"><div class="v">'+epleg+'</div><div class="k">Épicas + Lendárias</div></div>'
         +'</div>';
       if(!achs.length){
-        body.innerHTML=kpis+'<div class="vit-empty">'+feat.name+' tem <b>'+pts+' pontos</b> de achievement, mas a lista está <b>privada</b> no Tibia.com.<br><br>Ative em <em>tibia.com → sua conta → Characters → Edit → marque "Show Achievements"</em> pra montar sua vitrine aqui. 🐼</div>';
+        body.innerHTML=kpis+bestBlock+'<div class="vit-empty">'+feat.name+' tem <b>'+pts+' pontos</b> de achievement, mas a lista está <b>privada</b> no Tibia.com.<br><br>Ative em <em>tibia.com → sua conta → Characters → Edit → marque "Show Achievements"</em> pra montar sua vitrine aqui. 🐼</div>';
         return;
       }
       var grid='<div class="vit-grid">'+enriched.map(function(a){
@@ -11342,8 +11379,8 @@ function ewEnsureTcInput() {
           +'<div class="mt"><span class="rar" style="color:'+rc[0]+'">'+rc[1]+'</span><span>'+a.category+'</span></div>'
           +'</div>';
       }).join('')+'</div>';
-      body.innerHTML=kpis+grid;
-    }catch(e){ body.innerHTML='<div class="vit-empty">Não foi possível carregar as conquistas agora. Tente de novo em instantes.</div>'; }
+      body.innerHTML=kpis+bestBlock+grid;
+    }catch(e){ body.innerHTML=bestBlock+'<div class="vit-empty">Não foi possível carregar as conquistas agora. Tente de novo em instantes.</div>'; }
   };
   function tpSyncDisplayName(name){
     if(!AUTH||!name) return;
@@ -11730,12 +11767,13 @@ function ewEnsureTcInput() {
   function tpApplyFloor(el,f){ if(!el) return; el.style.backgroundImage='url('+tpFloorUrl(f.id)+')'; if(f&&f.scene){ el.style.backgroundSize='cover'; el.style.backgroundRepeat='no-repeat'; el.style.backgroundPosition='center'; } else { el.style.backgroundSize='56px 56px'; el.style.backgroundRepeat='repeat'; el.style.backgroundPosition='top left'; } }
   function tpFloorById(id){ for(var i=0;i<TP_FLOORS.length;i++){ if(TP_FLOORS[i].id===id) return TP_FLOORS[i]; } return TP_FLOORS[0]; }
   var _heroAnim=null, _heroCfg=null;
-  function tpHeroStop(){ if(_heroAnim){ clearInterval(_heroAnim); _heroAnim=null; } var b=g('pf-hero-animbtn'); if(b){ b.classList.remove('on'); b.textContent='▶ Girar'; } }
+  function tpHeroStop(){ if(_heroAnim){ clearInterval(_heroAnim); _heroAnim=null; } var b=g('pf-hero-animbtn'); if(b){ b.classList.remove('on'); b.textContent='▶ Andar'; } }
   window.tpHeroAnim=function(){
     var cv=g('pf-hero-cv'); if(!cv||!_heroCfg) return;
     if(_heroAnim){ tpHeroStop(); _heroCfg.frame=0; tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).catch(function(){}); }); return; }
     var b=g('pf-hero-animbtn'); if(b){ b.classList.add('on'); b.textContent='⏸ Parar'; }
-    _heroAnim=setInterval(function(){ _heroCfg.dir=(((_heroCfg.dir|0)+1)%4); _heroCfg.frame=((_heroCfg.frame||0)+1); tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).catch(function(){}); }); },400);
+    // Animação de CAMINHAR: mantém a direção fixa e cicla os frames de andar do outfit (+ mount).
+    _heroAnim=setInterval(function(){ _heroCfg.frame=((_heroCfg.frame||0)+1); tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).catch(function(){}); }); },220);
   };
   window.tpSetFloor=function(id){
     var f=tpFloorById(id); if(!f) return;
@@ -12636,6 +12674,20 @@ window.tpToast=function(msg,type){
       (Array.isArray(d)?d:[]).forEach(function(x){ TOTALS[String(x.monster).toLowerCase().trim()]=+x.total_kills||0; });
     }catch(e){}
     tpBestiaryRender();
+  };
+  // Resumo do bestiário (para a Vitrine de Conquistas) — carrega kills se preciso
+  window.tpBestSummary=async function(){
+    var list=build(); var A=window.TP_AUTH;
+    if(A&&A.user&&!Object.keys(TOTALS).length){
+      try{ var base=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
+        var r=await (window.tpAuthFetch||fetch)(base+'/rest/v1/pt_kills_totals?select=monster,total_kills');
+        var d=await r.json();
+        (Array.isArray(d)?d:[]).forEach(function(x){ TOTALS[String(x.monster).toLowerCase().trim()]=+x.total_kills||0; });
+      }catch(e){}
+    }
+    var discovered=0,done=0,charmTotal=0,charmGot=0;
+    list.forEach(function(b){ var k=TOTALS[b.name.toLowerCase()]||0; charmTotal+=b.charm; if(k>0)discovered++; if(k>=b.target){done++;charmGot+=b.charm;} });
+    return {discovered:discovered,done:done,total:list.length,charmGot:charmGot,charmTotal:charmTotal};
   };
   function card(n,l){ return '<div class="card"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>'; }
   function lootBlock(loot){
