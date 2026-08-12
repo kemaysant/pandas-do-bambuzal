@@ -2513,21 +2513,15 @@ PlayerName (Leader)
       #profile .pass-cta{font-size:.78rem;font-weight:800;color:#3ecf8e;margin-bottom:.7rem}
       /* ── destaque da recompensa (diorama) ── */
       #profile .pass-feature{--rar:#8b5cf6;display:flex;gap:1.2rem;align-items:stretch;background:linear-gradient(120deg,rgba(20,19,28,.55),rgba(20,19,28,.25));border:1px solid var(--rule);border-radius:16px;padding:.9rem;margin-bottom:1rem}
-      /* palco / cena */
-      #profile .pf-stage{position:relative;flex:none;width:232px;min-height:198px;border-radius:13px;overflow:hidden;border:1px solid var(--rule);background:radial-gradient(120% 78% at 50% 14%,rgba(139,92,246,.22),#14131c 60%),linear-gradient(180deg,#181725,#0f0e16)}
-      #profile .pf-stage{border-color:color-mix(in srgb,var(--rar) 42%,var(--rule))}
-      #profile .pf-stage::after{content:'';position:absolute;left:0;right:0;bottom:0;height:44%;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--rar) 12%,rgba(0,0,0,.4)));pointer-events:none}
-      #profile .pf-glow{position:absolute;left:50%;top:46%;width:150px;height:150px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--rar) 60%,transparent),transparent 68%);filter:blur(6px);animation:pfGlow 3.2s ease-in-out infinite}
-      @keyframes pfGlow{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(.92)}50%{opacity:.95;transform:translate(-50%,-50%) scale(1.08)}}
+      /* moldura simples: só o prêmio centralizado + brilho suave da raridade */
+      #profile .pf-stage{position:relative;flex:none;width:200px;min-height:168px;border-radius:13px;overflow:hidden;border:1px solid color-mix(in srgb,var(--rar) 38%,var(--rule));background:radial-gradient(90% 90% at 50% 45%,color-mix(in srgb,var(--rar) 16%,#161520),#111019 72%)}
+      #profile .pf-glow{position:absolute;left:50%;top:50%;width:150px;height:150px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--rar) 45%,transparent),transparent 68%);filter:blur(8px);animation:pfGlow 3.2s ease-in-out infinite}
+      @keyframes pfGlow{0%,100%{opacity:.45;transform:translate(-50%,-50%) scale(.92)}50%{opacity:.8;transform:translate(-50%,-50%) scale(1.06)}}
       #profile .pf-rank{position:absolute;top:.5rem;left:.6rem;z-index:3;font-size:.6rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--rar);background:rgba(10,9,15,.55);border:1px solid color-mix(in srgb,var(--rar) 50%,transparent);border-radius:999px;padding:.12rem .5rem}
-      /* pedestal de bambu/pedra */
-      #profile .pf-pedestal{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);width:138px;height:36px;z-index:1}
-      #profile .pf-pedestal::before{content:'';position:absolute;left:0;right:0;top:9px;bottom:0;border-radius:50%;background:linear-gradient(180deg,#38334c,#201e2e);box-shadow:0 7px 16px rgba(0,0,0,.5)}
-      #profile .pf-pedestal::after{content:'';position:absolute;left:7%;right:7%;top:0;height:22px;border-radius:50%;background:linear-gradient(180deg,color-mix(in srgb,var(--rar) 34%,#2c2841),#1b1928);border:1px solid color-mix(in srgb,var(--rar) 48%,transparent)}
-      /* sprite sobre o pedestal */
-      #profile .pf-stage .pf-art{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);z-index:2;width:auto;height:auto;max-width:94%;background:none;border:0;border-radius:0;display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 4px 6px rgba(0,0,0,.55));image-rendering:pixelated}
-      #profile .pf-stage .pf-art canvas{image-rendering:pixelated}
-      #profile .pf-stage .pf-art.pass-art-icon{font-size:3.6rem;bottom:36px}
+      /* prêmio centralizado */
+      #profile .pf-stage .pf-art{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;background:none;border:0;filter:drop-shadow(0 4px 8px rgba(0,0,0,.45));image-rendering:pixelated}
+      #profile .pf-stage .pf-art canvas{max-width:78%;max-height:78%;image-rendering:pixelated}
+      #profile .pf-stage .pf-art.pass-art-icon{font-size:3.8rem}
       #profile .pf-info{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
       #profile .pf-badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.55rem}
       #profile .pf-badge{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--rule);border-radius:999px;padding:.14rem .6rem;color:var(--muted)}
@@ -3496,7 +3490,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13x</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13aj</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6514,7 +6508,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13x';
+window.TP_BUILD = '2026-08-13aj';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11840,7 +11834,7 @@ function ewEnsureTcInput() {
       : '<span class="pf-status locked">🔒 Chegue ao nível '+r.level+' para resgatar</span>';
     return '<div class="pass-feature" style="--rar:'+rar+'">'
       +'<div class="pf-stage"><div class="pf-glow"></div><div class="pf-rank">Nível '+r.level+'</div>'
-      +passArt(r,'pf-art',4)+'<div class="pf-pedestal"></div></div>'
+      +passArt(r,'pf-art',4)+'</div>'
       +'<div class="pf-info"><div class="pf-badges">'+badges+'</div>'
       +'<div class="pf-name">'+esc(r.label)+'</div>'
       +'<div class="pf-lvl">Recompensa do nível '+r.level+'</div>'
@@ -11894,7 +11888,7 @@ function ewEnsureTcInput() {
       window.tpGetOutfitter().then(function(of){
         var cv=document.createElement('canvas');
         var cfg=(oid!=null&&oid!=='')?{outfit:+oid,head:0,body:0,legs:0,feet:0,addons:3,dir:2,mount:0}
-                                     :{outfit:0,head:0,body:0,legs:0,feet:0,addons:0,dir:2,mount:+mid,mountOnly:true};
+                                     :{outfit:0,head:0,body:0,legs:0,feet:0,addons:0,dir:1,mount:+mid,mountOnly:true};
         of.render(cfg,cv,sc).then(function(){ h.innerHTML=''; h.appendChild(cv); next(); }).catch(function(){ next(); });
       }).catch(function(){ next(); });
     }
