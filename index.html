@@ -2164,6 +2164,13 @@ PlayerName (Leader)
         <div id="ls-pgrid"></div>
       </div>
 
+      <!-- Criaturas mortas & Loot (do Hunt Analyser individual) -->
+      <div id="ls-huntlog" class="card" style="margin-bottom:1rem;display:none">
+        <div class="tool-title" style="margin-bottom:.35rem;font-size:1rem">Criaturas & Loot da sessão</div>
+        <p style="font-size:.75rem;color:var(--muted);margin-bottom:.85rem">Lido do seu Hunt Analyser individual. As criaturas contam pro seu <b>Bestiary</b> quando você salva a sessão.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem" id="ls-huntlog-grid"></div>
+      </div>
+
       <!-- Opções avançadas -->
       <div class="card" style="margin-bottom:1rem">
         <div class="tool-title" style="margin-bottom:.35rem;font-size:1rem">Opções avançadas</div>
@@ -2205,7 +2212,7 @@ PlayerName (Leader)
         </div>
         <div id="ls-hunt-wrap" style="margin-bottom:.75rem">
           <label class="tool-label" style="display:block;margin-bottom:.3rem">Meu Hunt Analyser (pra XP) — opcional</label>
-          <textarea id="ls-hunt" rows="4" style="width:100%;box-sizing:border-box;resize:vertical;font-family:monospace;font-size:11.5px;line-height:1.5;border:1px solid var(--rule);border-radius:7px;padding:.6rem .8rem;background:var(--paper);color:var(--ink);outline:none" placeholder="Cole aqui o SEU Hunt Analyser (individual). É o que tem 'XP Gain' e 'XP/h' — assim o seu XP entra no histórico."></textarea>
+          <textarea id="ls-hunt" rows="4" oninput="if(window.lsRenderHuntLog)lsRenderHuntLog()" style="width:100%;box-sizing:border-box;resize:vertical;font-family:monospace;font-size:11.5px;line-height:1.5;border:1px solid var(--rule);border-radius:7px;padding:.6rem .8rem;background:var(--paper);color:var(--ink);outline:none" placeholder="Cole aqui o SEU Hunt Analyser (individual). É o que tem 'XP Gain' e 'XP/h' — assim o seu XP entra no histórico."></textarea>
         </div>
         <div style="margin-bottom:.85rem"><label class="tool-label" style="display:block;margin-bottom:.3rem">Notas (opcional)</label><input id="ls-notes" class="tool-input" style="width:100%;box-sizing:border-box" placeholder="ex: sem prey, testando setup novo..."></div>
         <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
@@ -3181,7 +3188,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-12g</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-12i</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6199,7 +6206,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-12g';
+window.TP_BUILD = '2026-08-12i';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -9782,8 +9789,27 @@ document.addEventListener('DOMContentLoaded', pfInitGuildDropdown);
   };
   function lsParseHunt(raw){
     const lines=(raw||'').split('\n').map(l=>l.trim());
-    let h={loot:0,supplies:0,balance:0,damage:0,healing:0,xp:0,xph:0,rawxp:0};
+    let h={loot:0,supplies:0,balance:0,damage:0,healing:0,xp:0,xph:0,rawxp:0,killed:[],looted:[]};
+    let section=null;  // null (cabeçalho) | 'killed' | 'looted'
     for(const l of lines){
+      if(/^Killed Monsters/i.test(l)){ section='killed'; continue; }
+      if(/^Looted Items/i.test(l)){ section='looted'; continue; }
+      if(section){
+        if(!l) continue;
+        // formato: "123x a gold coin"  |  "12x dragon lord"
+        const m=l.match(/^([\d.,]+)\s*x\s+(.+)$/i);
+        if(m){
+          const cnt=parseInt(String(m[1]).replace(/[.,\s]/g,''),10)||0;
+          let name=m[2].trim();
+          if(section==='killed'){
+            if(/^(a|an|the)\s+/i.test(name)) name=name.replace(/^(a|an|the)\s+/i,'');
+            h.killed.push({name:name,count:cnt});
+          } else {
+            h.looted.push({name:name,count:cnt});
+          }
+        }
+        continue;
+      }
       if(l.startsWith('Session data:')){const m=l.match(/From (.+?) to (.+)/);if(m){h.from=m[1].trim();h.to=m[2].trim();}}
       else if(l.startsWith('Session:'))h.dur=l.replace('Session:','').trim();
       else if(/^Raw XP Gain:/.test(l))h.rawxp=lsParseMoney(l.replace('Raw XP Gain:',''));
@@ -9794,7 +9820,6 @@ document.addEventListener('DOMContentLoaded', pfInitGuildDropdown);
       else if(/^Balance:/.test(l))h.balance=lsParseMoney(l.replace('Balance:',''));
       else if(/^Damage:/.test(l))h.damage=lsParseMoney(l.replace('Damage:',''));
       else if(/^Healing:/.test(l))h.healing=lsParseMoney(l.replace('Healing:',''));
-      else if(/^Killed Monsters/.test(l)) break;
     }
     if(!h.xp && !h.loot) throw new Error('Não parece um Hunt Analyser individual (sem XP Gain / Loot).');
     if(!h.xph && h.xp && h.dur){ const dm=String(h.dur).match(/(\d+):(\d+)/); if(dm){ const min=parseInt(dm[1])*60+parseInt(dm[2]); if(min>0) h.xph=Math.round(h.xp/(min/60)); } }
@@ -9877,6 +9902,22 @@ document.addEventListener('DOMContentLoaded', pfInitGuildDropdown);
         body: JSON.stringify(rows)
       });
       if(!res.ok){ const t=await res.text(); throw new Error('HTTP '+res.status+' '+t.slice(0,140)); }
+      // Bestiary: grava os kills DESTA sessão (as suas criaturas) — dedup por session_id
+      try{
+        var uid = (typeof TP_AUTH!=='undefined' && TP_AUTH && TP_AUTH.user) ? TP_AUTH.user.id : null;
+        var killed = (xpData && xpData.killed) || [];
+        if(uid && killed.length){
+          var krows = killed.filter(function(k){return k.name && k.count>0;})
+            .map(function(k){ return { user_id:uid, session_id:sid, monster:String(k.name).toLowerCase().trim(), count:N(k.count) }; });
+          if(krows.length){
+            await (window.tpAuthFetch||fetch)(PANDA_SB_URL + '/rest/v1/pt_kills', {
+              method:'POST',
+              headers:{ 'Content-Type':'application/json', Prefer:'return=minimal,resolution=ignore-duplicates' },
+              body: JSON.stringify(krows)
+            });
+          }
+        }
+      }catch(ke){ console.warn('[lsSave] kills', ke); }
       set('✓ Sessão salva! '+rows.length+' jogadores no histórico.','var(--bamboo)');
       if(window.tpToast) tpToast('Sessão salva no histórico da PT!','success');
     }catch(e){
@@ -9903,6 +9944,45 @@ document.addEventListener('DOMContentLoaded', pfInitGuildDropdown);
     area.appendChild(div);
   };
 
+  // Slug p/ ícone oficial de criatura (TibiaData usa a "race": minúsculas, sem espaços/apóstrofos)
+  function lsRaceSlug(name){ return String(name||'').toLowerCase().replace(/[''`]/g,'').replace(/[^a-z0-9]+/g,''); }
+  function lsHuntData(){
+    // solo: vem do próprio log; grupo: do "Meu Hunt Analyser" opcional
+    if(LSP && LSP.solo && LSP.xp) return LSP.xp;
+    var raw=(document.getElementById('ls-hunt')&&document.getElementById('ls-hunt').value)||'';
+    return lsParseHuntSafe(raw);
+  }
+  window.lsRenderHuntLog=function(){
+    var box=document.getElementById('ls-huntlog'), grid=document.getElementById('ls-huntlog-grid');
+    if(!box||!grid) return;
+    var h=lsHuntData();
+    var killed=(h&&h.killed)||[], looted=(h&&h.looted)||[];
+    if(!killed.length && !looted.length){ box.style.display='none'; return; }
+    box.style.display='';
+    var kSorted=killed.slice().sort(function(a,b){return b.count-a.count;});
+    var lSorted=looted.slice().sort(function(a,b){return b.count-a.count;});
+    var totalKills=killed.reduce(function(s,x){return s+x.count;},0);
+    function kRow(x){
+      var slug=lsRaceSlug(x.name);
+      var img='https://static.tibia.com/images/library/'+slug+'.gif';
+      return '<div style="display:flex;align-items:center;gap:.5rem;padding:.3rem .1rem;border-bottom:1px solid var(--rule)">'
+        +'<img src="'+img+'" onerror="this.style.visibility=\'hidden\'" style="width:32px;height:32px;object-fit:contain;flex-shrink:0" alt="">'
+        +'<span style="flex:1;font-size:.82rem;color:var(--ink);text-transform:capitalize">'+x.name+'</span>'
+        +'<span style="font-size:.82rem;font-weight:700;color:var(--bamboo)">'+x.count.toLocaleString('pt-BR')+'</span></div>';
+    }
+    function lRow(x){
+      return '<div style="display:flex;align-items:center;gap:.5rem;padding:.28rem .1rem;border-bottom:1px solid var(--rule)">'
+        +'<span style="flex:1;font-size:.8rem;color:var(--ink)">'+x.name+'</span>'
+        +'<span style="font-size:.8rem;font-weight:700;color:var(--gold)">'+x.count.toLocaleString('pt-BR')+'×</span></div>';
+    }
+    grid.innerHTML=
+      '<div><div style="font-size:.78rem;font-weight:700;color:var(--ink);margin-bottom:.4rem">🐾 Criaturas mortas '
+        +'<span style="color:var(--muted);font-weight:400">('+killed.length+' tipos · '+totalKills.toLocaleString('pt-BR')+' kills)</span></div>'
+        +(kSorted.length?kSorted.map(kRow).join(''):'<div style="font-size:.78rem;color:var(--muted)">—</div>')+'</div>'
+      +'<div><div style="font-size:.78rem;font-weight:700;color:var(--ink);margin-bottom:.4rem">💰 Itens lootados '
+        +'<span style="color:var(--muted);font-weight:400">('+looted.length+' tipos)</span></div>'
+        +(lSorted.length?lSorted.map(lRow).join(''):'<div style="font-size:.78rem;color:var(--muted)">—</div>')+'</div>';
+  };
   function lsRenderAll(){
     document.getElementById('ls-results').style.display='block';
     if(typeof lsLoadMyChars==='function') lsLoadMyChars();
@@ -9941,6 +10021,8 @@ document.addEventListener('DOMContentLoaded', pfInitGuildDropdown);
           </div>
         </div>`;
     });
+
+    lsRenderHuntLog();
 
     // Cards avançados
     const adv=document.getElementById('ls-advgrid');
@@ -11566,6 +11648,34 @@ function ewEnsureTcInput() {
     if(AUTH){ AUTH.profile=Object.assign(AUTH.profile||{},{profile_floor:id}); saveAuth(AUTH);
       tpAuthFetch(SB+'/rest/v1/profiles?id=eq.'+AUTH.user.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({profile_floor:id})}).catch(function(){}); }
   };
+  // ── Enriquecimento do herói com dados REAIS do Tibia.com (title, guild, residência, achievements, last login) ──
+  window.__heroInfo=window.__heroInfo||{};
+  function tpRelTime(iso){ try{ var t=new Date(iso).getTime(); if(isNaN(t)) return ''; var sec=Math.max(0,(Date.now()-t)/1000);
+    if(sec<3600) return 'há '+Math.max(1,Math.round(sec/60))+' min';
+    if(sec<86400) return 'há '+Math.round(sec/3600)+'h';
+    var d=Math.round(sec/86400); if(d<30) return 'há '+d+'d';
+    var mo=Math.round(d/30); if(mo<12) return 'há '+mo+(mo>1?' meses':' mês');
+    return 'há '+Math.round(mo/12)+' ano(s)'; }catch(e){ return ''; } }
+  function tpHeroChip(ic,txt,title){ return '<span title="'+(title||'')+'" style="display:inline-flex;align-items:center;gap:.3rem;font-size:.72rem;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:999px;padding:.28rem .6rem;color:var(--ink,#eae8f2)"><span>'+ic+'</span><span>'+txt+'</span></span>'; }
+  async function tpEnrichHero(feat){
+    if(!feat||!feat.name||typeof tibiaFetch!=='function') return;
+    var mc=g('pf-mainchar');
+    try{
+      var info=window.__heroInfo[feat.name];
+      if(!info){ var data=await tibiaFetch('/v4/character/'+encodeURIComponent(feat.name)); info=data&&data.character&&data.character.character; if(info) window.__heroInfo[feat.name]=info; }
+      if(!info) return;
+      if(mc){ var line=[info.vocation,(info.level?('Lvl '+info.level):null),info.world].filter(Boolean).join(' · ');
+        if(info.title) line+=' · <b>'+info.title+'</b>'; mc.innerHTML=line; }
+      var real=g('pf-hero-real'); if(!real) return;   // pode ter re-renderizado; pega o atual
+      var c=[];
+      if(info.achievement_points!=null) c.push(tpHeroChip('🏆', info.achievement_points+' pts','Pontos de conquista'));
+      if(info.guild&&info.guild.name) c.push(tpHeroChip('⚔️',(info.guild.rank?info.guild.rank+' · ':'')+info.guild.name,'Guild'));
+      if(info.residence) c.push(tpHeroChip('🏰', info.residence,'Cidade natal'));
+      if(info.last_login){ var rt=tpRelTime(info.last_login); if(rt) c.push(tpHeroChip('🕐', rt,'Último login')); }
+      if(/premium/i.test(info.account_status||'')) c.push(tpHeroChip('👑','Premium','Status da conta'));
+      real.innerHTML=c.join('');
+    }catch(e){}
+  }
   window.tpRenderHero=function(feat, prof){
     var stage=g('pf-hero-stage'); if(!stage) return;
     var floorId=(prof&&prof.profile_floor)||'stone', f=tpFloorById(floorId);
@@ -11575,10 +11685,13 @@ function ewEnsureTcInput() {
     var s=(typeof cpgStats==='function')?cpgStats(feat.vocation,feat.level):{hp:0,mana:0,cap:0,smin:0,smax:0};
     var nf=(typeof cpgNf==='function')?cpgNf:function(x){return x;};
     if(statsEl) statsEl.innerHTML=
-      '<div class="pf-hstat"><span class="ic">❤️</span><div class="track"><i style="width:62%;background:linear-gradient(90deg,#e05a5a,#f08a8a)"></i></div><span class="val">'+nf(s.hp)+'</span></div>'+
-      '<div class="pf-hstat"><span class="ic">⚡</span><div class="track"><i style="width:78%;background:linear-gradient(90deg,#4a7de0,#7fa8f0)"></i></div><span class="val">'+nf(s.mana)+'</span></div>'+
-      '<div class="pf-hstat"><span class="ic">💰</span><span class="val">'+nf(s.cap)+'</span></div>'+
-      '<div class="pf-hstat"><span class="ic">🛡️</span><span class="val">'+s.smin+'–'+s.smax+'</span></div>';
+      '<div class="pf-hstat" title="HP estimado por vocação + nível — o Tibia não expõe o valor real"><span class="ic">❤️</span><div class="track"><i style="width:62%;background:linear-gradient(90deg,#e05a5a,#f08a8a)"></i></div><span class="val">~'+nf(s.hp)+'</span></div>'+
+      '<div class="pf-hstat" title="Mana estimada por vocação + nível — o Tibia não expõe o valor real"><span class="ic">⚡</span><div class="track"><i style="width:78%;background:linear-gradient(90deg,#4a7de0,#7fa8f0)"></i></div><span class="val">~'+nf(s.mana)+'</span></div>'+
+      '<div class="pf-hstat" title="Capacidade estimada"><span class="ic">🎒</span><span class="val">~'+nf(s.cap)+'</span></div>'+
+      '<div class="pf-hstat" title="Skill estimado (aprox.)"><span class="ic">🗡️</span><span class="val">~'+s.smin+'–'+s.smax+'</span></div>'+
+      '<div style="grid-column:1/-1;font-size:.63rem;color:var(--muted);margin:-.05rem 0 .1rem">HP · Mana · Cap · Skill são <b>estimados</b> (vocação + nível). Abaixo, dados reais do Tibia.com.</div>'+
+      '<div id="pf-hero-real" style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:.4rem"></div>';
+    tpEnrichHero(feat);
     var owned=window.__TP_OWNED_FLOORS||{};
     if(floorsEl) floorsEl.innerHTML=TP_FLOORS.map(function(fl){
       var locked=fl.price>0 && !owned[fl.id];
