@@ -106,15 +106,18 @@
 var PACK_BASE = 'https://tibiapanda.com.br/mapper-pack';
 // fallback relativo (se aberto ao lado do pacote)
 var PACK_FALLBACK = 'mapper-pack';
-var VER = '1';
+var VER = '2';
 
-var MANIFEST=null, ITEMS=[], CATS=[], curCat=null, brush=null, painting=false, eraseMode=false;
+var MANIFEST=null, ITEMS=[], IMAP={}, CATS=[], curCat=null, brush=null, painting=false, eraseMode=false;
 var COLS=12, ROWS=8, CELL=48;
-var cells=[];      // array of arrays of ids (bottom-first)
+var cells=[];      // array of arrays of {id,tw,th} (bottom-first)
 var undoStack=[];
+var PAL_CAP=600;   // teto de miniaturas exibidas (categorias grandes → use a busca)
 
 function url(id){ return PACK_BASE+'/'+id+'.png?v='+VER; }
 function $(id){ return document.getElementById(id); }
+// footprint em SQMs do carimbo: pisos sempre 1x1 (PNG 32x32); cenários usam pw/ph do PNG
+function foot(it){ if(!it) return [1,1]; if(it.cat==='pisos') return [1,1]; return [Math.max(1,it.pw||1),Math.max(1,it.ph||1)]; }
 
 // ---------- load manifest ----------
 function loadManifest(base){
@@ -135,6 +138,7 @@ loadManifest(PACK_BASE).then(init).catch(function(){
 
 function init(m){
   MANIFEST=m; ITEMS=m.items||[];
+  IMAP={}; ITEMS.forEach(function(it){ IMAP[it.id]=it; });
   var labels={pisos:'Pisos',cenarios:'Cenários',objetos:'Objetos',paredes:'Paredes',decoracoes:'Decorações'};
   CATS=m.categories||['pisos'];
   var tabs=$('tabs'); tabs.innerHTML='';
@@ -163,7 +167,9 @@ function renderPalette(){
   var pal=$('palette'); pal.innerHTML='';
   var list=ITEMS.filter(function(it){ return it.cat===curCat; });
   if(q) list=list.filter(function(it){ return String(it.id).indexOf(q)>=0; });
-  $('palCount').textContent=list.length+' sprites';
+  var total=list.length, capped=false;
+  if(list.length>PAL_CAP){ list=list.slice(0,PAL_CAP); capped=true; }
+  $('palCount').textContent = capped ? (total+' sprites — mostrando '+PAL_CAP+', refine a busca') : (total+' sprites');
   var frag=document.createDocumentFragment();
   list.forEach(function(it){
     var c=document.createElement('div'); c.className='pcell'; c.dataset.id=it.id; c.title='#'+it.id;
@@ -171,19 +177,20 @@ function renderPalette(){
     img.onerror=function(){ c.style.opacity=.25; };
     var idl=document.createElement('span'); idl.className='id'; idl.textContent=it.id;
     c.appendChild(img); c.appendChild(idl);
-    c.onclick=function(){ selectBrush(it.id, c); };
+    c.onclick=function(){ selectBrush(it, c); };
     frag.appendChild(c); io.observe(img);
   });
   pal.appendChild(frag);
 }
 $('search').addEventListener('input', renderPalette);
 
-function selectBrush(id, cell){
-  brush=id; eraseMode=false; $('eraseMode').checked=false;
+function selectBrush(it, cell){
+  var f=foot(it);
+  brush={id:it.id, tw:f[0], th:f[1]}; eraseMode=false; $('eraseMode').checked=false;
   document.querySelectorAll('.pcell.on').forEach(function(x){x.classList.remove('on');});
   if(cell) cell.classList.add('on');
-  var chip=$('selChip'); chip.innerHTML='<img crossorigin="anonymous" src="'+url(id)+'">';
-  $('selId').textContent='#'+id;
+  var chip=$('selChip'); chip.innerHTML='<img crossorigin="anonymous" src="'+url(it.id)+'">';
+  $('selId').textContent='#'+it.id+(f[0]>1||f[1]>1?(' ('+f[0]+'×'+f[1]+')'):'');
 }
 
 // ---------- grid ----------
@@ -205,8 +212,12 @@ function buildGrid(){
 function renderCell(i){
   var d=$('grid').children[i]; if(!d) return;
   d.innerHTML='';
-  cells[i].forEach(function(id){
-    var img=document.createElement('img'); img.crossOrigin='anonymous'; img.src=url(id); d.appendChild(img);
+  cells[i].forEach(function(o){
+    var img=document.createElement('img'); img.crossOrigin='anonymous'; img.src=url(o.id);
+    // carimbo multi-SQM: transborda pras células vizinhas (à direita/baixo)
+    img.style.width=((o.tw||1)*100)+'%'; img.style.height=((o.th||1)*100)+'%';
+    if((o.tw||1)>1||(o.th||1)>1) img.style.zIndex='2';
+    d.appendChild(img);
   });
 }
 function pushUndo(){ undoStack.push(JSON.stringify(cells)); if(undoStack.length>60) undoStack.shift(); }
@@ -214,9 +225,9 @@ function pushUndo(){ undoStack.push(JSON.stringify(cells)); if(undoStack.length>
 function paintCell(i){
   if(eraseMode){ if(cells[i].length){ cells[i].pop(); renderCell(i);} return; }
   if(brush==null) return;
-  var st=cells[i];
-  if(st[st.length-1]===brush) return;   // evita duplicar em arraste
-  st.push(brush); renderCell(i);
+  var st=cells[i], top=st[st.length-1];
+  if(top && top.id===brush.id) return;   // evita duplicar em arraste
+  st.push({id:brush.id, tw:brush.tw, th:brush.th}); renderCell(i);
 }
 
 $('grid').addEventListener('mousedown',function(e){
@@ -239,7 +250,7 @@ $('applyGrid').onclick=function(){
   buildGrid();
 };
 $('zoom').addEventListener('change',function(){ CELL=Math.max(16,Math.min(96,+this.value||48)); buildGrid(); });
-$('fillBtn').onclick=function(){ if(brush==null){alert('Escolha um sprite na paleta primeiro.');return;} pushUndo(); for(var i=0;i<cells.length;i++){cells[i]=[brush];renderCell(i);} };
+$('fillBtn').onclick=function(){ if(brush==null){alert('Escolha um sprite na paleta primeiro.');return;} pushUndo(); for(var i=0;i<cells.length;i++){cells[i]=[{id:brush.id,tw:brush.tw,th:brush.th}];renderCell(i);} };
 $('clearBtn').onclick=function(){ pushUndo(); for(var i=0;i<cells.length;i++){cells[i]=[];renderCell(i);} };
 $('undoBtn').onclick=function(){ if(undoStack.length){ cells=JSON.parse(undoStack.pop()); for(var i=0;i<cells.length;i++) renderCell(i);} };
 
@@ -247,14 +258,16 @@ $('undoBtn').onclick=function(){ if(undoStack.length){ cells=JSON.parse(undoStac
 $('exportBtn').onclick=function(){
   var cv=document.createElement('canvas'); cv.width=COLS*32; cv.height=ROWS*32;
   var ctx=cv.getContext('2d'); ctx.imageSmoothingEnabled=false;
-  var imgs=[], need=0, done=0;
+  var need=0, done=0;
+  // desenha em ordem: base primeiro; carimbos multi-SQM no tamanho nativo
   cells.forEach(function(st,i){
-    st.forEach(function(id){
+    st.forEach(function(o){
       need++;
+      var tw=o.tw||1, th=o.th||1;
       var im=new Image(); im.crossOrigin='anonymous';
-      im.onload=function(){ var x=(i%COLS)*32, y=Math.floor(i/COLS)*32; ctx.drawImage(im,x,y,32,32); if(++done===need) finish(); };
+      im.onload=function(){ var x=(i%COLS)*32, y=Math.floor(i/COLS)*32; ctx.drawImage(im,x,y,tw*32,th*32); if(++done===need) finish(); };
       im.onerror=function(){ if(++done===need) finish(); };
-      im.src=url(id);
+      im.src=url(o.id);
     });
   });
   if(need===0){ alert('Grid vazio — pinte alguma coisa primeiro.'); return; }
