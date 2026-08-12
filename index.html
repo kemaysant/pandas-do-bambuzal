@@ -2507,6 +2507,21 @@ PlayerName (Leader)
       #profile .pf-floor.on{border-color:var(--bamboo,#8b5cf6);box-shadow:0 0 0 2px rgba(139,92,246,.3)}
       #profile .pf-floor.locked{opacity:.5;cursor:default}
       #profile .pf-floor .lk{position:absolute;top:-6px;right:-6px;font-size:.62rem;background:var(--bg-3,#23212f);border:1px solid var(--rule);border-radius:999px;padding:0 3px}
+      #profile .pf-disp-edit{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);color:var(--ink,#eae8f2);border-radius:9px;padding:.5rem .85rem;font-size:.8rem;font-weight:700;cursor:pointer;transition:border-color .15s,background .15s}
+      #profile .pf-disp-edit:hover{border-color:var(--bamboo,#8b5cf6);background:var(--bamboo-pale,rgba(139,92,246,.12))}
+      /* Modal editar display */
+      #tp-disp-modal .disp-sec{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:.2rem 0 .55rem}
+      #tp-disp-modal .disp-floors{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:.5rem;max-height:210px;overflow:auto;padding:.1rem}
+      #tp-disp-modal .tp-floorsw{position:relative;width:100%;aspect-ratio:1;border-radius:9px;border:2px solid var(--rule);cursor:pointer;image-rendering:pixelated;background-size:28px 28px;background-color:#3a3a44}
+      #tp-disp-modal .tp-floorsw.on{border-color:var(--bamboo,#8b5cf6);box-shadow:0 0 0 2px rgba(139,92,246,.35)}
+      #tp-disp-modal .tp-floorsw.locked{opacity:.45}
+      #tp-disp-modal .tp-floorsw .lk{position:absolute;top:-6px;right:-6px;font-size:.6rem;background:var(--bg-3,#23212f);border:1px solid var(--rule);border-radius:999px;padding:0 3px}
+      #tp-disp-modal .disp-of{display:flex;align-items:center;gap:.8rem;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:11px;padding:.7rem .8rem}
+      #tp-disp-modal .disp-of canvas{width:56px;height:56px;image-rendering:pixelated;flex:none;background:#2a2933;border-radius:8px}
+      #tp-disp-modal .disp-of .n{font-size:.86rem;font-weight:700;color:var(--ink,#eae8f2)}
+      #tp-disp-modal .disp-of .s{font-size:.72rem;color:var(--muted)}
+      #tp-disp-modal .disp-btn{background:var(--bamboo,#8b5cf6);border:none;color:#fff;border-radius:8px;padding:.5rem .8rem;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap}
+      #tp-disp-modal .disp-store{display:inline-block;margin-top:.55rem;font-size:.72rem;color:var(--bamboo-light,#a78bfa);cursor:pointer}
     </style>
     <h2 class="sec-title">Meu Perfil</h2>
     <p class="sec-sub">Sua conta, seus personagens e seu desempenho pessoal no Tibia Panda.</p>
@@ -2524,7 +2539,7 @@ PlayerName (Leader)
         <div class="pf-prog-top"><span id="pf-prog-top-lbl">Perfil completo</span><span id="pf-prog-pct">0%</span></div>
         <div class="pf-prog-bar"><div class="pf-prog-fill" id="pf-prog-fill"></div></div>
         <div class="pf-prog-hint" id="pf-prog-hint"></div>
-        <div class="pf-hero-floorwrap"><div class="lbl">🤺 Piso da vitrine</div><div class="pf-hero-floors" id="pf-hero-floors"></div></div>
+        <div style="margin-top:.55rem"><button class="pf-disp-edit" onclick="tpOpenDisplay()">🎨 Editar display de personagem</button></div>
       </div>
     </div>
 
@@ -3271,7 +3286,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13a</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13b</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6289,7 +6304,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13a';
+window.TP_BUILD = '2026-08-13b';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11727,9 +11742,46 @@ function ewEnsureTcInput() {
     // pisos pagos: por enquanto só os gratuitos são selecionáveis (venda vem com a Store)
     if(f.price>0 && !((window.__TP_OWNED_FLOORS||{})[id])){ if(window.tpToast) tpToast('Compre esse fundo na Store 🛍️','info'); return; }
     var stage=g('pf-hero-stage'); tpApplyFloor(stage,f);
-    document.querySelectorAll('#pf-hero-floors .pf-floor').forEach(function(el){ el.classList.toggle('on', el.dataset.floor===id); });
+    window.__pfFloorId=id;
+    document.querySelectorAll('#disp-floors .tp-floorsw,#pf-hero-floors .pf-floor').forEach(function(el){ el.classList.toggle('on', el.dataset.floor===id); });
     if(AUTH){ AUTH.profile=Object.assign(AUTH.profile||{},{profile_floor:id}); saveAuth(AUTH);
       tpAuthFetch(SB+'/rest/v1/profiles?id=eq.'+AUTH.user.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({profile_floor:id})}).catch(function(){}); }
+  };
+  // ── Editar display de personagem (fundo + outfit exibido) ──
+  function tpRenderDisplayFloors(){
+    var host=g('disp-floors'); if(!host) return;
+    var owned=window.__TP_OWNED_FLOORS||{}, cur=window.__pfFloorId||'stone';
+    host.innerHTML=TP_FLOORS.map(function(fl){
+      var locked=fl.price>0 && !owned[fl.id];
+      return '<div class="tp-floorsw'+(fl.id===cur?' on':'')+(locked?' locked':'')+'" data-floor="'+fl.id+'" title="'+fl.name+(locked?' — compre na Store':'')+'" onclick="tpSetFloor(\''+fl.id+'\')" style="background-image:url('+tpFloorUrl(fl.id)+');background-size:'+(fl.scene?'cover':'28px 28px')+'">'+(locked?'<span class="lk">🔒</span>':'')+'</div>';
+    }).join('');
+  }
+  function tpDispOutfit(){
+    var host=g('disp-outfit'); if(!host) return;
+    var feat=window.__pfFeat;
+    if(!feat){ host.innerHTML='<div style="font-size:.8rem;color:var(--muted)">Defina um <b>personagem principal verificado</b> na aba <b>Personagens</b> pra escolher o outfit exibido aqui.</div>'; return; }
+    host.innerHTML='<canvas id="disp-of-cv" width="128" height="128"></canvas>'
+      +'<div style="flex:1;min-width:0"><div class="n">'+feat.name+'</div><div class="s">'+[feat.vocation,(feat.level?'Lvl '+feat.level:'')].filter(Boolean).join(' · ')+' · principal</div></div>'
+      +'<button class="disp-btn" onclick="tpOpenDisplayOutfit()">✏️ Editar</button>';
+    var cv=g('disp-of-cv'); if(cv){ tpOutfitter().then(function(of){ of.render(cfgFrom(feat),cv,2).catch(function(){}); }).catch(function(){}); }
+  }
+  window.tpOpenDisplay=function(){
+    if(!AUTH){ tpOpenAuth('login'); return; }
+    var m=g('tp-disp-modal'); if(!m) return;
+    tpRenderDisplayFloors(); tpDispOutfit();
+    m.classList.add('open');
+  };
+  window.tpCloseDisplay=function(){ var m=g('tp-disp-modal'); if(m) m.classList.remove('open'); };
+  window.tpOpenDisplayOutfit=function(){
+    var feat=window.__pfFeat;
+    if(!feat){ if(window.tpToast) tpToast('Defina um personagem principal primeiro.','info'); return; }
+    if(window.tpOpenOutfit) tpOpenOutfit(feat.id);
+  };
+  window.tpDispGoStore=function(){
+    tpCloseDisplay();
+    var b=document.querySelector('.nav-btn[onclick*="store"]')||document.querySelector('[onclick*="showPage(\'store\'"]');
+    if(typeof showPage==='function') showPage('store', b);
+    setTimeout(function(){ var sb=document.querySelector('[data-smode="floors"]'); if(sb&&window.tpStoreMode){ try{ tpStoreMode('floors', sb); }catch(e){} } },60);
   };
   // ── Enriquecimento do herói com dados REAIS do Tibia.com (title, guild, residência, achievements, last login) ──
   window.__heroInfo=window.__heroInfo||{};
@@ -11763,6 +11815,7 @@ function ewEnsureTcInput() {
     var stage=g('pf-hero-stage'); if(!stage) return;
     var floorId=(prof&&prof.profile_floor)||'stone', f=tpFloorById(floorId);
     tpApplyFloor(stage,f);
+    window.__pfFeat=feat||null; window.__pfFloorId=floorId;
     var statsEl=g('pf-hero-stats'), floorsEl=g('pf-hero-floors'), cv=g('pf-hero-cv'), init=g('pf-avatar-init');
     if(!feat){ if(statsEl) statsEl.innerHTML=''; if(floorsEl) floorsEl.innerHTML=''; tpHeroStop(); if(cv) cv.style.display='none'; if(init){ init.style.display='block'; } return; }
     var s=(typeof cpgStats==='function')?cpgStats(feat.vocation,feat.level):{hp:0,mana:0,cap:0,smin:0,smax:0};
@@ -11781,6 +11834,7 @@ function ewEnsureTcInput() {
       return '<div class="pf-floor'+(fl.id===floorId?' on':'')+(locked?' locked':'')+'" data-floor="'+fl.id+'" title="'+fl.name+(locked?' (Store)':'')+'" onclick="tpSetFloor(\''+fl.id+'\')" style="background-image:url('+tpFloorUrl(fl.id)+');background-size:'+(fl.scene?'cover':'24px 24px')+'">'+(locked?'<span class="lk">🔒</span>':'')+'</div>';
     }).join('');
     if(cv){ if(init) init.style.display='none'; cv.style.display='block'; _heroCfg=cfgFrom(feat); tpHeroStop(); tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).catch(function(){ cv.style.display='none'; if(init) init.style.display='block'; }); }).catch(function(){}); }
+    var dm=g('tp-disp-modal'); if(dm&&dm.classList.contains('open')) tpDispOutfit();
   };
 
   window.tpDrawAvatars=function(chars){
@@ -11854,6 +11908,22 @@ window.tpToast=function(msg,type){
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
       <button onclick="tpCloseOutfit()" style="background:linear-gradient(#464c57,#333842);border:2px solid #0d0f14;color:#cdd2dc;border-radius:5px;padding:9px 16px;cursor:pointer">Cancelar</button>
       <button id="tp-of-save" onclick="tpSaveOutfit()" style="background:linear-gradient(#7c4fe0,#6b3fd0);border:2px solid #0d0f14;color:#fff;border-radius:5px;padding:9px 18px;cursor:pointer;font-weight:700">Salvar outfit</button>
+    </div>
+  </div>
+</div>
+<!-- Editar display de personagem -->
+<div id="tp-disp-modal" class="tp-modal" onclick="if(event.target===this)tpCloseDisplay()">
+  <div class="tp-modal-card" style="max-width:440px;max-height:90vh;overflow:auto">
+    <button class="tp-modal-close" onclick="tpCloseDisplay()">✕</button>
+    <div style="font-weight:800;font-size:1.05rem;color:var(--ink,#eae8f2);margin-bottom:.15rem">🎨 Editar display de personagem</div>
+    <p style="font-size:.77rem;color:var(--muted);margin:.1rem 0 1.1rem">Escolha o fundo e o outfit que aparecem no seu perfil. O outfit é o do seu personagem principal — editá-lo aqui muda ele em todo o site.</p>
+    <div class="disp-sec">🖼️ Fundo</div>
+    <div id="disp-floors" class="disp-floors"></div>
+    <span class="disp-store" onclick="tpDispGoStore()">🛍️ Ver mais fundos na Store</span>
+    <div class="disp-sec" style="margin-top:1.1rem">🎽 Outfit exibido</div>
+    <div id="disp-outfit" class="disp-of"></div>
+    <div style="text-align:right;margin-top:1.3rem">
+      <button onclick="tpCloseDisplay()" style="background:var(--bamboo,#8b5cf6);border:none;color:#fff;border-radius:8px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer">Concluído</button>
     </div>
   </div>
 </div>
