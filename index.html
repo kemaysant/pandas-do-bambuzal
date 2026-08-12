@@ -2328,11 +2328,11 @@ PlayerName (Leader)
     <div class="pth-panel" data-panel="analise" style="display:none">
       <div class="card" style="margin-bottom:1.25rem">
         <div class="tool-title" style="font-size:1rem;margin-bottom:.2rem">🎯 Desempenho por local</div>
-        <div style="font-size:.72rem;color:var(--muted);margin-bottom:.7rem">Suas hunts agrupadas por local — normalizado por hora pra comparar spots de verdade. <b style="color:var(--ink)">Waste%</b> = quanto do loot foi gasto em supplies (menor é melhor). Ordenado por profit/h.</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:.7rem">Suas hunts agrupadas por local — normalizado por hora pra comparar spots de verdade. <b style="color:var(--ink)">Waste%</b> = quanto da sua renda foi consumida em supplies (menor é melhor). Em PT usa a sua parte do split, não o loot que você catou do chão. Ordenado por profit/h.</div>
         <div class="table-wrap">
           <table class="member-table">
             <thead><tr>
-              <th>Local</th><th>Hunts</th><th>Profit/h <span title="Sua parte (split) por hora." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>XP/h <span title="XP por hora (só hunts com o seu Hunt Analyser pessoal)." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Supplies/h</th><th>Waste% <span title="Supplies ÷ loot. Alto = spot caro pro seu nível." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Tempo</th>
+              <th>Local</th><th>Hunts</th><th>Profit/h <span title="Sua parte (split) por hora." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>XP/h <span title="XP por hora (só hunts com o seu Hunt Analyser pessoal)." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Supplies/h</th><th>Waste% <span title="Supplies ÷ (sua parte do split + supplies). Alto = spot caro pro seu nível. Em solo equivale a supplies ÷ loot." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Tempo</th>
             </tr></thead>
             <tbody id="pt-spots-body"></tbody>
           </table>
@@ -2539,6 +2539,14 @@ PlayerName (Leader)
       #profile .vit-item .mt{font-size:.68rem;color:var(--muted);margin-top:.25rem;display:flex;justify-content:space-between;gap:.4rem}
       #profile .vit-item .rar{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
       #profile .vit-empty{font-size:.85rem;color:var(--muted);line-height:1.6;background:var(--bg-2,#1b1a25);border:1px dashed var(--rule);border-radius:12px;padding:1.1rem 1.2rem;text-align:center}
+      #profile .vit-all summary::-webkit-details-marker{display:none}
+      #profile .vit-all summary:hover{text-decoration:underline}
+      .vit-pick{display:flex;align-items:center;gap:.55rem;padding:.45rem .55rem;border-radius:8px;cursor:pointer;transition:background .12s}
+      .vit-pick:hover{background:var(--bg-2,#1b1a25)}
+      .vit-pick input{width:16px;height:16px;accent-color:var(--bamboo,#8b5cf6);flex:none;cursor:pointer}
+      .vit-pick-dot{width:9px;height:9px;border-radius:50%;flex:none}
+      .vit-pick-nm{flex:1;font-size:.83rem;color:var(--ink,#eae8f2);line-height:1.2}
+      .vit-pick-rar{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;flex:none}
       #profile .pf-hero-card{display:flex;gap:0;flex-wrap:wrap;align-items:stretch;padding:0;overflow:hidden;margin-bottom:1rem}
       #profile .pf-hero-stage{position:relative;width:210px;flex:none;min-height:210px;display:flex;align-items:center;justify-content:center;image-rendering:pixelated;background-size:56px 56px;background-color:#3a3a44;box-shadow:inset 0 0 0 1px var(--rule),inset 0 0 50px rgba(0,0,0,.55)}
       #profile .pf-hero-stage canvas{image-rendering:pixelated;width:104px;height:104px;position:relative;z-index:1;filter:drop-shadow(0 5px 4px rgba(0,0,0,.55))}
@@ -3385,7 +3393,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13j</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13l</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6403,7 +6411,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13j';
+window.TP_BUILD = '2026-08-13l';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11185,7 +11193,7 @@ function ewEnsureTcInput() {
       profitH:a.min>0?Math.round(a.profit/a.min*60):0,
       xpH:a.xpMin>0?Math.round(a.xp/a.xpMin*60):0,
       suppH:a.min>0?Math.round(a.supplies/a.min*60):0,
-      waste:a.loot>0?Math.round(a.supplies/a.loot*100):null,
+      waste:(a.profit+a.supplies)>0?Math.round(a.supplies/(a.profit+a.supplies)*100):(a.loot>0?Math.round(a.supplies/a.loot*100):null),
       min:a.min }; }).sort(function(x,y){ return y.profitH-x.profitH; });
     if(!list.length){ host.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:1rem">Sem sessões suas no período — verifique um personagem no perfil e salve hunts.</td></tr>'; return; }
     host.innerHTML=list.map(function(s){
@@ -11492,16 +11500,16 @@ function ewEnsureTcInput() {
   };
   // Home do perfil (resumo + amigos)
   window.tpVisaoHome=async function(){
+    // Resumo = só status da plataforma (nível, streak, membro desde). Conquistas e Bestiary
+    // moram na Vitrine ao lado — não repetir aqui.
     var host=g('pf-visao-stats');
     if(host){
       var chips=[];
       var st=window.__GAMI&&window.__GAMI.progress;
       if(st){ var lv=gmLevel(st.xp||0); chips.push(['Nível '+lv.level,'Plataforma']); if(st.streak) chips.push(['🔥 '+st.streak+'d','Streak']); }
-      var feat=window.__pfFeat;
-      if(feat && window.__heroInfo && window.__heroInfo[feat.name] && window.__heroInfo[feat.name].achievement_points!=null)
-        chips.push(['🏆 '+window.__heroInfo[feat.name].achievement_points,'Conquistas']);
+      var prof=AUTH&&AUTH.profile;
+      var since=prof&&prof.created_at; if(since){ var y=new Date(since).getFullYear(); if(y) chips.push([''+y,'Membro desde']); }
       host.innerHTML=chips.map(function(c){ return '<div class="pf-stat"><div class="v">'+c[0]+'</div><div class="l">'+c[1]+'</div></div>'; }).join('') || '<div style="font-size:.75rem;color:var(--muted)">Sem dados ainda.</div>';
-      if(window.tpBestSummary){ try{ var bs=await window.tpBestSummary(); if(bs) host.insertAdjacentHTML('beforeend','<div class="pf-stat"><div class="v">'+bs.discovered+'/'+bs.total+'</div><div class="l">Bestiary</div></div>'); }catch(e){} }
     }
     if(window.tpRenderMiniFriends) tpRenderMiniFriends();
   };
@@ -11535,6 +11543,7 @@ function ewEnsureTcInput() {
         +'<div class="vit-kpi"><div class="v">'+bs.charmGot.toLocaleString('pt-BR')+' / '+bs.charmTotal.toLocaleString('pt-BR')+'</div><div class="k">Charm points</div></div>'
       +'</div></div>';
   }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   window.tpLoadVitrine=async function(){
     var body=g('pf-vit-body'); if(!body||!AUTH) return;
     var prof=AUTH.profile||{};
@@ -11565,14 +11574,18 @@ function ewEnsureTcInput() {
         body.innerHTML=kpis+bestBlock+'<div class="vit-empty">'+feat.name+' tem <b>'+pts+' pontos</b> de achievement, mas a lista está <b>privada</b> no Tibia.com.<br><br>Ative em <em>tibia.com → sua conta → Characters → Edit → marque "Show Achievements"</em> pra montar sua vitrine aqui. 🐼</div>';
         return;
       }
-      var grid='<div class="vit-grid">'+enriched.map(function(a){
-        var rc=vitRar(a.rarity);
+      function cardHtml(a){ var rc=vitRar(a.rarity);
         return '<div class="vit-item" style="border-left-color:'+rc[0]+'">'
-          +'<div class="nm">'+(a.secret?'🔒 ':'')+a.name+'</div>'
-          +'<div class="mt"><span class="rar" style="color:'+rc[0]+'">'+rc[1]+'</span><span>'+a.category+'</span></div>'
-          +'</div>';
-      }).join('')+'</div>';
-      body.innerHTML=kpis+bestBlock+grid;
+          +'<div class="nm">'+(a.secret?'🔒 ':'')+esc(a.name)+'</div>'
+          +'<div class="mt"><span class="rar" style="color:'+rc[0]+'">'+rc[1]+'</span><span>'+esc(a.category)+'</span></div></div>'; }
+      // O Tibia.com só permite exibir ATÉ 5 conquistas públicas — é isso que a API entrega.
+      // A escolha de quais aparecem é feita no próprio Tibia.com; aqui só refletimos.
+      var hdr='<div style="display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin:.2rem 0 .6rem;flex-wrap:wrap">'
+        +'<b style="font-size:.9rem;color:var(--ink,#eae8f2)">🏅 Conquistas em destaque de '+esc(feat.name)+'</b>'
+        +'<a href="https://www.tibia.com/account/?subtopic=characters" target="_blank" rel="noopener" style="background:none;border:1px solid var(--rule);border-radius:8px;color:var(--bamboo-light,#a78bfa);font-size:.74rem;padding:.3rem .7rem;cursor:pointer;text-decoration:none">✏️ Escolher no Tibia.com ↗</a></div>';
+      var grid='<div class="vit-grid">'+enriched.map(cardHtml).join('')+'</div>';
+      var note='<div style="font-size:.72rem;color:var(--muted);margin-top:.7rem;line-height:1.5">O Tibia.com permite exibir <b>até 5 conquistas</b> por conta. Pra trocar quais aparecem aqui, edite em <i>Tibia.com → sua conta → Characters → '+esc(feat.name)+' → Edit Character → "Display Character Achievements"</i> e marque até 5. A vitrine atualiza no próximo carregamento.</div>';
+      body.innerHTML=kpis+bestBlock+hdr+grid+note;
     }catch(e){ body.innerHTML=bestBlock+'<div class="vit-empty">Não foi possível carregar as conquistas agora. Tente de novo em instantes.</div>'; }
   };
   function tpSyncDisplayName(name){
@@ -13169,12 +13182,18 @@ window.tpToast=function(msg,type){
     var inp=document.getElementById('pf-handle-input'), st=document.getElementById('pf-handle-status'); if(!inp) return;
     var v=(inp.value||'').trim().replace(/^@/,'');
     if(!/^[a-z0-9_]{3,20}$/i.test(v)){ if(st){ st.textContent='inválido (3–20 · a-z, 0-9, _)'; st.style.color='#e05a5a'; } return; }
+    if(!me()){ if(st){ st.textContent='entre na sua conta primeiro'; st.style.color='#e05a5a'; } return; }
     if(st){ st.textContent='salvando...'; st.style.color='var(--muted)'; }
-    var r=await rpc('tp_set_handle',{h:v});
+    var r=null, httpErr='';
+    try{
+      var res=await af()(SB+'/rest/v1/rpc/tp_set_handle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({h:v})});
+      if(res.ok){ r=await res.json().catch(function(){ return null; }); }
+      else { var t=await res.text().catch(function(){ return ''; }); httpErr='HTTP '+res.status+(t?(' · '+t.slice(0,120)):''); console.warn('tp_set_handle',httpErr); }
+    }catch(e){ httpErr=e.message||'network'; console.warn('tp_set_handle',e); }
     if(r==='ok'){ v=v.toLowerCase(); inp.value=v; if(st){ st.textContent='@'+v+' salvo ✓'; st.style.color='#3ecf8e'; } toast('Identificador salvo: @'+v,'success'); refreshFriends(); }
     else if(r==='taken'){ if(st){ st.textContent='esse @ já está em uso'; st.style.color='#e05a5a'; } }
     else if(r==='invalid'){ if(st){ st.textContent='inválido (3–20 · a-z, 0-9, _)'; st.style.color='#e05a5a'; } }
-    else { if(st){ st.textContent='erro de conexão — tente de novo'; st.style.color='#e05a5a'; } }
+    else { if(st){ st.textContent=httpErr?('falhou ('+httpErr+')'):'erro de conexão — tente de novo'; st.style.color='#e05a5a'; } }
   };
   window.tpFriendsLoad=function(){ refreshFriends(); loadHandle(); };
   function renderProfileFriends(){
