@@ -2510,6 +2510,18 @@ PlayerName (Leader)
       #profile .gami-prog{font-size:.8rem;color:var(--muted);font-weight:700}
       #profile .gami-m.claimed{opacity:.6}
       #profile .gami-m.ready{background:rgba(139,92,246,.06);border-radius:10px}
+      #profile .pass-cta{font-size:.78rem;font-weight:800;color:#3ecf8e;margin-bottom:.6rem}
+      #profile .pass-row{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.5rem;scroll-snap-type:x proximity}
+      #profile .pass-node{flex:0 0 128px;scroll-snap-align:start;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:12px;padding:.6rem .5rem;text-align:center;display:flex;flex-direction:column;align-items:center;gap:.25rem;position:relative}
+      #profile .pass-node.claimable{border-color:#3ecf8e;box-shadow:0 0 0 1px rgba(62,207,142,.4) inset}
+      #profile .pass-node.locked{opacity:.5}
+      #profile .pass-node.claimed{opacity:.75}
+      #profile .pass-lvl{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+      #profile .pass-ic{font-size:1.6rem;line-height:1}
+      #profile .pass-lbl{font-size:.72rem;color:var(--ink,#eae8f2);line-height:1.2;min-height:2.4em;display:flex;align-items:center;justify-content:center}
+      #profile .pass-claim{background:#3ecf8e;border:0;color:#0c2b1d;border-radius:8px;padding:.35rem .6rem;cursor:pointer;font-weight:800;font-size:.74rem;width:100%}
+      #profile .pass-got{font-size:.68rem;color:#3ecf8e;font-weight:700}
+      #profile .pass-lock{font-size:.66rem;color:var(--muted)}
       #profile .cons-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.6rem;margin-bottom:1.1rem}
       #profile .cons-card{display:flex;align-items:center;gap:.7rem;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:12px;padding:.7rem .85rem}
       #profile .cons-card.on{border-color:#e0a44a;box-shadow:0 0 0 1px rgba(224,164,74,.35) inset}
@@ -2713,6 +2725,14 @@ PlayerName (Leader)
           </div>
         </div>
         <div style="font-size:.74rem;color:var(--muted);margin-top:.9rem">O <b>XP do site</b> e as <b>Panda Coins</b> são da comunidade (não é o XP do Tibia). Complete missões pra evoluir e, no futuro, trocar coins por cosméticos na Store.</div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;flex-wrap:wrap;margin-bottom:.2rem">
+          <div class="tool-title" style="font-size:1rem;margin:0">🎫 Passe do Panda</div>
+          <span id="pass-boost" style="display:none;font-size:.72rem;font-weight:800;color:#e0a44a"></span>
+        </div>
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:.7rem">Trilha permanente: suba de nível fazendo missões e resgate recompensas <b>grátis</b> — XP em dobro, moedas, consumíveis e <b>outfits/montarias premium</b>. Termina com um <b>épico + montaria</b>.</div>
+        <div id="pass-track"><div class="api-loading"><div class="spinner"></div> Carregando passe...</div></div>
       </div>
       <div class="card">
         <div class="tool-title" style="font-size:1rem;margin-bottom:.2rem">Missões & desafios</div>
@@ -3429,7 +3449,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13p</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13q</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6447,7 +6467,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13p';
+window.TP_BUILD = '2026-08-13q';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11731,6 +11751,40 @@ function ewEnsureTcInput() {
     if(!AUTH) return;
     try{ var st=await gmCall('gm_state',{}); window.__GAMI=st; try{localStorage.setItem('tp-gami',JSON.stringify(st.progress||{}));}catch(e){} tpRenderGamify(st); tpHeaderProgress(); }
     catch(e){ /* silencioso: cabeçalho mantém o modo perfil-completo */ }
+    if(window.tpLoadPass) tpLoadPass();
+  };
+  // ── Passe do Panda (trilha permanente de recompensas) ──
+  window.tpLoadPass=async function(){
+    var host=document.getElementById('pass-track'); if(!host||!AUTH) return;
+    try{ var st=await gmCall('pass_state',{}); window.__PASS=st; tpRenderPass(st); }
+    catch(e){ host.innerHTML='<div style="font-size:.8rem;color:var(--muted)">Não consegui carregar o passe agora.</div>'; }
+  };
+  window.tpRenderPass=function(st){
+    var host=document.getElementById('pass-track'); if(!host||!st) return;
+    var rewards=st.rewards||[];
+    var b=document.getElementById('pass-boost');
+    if(b){ if((st.xp_boost_missions||0)>0){ b.style.display=''; b.textContent='🔥 XP em dobro nas próximas '+st.xp_boost_missions+' missõe'+(st.xp_boost_missions===1?'':'s'); } else b.style.display='none'; }
+    var claimable=rewards.filter(function(r){return r.status==='claimable';}).length;
+    var hdr=claimable?('<div class="pass-cta">🎁 '+claimable+' recompensa'+(claimable>1?'s':'')+' pra resgatar!</div>'):'';
+    host.innerHTML=hdr+'<div class="pass-row">'+rewards.map(function(r){
+      var s=r.status;
+      var btn = s==='claimable' ? '<button class="pass-claim" onclick="tpPassClaim('+r.level+')">Resgatar</button>'
+              : s==='claimed' ? '<span class="pass-got">✓ Resgatado</span>'
+              : '<span class="pass-lock">🔒 Nv '+r.level+'</span>';
+      return '<div class="pass-node '+s+'"><div class="pass-lvl">Nv '+r.level+'</div><div class="pass-ic">'+(r.icon||'🎁')+'</div><div class="pass-lbl">'+esc(r.label)+'</div>'+btn+'</div>';
+    }).join('')+'</div>';
+  };
+  window.tpPassClaim=async function(level){
+    try{ var r=await gmCall('pass_claim',{p_level:level});
+      if(r&&r.ok){ if(window.tpToast) tpToast('Resgatado: '+(r.label||'recompensa')+' 🎉','success'); }
+      else if(r&&r.reason==='locked'){ if(window.tpToast) tpToast('Você ainda não chegou nesse nível.','info'); }
+      else if(r&&r.reason==='claimed'){ if(window.tpToast) tpToast('Essa recompensa já foi resgatada.','info'); }
+      else if(window.tpToast) tpToast('Não consegui resgatar agora.','error');
+    }catch(e){ if(window.tpToast) tpToast('Erro ao resgatar a recompensa.','error'); }
+    tpLoadGamify();
+    if(window.tpLoadOwnedOutfits) try{ window.tpLoadOwnedOutfits(); }catch(e){}
+    if(window.tpLoadOwnedMounts) try{ window.tpLoadOwnedMounts(); }catch(e){}
+    if(window.tpLoadOwnedFloors) try{ window.tpLoadOwnedFloors(); }catch(e){}
   };
   window.tpRenderGamify=function(st){
     if(!st) return; var pr=st.progress||{}, lv=gmLevel(pr.xp||0), streak=pr.streak||0;
