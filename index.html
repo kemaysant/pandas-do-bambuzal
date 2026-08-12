@@ -2054,7 +2054,7 @@ async function tibiaFetch(path) {
   <!-- ─── DELIVERY TASKS ─── -->
   <section class="page-section" id="delivery">
     <h2 class="sec-title">Task Delivery</h2>
-    <p class="sec-sub">450 itens de entrega — quantidade, drops e preço de market ao vivo via TibiaData.</p>
+    <p class="sec-sub">Itens de entrega (task) — quantidade, criaturas que dropam e valor estimado. Clique num item pra tentar o market ao vivo.</p>
 
     <!-- Filters -->
     <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:flex-end">
@@ -2101,8 +2101,8 @@ async function tibiaFetch(path) {
       <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
         <span style="font-size:1rem">💰</span>
         <div style="flex:1">
-          <div style="font-size:.85rem;font-weight:500;color:var(--bamboo)">Preço de Market ao Vivo</div>
-          <div style="font-size:.75rem;color:var(--muted);font-weight:300">Clique em qualquer item para buscar o preço atual no market de Gentebra via TibiaData API</div>
+          <div style="font-size:.85rem;font-weight:500;color:var(--bamboo)">Valor estimado (base) + market ao vivo</div>
+          <div style="font-size:.75rem;color:var(--muted);font-weight:300">A coluna mostra o valor <b>estimado</b> de cada item. Clique num item pra tentar o preço ao vivo — quando a API não expõe o market do jogo, mantemos a estimativa.</div>
         </div>
       </div>
     </div>
@@ -2302,6 +2302,19 @@ PlayerName (Leader)
     </div>
 
     <div class="pth-panel" data-panel="analise" style="display:none">
+      <div class="card" style="margin-bottom:1.25rem">
+        <div class="tool-title" style="font-size:1rem;margin-bottom:.2rem">🎯 Desempenho por local</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:.7rem">Suas hunts agrupadas por local — normalizado por hora pra comparar spots de verdade. <b style="color:var(--ink)">Waste%</b> = quanto do loot foi gasto em supplies (menor é melhor). Ordenado por profit/h.</div>
+        <div class="table-wrap">
+          <table class="member-table">
+            <thead><tr>
+              <th>Local</th><th>Hunts</th><th>Profit/h <span title="Sua parte (split) por hora." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>XP/h <span title="XP por hora (só hunts com o seu Hunt Analyser pessoal)." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Supplies/h</th><th>Waste% <span title="Supplies ÷ loot. Alto = spot caro pro seu nível." style="cursor:help;color:var(--muted);font-weight:400">ⓘ</span></th><th>Tempo</th>
+            </tr></thead>
+            <tbody id="pt-spots-body"></tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card" style="margin-bottom:1.25rem">
         <div class="tool-title" style="font-size:1rem;margin-bottom:.2rem">Mês atual × mês anterior</div>
         <div id="pt-monthcmp-sub" style="font-size:.72rem;color:var(--muted);margin-bottom:.9rem"></div>
@@ -3286,7 +3299,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13d</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13e</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6304,7 +6317,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13d';
+window.TP_BUILD = '2026-08-13e';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -9176,7 +9189,7 @@ function renderDeliveryTable() {
     const groupLabel = grp.label;
     const qtyMid = grp.min ? `${grp.min}–${grp.max}` : '?';
     const isNPC = item.drops.includes('NPC') || item.drops.includes('Rashid');
-    const valueStr = item.v > 0 ? item.v.toLocaleString('pt-BR') + ' gp' : '—';
+    const valueStr = dtEstHtml(item.v||0);
     const groupColor = {a:'#ef4444',b:'#f97316',c:'#eab308',d:'#22c55e',e:'#3b82f6',f:'#8b5cf6'}[item.g]||'#6b7280';
 
     return `<tr style="cursor:pointer" onclick="lookupDeliveryPrice('${item.n.replace(/'/g,"\\'")}', this)">
@@ -9202,11 +9215,14 @@ function renderDeliveryTable() {
   }).join('');
 }
 
-// Lookup market price via TibiaData
+// Lookup market price via TibiaData (com fallback pra estimativa base — TibiaData não expõe
+// o market do jogo, então o clique tenta ao vivo mas NUNCA apaga a estimativa se falhar).
 const dtPriceCache = {};
+function dtEstOf(itemName){ const it=DELIVERY_ITEMS.find(x=>x.n===itemName); return (it&&it.v)||0; }
 async function lookupDeliveryPrice(itemName, row) {
+  const est = dtEstOf(itemName);
   if (dtPriceCache[itemName]) {
-    showDeliveryPrice(row, dtPriceCache[itemName]);
+    showDeliveryPrice(row, dtPriceCache[itemName], est);
     return;
   }
   const priceCell = row.querySelector('[id^="dt-price-"]');
@@ -9218,14 +9234,19 @@ async function lookupDeliveryPrice(itemName, row) {
     const marketBuy  = item?.market?.buy_price  || 0;
     const marketSell = item?.market?.sell_price || 0;
     const result = { buy: marketBuy, sell: marketSell, name: itemName };
-    dtPriceCache[itemName] = result;
-    showDeliveryPrice(row, result);
+    if (marketBuy > 0 || marketSell > 0) dtPriceCache[itemName] = result; // só cacheia se veio market
+    showDeliveryPrice(row, result, est);
   } catch(e) {
-    if (priceCell) priceCell.textContent = 'Sem dados';
+    showDeliveryPrice(row, { buy:0, sell:0, name:itemName }, est);
   }
 }
 
-function showDeliveryPrice(row, data) {
+function dtEstHtml(est){
+  return est > 0
+    ? `<span title="Valor estimado (base do site). O market ao vivo do jogo não é exposto pela API pública.">${est.toLocaleString('pt-BR')} gp <span style="font-size:.62rem;font-weight:300;color:var(--muted)">est.</span></span>`
+    : `<span style="color:var(--muted)">sem estimativa</span>`;
+}
+function showDeliveryPrice(row, data, est) {
   const priceCell = row.querySelector('[id^="dt-price-"]');
   if (!priceCell) return;
   if (data.sell > 0 || data.buy > 0) {
@@ -9235,7 +9256,8 @@ function showDeliveryPrice(row, data) {
       (data.buy  > 0 ? `<div style="color:var(--gold)">${data.buy.toLocaleString('pt-BR')} gp <span style="font-size:.65rem;font-weight:300;color:var(--muted)">compra</span></div>` : '') +
       `</div>`;
   } else {
-    priceCell.textContent = 'Sem market';
+    // sem market ao vivo → mantém/mostra a estimativa (nunca "Sem dados")
+    priceCell.innerHTML = dtEstHtml(est);
   }
 }
 
@@ -11050,10 +11072,39 @@ function ewEnsureTcInput() {
         <tr class="pth-detail" id="ptd-${did}" style="display:none"><td colspan="${cols}" style="padding:0 .3rem">${ptDetailHtml(a.player, mine)}</td></tr>`;
     }).join('');
   }
+  window.ptRenderSpots=function(){
+    var host=g('pt-spots-body'); if(!host) return;
+    var rows=ptFilteredRows().filter(function(r){ return MY_CHARS.has(r.player); });
+    var by={};
+    rows.forEach(function(r){ var k=r.hunt_place||'—';
+      if(!by[k]) by[k]={place:k, sessions:{}, profit:0, supplies:0, loot:0, min:0, xp:0, xpMin:0};
+      var a=by[k]; a.sessions[r.session_id]=1; a.profit+=(+r.split_each||0); a.supplies+=(+r.supplies||0);
+      a.loot+=(+r.loot||0); a.min+=(+r.duration_min||0);
+      if(r.xp!=null&&r.xp!==''){ a.xp+=(+r.xp||0); a.xpMin+=(+r.duration_min||0); }
+    });
+    var list=Object.keys(by).map(function(k){ var a=by[k]; return {
+      place:a.place, hunts:Object.keys(a.sessions).length,
+      profitH:a.min>0?Math.round(a.profit/a.min*60):0,
+      xpH:a.xpMin>0?Math.round(a.xp/a.xpMin*60):0,
+      suppH:a.min>0?Math.round(a.supplies/a.min*60):0,
+      waste:a.loot>0?Math.round(a.supplies/a.loot*100):null,
+      min:a.min }; }).sort(function(x,y){ return y.profitH-x.profitH; });
+    if(!list.length){ host.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:1rem">Sem sessões suas no período — verifique um personagem no perfil e salve hunts.</td></tr>'; return; }
+    host.innerHTML=list.map(function(s){
+      var wcol=s.waste==null?'var(--muted)':(s.waste>=60?'#c0655f':s.waste>=35?'#e0a44a':'#5a9c4a');
+      var pcol=s.profitH>=0?'#5a9c4a':'#c0655f';
+      return '<tr><td style="font-weight:600">'+s.place+'</td><td class="pth-num">'+s.hunts+'</td>'
+        +'<td class="pth-num" style="font-weight:700;color:'+pcol+'">'+fmt(s.profitH)+'/h</td>'
+        +'<td class="pth-num" style="color:#a78bfa">'+(s.xpH?fmt(s.xpH)+'/h':'<span style="color:var(--muted)">—</span>')+'</td>'
+        +'<td class="pth-num">'+fmt(s.suppH)+'/h</td>'
+        +'<td class="pth-num" style="color:'+wcol+'">'+(s.waste==null?'—':s.waste+'%')+'</td>'
+        +'<td class="pth-num">'+fmtTime(s.min)+'</td></tr>';
+    }).join('');
+  };
   window.ptTab=function(name,btn){
     document.querySelectorAll('#pthistory .pth-tab').forEach(b=>b.classList.toggle('on',b===btn));
     document.querySelectorAll('#pthistory .pth-panel').forEach(p=>p.style.display=(p.dataset.panel===name)?'':'none');
-    if(name==='analise'){ ptRenderMonthCmp(); ptBuildCharChips(); ptRenderMulti(); }
+    if(name==='analise'){ ptRenderSpots(); ptRenderMonthCmp(); ptBuildCharChips(); ptRenderMulti(); }
   };
   function renderAll(){
     const rows=ptFilteredRows();
@@ -11075,6 +11126,7 @@ function ewEnsureTcInput() {
       .map(([k,v])=>`<div class="card" style="padding:.6rem .85rem;margin:0"><div style="font-size:1.05rem;font-weight:700;color:var(--ink)">${v}</div><div style="font-size:.7rem;color:var(--muted)">${k}</div></div>`).join('');
     const bm=g('pt-body-mine'); if(bm) bm.innerHTML=ptRowsHtml(mine, MY_CHARS.size? 'Nenhuma sessão dos seus personagens no período.' : 'Verifique um personagem no seu perfil para separar os seus aqui.','mine');
     const bo=g('pt-body-others'); if(bo) bo.innerHTML=ptRowsHtml(others,'Nenhum companheiro de PT no período.','others');
+    ptRenderSpots();
     ptRenderMonthCmp();
     ptBuildCharChips();
     ptRenderMulti();
