@@ -3181,7 +3181,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-12d</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-12g</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6199,7 +6199,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-12d';
+window.TP_BUILD = '2026-08-12g';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -7718,6 +7718,7 @@ function showPage(id, btn) {
   }
   if (id === 'profile') {
     if (typeof tpRenderProfile === 'function') tpRenderProfile();
+    if (window.TP_AUTH && window.TP_AUTH.user && window.tpLoadGamify) window.tpLoadGamify();
   }
 }
 
@@ -10953,7 +10954,7 @@ function ewEnsureTcInput() {
   window.TP_AUTH=AUTH;
   const g=id=>document.getElementById(id);
 
-  function saveAuth(a){ AUTH=a; window.TP_AUTH=a; try{ a?localStorage.setItem('tp-auth',JSON.stringify(a)):localStorage.removeItem('tp-auth'); }catch(e){} updateUI(); }
+  function saveAuth(a){ AUTH=a; window.TP_AUTH=a; if(a){ _tpReauthPrompted=false; } try{ a?localStorage.setItem('tp-auth',JSON.stringify(a)):localStorage.removeItem('tp-auth'); }catch(e){} updateUI(); }
 
   // ── Renovação automática de sessão (o access_token do Supabase expira em ~1h) ──
   var _tpRefreshing=null, _tpReauthPrompted=false;
@@ -10971,6 +10972,16 @@ function ewEnsureTcInput() {
     })();
     return _tpRefreshing;
   }
+  // Sessão realmente expirada (refresh falhou): limpa o login velho, avisa e abre a tela de entrar.
+  function tpForceReauth(){
+    if(_tpReauthPrompted) return;
+    _tpReauthPrompted=true;
+    saveAuth(null);                                  // zera sessão morta → UI e gate da Store refletem "deslogado"
+    if(window.tpToast) tpToast('Sua sessão expirou. Entre novamente pra continuar.','error');
+    if(window.tpOpenAuth){ try{ window.tpOpenAuth('login'); }catch(e){} }
+    if(window.tpStoreLoad){ try{ window.tpStoreLoad(); }catch(e){} }   // re-avalia o gate se a Store estiver aberta
+  }
+  window.tpForceReauth=tpForceReauth;
   // Wrapper de fetch autenticado: injeta apikey+Bearer e, em 401 (JWT expirado), renova e repete.
   window.tpAuthFetch=async function(url,opts){
     opts=opts||{};
@@ -10979,7 +10990,7 @@ function ewEnsureTcInput() {
     try{ res=await fetch(url,build()); }catch(e){ throw e; }
     if(res.status===401 && AUTH && AUTH.refresh_token){
       if(await tpRefresh()){ res=await fetch(url,build()); }
-      else if(!_tpReauthPrompted){ _tpReauthPrompted=true; if(window.tpToast) tpToast('Sua sessão expirou. Entre novamente.','error'); }
+      else { tpForceReauth(); }
     }
     return res;
   };
@@ -11534,7 +11545,7 @@ function ewEnsureTcInput() {
   var TP_DEFAULT_OUTFIT={outfit:128,head:114,body:88,legs:40,feet:76,addons:0,dir:2,mount:0}; // Citizen padrão (cores clássicas)
   function cfgFrom(c){ if(!c||c.outfit_id==null) return Object.assign({},TP_DEFAULT_OUTFIT,{dir:(c&&c.direction!=null?c.direction:2),mount:(c&&c.mount_id)||0}); return {outfit:c.outfit_id, head:c.head||0, body:c.body||0, legs:c.legs||0, feet:c.feet||0, addons:c.addons||0, dir:(c.direction!=null?c.direction:2), mount:c.mount_id||0}; }
 
-  window.TP_FLOORS=[{id:'stone',name:'Pedra',rarity:'comum',price:0},{id:'grass',name:'Grama',rarity:'comum',price:0},{id:'sand',name:'Areia',rarity:'incomum',price:300},{id:'wood',name:'Madeira',rarity:'incomum',price:400},{id:'marble',name:'Mármore Dourado',rarity:'raro',price:900},{id:'mosaic',name:'Mosaico',rarity:'epico',price:1500},{id:'lava',name:'Lava',rarity:'lendario',price:3000}];
+  window.TP_FLOORS=[{id:'stone',name:'Pedra',rarity:'comum',price:0},{id:'grass',name:'Grama',rarity:'comum',price:0},{id:'sand',name:'Areia',rarity:'incomum',price:300},{id:'wood',name:'Madeira',rarity:'incomum',price:400},{id:'marble',name:'Mármore Dourado',rarity:'raro',price:900},{id:'mosaic',name:'Mosaico',rarity:'epico',price:1500},{id:'lava',name:'Lava',rarity:'lendario',price:3000},{id:'t429',name:'Laje de Pedra',rarity:'comum',price:200},{id:'t436',name:'Pedra Clara',rarity:'comum',price:250},{id:'t410',name:'Ardósia',rarity:'incomum',price:350},{id:'t416',name:'Paralelepípedo',rarity:'incomum',price:350},{id:'t924',name:'Arenito Claro',rarity:'incomum',price:400},{id:'t622',name:'Água',rarity:'incomum',price:450},{id:'t1771',name:'Assoalho de Madeira',rarity:'incomum',price:450},{id:'t417',name:'Mosaico Terroso',rarity:'raro',price:700},{id:'t800',name:'Gelo',rarity:'raro',price:900},{id:'t456',name:'Tábua Real',rarity:'raro',price:950},{id:'t418',name:'Mosaico Dourado',rarity:'epico',price:1600},{id:'t460',name:'Carpete Arcano',rarity:'epico',price:1900}];
   function tpFloorUrl(id){ return (typeof FLOOR_BASE!=='undefined'?FLOOR_BASE:'floors')+'/'+id+'.png?v='+((window.TP_BUILD)||'1'); }
   function tpApplyFloor(el,f){ if(!el) return; el.style.backgroundImage='url('+tpFloorUrl(f.id)+')'; if(f&&f.scene){ el.style.backgroundSize='cover'; el.style.backgroundRepeat='no-repeat'; el.style.backgroundPosition='center'; } else { el.style.backgroundSize='56px 56px'; el.style.backgroundRepeat='repeat'; el.style.backgroundPosition='top left'; } }
   function tpFloorById(id){ for(var i=0;i<TP_FLOORS.length;i++){ if(TP_FLOORS[i].id===id) return TP_FLOORS[i]; } return TP_FLOORS[0]; }
@@ -12129,7 +12140,7 @@ window.tpToast=function(msg,type){
       }
       (d.granted||[]).forEach(function(oid){ OWNED[oid]=1; });
       window.__TP_OWNED_OUTFITS=OWNED;
-      if(d.progress){ COINS=+d.progress.coins||0; if(window.__GAMI&&window.__GAMI.progress) window.__GAMI.progress.coins=COINS; }
+      if(d.progress){ COINS=+d.progress.coins||0; if(window.__GAMI){ window.__GAMI.progress=Object.assign(window.__GAMI.progress||{}, d.progress); } try{ localStorage.setItem('tp-gami', JSON.stringify(d.progress)); }catch(e){} }
       var cel=g('store-coins'); if(cel) cel.textContent=num(COINS);
       if(window.tpToast) tpToast('🎉 '+name+' desbloqueado! Equipe no Outfitter do seu perfil.','success');
       tpStoreRender(); updateOwnedCount();
@@ -12226,7 +12237,7 @@ window.tpToast=function(msg,type){
         btn.disabled=false; btn.textContent='🪙 '+num(price); return;
       }
       OWNEDM2[id]=1; window.__TP_OWNED_MOUNTS=OWNEDM2;
-      if(d.progress){ COINS=+d.progress.coins||0; if(window.__GAMI&&window.__GAMI.progress) window.__GAMI.progress.coins=COINS; }
+      if(d.progress){ COINS=+d.progress.coins||0; if(window.__GAMI){ window.__GAMI.progress=Object.assign(window.__GAMI.progress||{}, d.progress); } try{ localStorage.setItem('tp-gami', JSON.stringify(d.progress)); }catch(e){} }
       var cel=g('store-coins'); if(cel) cel.textContent=num(COINS);
       if(window.tpToast) tpToast('🎉 '+name+' desbloqueada! Equipe no Outfitter.','success');
       tpMStoreRender();
@@ -12293,7 +12304,7 @@ window.tpToast=function(msg,type){
         else if(window.tpToast) tpToast('Nao foi possivel comprar ('+reason+').','error');
         btn.disabled=false; btn.textContent='🪙 '+num(price); return; }
       OWNEDF[id]=1; window.__TP_OWNED_FLOORS=OWNEDF;
-      if(d.progress){ COINS=+d.progress.coins||0; if(window.__GAMI&&window.__GAMI.progress) window.__GAMI.progress.coins=COINS; }
+      if(d.progress){ COINS=+d.progress.coins||0; if(window.__GAMI){ window.__GAMI.progress=Object.assign(window.__GAMI.progress||{}, d.progress); } try{ localStorage.setItem('tp-gami', JSON.stringify(d.progress)); }catch(e){} }
       var cel=g('store-coins'); if(cel) cel.textContent=num(COINS);
       if(window.tpToast) tpToast('🎉 Fundo "'+name+'" desbloqueado! Selecione no seu Perfil.','success');
       tpFStoreRender();
