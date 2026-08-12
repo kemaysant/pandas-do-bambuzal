@@ -2511,19 +2511,32 @@ PlayerName (Leader)
       #profile .gami-m.claimed{opacity:.6}
       #profile .gami-m.ready{background:rgba(139,92,246,.06);border-radius:10px}
       #profile .pass-cta{font-size:.78rem;font-weight:800;color:#3ecf8e;margin-bottom:.7rem}
-      /* ── destaque da recompensa ── */
-      #profile .pass-feature{display:flex;gap:1rem;align-items:center;background:linear-gradient(120deg,rgba(139,92,246,.12),rgba(20,19,28,.2));border:1px solid var(--rule);border-radius:14px;padding:1rem;margin-bottom:1rem}
-      #profile .pf-art{width:104px;height:104px;flex:none;border-radius:12px;background:#201e2b;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;overflow:hidden;image-rendering:pixelated}
-      #profile .pf-art canvas{max-width:150%;max-height:150%;image-rendering:pixelated}
-      #profile .pf-art-icon{font-size:2.6rem}
-      #profile .pf-info{flex:1;min-width:0}
-      #profile .pf-badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.4rem}
-      #profile .pf-badge{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--rule);border-radius:999px;padding:.12rem .55rem;color:var(--muted)}
+      /* ── destaque da recompensa (diorama) ── */
+      #profile .pass-feature{--rar:#8b5cf6;display:flex;gap:1.2rem;align-items:stretch;background:linear-gradient(120deg,rgba(20,19,28,.55),rgba(20,19,28,.25));border:1px solid var(--rule);border-radius:16px;padding:.9rem;margin-bottom:1rem}
+      /* palco / cena */
+      #profile .pf-stage{position:relative;flex:none;width:232px;min-height:198px;border-radius:13px;overflow:hidden;border:1px solid var(--rule);background:radial-gradient(120% 78% at 50% 14%,rgba(139,92,246,.22),#14131c 60%),linear-gradient(180deg,#181725,#0f0e16)}
+      #profile .pf-stage{border-color:color-mix(in srgb,var(--rar) 42%,var(--rule))}
+      #profile .pf-stage::after{content:'';position:absolute;left:0;right:0;bottom:0;height:44%;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--rar) 12%,rgba(0,0,0,.4)));pointer-events:none}
+      #profile .pf-glow{position:absolute;left:50%;top:46%;width:150px;height:150px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--rar) 60%,transparent),transparent 68%);filter:blur(6px);animation:pfGlow 3.2s ease-in-out infinite}
+      @keyframes pfGlow{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(.92)}50%{opacity:.95;transform:translate(-50%,-50%) scale(1.08)}}
+      #profile .pf-rank{position:absolute;top:.5rem;left:.6rem;z-index:3;font-size:.6rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--rar);background:rgba(10,9,15,.55);border:1px solid color-mix(in srgb,var(--rar) 50%,transparent);border-radius:999px;padding:.12rem .5rem}
+      /* pedestal de bambu/pedra */
+      #profile .pf-pedestal{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);width:138px;height:36px;z-index:1}
+      #profile .pf-pedestal::before{content:'';position:absolute;left:0;right:0;top:9px;bottom:0;border-radius:50%;background:linear-gradient(180deg,#38334c,#201e2e);box-shadow:0 7px 16px rgba(0,0,0,.5)}
+      #profile .pf-pedestal::after{content:'';position:absolute;left:7%;right:7%;top:0;height:22px;border-radius:50%;background:linear-gradient(180deg,color-mix(in srgb,var(--rar) 34%,#2c2841),#1b1928);border:1px solid color-mix(in srgb,var(--rar) 48%,transparent)}
+      /* sprite sobre o pedestal */
+      #profile .pf-stage .pf-art{position:absolute;left:50%;bottom:30px;transform:translateX(-50%);z-index:2;width:auto;height:auto;max-width:94%;background:none;border:0;border-radius:0;display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 4px 6px rgba(0,0,0,.55));image-rendering:pixelated}
+      #profile .pf-stage .pf-art canvas{image-rendering:pixelated}
+      #profile .pf-stage .pf-art.pass-art-icon{font-size:3.6rem;bottom:36px}
+      #profile .pf-info{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+      #profile .pf-badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.55rem}
+      #profile .pf-badge{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--rule);border-radius:999px;padding:.14rem .6rem;color:var(--muted)}
       #profile .pf-type{color:var(--bamboo-light,#a78bfa)}
-      #profile .pf-name{font-size:1.15rem;font-weight:800;color:var(--ink,#eae8f2);line-height:1.15}
-      #profile .pf-lvl{font-size:.74rem;color:var(--muted);margin:.15rem 0 .7rem}
-      #profile .pf-claim{background:#3ecf8e;border:0;color:#0c2b1d;border-radius:9px;padding:.5rem 1.2rem;cursor:pointer;font-weight:800;font-size:.85rem}
-      #profile .pf-status{font-size:.82rem;font-weight:700}
+      #profile .pf-name{font-size:1.35rem;font-weight:800;color:var(--ink,#eae8f2);line-height:1.15}
+      #profile .pf-lvl{font-size:.76rem;color:var(--muted);margin:.2rem 0 .95rem}
+      #profile .pf-claim{align-self:flex-start;background:linear-gradient(135deg,#3ecf8e,#2fae76);border:0;color:#082018;border-radius:11px;padding:.62rem 1.5rem;cursor:pointer;font-weight:800;font-size:.9rem;box-shadow:0 4px 14px rgba(62,207,142,.3);transition:transform .12s,box-shadow .12s}
+      #profile .pf-claim:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(62,207,142,.45)}
+      #profile .pf-status{font-size:.84rem;font-weight:700;display:inline-flex;align-items:center;gap:.3rem}
       #profile .pf-status.got{color:#3ecf8e}
       #profile .pf-status.locked{color:var(--muted)}
       /* ── trilha conectada ── */
@@ -2552,11 +2565,14 @@ PlayerName (Leader)
       #profile .gem-lvl{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
       #profile .pass-gem.sel .gem-lvl{color:var(--bamboo-light,#a78bfa)}
       #profile .pass-fb{font-size:1.2rem;opacity:.5}
-      #profile .pass-xp{font-size:.7rem;font-weight:900;color:#0c2b1d;background:#3ecf8e;border-radius:6px;padding:.1rem .25rem;letter-spacing:-.02em}
-      #profile .pf-art .pass-xp{font-size:1.1rem;padding:.25rem .5rem;border-radius:9px}
+      #profile .pass-xpimg{width:1.5em;height:auto;image-rendering:pixelated;vertical-align:middle;display:inline-block}
+      #profile .pf-stage .pf-art .pass-xpimg{width:64px}
       @media (max-width:560px){
-        #profile .pass-feature{flex-direction:column;text-align:center}
+        #profile .pass-feature{flex-direction:column;align-items:stretch}
+        #profile .pf-stage{width:100%}
+        #profile .pf-info{text-align:center}
         #profile .pf-badges{justify-content:center}
+        #profile .pf-claim{align-self:center}
         #profile .pass-gem{flex-basis:64px}
       }
       #profile .cons-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.6rem;margin-bottom:1.1rem}
@@ -3480,7 +3496,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13w</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13x</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6498,7 +6514,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13w';
+window.TP_BUILD = '2026-08-13x';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11798,8 +11814,9 @@ function ewEnsureTcInput() {
     try{ var st=await gmCall('pass_state',{}); window.__PASS=st; tpRenderPass(st); }
     catch(e){ host.innerHTML='<div style="font-size:.8rem;color:var(--muted)">Não consegui carregar o passe agora.</div>'; }
   };
+  var XP_ICON="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAApCAYAAABz26rUAAADoklEQVR42tVYP0gbURz+Eh4RSqC15IwaBYdmMCEGMnXpUlxcpaQdKkUoZCkIpXQpTuLSQRDq4JRSSxHnQhZxLC0cgl4ThzgENNiY1CxWYji8DvrSu3fv7t4lZ7n84AiXe+/3vu/9/r4H+FyiMUlDv0o0JmlvfkPrSxIUfPAH+o+EHjw+9hkJPXg9ASsSQb+Bn9uvY+Xw+v3qwPh95RCY268bAjvoV/BWwpII+Ak8D+zVARCcNM95/QDYmJJA/GKBjSnJ8M4jJM3+G7Nx8+sLArVqPSBavNixBgLJOOFOLJZVR1ejc4tlNcDTo9fRyzqsEL3Sn99eGj6WlG0AQDZX0eyU07klZRvZXMWgp6Rs4+RUxcLisUbJdbuOLQGqSFZapkGZdBjAOVc5BfTpy1dbPVQHO1YvW+sTyOYqWuNCnEBQb75sroJY1BwW04/CtjtPAeU3zyBFQuDpOaq2QcfmN88MDxVZaWFrfQKRO033BCiJhcVjLolMOmzwXR54AKg32tyF1pZHO+DpOPq8//DLRKLwkLgnoCdhZ4VknGhb6xNc8NTNRoaMAGSlZRpHHwCGTZOVFlaXxjD5nLgnQEnod4XK21fDSMaJtro01vFxHngASKSmDXOtxtlZPpMOI7lM3BOgopQuTf+tLo2hWlMN33mgeCI6zo1YEiiW1UBhxxxMFDwAyPt/bEHxYklU9Ot0bQErK+hdwkth48Z1HeBXxqaWSgz/N5fwzIWcZP7Zfc/cwEqOqu3eCNB0aeXfbG3wpQVoOmSrZrWm4sWTe5bzaH8jInSjTk5V7wjwehxelRW1wngsJLRRTslDiIBVm8AqtrMCC8ht6uyk6Hequyxk1+PwstLIEMHM40EATa2bjMSztJsUHeT5ol2Pw1pBVlqYf3oXUiRkcCU2BngdrR34eqONg8+qOAEK3qnH4VVoWWlhbXnU0YUoSfrYgZ/5LhbQxA14NshSiYHO+8mp2nElp9oRixKMDBFL8I2LQQB1MRcS7S6d+qRqTUUqMXBz8jK7UH7zrON61ZraWU8pXQqtaWsBGv1uFN203JoUCXHTZSI1DVkxHh0LO00Udq5diW1Juj7Us0Dc7EKxrAaSgMYD42ZOL/0UYZW6VWZ10Ke+zuuHvGwAyW0o7Ytu1K04tRK+JNBrOw3wL3aFDzS9CK8S7+6dC8+nN9M9nci8FrsbPlPVnpWEdN5a4CbjRMukw4ZT1XgshN29c08Txq1mHqdbai/kL1ij0dU7CGpEAAAAAElFTkSuQmCC";
   function passIcon(r){
-    if(r.kind==='xp_boost') return '<span class="pass-xp">XP▲</span>';
+    if(r.kind==='xp_boost') return '<img class="pass-xpimg" src="'+XP_ICON+'" alt="XP Boost">';
     if(r.kind==='duplex')   return '⚡';
     if(r.kind==='kooldown') return '🧪';
     if(r.kind==='coins')    return '🪙';
@@ -11815,12 +11832,15 @@ function ewEnsureTcInput() {
   function passFeature(st,sel){
     var r=passRewardOf(st,sel); if(!r) return '<div class="pass-feature"></div>';
     var rc=r.rarity?vitRar(r.rarity):null;
+    var rar=rc?rc[0]:'#8b5cf6';
     var badges=(rc?'<span class="pf-badge" style="color:'+rc[0]+';border-color:'+rc[0]+'">'+rc[1]+'</span>':'')
       +'<span class="pf-badge pf-type">'+passType(r.kind)+'</span>';
     var action = r.status==='claimed' ? '<span class="pf-status got">✓ Resgatado</span>'
-      : r.status==='claimable' ? '<button class="pf-claim" onclick="tpPassClaim('+r.level+')">Resgatar</button>'
-      : '<span class="pf-status locked">🔒 Chegue ao nível '+r.level+'</span>';
-    return '<div class="pass-feature">'+passArt(r,'pf-art',4)
+      : r.status==='claimable' ? '<button class="pf-claim" onclick="tpPassClaim('+r.level+')">Resgatar recompensa</button>'
+      : '<span class="pf-status locked">🔒 Chegue ao nível '+r.level+' para resgatar</span>';
+    return '<div class="pass-feature" style="--rar:'+rar+'">'
+      +'<div class="pf-stage"><div class="pf-glow"></div><div class="pf-rank">Nível '+r.level+'</div>'
+      +passArt(r,'pf-art',4)+'<div class="pf-pedestal"></div></div>'
       +'<div class="pf-info"><div class="pf-badges">'+badges+'</div>'
       +'<div class="pf-name">'+esc(r.label)+'</div>'
       +'<div class="pf-lvl">Recompensa do nível '+r.level+'</div>'
