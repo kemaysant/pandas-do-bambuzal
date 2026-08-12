@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tibia Panda · Editor de Mapa</title>
+<style>
+  :root{
+    --bg-0:#0d0c12; --bg-1:#14131c; --bg-2:#1b1a25; --bg-3:#232130;
+    --rule:#2b2938; --ink:#eae8f2; --muted:#8a8699;
+    --bamboo:#8b5cf6; --bamboo-light:#a78bfa; --gold:#c9a840;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg-0);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px}
+  header{padding:14px 18px;border-bottom:1px solid var(--rule);background:linear-gradient(135deg,#181622,#12111a)}
+  h1{margin:0;font-size:16px;font-weight:800;letter-spacing:.3px}
+  h1 span{color:var(--bamboo-light)}
+  .sub{margin:4px 0 0;font-size:12px;color:var(--muted)}
+  .wrap{display:flex;gap:14px;padding:14px;align-items:flex-start}
+  .panel{background:var(--bg-1);border:1px solid var(--rule);border-radius:12px;padding:12px}
+  /* palette */
+  #paletteCol{width:360px;flex:0 0 360px;display:flex;flex-direction:column;gap:10px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .tab{background:var(--bg-2);border:1px solid var(--rule);color:var(--muted);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer}
+  .tab.on{background:var(--bamboo);border-color:var(--bamboo);color:#fff}
+  .toolrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  input[type=text],input[type=number]{background:var(--bg-2);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:7px 10px;font-size:13px}
+  #search{flex:1;min-width:120px}
+  .count{font-size:11px;color:var(--muted)}
+  #palette{height:60vh;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,44px);gap:6px;align-content:start;padding-right:4px}
+  #palette::-webkit-scrollbar{width:10px}
+  #palette::-webkit-scrollbar-thumb{background:var(--bamboo);border-radius:6px}
+  #palette::-webkit-scrollbar-track{background:var(--bg-2)}
+  .pcell{width:44px;height:44px;background:var(--bg-3);border:1px solid var(--rule);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden}
+  .pcell.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold) inset}
+  .pcell img{width:32px;height:32px;image-rendering:pixelated}
+  .pcell .id{position:absolute;bottom:0;right:0;font-size:8px;background:rgba(0,0,0,.6);color:#cfc;padding:0 2px;border-top-left-radius:4px}
+  /* editor */
+  #editorCol{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px}
+  #stageWrap{overflow:auto;background:
+    linear-gradient(45deg,#0a0910 25%,transparent 25%),
+    linear-gradient(-45deg,#0a0910 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#0a0910 75%),
+    linear-gradient(-45deg,transparent 75%,#0a0910 75%);
+    background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0;
+    border:1px solid var(--rule);border-radius:12px;padding:12px;max-height:64vh}
+  #grid{display:grid;gap:0;background:#000;width:max-content}
+  .cell{width:var(--cs,48px);height:var(--cs,48px);position:relative;outline:1px solid rgba(255,255,255,.05)}
+  .cell img{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;pointer-events:none}
+  .brushbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button.act{background:var(--bamboo);border:1px solid var(--bamboo);color:#fff;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer}
+  button.ghost{background:var(--bg-2);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer}
+  .sel{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+  .sel .chip{width:34px;height:34px;background:var(--bg-3);border:1px solid var(--rule);border-radius:6px;display:flex;align-items:center;justify-content:center}
+  .sel .chip img{width:28px;height:28px;image-rendering:pixelated}
+  .hint{font-size:11px;color:var(--muted)}
+  .warn{background:#2a1414;border:1px solid #5a2a2a;color:#f8a;border-radius:8px;padding:8px 10px;font-size:12px;margin-top:8px;display:none}
+  label.mini{font-size:12px;color:var(--muted)}
+  a.link{color:var(--bamboo-light)}
+</style>
+</head>
+<body>
+<header>
+  <h1>🐼 Tibia <span>Panda</span> · Editor de Mapa</h1>
+  <p class="sub">Escolha um sprite na paleta → pinte no grid (clique e arraste). Empilha camadas (piso embaixo, decoração em cima). Botão direito remove a de cima.</p>
+</header>
+
+<div class="wrap">
+  <!-- PALETTE -->
+  <div id="paletteCol" class="panel">
+    <div class="tabs" id="tabs"></div>
+    <div class="toolrow">
+      <input type="text" id="search" placeholder="Buscar por # (ex: 410)">
+      <span class="count" id="palCount">—</span>
+    </div>
+    <div id="palette"></div>
+    <div class="hint">Fonte: client oficial do Tibia · sprites 32×32 (1 SQM).</div>
+    <div class="warn" id="packWarn"></div>
+  </div>
+
+  <!-- EDITOR -->
+  <div id="editorCol">
+    <div class="panel brushbar">
+      <div class="sel">Selecionado: <span class="chip" id="selChip">—</span> <span id="selId">nenhum</span></div>
+      <label class="mini">Colunas <input type="number" id="cols" value="12" min="1" max="40" style="width:60px"></label>
+      <label class="mini">Linhas <input type="number" id="rows" value="8" min="1" max="40" style="width:60px"></label>
+      <label class="mini">Zoom <input type="number" id="zoom" value="48" min="16" max="96" step="4" style="width:64px"></label>
+      <button class="ghost" id="applyGrid">Aplicar grid</button>
+    </div>
+    <div class="panel brushbar">
+      <button class="ghost" id="fillBtn">Preencher tudo</button>
+      <button class="ghost" id="clearBtn">Limpar</button>
+      <button class="ghost" id="undoBtn">Desfazer</button>
+      <label class="mini"><input type="checkbox" id="eraseMode"> Modo apagar</label>
+      <button class="act" id="exportBtn">⤓ Exportar PNG</button>
+      <span class="hint">Clique esquerdo pinta · direito remove camada de cima</span>
+    </div>
+    <div class="panel" style="padding:0;background:transparent;border:none">
+      <div id="stageWrap"><div id="grid"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config: base do pacote de sprites (hospedado junto do site, GitHub Pages) ──
+var PACK_BASE = 'https://tibiapanda.com.br/mapper-pack';
+// fallback relativo (se aberto ao lado do pacote)
+var PACK_FALLBACK = 'mapper-pack';
+var VER = '1';
+
+var MANIFEST=null, ITEMS=[], CATS=[], curCat=null, brush=null, painting=false, eraseMode=false;
+var COLS=12, ROWS=8, CELL=48;
+var cells=[];      // array of arrays of ids (bottom-first)
+var undoStack=[];
+
+function url(id){ return PACK_BASE+'/'+id+'.png?v='+VER; }
+function $(id){ return document.getElementById(id); }
+
+// ---------- load manifest ----------
+function loadManifest(base){
+  return fetch(base+'/manifest.json?v='+VER,{cache:'no-store'}).then(function(r){
+    if(!r.ok) throw new Error('http '+r.status); return r.json();
+  });
+}
+loadManifest(PACK_BASE).then(init).catch(function(){
+  // tenta fallback relativo
+  loadManifest(PACK_FALLBACK).then(function(m){ PACK_BASE=PACK_FALLBACK; init(m); })
+  .catch(function(e){
+    var w=$('packWarn'); w.style.display='';
+    w.innerHTML='Não consegui carregar o pacote de sprites em <code>'+PACK_BASE+'</code>. '+
+      'Suba a pasta <code>mapper-pack/</code> no site (junto do index) e recarregue. '+
+      'A paleta aparece assim que o <code>manifest.json</code> estiver acessível.';
+  });
+});
+
+function init(m){
+  MANIFEST=m; ITEMS=m.items||[];
+  var labels={pisos:'Pisos',cenarios:'Cenários',objetos:'Objetos',paredes:'Paredes',decoracoes:'Decorações'};
+  CATS=m.categories||['pisos'];
+  var tabs=$('tabs'); tabs.innerHTML='';
+  CATS.forEach(function(c,i){
+    var b=document.createElement('button'); b.className='tab'+(i===0?' on':''); b.textContent=labels[c]||c; b.dataset.cat=c;
+    b.onclick=function(){ tabs.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');}); b.classList.add('on'); curCat=c; renderPalette(); };
+    tabs.appendChild(b);
+  });
+  curCat=CATS[0];
+  buildGrid();
+  renderPalette();
+}
+
+// ---------- palette (lazy) ----------
+var io=new IntersectionObserver(function(ents){
+  ents.forEach(function(e){
+    if(e.isIntersecting){
+      var img=e.target; if(img.dataset.src){ img.src=img.dataset.src; img.removeAttribute('data-src'); }
+      io.unobserve(img);
+    }
+  });
+},{root:$('palette'),rootMargin:'200px'});
+
+function renderPalette(){
+  var q=($('search').value||'').replace(/[^0-9]/g,'');
+  var pal=$('palette'); pal.innerHTML='';
+  var list=ITEMS.filter(function(it){ return it.cat===curCat; });
+  if(q) list=list.filter(function(it){ return String(it.id).indexOf(q)>=0; });
+  $('palCount').textContent=list.length+' sprites';
+  var frag=document.createDocumentFragment();
+  list.forEach(function(it){
+    var c=document.createElement('div'); c.className='pcell'; c.dataset.id=it.id; c.title='#'+it.id;
+    var img=document.createElement('img'); img.dataset.src=url(it.id); img.crossOrigin='anonymous'; img.alt='#'+it.id;
+    img.onerror=function(){ c.style.opacity=.25; };
+    var idl=document.createElement('span'); idl.className='id'; idl.textContent=it.id;
+    c.appendChild(img); c.appendChild(idl);
+    c.onclick=function(){ selectBrush(it.id, c); };
+    frag.appendChild(c); io.observe(img);
+  });
+  pal.appendChild(frag);
+}
+$('search').addEventListener('input', renderPalette);
+
+function selectBrush(id, cell){
+  brush=id; eraseMode=false; $('eraseMode').checked=false;
+  document.querySelectorAll('.pcell.on').forEach(function(x){x.classList.remove('on');});
+  if(cell) cell.classList.add('on');
+  var chip=$('selChip'); chip.innerHTML='<img crossorigin="anonymous" src="'+url(id)+'">';
+  $('selId').textContent='#'+id;
+}
+
+// ---------- grid ----------
+function buildGrid(){
+  var g=$('grid');
+  g.style.gridTemplateColumns='repeat('+COLS+',var(--cs))';
+  g.style.setProperty('--cs',CELL+'px');
+  document.documentElement.style.setProperty('--cs',CELL+'px');
+  if(cells.length!==COLS*ROWS){
+    cells=[]; for(var i=0;i<COLS*ROWS;i++) cells.push([]);
+  }
+  g.innerHTML='';
+  for(var i=0;i<COLS*ROWS;i++){
+    var d=document.createElement('div'); d.className='cell'; d.style.setProperty('--cs',CELL+'px'); d.dataset.i=i;
+    g.appendChild(d);
+    renderCell(i);
+  }
+}
+function renderCell(i){
+  var d=$('grid').children[i]; if(!d) return;
+  d.innerHTML='';
+  cells[i].forEach(function(id){
+    var img=document.createElement('img'); img.crossOrigin='anonymous'; img.src=url(id); d.appendChild(img);
+  });
+}
+function pushUndo(){ undoStack.push(JSON.stringify(cells)); if(undoStack.length>60) undoStack.shift(); }
+
+function paintCell(i){
+  if(eraseMode){ if(cells[i].length){ cells[i].pop(); renderCell(i);} return; }
+  if(brush==null) return;
+  var st=cells[i];
+  if(st[st.length-1]===brush) return;   // evita duplicar em arraste
+  st.push(brush); renderCell(i);
+}
+
+$('grid').addEventListener('mousedown',function(e){
+  var c=e.target.closest('.cell'); if(!c) return;
+  if(e.button===2){ e.preventDefault(); pushUndo(); var i=+c.dataset.i; if(cells[i].length){cells[i].pop();renderCell(i);} return; }
+  pushUndo(); painting=true; paintCell(+c.dataset.i);
+});
+$('grid').addEventListener('mouseover',function(e){
+  if(!painting) return; var c=e.target.closest('.cell'); if(!c) return; paintCell(+c.dataset.i);
+});
+window.addEventListener('mouseup',function(){ painting=false; });
+$('grid').addEventListener('contextmenu',function(e){ e.preventDefault(); });
+
+$('eraseMode').addEventListener('change',function(){ eraseMode=this.checked; });
+$('applyGrid').onclick=function(){
+  COLS=Math.max(1,Math.min(40,+$('cols').value||12));
+  ROWS=Math.max(1,Math.min(40,+$('rows').value||8));
+  CELL=Math.max(16,Math.min(96,+$('zoom').value||48));
+  cells=[]; for(var i=0;i<COLS*ROWS;i++) cells.push([]);
+  buildGrid();
+};
+$('zoom').addEventListener('change',function(){ CELL=Math.max(16,Math.min(96,+this.value||48)); buildGrid(); });
+$('fillBtn').onclick=function(){ if(brush==null){alert('Escolha um sprite na paleta primeiro.');return;} pushUndo(); for(var i=0;i<cells.length;i++){cells[i]=[brush];renderCell(i);} };
+$('clearBtn').onclick=function(){ pushUndo(); for(var i=0;i<cells.length;i++){cells[i]=[];renderCell(i);} };
+$('undoBtn').onclick=function(){ if(undoStack.length){ cells=JSON.parse(undoStack.pop()); for(var i=0;i<cells.length;i++) renderCell(i);} };
+
+// ---------- export ----------
+$('exportBtn').onclick=function(){
+  var cv=document.createElement('canvas'); cv.width=COLS*32; cv.height=ROWS*32;
+  var ctx=cv.getContext('2d'); ctx.imageSmoothingEnabled=false;
+  var imgs=[], need=0, done=0;
+  cells.forEach(function(st,i){
+    st.forEach(function(id){
+      need++;
+      var im=new Image(); im.crossOrigin='anonymous';
+      im.onload=function(){ var x=(i%COLS)*32, y=Math.floor(i/COLS)*32; ctx.drawImage(im,x,y,32,32); if(++done===need) finish(); };
+      im.onerror=function(){ if(++done===need) finish(); };
+      im.src=url(id);
+    });
+  });
+  if(need===0){ alert('Grid vazio — pinte alguma coisa primeiro.'); return; }
+  function finish(){
+    try{
+      var a=document.createElement('a'); a.download='tibiapanda_mapa.png'; a.href=cv.toDataURL('image/png'); a.click();
+    }catch(err){
+      alert('Não consegui exportar (canvas bloqueado por CORS). Confirme que o pacote está no mesmo domínio do site com CORS liberado.');
+    }
+  }
+};
+</script>
+</body>
+</html>
