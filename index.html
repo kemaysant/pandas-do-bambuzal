@@ -2517,7 +2517,11 @@ PlayerName (Leader)
       #profile .pass-node.locked{opacity:.5}
       #profile .pass-node.claimed{opacity:.75}
       #profile .pass-lvl{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-      #profile .pass-ic{font-size:1.6rem;line-height:1}
+      #profile .pass-ic{font-size:1.6rem;line-height:1;height:52px;display:flex;align-items:center;justify-content:center}
+      #profile .pass-thumb{width:52px;height:52px;background:#25232f;border:1px solid var(--rule);border-radius:9px;overflow:hidden;image-rendering:pixelated}
+      #profile .pass-thumb canvas{max-width:100%;max-height:100%;image-rendering:pixelated}
+      #profile .pass-fb{font-size:1.3rem;opacity:.5}
+      #profile .pass-xp{font-size:.8rem;font-weight:900;color:#0c2b1d;background:#3ecf8e;border-radius:6px;padding:.15rem .3rem;letter-spacing:-.02em}
       #profile .pass-lbl{font-size:.72rem;color:var(--ink,#eae8f2);line-height:1.2;min-height:2.4em;display:flex;align-items:center;justify-content:center}
       #profile .pass-claim{background:#3ecf8e;border:0;color:#0c2b1d;border-radius:8px;padding:.35rem .6rem;cursor:pointer;font-weight:800;font-size:.74rem;width:100%}
       #profile .pass-got{font-size:.68rem;color:#3ecf8e;font-weight:700}
@@ -2812,6 +2816,9 @@ PlayerName (Leader)
   </section>
 
   <style>
+    #store .store-ownfilter{display:inline-flex;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:9px;overflow:hidden;flex:none}
+    #store .ownf{background:transparent;border:0;color:var(--muted);padding:.5rem .8rem;cursor:pointer;font:inherit;font-weight:700;font-size:.78rem}
+    #store .ownf.on{background:var(--bamboo,#8b5cf6);color:#fff}
     #store .store-tab{background:var(--bg-2,#1c1b26);border:1px solid var(--rule);color:var(--muted);border-radius:999px;padding:.45rem 1.05rem;cursor:pointer;font:inherit;font-weight:700;font-size:.85rem}
     #store .store-tab.on{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6);color:#fff}
     #store .store-mode-btn{background:transparent;border:1px solid var(--rule);color:var(--muted);border-radius:10px;padding:.55rem 1.2rem;cursor:pointer;font:inherit;font-weight:800;font-size:.95rem}
@@ -2942,32 +2949,22 @@ PlayerName (Leader)
 
       <!-- ── OUTFITS ── -->
       <div id="store-wrap-outfits">
-      <div class="store-tabs" style="display:flex;gap:.4rem;margin-bottom:1rem">
-        <button class="store-tab on" data-stab="loja" onclick="tpStoreTab('loja',this)">Loja</button>
-        <button class="store-tab" data-stab="meus" onclick="tpStoreTab('meus',this)">Meus outfits <span id="store-owned-count" style="opacity:.7"></span></button>
-      </div>
-
-      <div class="store-panel" data-spanel="loja">
-        <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem">
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:.7rem">
           <input id="store-search" placeholder="Buscar outfit..." oninput="tpStoreRender()" style="flex:1;min-width:180px;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);color:var(--ink,#e8e6f0);border-radius:9px;padding:.55rem .8rem;font:inherit">
-          <div id="store-rarity" style="display:flex;gap:.35rem;flex-wrap:wrap"></div>
+          <div class="store-ownfilter"><button class="ownf on" data-of="all" onclick="tpOwnFilter('outfits','all',this)">Todos</button><button class="ownf" data-of="unowned" onclick="tpOwnFilter('outfits','unowned',this)">A adquirir</button><button class="ownf" data-of="owned" onclick="tpOwnFilter('outfits','owned',this)">Adquiridos</button></div>
         </div>
+        <div id="store-rarity" style="display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:1rem"></div>
         <div id="store-grid" class="store-grid"></div>
         <div id="store-empty" style="display:none;color:var(--muted);text-align:center;padding:2rem">Nenhum outfit encontrado.</div>
-      </div>
-
-      <div class="store-panel" data-spanel="meus" style="display:none">
-        <div id="store-owned-grid" class="store-grid"></div>
-        <div id="store-owned-empty" style="display:none;color:var(--muted);text-align:center;padding:2rem">Você ainda não desbloqueou nenhum outfit da Store. Ganhe Panda Coins em missões e volte aqui! 🐼</div>
-      </div>
       </div><!-- /store-wrap-outfits -->
 
       <!-- ── MONTARIAS ── -->
       <div id="store-wrap-mounts" style="display:none">
         <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem">
           <input id="mstore-search" placeholder="Buscar montaria..." oninput="tpMStoreRender()" style="flex:1;min-width:180px;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);color:var(--ink,#e8e6f0);border-radius:9px;padding:.55rem .8rem;font:inherit">
-          <div id="mstore-rarity" style="display:flex;gap:.35rem;flex-wrap:wrap"></div>
+          <div class="store-ownfilter"><button class="ownf on" data-of="all" onclick="tpOwnFilter('mounts','all',this)">Todos</button><button class="ownf" data-of="unowned" onclick="tpOwnFilter('mounts','unowned',this)">A adquirir</button><button class="ownf" data-of="owned" onclick="tpOwnFilter('mounts','owned',this)">Adquiridos</button></div>
         </div>
+        <div id="mstore-rarity" style="display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.6rem"></div>
         <p style="font-size:.78rem;color:var(--muted);margin:-.4rem 0 .9rem">🐼 Algumas montarias são <b style="color:var(--gold,#f0b429)">recompensa de nível</b> (grátis ao chegar no nível) — o resto compra com Panda Coins.</p>
         <div id="mstore-grid" class="store-grid"></div>
         <div id="mstore-empty" style="display:none;color:var(--muted);text-align:center;padding:2rem">Nenhuma montaria encontrada.</div>
@@ -2977,8 +2974,9 @@ PlayerName (Leader)
       <div id="store-wrap-floors" style="display:none">
         <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem">
           <input id="fstore-search" placeholder="Buscar fundo..." oninput="tpFStoreRender()" style="flex:1;min-width:180px;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);color:var(--ink,#e8e6f0);border-radius:9px;padding:.55rem .8rem;font:inherit">
-          <div id="fstore-rarity" style="display:flex;gap:.35rem;flex-wrap:wrap"></div>
+          <div class="store-ownfilter"><button class="ownf on" data-of="all" onclick="tpOwnFilter('floors','all',this)">Todos</button><button class="ownf" data-of="unowned" onclick="tpOwnFilter('floors','unowned',this)">A adquirir</button><button class="ownf" data-of="owned" onclick="tpOwnFilter('floors','owned',this)">Adquiridos</button></div>
         </div>
+        <div id="fstore-rarity" style="display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:.6rem"></div>
         <p style="font-size:.78rem;color:var(--muted);margin:-.4rem 0 .9rem">🐼 Fundos pra vitrine do seu perfil. Compre com Panda Coins e selecione no seu Perfil. Pedra e Grama já vêm liberados.</p>
         <div id="fstore-grid" class="store-grid"></div>
         <div id="fstore-empty" style="display:none;color:var(--muted);text-align:center;padding:2rem">Nenhum fundo encontrado.</div>
@@ -3449,7 +3447,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13q</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13r</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6467,7 +6465,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13q';
+window.TP_BUILD = '2026-08-13r';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11771,9 +11769,36 @@ function ewEnsureTcInput() {
       var btn = s==='claimable' ? '<button class="pass-claim" onclick="tpPassClaim('+r.level+')">Resgatar</button>'
               : s==='claimed' ? '<span class="pass-got">✓ Resgatado</span>'
               : '<span class="pass-lock">🔒 Nv '+r.level+'</span>';
-      return '<div class="pass-node '+s+'"><div class="pass-lvl">Nv '+r.level+'</div><div class="pass-ic">'+(r.icon||'🎁')+'</div><div class="pass-lbl">'+esc(r.label)+'</div>'+btn+'</div>';
+      var ic;
+      if(r.kind==='outfit') ic='<div class="pass-ic pass-thumb" data-othumb="'+r.item_id+'"><span class="pass-fb">🎽</span></div>';
+      else if(r.kind==='mount') ic='<div class="pass-ic pass-thumb" data-mthumb="'+r.item_id+'"><span class="pass-fb">🐴</span></div>';
+      else ic='<div class="pass-ic">'+passIcon(r)+'</div>';
+      return '<div class="pass-node '+s+'"><div class="pass-lvl">Nv '+r.level+'</div>'+ic+'<div class="pass-lbl">'+esc(r.label)+'</div>'+btn+'</div>';
     }).join('')+'</div>';
+    passRenderThumbs(host);
   };
+  function passIcon(r){
+    if(r.kind==='xp_boost') return '<span class="pass-xp">XP▲</span>';
+    if(r.kind==='duplex')   return '⚡';
+    if(r.kind==='kooldown') return '🧪';
+    if(r.kind==='coins')    return '🪙';
+    return r.icon||'🎁';
+  }
+  function passRenderThumbs(root){
+    if(!window.tpGetOutfitter) return;
+    var hosts=[].slice.call(root.querySelectorAll('.pass-thumb[data-othumb],.pass-thumb[data-mthumb]'));
+    var i=0, MAX=4;
+    function next(){ if(i>=hosts.length) return; var h=hosts[i++];
+      var oid=h.getAttribute('data-othumb'), mid=h.getAttribute('data-mthumb');
+      window.tpGetOutfitter().then(function(of){
+        var cv=document.createElement('canvas');
+        var cfg=(oid!=null&&oid!=='')?{outfit:+oid,head:0,body:0,legs:0,feet:0,addons:3,dir:2,mount:0}
+                                     :{outfit:0,head:0,body:0,legs:0,feet:0,addons:0,dir:2,mount:+mid,mountOnly:true};
+        of.render(cfg,cv,2).then(function(){ h.innerHTML=''; h.appendChild(cv); next(); }).catch(function(){ next(); });
+      }).catch(function(){ next(); });
+    }
+    for(var k=0;k<MAX;k++) next();
+  }
   window.tpPassClaim=async function(level){
     try{ var r=await gmCall('pass_claim',{p_level:level});
       if(r&&r.ok){ if(window.tpToast) tpToast('Resgatado: '+(r.label||'recompensa')+' 🎉','success'); }
@@ -12840,6 +12865,14 @@ window.tpToast=function(msg,type){
     document.querySelectorAll('#store .store-panel').forEach(function(p){ p.style.display=(p.dataset.spanel===name)?'':'none'; });
     if(name==='meus') renderOwned();
   };
+  // filtro adquirido / a adquirir (por modo)
+  var STORE_OF={outfits:'all',mounts:'all',floors:'all'};
+  window.tpOwnFilter=function(mode,val,btn){
+    STORE_OF[mode]=val;
+    if(btn&&btn.parentNode) btn.parentNode.querySelectorAll('.ownf').forEach(function(b){ b.classList.toggle('on',b===btn); });
+    if(mode==='outfits') tpStoreRender(); else if(mode==='mounts') tpMStoreRender(); else if(mode==='floors') tpFStoreRender();
+  };
+  function ofPass(owned, mode){ var f=STORE_OF[mode]; return f==='all' || (f==='owned' && owned) || (f==='unowned' && !owned); }
 
   function rarBadge(r){ return '<span class="sc-rar '+r+'">'+(RARLBL[r]||r)+'</span>'; }
   function isOwned(e){ for(var i=0;i<e.ids.length;i++){ if(OWNED[e.ids[i]]) return true; } return false; }
@@ -12857,7 +12890,7 @@ window.tpToast=function(msg,type){
   window.tpStoreRender=function(){
     var grid=g('store-grid'); if(!grid||!CAT) return;
     var q=((g('store-search')&&g('store-search').value)||'').toLowerCase().trim();
-    var items=CAT.filter(function(e){ if(curRar!=='todas'&&e.rarity!==curRar) return false; if(q&&e.name.toLowerCase().indexOf(q)<0) return false; return true; });
+    var items=CAT.filter(function(e){ if(curRar!=='todas'&&e.rarity!==curRar) return false; if(q&&e.name.toLowerCase().indexOf(q)<0) return false; if(!ofPass(isOwned(e),'outfits')) return false; return true; });
     items.sort(function(a,b){ return rarOrd(a.rarity)-rarOrd(b.rarity) || (a.price||0)-(b.price||0) || a.name.localeCompare(b.name); });
     var emp=g('store-empty'); if(emp) emp.style.display=items.length?'none':'';
     grid.innerHTML=items.map(function(e){ return cardHtml(e, isOwned(e)); }).join('');
@@ -12974,7 +13007,10 @@ window.tpToast=function(msg,type){
   window.tpMStoreRender=function(){
     var grid=g('mstore-grid'); if(!grid||!MSTORE) return;
     var q=((g('mstore-search')&&g('mstore-search').value)||'').toLowerCase().trim();
-    var items=MSTORE.filter(function(m){ if(mCurRar!=='todas'&&m.rarity!==mCurRar) return false; if(q&&m.name.toLowerCase().indexOf(q)<0) return false; return true; });
+    var _lv=myLevel();
+    var items=MSTORE.filter(function(m){ if(mCurRar!=='todas'&&m.rarity!==mCurRar) return false; if(q&&m.name.toLowerCase().indexOf(q)<0) return false;
+      var owned=!!OWNEDM2[m.mount_id] || (m.unlock_level>0 && _lv>=m.unlock_level);
+      if(!ofPass(owned,'mounts')) return false; return true; });
     items.sort(function(a,b){ return rarOrd(a.rarity)-rarOrd(b.rarity) || (a.price_coins||0)-(b.price_coins||0) || a.name.localeCompare(b.name); });
     var emp=g('mstore-empty'); if(emp) emp.style.display=items.length?'none':'';
     grid.innerHTML=items.map(mCard).join('');
@@ -13037,7 +13073,9 @@ window.tpToast=function(msg,type){
   window.tpFStoreRender=function(){
     var grid=g('fstore-grid'); if(!grid||!FSTORE) return;
     var q=((g('fstore-search')&&g('fstore-search').value)||'').toLowerCase().trim();
-    var items=FSTORE.filter(function(f){ if(fCurRar!=='todas'&&f.rarity!==fCurRar) return false; if(q&&f.name.toLowerCase().indexOf(q)<0) return false; return true; });
+    var items=FSTORE.filter(function(f){ if(fCurRar!=='todas'&&f.rarity!==fCurRar) return false; if(q&&f.name.toLowerCase().indexOf(q)<0) return false;
+      var owned=!!OWNEDF[f.floor_id] || f.floor_id==='stone' || f.floor_id==='grass';
+      if(!ofPass(owned,'floors')) return false; return true; });
     items.sort(function(a,b){ return rarOrd(a.rarity)-rarOrd(b.rarity) || (a.price_coins||0)-(b.price_coins||0) || a.name.localeCompare(b.name); });
     var emp=g('fstore-empty'); if(emp) emp.style.display=items.length?'none':'';
     grid.innerHTML=items.map(fCard).join('');
