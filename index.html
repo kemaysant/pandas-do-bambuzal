@@ -2539,14 +2539,15 @@ PlayerName (Leader)
       #profile .vit-item .mt{font-size:.68rem;color:var(--muted);margin-top:.25rem;display:flex;justify-content:space-between;gap:.4rem}
       #profile .vit-item .rar{font-weight:800;text-transform:uppercase;letter-spacing:.04em}
       #profile .vit-empty{font-size:.85rem;color:var(--muted);line-height:1.6;background:var(--bg-2,#1b1a25);border:1px dashed var(--rule);border-radius:12px;padding:1.1rem 1.2rem;text-align:center}
-      #profile .vit-all summary::-webkit-details-marker{display:none}
-      #profile .vit-all summary:hover{text-decoration:underline}
-      .vit-pick{display:flex;align-items:center;gap:.55rem;padding:.45rem .55rem;border-radius:8px;cursor:pointer;transition:background .12s}
-      .vit-pick:hover{background:var(--bg-2,#1b1a25)}
-      .vit-pick input{width:16px;height:16px;accent-color:var(--bamboo,#8b5cf6);flex:none;cursor:pointer}
-      .vit-pick-dot{width:9px;height:9px;border-radius:50%;flex:none}
-      .vit-pick-nm{flex:1;font-size:.83rem;color:var(--ink,#eae8f2);line-height:1.2}
-      .vit-pick-rar{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;flex:none}
+      #profile .vit-item{position:relative}
+      #profile .vit-item .nm{padding-right:1.6rem}
+      #profile .vit-card-clk{cursor:pointer}
+      #profile .vit-eye{position:absolute;top:.4rem;right:.4rem;background:rgba(0,0,0,.25);border:1px solid var(--rule);border-radius:7px;font-size:.72rem;line-height:1;padding:.2rem .3rem;cursor:pointer;opacity:.65;transition:opacity .12s;z-index:2}
+      #profile .vit-eye:hover{opacity:1}
+      #profile .vit-item.vit-off{opacity:.4}
+      #profile .vit-item.vit-off .nm{text-decoration:line-through}
+      #profile .vit-hint{font-size:.63rem;color:var(--bamboo-light,#a78bfa);margin-top:.35rem;opacity:0;transition:opacity .12s}
+      #profile .vit-item:hover .vit-hint{opacity:.85}
       #profile .pf-hero-card{display:flex;gap:0;flex-wrap:wrap;align-items:stretch;padding:0;overflow:hidden;margin-bottom:1rem}
       #profile .pf-hero-stage{position:relative;width:210px;flex:none;min-height:210px;display:flex;align-items:center;justify-content:center;image-rendering:pixelated;background-size:56px 56px;background-color:#3a3a44;box-shadow:inset 0 0 0 1px var(--rule),inset 0 0 50px rgba(0,0,0,.55)}
       #profile .pf-hero-stage canvas{image-rendering:pixelated;width:104px;height:104px;position:relative;z-index:1;filter:drop-shadow(0 5px 4px rgba(0,0,0,.55))}
@@ -3393,7 +3394,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13l</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13m</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6411,7 +6412,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13l';
+window.TP_BUILD = '2026-08-13m';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11525,7 +11526,7 @@ function ewEnsureTcInput() {
     if(window.__ACHV_CAT) return window.__ACHV_CAT;
     var map={};
     try{
-      var r=await (window.tpAuthFetch||fetch)(SB+'/rest/v1/tibia_achievements?select=name,rarity,category,points,secret');
+      var r=await (window.tpAuthFetch||fetch)(SB+'/rest/v1/tibia_achievements?select=name,rarity,category,points,secret,grade,premium,descr');
       var rows=await r.json();
       (Array.isArray(rows)?rows:[]).forEach(function(a){ map[(a.name||'').toLowerCase()]=a; });
     }catch(e){}
@@ -11562,7 +11563,7 @@ function ewEnsureTcInput() {
       var enriched=achs.map(function(a){
         var meta=cat[(a.name||'').toLowerCase()]||{};
         var rar=meta.rarity||'comum'; rarCount[rar]=(rarCount[rar]||0)+1;
-        return {name:a.name,secret:a.secret,rarity:rar,category:meta.category||'—',points:(meta.points!=null?meta.points:(a.grade||1))};
+        return {name:a.name,secret:a.secret,rarity:rar,category:meta.category||'—',points:(meta.points!=null?meta.points:(a.grade||1)),grade:meta.grade||a.grade||null,premium:!!meta.premium,descr:meta.descr||''};
       }).sort(function(x,y){ var o={'lendário':5,lendario:5,'épico':4,epico:4,raro:3,incomum:2,comum:1}; return (o[(y.rarity||'').toLowerCase()]||0)-(o[(x.rarity||'').toLowerCase()]||0) || (y.points-x.points); });
       var epleg=(rarCount['lendário']||0)+(rarCount.lendario||0)+(rarCount['épico']||0)+(rarCount.epico||0);
       var kpis='<div class="vit-summary">'
@@ -11574,20 +11575,69 @@ function ewEnsureTcInput() {
         body.innerHTML=kpis+bestBlock+'<div class="vit-empty">'+feat.name+' tem <b>'+pts+' pontos</b> de achievement, mas a lista está <b>privada</b> no Tibia.com.<br><br>Ative em <em>tibia.com → sua conta → Characters → Edit → marque "Show Achievements"</em> pra montar sua vitrine aqui. 🐼</div>';
         return;
       }
-      function cardHtml(a){ var rc=vitRar(a.rarity);
-        return '<div class="vit-item" style="border-left-color:'+rc[0]+'">'
-          +'<div class="nm">'+(a.secret?'🔒 ':'')+esc(a.name)+'</div>'
-          +'<div class="mt"><span class="rar" style="color:'+rc[0]+'">'+rc[1]+'</span><span>'+esc(a.category)+'</span></div></div>'; }
-      // O Tibia.com só permite exibir ATÉ 5 conquistas públicas — é isso que a API entrega.
-      // A escolha de quais aparecem é feita no próprio Tibia.com; aqui só refletimos.
-      var hdr='<div style="display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin:.2rem 0 .6rem;flex-wrap:wrap">'
-        +'<b style="font-size:.9rem;color:var(--ink,#eae8f2)">🏅 Conquistas em destaque de '+esc(feat.name)+'</b>'
-        +'<a href="https://www.tibia.com/account/?subtopic=characters" target="_blank" rel="noopener" style="background:none;border:1px solid var(--rule);border-radius:8px;color:var(--bamboo-light,#a78bfa);font-size:.74rem;padding:.3rem .7rem;cursor:pointer;text-decoration:none">✏️ Escolher no Tibia.com ↗</a></div>';
-      var grid='<div class="vit-grid">'+enriched.map(cardHtml).join('')+'</div>';
-      var note='<div style="font-size:.72rem;color:var(--muted);margin-top:.7rem;line-height:1.5">O Tibia.com permite exibir <b>até 5 conquistas</b> por conta. Pra trocar quais aparecem aqui, edite em <i>Tibia.com → sua conta → Characters → '+esc(feat.name)+' → Edit Character → "Display Character Achievements"</i> e marque até 5. A vitrine atualiza no próximo carregamento.</div>';
-      body.innerHTML=kpis+bestBlock+hdr+grid+note;
+      // cacheia tudo pra re-render local (toggle mostra/oculta) sem refazer a chamada ao TibiaData
+      window.__VIT={feat:feat, enriched:enriched, kpis:kpis, bestBlock:bestBlock};
+      tpVitRender();
     }catch(e){ body.innerHTML=bestBlock+'<div class="vit-empty">Não foi possível carregar as conquistas agora. Tente de novo em instantes.</div>'; }
   };
+  // showcase = lista de nomes OCULTOS no perfil (vazio = mostra todas as públicas)
+  function vitHidden(){ var p=(AUTH&&AUTH.profile)||{}; var s=p.showcase; try{ if(typeof s==='string') s=JSON.parse(s||'[]'); }catch(e){ s=[]; } return Array.isArray(s)?s.map(function(n){return (n||'').toLowerCase();}):[]; }
+  function tpVitRender(){
+    var V=window.__VIT; if(!V) return; var body=g('pf-vit-body'); if(!body) return;
+    var hid=vitHidden();
+    function cardHtml(a,i){ var rc=vitRar(a.rarity); var off=hid.indexOf(a.name.toLowerCase())>=0;
+      return '<div class="vit-item'+(off?' vit-off':'')+'" style="border-left-color:'+rc[0]+'">'
+        +'<button class="vit-eye" title="'+(off?'Mostrar no perfil':'Ocultar do perfil')+'" onclick="event.stopPropagation();tpVitToggleHide('+i+')">'+(off?'🚫':'👁')+'</button>'
+        +'<div class="vit-card-clk" onclick="tpVitInfo('+i+')">'
+        +'<div class="nm">'+(a.secret?'🔒 ':'')+esc(a.name)+'</div>'
+        +'<div class="mt"><span class="rar" style="color:'+rc[0]+'">'+rc[1]+'</span><span>'+esc(a.category)+'</span></div>'
+        +'<div class="vit-hint">ⓘ como conseguir</div></div></div>'; }
+    var hdr='<div style="display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin:.2rem 0 .6rem;flex-wrap:wrap">'
+      +'<b style="font-size:.9rem;color:var(--ink,#eae8f2)">🏅 Conquistas em destaque de '+esc(V.feat.name)+'</b>'
+      +'<a href="https://www.tibia.com/account/?subtopic=characters" target="_blank" rel="noopener" style="background:none;border:1px solid var(--rule);border-radius:8px;color:var(--bamboo-light,#a78bfa);font-size:.74rem;padding:.3rem .7rem;cursor:pointer;text-decoration:none">✏️ Escolher no Tibia.com ↗</a></div>';
+    var grid='<div class="vit-grid">'+V.enriched.map(cardHtml).join('')+'</div>';
+    var note='<div style="font-size:.72rem;color:var(--muted);margin-top:.7rem;line-height:1.5">👁 mostra/oculta a conquista no <b>seu perfil</b> (dá pra deixar menos que 5). O Tibia.com só nos deixa <b>ver</b> as que você marcou como públicas lá — pra trocar quais são visíveis, edite em <i>Tibia.com → Characters → '+esc(V.feat.name)+' → Edit Character → "Display Character Achievements"</i>. Clique numa conquista pra ver como consegui-la.</div>';
+    body.innerHTML=V.kpis+V.bestBlock+hdr+grid+note;
+  }
+  window.tpVitToggleHide=async function(i){
+    var V=window.__VIT; if(!V||!V.enriched[i]||!AUTH) return;
+    var nm=V.enriched[i].name, low=nm.toLowerCase();
+    var hid=vitHidden(); var idx=hid.indexOf(low);
+    // reconstrói preservando capitalização original a partir do enriched
+    var canon={}; V.enriched.forEach(function(a){ canon[a.name.toLowerCase()]=a.name; });
+    var set={}; hid.forEach(function(h){ set[h]=1; });
+    if(idx>=0) delete set[low]; else set[low]=1;
+    var arr=Object.keys(set).map(function(h){ return canon[h]||h; });
+    // otimista: aplica local e re-renderiza já
+    AUTH.profile=Object.assign(AUTH.profile||{},{showcase:arr}); saveAuth(AUTH); tpVitRender();
+    try{
+      var r=await tpAuthFetch(SB+'/rest/v1/profiles?id=eq.'+AUTH.user.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({showcase:arr})});
+      if(!r.ok && window.tpToast) tpToast('Não consegui salvar a preferência.','error');
+    }catch(e){ if(window.tpToast) tpToast('Erro ao salvar.','error'); }
+  };
+  window.tpVitInfo=function(i){
+    var V=window.__VIT; if(!V||!V.enriched[i]) return; var a=V.enriched[i]; var rc=vitRar(a.rarity);
+    var m=document.getElementById('tp-vitinfo-modal');
+    if(!m){ m=document.createElement('div'); m.id='tp-vitinfo-modal'; m.className='tp-modal'; document.body.appendChild(m); }
+    var wiki='https://www.tibiawiki.com.br/wiki/'+encodeURIComponent(a.name.replace(/ /g,'_'));
+    var meta=[];
+    meta.push('<span class="rar" style="color:'+rc[0]+';font-weight:800">'+rc[1]+'</span>');
+    if(a.category&&a.category!=='—') meta.push(esc(a.category));
+    if(a.grade) meta.push('Grade '+a.grade);
+    if(a.points) meta.push(a.points+' pts');
+    if(a.premium) meta.push('👑 Premium');
+    if(a.secret) meta.push('🔒 Secreta');
+    m.innerHTML='<div class="tp-modal-card" style="max-width:460px">'
+      +'<button class="tp-modal-close" onclick="tpCloseVitInfo()">✕</button>'
+      +'<div style="display:flex;align-items:center;gap:.55rem;margin-bottom:.4rem"><span style="font-size:1.4rem">🏆</span><h3 style="font-size:1.1rem;margin:0;line-height:1.2">'+esc(a.name)+'</h3></div>'
+      +'<div style="display:flex;gap:.5rem;flex-wrap:wrap;font-size:.72rem;color:var(--muted);margin-bottom:.9rem">'+meta.join('<span style="opacity:.4">·</span>')+'</div>'
+      +'<div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:.3rem">Como conseguir</div>'
+      +'<div style="font-size:.9rem;color:var(--ink,#eae8f2);line-height:1.55;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-left:3px solid '+rc[0]+';border-radius:10px;padding:.75rem .9rem">'+(a.descr?esc(a.descr):'Sem descrição cadastrada.')+'</div>'
+      +'<a href="'+wiki+'" target="_blank" rel="noopener" style="display:inline-block;margin-top:.9rem;background:none;border:1px solid var(--rule);border-radius:8px;color:var(--bamboo-light,#a78bfa);font-size:.78rem;padding:.4rem .8rem;text-decoration:none">📖 Ver no TibiaWiki ↗</a></div>';
+    m.classList.add('open'); m.onclick=function(ev){ if(ev.target===m) tpCloseVitInfo(); };
+  };
+  window.tpCloseVitInfo=function(){ var m=document.getElementById('tp-vitinfo-modal'); if(m) m.classList.remove('open'); };
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ var m=document.getElementById('tp-vitinfo-modal'); if(m&&m.classList.contains('open')) tpCloseVitInfo(); } });
   function tpSyncDisplayName(name){
     if(!AUTH||!name) return;
     if(AUTH.profile && AUTH.profile.display_name===name) return;
@@ -13072,7 +13122,9 @@ window.tpToast=function(msg,type){
 </div>
 <script>
 (function(){
-  var SB=window.PANDA_SB_URL||'';
+  // PANDA_SB_URL é um const de outro <script> — vive no escopo léxico global (acessível por nome),
+  // mas NÃO existe em window. Usar window.PANDA_SB_URL dava '' e mandava os RPCs pro nginx do site (405).
+  var SB=(typeof PANDA_SB_URL!=='undefined'&&PANDA_SB_URL)?PANDA_SB_URL:(window.PANDA_SB_URL||'');
   function af(){ return (window.tpAuthFetch||fetch); }
   function me(){ return (window.TP_AUTH&&window.TP_AUTH.user)?window.TP_AUTH.user.id:null; }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
