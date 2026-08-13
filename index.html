@@ -2568,6 +2568,8 @@ PlayerName (Leader)
       .tp-titles{display:flex;flex-wrap:wrap;gap:.4rem}
       .tp-title{font-size:.72rem;font-weight:800;color:var(--muted,#9a97a8);background:var(--bg-2,#1b1a25);border:1px solid var(--rule,#2b2938);border-radius:8px;padding:.25rem .6rem;opacity:.7}
       .tp-title.cur{color:#0c2b1d;background:linear-gradient(135deg,#3ecf8e,#2fae76);border:0;opacity:1}
+      .tp-title.lk{opacity:.4}
+      .tp-title small{font-weight:800;opacity:.7;font-size:.62rem;margin-left:.15rem}
       .tp-depo-wrap{position:relative}
       .tp-emoji-btn{position:absolute;right:.5rem;bottom:.9rem;background:none;border:0;cursor:pointer;font-size:1.1rem;opacity:.8}
       .tp-emoji-btn:hover{opacity:1}
@@ -3535,7 +3537,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13am</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13an</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6553,7 +6555,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13am';
+window.TP_BUILD = '2026-08-13an';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -13068,13 +13070,13 @@ window.tpToast=function(msg,type){
           +(p.country?profChip('🌎',p.country,'País'):'')
         +'</div>'
       +'</div></div>';
-    var titles=PROF_RANKS.filter(function(x){return clvl>=x[0];}).map(function(x){ return '<span class="tp-title'+(x[1]===rank?' cur':'')+'">'+x[1]+'</span>'; }).join('');
+    var titles=PROF_RANKS.map(function(x){ var on=clvl>=x[0]; return '<span class="tp-title'+(x[1]===rank?' cur':'')+(on?'':' lk')+'" title="'+(on?'Liberado':'Libera')+' no nível '+x[0]+' da comunidade">'+(on?'':'🔒 ')+x[1]+' <small>nv '+x[0]+'</small></span>'; }).join('');
     var depoCompose=(!d.is_self)?'<div class="tp-prof-depoc"><div class="tp-depo-wrap"><textarea id="tp-prof-depo-in" maxlength="500" placeholder="Deixe um comentário…"></textarea>'
       +'<button type="button" class="tp-emoji-btn" onclick="tpProfEmojiToggle(event)">😊</button><div class="tp-emoji-pop" id="tp-prof-emoji"></div></div>'
       +'<button class="tp-btn-primary" onclick="tpProfSubmitDepo(\''+fid+'\')">Enviar comentário</button>'
       +'<div class="tp-prof-hint">Fica pendente até '+(p.handle?('@'+window.esc(p.handle)):'a pessoa')+' aprovar.</div></div>':'';
     var body='<div class="tp-prof-secs">'
-      +'<div class="tp-prof-sec"><div class="tp-prof-h">🏅 Títulos liberados</div><div class="tp-titles">'+(titles||'<span class="soc-empty">—</span>')+'</div></div>'
+      +'<div class="tp-prof-sec"><div class="tp-prof-h">🏅 Títulos</div><div class="tp-titles">'+(titles||'<span class="soc-empty">—</span>')+'</div></div>'
       +'<div class="tp-prof-sec"><div class="tp-prof-h">🏆 Conquistas em destaque</div><div id="tp-prof-vit"><div class="soc-empty">Carregando…</div></div></div>'
       +'<div class="tp-prof-sec"><div class="tp-prof-h">💬 Comentários</div>'+depoCompose+'<div id="tp-prof-depo"></div></div>'
       +'</div>';
@@ -13086,8 +13088,9 @@ window.tpToast=function(msg,type){
           .then(function(){ var av=document.getElementById('tp-prof-av'); if(av){ av.innerHTML=''; av.appendChild(cv);} }).catch(function(){}); }).catch(function(){});
     }
     profRenderDepos(d.testimonials||[]);
-    profEnrich(p.main_char);
-    profLoadVit(p.main_char);
+    var cn=p.char_name||p.main_char;
+    profEnrich(cn);
+    profLoadVit(cn);
   };
   function profRenderDepos(arr){ var host=document.getElementById('tp-prof-depo'); if(!host) return;
     var appr=(arr||[]).filter(function(t){return t.status==='approved';});
