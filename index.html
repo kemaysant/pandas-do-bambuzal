@@ -2554,7 +2554,27 @@ PlayerName (Leader)
       .tp-prof-depoc{margin-bottom:.7rem}
       .tp-prof-depoc textarea{width:100%;box-sizing:border-box;min-height:60px;resize:vertical;background:var(--bg-2,#1b1a25);border:1px solid var(--rule,#2b2938);border-radius:10px;color:var(--ink,#eae8f2);padding:.55rem .7rem;font-size:.82rem;font-family:inherit;margin-bottom:.5rem}
       .tp-prof-hint{font-size:.68rem;color:var(--muted,#9a97a8);margin-top:.35rem}
-      @media (max-width:560px){ .tp-prof-hero{flex-direction:column;text-align:center} .tp-prof-nm{justify-content:center} }
+      /* card hero do amigo */
+      .tp-prof-hero2{display:flex;gap:1rem;align-items:flex-start;padding-bottom:1rem;border-bottom:1px solid var(--rule,#2b2938);margin-bottom:.9rem}
+      .tp-prof-hero2 .tp-prof-av{width:120px;height:120px;border-radius:14px}
+      .tp-prof .pf-hstats{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin:.6rem 0 .2rem}
+      .tp-prof .pf-hstat{display:flex;align-items:center;gap:.4rem;background:var(--bg-2,#1b1a25);border:1px solid var(--rule,#2b2938);border-radius:9px;padding:.35rem .55rem;font-size:.76rem;color:var(--ink,#eae8f2)}
+      .tp-prof .pf-hstat .ic{font-size:.85rem;flex:none}
+      .tp-prof .pf-hstat .track{flex:1;height:7px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;min-width:30px}
+      .tp-prof .pf-hstat .track i{display:block;height:100%}
+      .tp-prof .pf-hstat .val{font-weight:800;margin-left:auto;white-space:nowrap}
+      .tp-prof-chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+      .tp-chip{display:inline-flex;align-items:center;gap:.25rem;font-size:.7rem;font-weight:700;color:var(--ink,#d8d6e2);background:var(--bg-2,#1b1a25);border:1px solid var(--rule,#2b2938);border-radius:999px;padding:.2rem .55rem}
+      .tp-titles{display:flex;flex-wrap:wrap;gap:.4rem}
+      .tp-title{font-size:.72rem;font-weight:800;color:var(--muted,#9a97a8);background:var(--bg-2,#1b1a25);border:1px solid var(--rule,#2b2938);border-radius:8px;padding:.25rem .6rem;opacity:.7}
+      .tp-title.cur{color:#0c2b1d;background:linear-gradient(135deg,#3ecf8e,#2fae76);border:0;opacity:1}
+      .tp-depo-wrap{position:relative}
+      .tp-emoji-btn{position:absolute;right:.5rem;bottom:.9rem;background:none;border:0;cursor:pointer;font-size:1.1rem;opacity:.8}
+      .tp-emoji-btn:hover{opacity:1}
+      .tp-emoji-pop{display:none;position:absolute;right:0;bottom:2.6rem;z-index:5;flex-wrap:wrap;gap:.1rem;width:230px;max-height:150px;overflow:auto;background:var(--bg-1,#14131c);border:1px solid var(--rule,#2b2938);border-radius:10px;padding:.4rem;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+      .tp-emoji-pop button{background:none;border:0;cursor:pointer;font-size:1.2rem;padding:.2rem;border-radius:6px}
+      .tp-emoji-pop button:hover{background:var(--bg-2,#1b1a25)}
+      @media (max-width:560px){ .tp-prof-hero,.tp-prof-hero2{flex-direction:column;text-align:center} .tp-prof-nm{justify-content:center} .tp-prof-chips,.tp-titles{justify-content:center} .tp-prof .pf-hstats{grid-template-columns:1fr} }
       /* ── trilha conectada ── */
       #profile .pass-rail{display:flex;gap:0;overflow-x:auto;padding:.4rem 0 .8rem;scrollbar-width:thin;scrollbar-color:var(--rule,#2b2938) transparent}
       #profile .pass-rail::-webkit-scrollbar{height:8px}
@@ -3515,7 +3535,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13al</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13am</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6533,7 +6553,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13al';
+window.TP_BUILD = '2026-08-13am';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -7860,6 +7880,7 @@ function cpgDate(s){if(!s)return'—';var d=new Date(s);return isNaN(d)?'—':d.
 function cpgYears(s){var d=new Date(s);if(isNaN(d))return'';var y=Math.floor((Date.now()-d)/3.156e10);return y>0?'('+y+' anos atrás)':'';}
 function cpgStats(voc,lvl){var g=cpgVoc(voc).g;var n=Math.max(0,lvl-8);
   return{hp:185+g[0]*n,mana:90+g[1]*n,cap:470+g[2]*n,smin:Math.round(lvl*2/3),smax:Math.round(lvl*3/2)};}
+try{ window.cpgStats=cpgStats; window.cpgNf=cpgNf; }catch(e){}
 function cpgTibAge(created){var d=new Date(created);if(isNaN(d))return'—';
   var months=(Date.now()-d)/8.64e7;var years=Math.floor(months/12);var rem=Math.floor(months%12);
   return years+' anos, '+rem+' meses';}
@@ -12036,6 +12057,7 @@ function ewEnsureTcInput() {
         +'<div class="cons-d">Dobra XP e moedas das diárias por 20h.</div></div>'+dBtn+'</div>'
       +'</div>';
   }
+  window.invConsumables=invConsumables;
   window.tpClaimMission=async function(key){
     try{ var res=await gmCall('gm_claim',{mkey:key});
       if(res&&res.ok){ if(window.tpToast) tpToast('+'+res.xp+' XP · +'+res.coins+' 🪙','success'); }
@@ -12984,7 +13006,7 @@ window.tpToast=function(msg,type){
       // progresso (estoque de consumíveis)
       var prog=(window.__GAMI&&window.__GAMI.progress)||null;
       if(!prog){ try{ var pr0=await af(SB+'/rest/v1/user_progress?select=coins,kooldown_stock,duplex_stock,duplex_until,kooldown_last'); var pd0=await pr0.json(); prog=(pd0&&pd0[0])||{}; }catch(e){ prog={}; } }
-      var consSection='<div class="inv-sec"><div class="inv-sec-h">🧪 Consumíveis</div>'+invConsumables(prog)+'</div>';
+      var consSection='<div class="inv-sec"><div class="inv-sec-h">🧪 Consumíveis</div>'+(window.invConsumables?window.invConsumables(prog):'')+'</div>';
       var cosmetics = total ? (invSec('Outfits','🎽',outfitCards)+invSec('Montarias','🐴',mountCards)+invSec('Fundos de perfil','🖼️',floorCards))
         : '<div class="vit-empty" style="margin-top:.4rem">Você ainda não comprou cosméticos na Store.<br><br><button class="tp-btn-primary" onclick="var b=document.querySelector(\'.nav-btn[onclick*=store]\');if(b)b.click()">🛍️ Ir à Store</button></div>';
       body.innerHTML=consSection+cosmetics;
@@ -12997,6 +13019,19 @@ window.tpToast=function(msg,type){
     if(s<60) return 'agora'; if(s<3600) return Math.floor(s/60)+'min atrás'; if(s<86400) return Math.floor(s/3600)+'h atrás'; return Math.floor(s/86400)+'d atrás'; }
   function profMe(){ return (window.TP_AUTH&&window.TP_AUTH.user)?window.TP_AUTH.user.id:null; }
   window.tpProfClose=function(){ var h=document.getElementById('tp-prof-modal'); if(h) h.style.display='none'; };
+  var PROF_RANKS=[[1,'Novato 🐼'],[5,'Aventureiro 🎋'],[10,'Caçador 🏹'],[20,'Veterano ⚔️'],[35,'Mestre 🛡️'],[50,'Lenda 👑']];
+  function profRankOf(l){ var rr=PROF_RANKS[0][1]; PROF_RANKS.forEach(function(x){ if(l>=x[0]) rr=x[1]; }); return rr; }
+  function profChip(ic,txt,title){ return '<span class="tp-chip"'+(title?(' title="'+title+'"'):'')+'><b>'+ic+'</b> '+window.esc(txt)+'</span>'; }
+  function profMin(m){ m=+m||0; if(m<60) return m+'min'; var h=Math.floor(m/60), mm=m%60; return h+'h'+(mm?(' '+mm+'m'):''); }
+  var PROF_EMO=['😀','😂','😎','😍','🥳','😢','😡','👍','👏','🙏','🔥','💪','⚔️','🛡️','🏆','🐼','🎉','❤️','💜','✨','😱','🤝','👀','💀'];
+  window.tpProfEmojiToggle=function(ev){ if(ev) ev.stopPropagation(); var pop=document.getElementById('tp-prof-emoji'); if(!pop) return;
+    if(pop.style.display==='flex'){ pop.style.display='none'; return; }
+    pop.innerHTML=PROF_EMO.map(function(e){ return '<button type="button" onclick="tpProfEmojiIns(\''+e+'\')">'+e+'</button>'; }).join('');
+    pop.style.display='flex'; };
+  window.tpProfEmojiIns=function(e){ var ta=document.getElementById('tp-prof-depo-in'); if(!ta) return;
+    var a=ta.selectionStart==null?ta.value.length:ta.selectionStart, b=ta.selectionEnd==null?ta.value.length:ta.selectionEnd;
+    ta.value=ta.value.slice(0,a)+e+ta.value.slice(b); ta.focus(); try{ ta.selectionStart=ta.selectionEnd=a+e.length; }catch(_){}
+    var pop=document.getElementById('tp-prof-emoji'); if(pop) pop.style.display='none'; };
   window.tpOpenProfile=async function(fid){
     if(!fid) return;
     var host=document.getElementById('tp-prof-modal');
@@ -13006,23 +13041,42 @@ window.tpToast=function(msg,type){
     var d=null; try{ var r=await af(SB+'/rest/v1/rpc/tp_public_profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pid:fid})}); if(r.ok) d=await r.json(); }catch(e){}
     if(!d||!d.ok){ host.querySelector('.tp-prof').innerHTML='<button class="tp-prof-x" onclick="tpProfClose()">✕</button><div class="vit-empty" style="padding:2rem">Não consegui carregar esse perfil.</div>'; return; }
     window.__PROF=d; var p=d.profile||{};
-    var lvl = (p.level!=null&&p.level!=='')?('<span class="soc-lvl'+(p.online?' on':'')+'">'+p.level+'</span>'):'';
-    var status = p.online?'🟢 Disponível agora':('Última vez online '+profRel(p.last_seen_at));
-    var head='<div class="tp-prof-hero">'
+    var clvl=+d.community_level||1; var rank=profRankOf(clvl);
+    var nm=p.display_name||p.main_char||(p.handle?('@'+p.handle):'Jogador');
+    var st=(typeof window.cpgStats==='function'&&p.vocation&&p.level)?window.cpgStats(p.vocation,p.level):null;
+    var nf=window.cpgNf||function(x){return x;};
+    var status=p.online?'🟢 Disponível agora':('Última vez online '+profRel(p.last_seen_at));
+    var charLine=[p.vocation,(p.level?('Lvl '+p.level):null),p.world].filter(Boolean).join(' · ');
+    var bars=st?('<div class="pf-hstats">'
+      +'<div class="pf-hstat"><span class="ic">❤️</span><div class="track"><i style="width:62%;background:linear-gradient(90deg,#e05a5a,#f08a8a)"></i></div><span class="val">~'+nf(st.hp)+'</span></div>'
+      +'<div class="pf-hstat"><span class="ic">⚡</span><div class="track"><i style="width:78%;background:linear-gradient(90deg,#4a7de0,#7fa8f0)"></i></div><span class="val">~'+nf(st.mana)+'</span></div>'
+      +'<div class="pf-hstat"><span class="ic">🎒</span><span class="val">~'+nf(st.cap)+'</span></div>'
+      +'<div class="pf-hstat"><span class="ic">🗡️</span><span class="val">~'+st.smin+'–'+st.smax+'</span></div>'
+      +'</div>'):'';
+    var head='<div class="tp-prof-hero2">'
       +'<div class="tp-prof-av" id="tp-prof-av"><span class="tp-prof-avfb">🐼</span></div>'
-      +'<div class="tp-prof-meta"><div class="tp-prof-nm">'+window.esc(p.handle?('@'+p.handle):(p.display_name||p.main_char||'Jogador'))+' '+lvl+'</div>'
-        +(p.display_name&&p.handle?'<div class="tp-prof-sub">'+window.esc(p.display_name)+'</div>':'')
-        +(p.main_char?'<div class="tp-prof-sub">🎮 '+window.esc(p.main_char)+(p.country?(' · '+window.esc(p.country)):'')+'</div>':'')
+      +'<div class="tp-prof-meta">'
+        +'<div class="tp-prof-nm">'+window.esc(nm)+' <span class="soc-lvl'+(p.online?' on':'')+'" title="Nível na comunidade">'+clvl+'</span></div>'
+        +(p.handle?'<div class="tp-prof-sub">@'+window.esc(p.handle)+'</div>':'')
+        +(charLine?'<div class="tp-prof-sub">'+window.esc(charLine)+'</div>':'')
         +'<div class="tp-prof-sub'+(p.online?' on':'')+'">'+window.esc(status)+'</div>'
         +(p.bio?'<div class="tp-prof-bio">'+window.esc(p.bio)+'</div>':'')
+        +bars
+        +'<div class="tp-prof-chips" id="tp-prof-chips">'
+          +profChip('🏅',rank,'Título na comunidade')
+          +profChip('⏱️',profMin(d.weekly_minutes)+' na semana','Tempo jogado (últimos 7 dias, do analyser)')
+          +(p.country?profChip('🌎',p.country,'País'):'')
+        +'</div>'
       +'</div></div>';
-    var depoCompose = (!d.is_self) ? '<div class="tp-prof-depoc"><textarea id="tp-prof-depo-in" maxlength="500" placeholder="Deixe um depoimento…"></textarea>'
-      +'<button class="tp-btn-primary" onclick="tpProfSubmitDepo(\''+fid+'\')">Enviar depoimento</button>'
-      +'<div class="tp-prof-hint">Fica pendente até '+(p.handle?('@'+window.esc(p.handle)):'a pessoa')+' aprovar.</div></div>' : '';
+    var titles=PROF_RANKS.filter(function(x){return clvl>=x[0];}).map(function(x){ return '<span class="tp-title'+(x[1]===rank?' cur':'')+'">'+x[1]+'</span>'; }).join('');
+    var depoCompose=(!d.is_self)?'<div class="tp-prof-depoc"><div class="tp-depo-wrap"><textarea id="tp-prof-depo-in" maxlength="500" placeholder="Deixe um comentário…"></textarea>'
+      +'<button type="button" class="tp-emoji-btn" onclick="tpProfEmojiToggle(event)">😊</button><div class="tp-emoji-pop" id="tp-prof-emoji"></div></div>'
+      +'<button class="tp-btn-primary" onclick="tpProfSubmitDepo(\''+fid+'\')">Enviar comentário</button>'
+      +'<div class="tp-prof-hint">Fica pendente até '+(p.handle?('@'+window.esc(p.handle)):'a pessoa')+' aprovar.</div></div>':'';
     var body='<div class="tp-prof-secs">'
-      +'<div class="tp-prof-sec"><div class="tp-prof-h">🏅 Conquistas em destaque</div><div id="tp-prof-vit"><div class="soc-empty">Carregando…</div></div></div>'
-      +(d.are_friends?'<div class="tp-prof-sec"><div class="tp-prof-h">🎒 Inventário</div><div id="tp-prof-inv"><div class="soc-empty">Carregando…</div></div></div>':'')
-      +'<div class="tp-prof-sec"><div class="tp-prof-h">💬 Depoimentos</div>'+depoCompose+'<div id="tp-prof-depo"></div></div>'
+      +'<div class="tp-prof-sec"><div class="tp-prof-h">🏅 Títulos liberados</div><div class="tp-titles">'+(titles||'<span class="soc-empty">—</span>')+'</div></div>'
+      +'<div class="tp-prof-sec"><div class="tp-prof-h">🏆 Conquistas em destaque</div><div id="tp-prof-vit"><div class="soc-empty">Carregando…</div></div></div>'
+      +'<div class="tp-prof-sec"><div class="tp-prof-h">💬 Comentários</div>'+depoCompose+'<div id="tp-prof-depo"></div></div>'
       +'</div>';
     host.querySelector('.tp-prof').innerHTML='<button class="tp-prof-x" onclick="tpProfClose()">✕</button>'+head+body;
     if(p.outfit&&p.outfit.outfit_id!=null&&window.tpGetOutfitter){
@@ -13032,32 +13086,29 @@ window.tpToast=function(msg,type){
           .then(function(){ var av=document.getElementById('tp-prof-av'); if(av){ av.innerHTML=''; av.appendChild(cv);} }).catch(function(){}); }).catch(function(){});
     }
     profRenderDepos(d.testimonials||[]);
-    if(d.are_friends) profRenderInv(d.owned||{});
+    profEnrich(p.main_char);
     profLoadVit(p.main_char);
   };
   function profRenderDepos(arr){ var host=document.getElementById('tp-prof-depo'); if(!host) return;
     var appr=(arr||[]).filter(function(t){return t.status==='approved';});
-    host.innerHTML=appr.length? appr.map(function(t){ return '<div class="depo"><div class="depo-hd"><b>'+window.esc(t.author_name||t.author_char||'Amigo')+'</b><span class="depo-date">'+profRel(t.created_at)+'</span></div><div class="depo-body">'+window.esc(t.body)+'</div></div>'; }).join('') : '<div class="soc-empty">Nenhum depoimento ainda. Seja o primeiro! ✍️</div>';
+    host.innerHTML=appr.length? appr.map(function(t){ return '<div class="depo"><div class="depo-hd"><b>'+window.esc(t.author_name||t.author_char||'Amigo')+'</b><span class="depo-date">'+profRel(t.created_at)+'</span></div><div class="depo-body">'+window.esc(t.body)+'</div></div>'; }).join('') : '<div class="soc-empty">Nenhum comentário ainda. Seja o primeiro! ✍️</div>';
   }
   window.tpProfSubmitDepo=async function(fid){ var ta=document.getElementById('tp-prof-depo-in'); if(!ta) return; var b=(ta.value||'').trim(); if(!b){ ta.focus(); return; }
     try{ var r=await af(SB+'/rest/v1/profile_testimonials',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({profile_id:fid,author:profMe(),body:b})});
-      if(r.ok){ if(window.tpToast) tpToast('Depoimento enviado! Aguardando aprovação. ✍️','success'); ta.value=''; }
+      if(r.ok){ if(window.tpToast) tpToast('Comentário enviado! Aguardando aprovação. ✍️','success'); ta.value=''; }
       else { if(window.tpToast) tpToast('Não consegui enviar (vocês são amigos?).','error'); }
-    }catch(e){ if(window.tpToast) tpToast('Erro ao enviar o depoimento.','error'); }
+    }catch(e){ if(window.tpToast) tpToast('Erro ao enviar o comentário.','error'); }
   };
-  async function profRenderInv(owned){ var host=document.getElementById('tp-prof-inv'); if(!host) return;
-    try{ var cat=await loadCatalog(); await Promise.all([ (window.tpLoadMountCatalog?window.tpLoadMountCatalog():null),(window.tpLoadFloorCatalog?window.tpLoadFloorCatalog():null) ]);
-      var oMeta={}; cat.forEach(function(e){ (e.ids||[]).forEach(function(id){ oMeta[id]={name:e.name,rarity:e.rarity}; }); });
-      var outfits=owned.outfits||[], mounts=owned.mounts||[], floors=owned.floors||[];
-      var byName={}; outfits.forEach(function(id){ var m=oMeta[id]; if(!m) return; if(!byName[m.name]) byName[m.name]={name:m.name,rarity:m.rarity,repId:+id}; if(+id<byName[m.name].repId) byName[m.name].repId=+id; });
-      var mcat=window.__TP_MOUNT_CAT||{}, fcat=window.__TP_FLOOR_CAT||[]; var fmap={}; (fcat||[]).forEach(function(f){ fmap[f.floor_id]=f; });
-      var cards=[];
-      Object.keys(byName).forEach(function(k){ var e=byName[k]; cards.push(invCard(e.name,e.rarity,'',invThumb('outfit',e.repId))); });
-      mounts.forEach(function(id){ var m=mcat[id]||{}; cards.push(invCard(m.name||('Montaria #'+id),m.rarity||'comum','',invThumb('mount',id))); });
-      floors.forEach(function(fid){ if(fid==='stone'||fid==='grass') return; var f=fmap[fid]||{}; cards.push(invCard(f.name||fid,f.rarity||'comum','',invThumb('floor',fid))); });
-      host.innerHTML= cards.length? '<div class="inv-grid">'+cards.join('')+'</div>' : '<div class="soc-empty">Nada comprado ainda.</div>';
-      invRenderThumbs(host);
-    }catch(e){ host.innerHTML='<div class="soc-empty">Não consegui carregar o inventário.</div>'; }
+  async function profEnrich(charName){ var host=document.getElementById('tp-prof-chips'); if(!host||!charName||typeof window.tibiaFetch!=='function') return;
+    try{ var data=await window.tibiaFetch('/v4/character/'+encodeURIComponent(charName)); var info=data&&data.character&&data.character.character; if(!info) return;
+      var extra='';
+      if(info.achievement_points!=null) extra+=profChip('🏆',info.achievement_points+' pts','Pontos de conquista');
+      if(info.guild&&info.guild.name) extra+=profChip('⚔️',(info.guild.rank?info.guild.rank+' · ':'')+info.guild.name,'Guild');
+      if(info.last_login) extra+=profChip('🕐',profRel(info.last_login),'Último login no Tibia');
+      if(/premium/i.test(info.account_status||'')) extra+=profChip('👑','Premium','Conta');
+      if(extra) host.insertAdjacentHTML('beforeend', extra);
+      if(info.title){ host.insertAdjacentHTML('afterbegin', profChip('🎖️', info.title,'Título no Tibia')); }
+    }catch(e){}
   }
   async function profLoadVit(charName){ var host=document.getElementById('tp-prof-vit'); if(!host) return;
     if(!charName){ host.innerHTML='<div class="soc-empty">Sem personagem principal definido.</div>'; return; }
