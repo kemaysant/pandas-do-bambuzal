@@ -2457,6 +2457,29 @@ PlayerName (Leader)
       #profile .pf-tab{background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:.55rem .8rem;cursor:pointer;font-size:.9rem;font-weight:600;transition:color .15s,border-color .15s;margin-bottom:-1px}
       #profile .pf-tab:hover{color:var(--ink,#e8e6f0)}
       #profile .pf-tab.on{color:var(--bamboo,#8b5cf6);border-bottom-color:var(--bamboo,#8b5cf6)}
+      /* ── Rankings ── */
+      #profile .rk-bar{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.6rem;margin-bottom:1rem}
+      #profile .rk-metrics,#profile .rk-scope{display:flex;gap:.35rem;flex-wrap:wrap}
+      #profile .rk-mbtn,#profile .rk-sbtn{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);color:var(--muted);border-radius:999px;padding:.4rem .8rem;cursor:pointer;font-size:.78rem;font-weight:700}
+      #profile .rk-mbtn.on{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6);color:#fff}
+      #profile .rk-sbtn.on{background:#3ecf8e;border-color:#3ecf8e;color:#0c2b1d}
+      #profile .rk-list{display:flex;flex-direction:column;gap:.4rem}
+      #profile .rk-row{display:flex;align-items:center;gap:.7rem;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:11px;padding:.5rem .7rem;cursor:pointer;transition:transform .1s,border-color .12s}
+      #profile .rk-row:hover{transform:translateX(2px);border-color:var(--bamboo,#8b5cf6)}
+      #profile .rk-row.me{border-color:#3ecf8e;box-shadow:0 0 0 1px rgba(62,207,142,.3) inset}
+      #profile .rk-row.rk-top1{border-color:#e5c14d}#profile .rk-row.rk-top2{border-color:#c7ccd4}#profile .rk-row.rk-top3{border-color:#cd8a52}
+      #profile .rk-pos{flex:none;width:34px;text-align:center;font-size:1.05rem;font-weight:900;color:var(--ink,#eae8f2)}
+      #profile .rk-av{flex:none;width:40px;height:40px;border-radius:9px;background:var(--bg-3,#242230);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;overflow:hidden;image-rendering:pixelated}
+      #profile .rk-av canvas{max-width:150%;max-height:150%;image-rendering:pixelated}
+      #profile .rk-avfb{font-size:1.1rem;opacity:.5}
+      #profile .rk-info{flex:1;min-width:0}
+      #profile .rk-nm{font-size:.9rem;color:var(--ink,#eae8f2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      #profile .rk-lvl{font-size:.6rem;font-weight:800;color:#0c2b1d;background:#3ecf8e;border-radius:6px;padding:.05rem .3rem;vertical-align:middle}
+      #profile .rk-sub{display:block;font-size:.68rem;color:var(--muted)}
+      #profile .rk-val{flex:none;font-size:.95rem;font-weight:900;color:var(--bamboo-light,#a78bfa);font-variant-numeric:tabular-nums}
+      #profile .rk-unit{font-size:.68rem;font-weight:700;color:var(--muted)}
+      #profile .rk-me-foot{margin-top:.6rem;padding:.5rem .7rem;background:rgba(62,207,142,.12);border:1px solid #3ecf8e;border-radius:10px;font-size:.82rem;color:var(--ink,#eae8f2)}
+      #profile .rk-foot{margin-top:.6rem;font-size:.7rem;color:var(--muted);text-align:center}
       #profile .pf-panel{animation:pfFade .25s ease}
       /* Home do perfil estilo Steam */
       #profile .pf-home{display:grid;grid-template-columns:260px 1fr;gap:1.1rem;align-items:start}
@@ -2750,6 +2773,7 @@ PlayerName (Leader)
       <button class="pf-tab" data-tab="prog" onclick="tpProfTab('prog',this)">🎮 Progressão</button>
       <button class="pf-tab" data-tab="inventario" onclick="tpProfTab('inventario',this)">🎒 Inventário</button>
       <button class="pf-tab" data-tab="amigos" onclick="tpProfTab('amigos',this)">👥 Amigos <span id="pf-amigos-badge" class="pf-tabbadge" style="display:none">0</span></button>
+      <button class="pf-tab" data-tab="rankings" onclick="tpProfTab('rankings',this)">🏆 Rankings</button>
     </div>
 
     <!-- HOME DO PERFIL (estilo Steam: rail + conteúdo) -->
@@ -2869,6 +2893,28 @@ PlayerName (Leader)
       <div class="card">
         <div class="tool-title" style="font-size:1.05rem;margin-bottom:.3rem">Meus amigos <span id="pf-friend-count" style="color:var(--muted);font-weight:400"></span></div>
         <div id="pf-friend-list"><div class="api-loading"><div class="spinner"></div> Carregando...</div></div>
+      </div>
+    </div>
+
+    <div class="pf-panel" data-panel="rankings" style="display:none">
+      <div class="card">
+        <div class="tool-title" style="font-size:1.05rem;margin-bottom:.2rem">🏆 Rankings da comunidade</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:.8rem">Placar do Tibia Panda. Escolha a métrica e veja o ranking geral ou só entre seus amigos.</div>
+        <div class="rk-bar">
+          <div class="rk-metrics">
+            <button class="rk-mbtn on" data-metric="profit_week" onclick="tpRankMetric('profit_week',this)">💰 Profit (semana)</button>
+            <button class="rk-mbtn" data-metric="xpweek" onclick="tpRankMetric('xpweek',this)">⚔️ XP hunt (semana)</button>
+            <button class="rk-mbtn" data-metric="bestiary" onclick="tpRankMetric('bestiary',this)">🐉 Bestiary</button>
+            <button class="rk-mbtn" data-metric="completas" onclick="tpRankMetric('completas',this)">✅ Completas</button>
+            <button class="rk-mbtn" data-metric="charm" onclick="tpRankMetric('charm',this)">💎 Charm points</button>
+            <button class="rk-mbtn" data-metric="xp" onclick="tpRankMetric('xp',this)">🐼 XP comunidade</button>
+          </div>
+          <div class="rk-scope">
+            <button class="rk-sbtn on" data-scope="global" onclick="tpRankScope('global',this)">🌎 Global</button>
+            <button class="rk-sbtn" data-scope="friends" onclick="tpRankScope('friends',this)">👥 Amigos</button>
+          </div>
+        </div>
+        <div id="pf-rank-body"><div class="api-loading"><div class="spinner"></div> Carregando ranking...</div></div>
       </div>
     </div>
 
@@ -3546,7 +3592,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13ao</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13at</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6564,7 +6610,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13ao';
+window.TP_BUILD = '2026-08-13at';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11646,6 +11692,7 @@ function ewEnsureTcInput() {
     if(name==='prog') tpLoadGamify();
     if(name==='inventario' && window.tpLoadInventory) tpLoadInventory();
     if(name==='amigos' && window.tpFriendsLoad) tpFriendsLoad();
+    if(name==='rankings' && window.tpLoadRankings) tpLoadRankings();
   };
   // Página de conta no menu lateral (Dados / Segurança) — mostra o painel sem aba destacada
   window.tpAccountPage=function(name, btn){
@@ -13079,7 +13126,7 @@ window.tpToast=function(msg,type){
           +(p.country?profChip('🌎',p.country,'País'):'')
         +'</div>'
       +'</div></div>';
-    var titles=PROF_RANKS.map(function(x){ var on=clvl>=x[0]; return '<span class="tp-title'+(x[1]===rank?' cur':'')+(on?'':' lk')+'" title="'+(on?'Liberado':'Libera')+' no nível '+x[0]+' da comunidade">'+(on?'':'🔒 ')+x[1]+' <small>nv '+x[0]+'</small></span>'; }).join('');
+    var titles=PROF_RANKS.filter(function(x){return clvl>=x[0];}).map(function(x){ return '<span class="tp-title'+(x[1]===rank?' cur':'')+'" title="Liberado no nível '+x[0]+' da comunidade">'+x[1]+' <small>nv '+x[0]+'</small></span>'; }).join('');
     var depoCompose=(!d.is_self)?'<div class="tp-prof-depoc"><div class="tp-depo-wrap"><textarea id="tp-prof-depo-in" maxlength="500" placeholder="Deixe um comentário…"></textarea>'
       +'<button type="button" class="tp-emoji-btn" onclick="tpProfEmojiToggle(event)">😊</button><div class="tp-emoji-pop" id="tp-prof-emoji"></div></div>'
       +'<button class="tp-btn-primary" onclick="tpProfSubmitDepo(\''+fid+'\')">Enviar comentário</button>'
@@ -13135,6 +13182,58 @@ window.tpToast=function(msg,type){
       if(!enriched.length){ host.innerHTML='<div class="soc-empty">Sem conquistas públicas nessa conta.</div>'; return; }
       host.innerHTML='<div class="vit-grid">'+enriched.map(function(a){ var rc=window.vitRar(a.rarity); return '<div class="vit-item" style="border-left-color:'+rc[0]+'"><div class="nm">'+window.esc(a.name)+(a.secret?' <span class="vit-secret" title="Conquista secreta">•</span>':'')+'</div><div class="mt"><span class="rar" style="color:'+rc[0]+'">'+rc[1]+'</span><span class="cat">'+window.esc(a.category)+'</span></div></div>'; }).join('')+'</div>';
     }catch(e){ host.innerHTML='<div class="soc-empty">Não consegui carregar as conquistas agora.</div>'; }
+  }
+
+  // ═══ Rankings / leaderboards ═══
+  window.__RK_METRIC='profit_week'; window.__RK_SCOPE='global';
+  function rkFmt(metric,v){ v=+v||0;
+    if(metric==='xp'){ return v.toLocaleString('pt-BR'); }
+    if(metric==='bestiary'){ return v+' <span class="rk-unit">/822</span>'; }
+    if(metric==='completas'){ return v+' <span class="rk-unit">/822</span>'; }
+    if(metric==='charm'){ return v.toLocaleString('pt-BR')+' <span class="rk-unit">/28.309</span>'; }
+    var s=v<0?'-':''; var a=Math.abs(v);
+    var t=a>=1e9?(a/1e9).toFixed(1)+'kkk':a>=1e6?(a/1e6).toFixed(1)+'kk':a>=1e3?(a/1e3).toFixed(0)+'k':(''+a);
+    return s+t; }
+  function rkMetricLabel(m){ return m==='profit_week'?'Profit (7 dias)':m==='xpweek'?'XP de hunt (7 dias)':m==='bestiary'?'Criaturas descobertas':m==='completas'?'Bestiary completos':m==='charm'?'Charm points ganhos':'XP da comunidade'; }
+  window.tpRankMetric=function(m,btn){ window.__RK_METRIC=m; document.querySelectorAll('#profile .rk-mbtn').forEach(function(b){b.classList.toggle('on',b===btn);}); tpLoadRankings(); };
+  window.tpRankScope=function(s,btn){ window.__RK_SCOPE=s; document.querySelectorAll('#profile .rk-sbtn').forEach(function(b){b.classList.toggle('on',b===btn);}); tpLoadRankings(); };
+  window.tpLoadRankings=async function(){
+    var host=document.getElementById('pf-rank-body'); if(!host) return;
+    var A=window.TP_AUTH; if(!A||!A.user){ host.innerHTML='<div class="vit-empty">Entre na sua conta pra ver os rankings. 🐼</div>'; return; }
+    host.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando ranking...</div>';
+    var metric=window.__RK_METRIC, scope=window.__RK_SCOPE;
+    var d=null; try{ var r=await af(SB+'/rest/v1/rpc/tp_leaderboard',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({p_metric:metric,p_scope:scope})}); if(r.ok) d=await r.json(); }catch(e){}
+    if(scope!==window.__RK_SCOPE||metric!==window.__RK_METRIC) return; // resposta obsoleta
+    if(!d||!d.ok){ host.innerHTML='<div class="vit-empty">Não consegui carregar o ranking agora.</div>'; return; }
+    var rows=d.rows||[];
+    if(!rows.length){ host.innerHTML='<div class="vit-empty">Nada aqui ainda'+(scope==='friends'?' entre seus amigos':'')+'. '+(metric!=='xp'?'Registre hunts no Histórico pra aparecer! ⚔️':'Complete missões pra pontuar! 🐼')+'</div>'; return; }
+    function medal(rk){ return rk===1?'🥇':rk===2?'🥈':rk===3?'🥉':('#'+rk); }
+    var html='<div class="rk-list">'+rows.map(function(x){
+      var nm=x.handle?('@'+x.handle):(x.display_name||x.main_char||'Jogador');
+      var sub=(x.display_name&&x.handle)?x.display_name:(x.main_char||'');
+      var od=''; try{ od=JSON.stringify(x.outfit||{}).replace(/"/g,'&quot;'); }catch(e){ od='{}'; }
+      return '<div class="rk-row'+(x.is_me?' me':'')+' rk-top'+(x.rank<=3?x.rank:'n')+'" onclick="tpOpenProfile(\''+x.user_id+'\')">'
+        +'<span class="rk-pos">'+medal(x.rank)+'</span>'
+        +'<span class="rk-av" data-rkout="'+od+'"><span class="rk-avfb">🐼</span></span>'
+        +'<div class="rk-info"><div class="rk-nm"><b>'+window.esc(nm)+'</b>'+(x.level?' <span class="rk-lvl">nv '+x.level+'</span>':'')+'</div>'+(sub?'<span class="rk-sub">'+window.esc(sub)+'</span>':'')+'</div>'
+        +'<span class="rk-val">'+rkFmt(metric,x.value)+'</span></div>';
+    }).join('')+'</div>';
+    if(d.me && d.me.rank && !rows.some(function(x){return x.is_me;})){
+      html+='<div class="rk-me-foot">Sua posição: <b>#'+d.me.rank+'</b> · '+rkFmt(metric,d.me.value)+'</div>';
+    }
+    html+='<div class="rk-foot">'+rkMetricLabel(metric)+' · '+(scope==='global'?'Global':'Entre amigos')+' · top '+rows.length+'</div>';
+    host.innerHTML=html;
+    rkRenderAvatars(host);
+  };
+  function rkRenderAvatars(root){ if(!window.tpGetOutfitter) return;
+    var els=[].slice.call(root.querySelectorAll('.rk-av[data-rkout]')); var i=0;
+    function next(){ if(i>=els.length) return; var el=els[i++]; var o; try{ o=JSON.parse((el.getAttribute('data-rkout')||'{}').replace(/&quot;/g,'"')); }catch(e){ o={}; }
+      if(o.outfit_id==null){ next(); return; }
+      window.tpGetOutfitter().then(function(of){ var cv=document.createElement('canvas');
+        of.render({outfit:+o.outfit_id,head:+o.head||0,body:+o.body||0,legs:+o.legs||0,feet:+o.feet||0,addons:+o.addons||0,dir:2,mount:0},cv,1)
+          .then(function(){ el.innerHTML=''; el.appendChild(cv); next(); }).catch(function(){ next(); }); }).catch(function(){ next(); });
+    }
+    for(var k=0;k<6;k++) next();
   }
 
   async function refreshCoins(){
@@ -13609,7 +13708,20 @@ window.tpToast=function(msg,type){
   .tp-social-unread{background:#e05a5a;color:#fff;border-radius:999px;font-size:.65rem;font-weight:800;padding:0 6px;min-width:16px;text-align:center}
   .tp-social-pop{position:absolute;bottom:100%;right:0;width:290px;max-height:60vh;overflow:auto;background:var(--bg-1,#14131c);border:1px solid var(--rule,#2b2938);border-radius:12px 12px 0 0;box-shadow:0 -14px 44px rgba(0,0,0,.5);display:none;margin-bottom:2px}
   .tp-social-pop.open{display:block}
-  .tp-social-pop-hd{font-weight:800;font-size:.85rem;color:var(--ink,#eae8f2);padding:.7rem .9rem;border-bottom:1px solid var(--rule,#2b2938);position:sticky;top:0;background:var(--bg-1,#14131c)}
+  .tp-social-pop-hd{font-weight:800;font-size:.85rem;color:var(--ink,#eae8f2);padding:.7rem .9rem;border-bottom:1px solid var(--rule,#2b2938);position:sticky;top:0;background:var(--bg-1,#14131c);display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+  .tp-notif-launch{padding:.6rem .75rem}
+  .tp-notif-mark{background:none;border:none;color:var(--muted,#9a97a8);font-size:.7rem;font-weight:700;cursor:pointer;text-decoration:underline;padding:0}
+  .tp-notif-mark:hover{color:var(--ink,#eae8f2)}
+  .tp-notif-row{display:flex;gap:.6rem;align-items:flex-start;padding:.6rem .8rem .6rem 1.15rem;border-bottom:1px solid var(--rule,#2b2938);cursor:pointer;position:relative}
+  .tp-notif-row:hover{background:rgba(255,255,255,.045)}
+  .tp-notif-row.unread{background:rgba(139,92,246,.10)}
+  .tp-notif-row.unread::before{content:"";position:absolute;left:.45rem;top:.95rem;width:6px;height:6px;border-radius:50%;background:var(--bamboo,#8b5cf6)}
+  .tp-notif-ic{font-size:1.05rem;width:34px;height:34px;flex:0 0 34px;display:flex;align-items:center;justify-content:center;background:var(--bg-2,#1c1a26);border-radius:9px}
+  .tp-notif-row .soc-av{width:34px;height:34px;flex:0 0 34px}
+  .tp-notif-tx{font-size:.8rem;color:var(--ink,#eae8f2);line-height:1.35}
+  .tp-notif-tx b{font-weight:800}
+  .tp-notif-time{font-size:.68rem;color:var(--muted,#9a97a8);margin-top:.15rem}
+  .tp-notif-empty{padding:1.4rem 1rem;color:var(--muted,#9a97a8);font-size:.82rem;text-align:center;line-height:1.4}
   .soc-frow,.soc-reqrow,.soc-manage{display:flex;align-items:center;gap:.5rem;padding:.5rem .9rem;cursor:pointer;font-size:.82rem;color:var(--ink,#eae8f2)}
   .soc-frow:hover,.soc-reqrow:hover,.soc-manage:hover{background:var(--bg-2,#1b1a25)}
   .soc-fn{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -13694,6 +13806,10 @@ window.tpToast=function(msg,type){
 </style>
 <div id="tp-social" style="display:none">
   <div id="tp-chat-wins"></div>
+  <div class="tp-social-bar" id="tp-notif-bar">
+    <div id="tp-notif-pop" class="tp-social-pop"><div class="tp-social-pop-hd" id="tp-notif-pop-hd">Notificações</div><div id="tp-notif-pop-body"></div></div>
+    <button class="tp-social-launch tp-notif-launch" onclick="tpNotifToggle()" title="Notificações"><span>🔔</span><span id="tp-notif-unread" class="tp-social-unread" style="display:none">0</span></button>
+  </div>
   <div class="tp-social-bar">
     <div id="tp-social-pop" class="tp-social-pop"><div class="tp-social-pop-hd" id="tp-social-pop-hd">Amigos</div><div id="tp-social-pop-body"></div></div>
     <button class="tp-social-launch" onclick="tpSocialToggle()"><span>👥</span><span id="tp-social-lbl">Amigos</span><span id="tp-social-unread" class="tp-social-unread" style="display:none">0</span></button>
@@ -13713,7 +13829,8 @@ window.tpToast=function(msg,type){
   async function rpc(fn,args){ try{ var r=await af()(SB+'/rest/v1/rpc/'+fn,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(args||{})}); if(!r.ok) return null; return await r.json(); }catch(e){ return null; } }
 
   var FRIENDS=[],INCOMING=[],OUTGOING=[],INBOX=[],MSGS={},chats={};
-  var started=false,tPres=null,tFr=null,tIn=null,tChat=null;
+  var started=false,tPres=null,tFr=null,tIn=null,tChat=null,tNotif=null;
+  var NOTIFS=[],notifUnread=0;
 
   function lbl(o){ if(!o) return 'Amigo'; return o.handle?('@'+o.handle):(o.display_name||o.main_char||'Amigo'); }
   function sub(o){ if(!o) return ''; var parts=[]; if(o.handle && (o.display_name||o.main_char)) parts.push(o.display_name||o.main_char); else if(!o.handle && o.main_char) parts.push(o.main_char); return parts.join(' · '); }
@@ -13722,7 +13839,7 @@ window.tpToast=function(msg,type){
   function popOpen(){ var p=document.getElementById('tp-social-pop'); return p&&p.classList.contains('open'); }
 
   var _liveBound=false, _lastPoll=0;
-  function tpPollNow(){ if(!me()) return; var t=Date.now(); if(t-_lastPoll<800) return; _lastPoll=t; try{ pollChats(); }catch(e){} try{ refreshInbox(); }catch(e){} }
+  function tpPollNow(){ if(!me()) return; var t=Date.now(); if(t-_lastPoll<800) return; _lastPoll=t; try{ pollChats(); }catch(e){} try{ refreshInbox(); }catch(e){} try{ refreshNotifs(); }catch(e){} }
   window.tpPollNow=tpPollNow;
   function bindLive(){
     if(_liveBound) return; _liveBound=true;
@@ -13739,8 +13856,10 @@ window.tpToast=function(msg,type){
     refreshFriends(); tFr=setInterval(refreshFriends,45000);
     refreshInbox(); tIn=setInterval(refreshInbox,8000);
     tChat=setInterval(pollChats,2500);
+    refreshNotifs(); tNotif=setInterval(refreshNotifs,30000);
   }
-  function stopSocial(){ started=false; [tPres,tFr,tIn,tChat].forEach(function(x){ if(x) clearInterval(x); }); tPres=tFr=tIn=tChat=null;
+  function stopSocial(){ started=false; [tPres,tFr,tIn,tChat,tNotif].forEach(function(x){ if(x) clearInterval(x); }); tPres=tFr=tIn=tChat=tNotif=null;
+    NOTIFS=[];notifUnread=0; var nb=document.getElementById('tp-notif-unread'); if(nb) nb.style.display='none';
     FRIENDS=[];INCOMING=[];OUTGOING=[];INBOX=[];chats={};MSGS={};
     var w=document.getElementById('tp-chat-wins'); if(w) w.innerHTML='';
     var dock=document.getElementById('tp-social'); if(dock) dock.style.display='none'; }
@@ -13806,7 +13925,54 @@ window.tpToast=function(msg,type){
       if(off.length){ rows+='<div class="soc-sec">Offline — '+off.length+'</div>'+off.map(function(f){ return frRow2(f,un); }).join(''); }
     } else { rows='<div class="soc-empty">Sem amigos ainda. Adicione na aba <b>Amigos</b> do perfil.</div>'; }
     host.innerHTML=req+rows+'<div class="soc-manage" onclick="tpGoFriends()">⚙️ Gerenciar amigos</div>'; socRenderAvatars(host); }
-  window.tpSocialToggle=function(){ var p=document.getElementById('tp-social-pop'); if(!p) return; p.classList.toggle('open'); if(p.classList.contains('open')) renderDockPop(); };
+  // ===== Notificações =====
+  function notifPopOpen(){ var p=document.getElementById('tp-notif-pop'); return p&&p.classList.contains('open'); }
+  async function refreshNotifs(){ if(!me()) return; var d=await rpc('tp_notifications'); if(!d||!d.ok) return;
+    NOTIFS=d.rows||[]; notifUnread=+d.unread||0; renderNotifBadge(); if(notifPopOpen()) renderNotifPop(); }
+  function renderNotifBadge(){ var nb=document.getElementById('tp-notif-unread'); if(!nb) return;
+    nb.textContent=notifUnread>9?'9+':notifUnread; nb.style.display=notifUnread>0?'':'none'; }
+  function notifName(a){ if(!a) return 'Alguém'; return a.display_name||(a.handle?('@'+a.handle):null)||a.main_char||'Alguém'; }
+  function notifIcon(t){ return t==='friend_request'||t==='friend_accept'?'👤':t==='testimonial'?'💬':'🔔'; }
+  function notifText(n){ var nm='<b>'+esc(notifName(n.actor))+'</b>';
+    if(n.type==='friend_request') return nm+' te enviou um pedido de amizade.';
+    if(n.type==='friend_accept')  return nm+' aceitou seu pedido de amizade.';
+    if(n.type==='testimonial')    return nm+' deixou um depoimento no seu perfil.';
+    if(n.type==='pass_reward')    return 'Recompensa do <b>Passe do Panda</b> nível '+esc(''+(n.ref||''))+' liberada para resgate!';
+    return 'Nova notificação.'; }
+  function notifAvatar(n){ var a=n.actor;
+    if(n.type!=='pass_reward' && a && a.outfit && a.outfit.outfit_id!=null){ SOC_OUT['nf:'+n.id]=a.outfit;
+      return '<span class="soc-av" data-fid="nf:'+n.id+'"><span class="soc-av-fb">🐼</span></span>'; }
+    return '<span class="tp-notif-ic">'+(n.type==='pass_reward'?'🎁':notifIcon(n.type))+'</span>'; }
+  function renderNotifPop(){ var host=document.getElementById('tp-notif-pop-body'); if(!host) return;
+    var hd=document.getElementById('tp-notif-pop-hd');
+    if(hd) hd.innerHTML='Notificações'+(NOTIFS.length?' <button class="tp-notif-mark" onclick="tpNotifReadAll(event)">Marcar como lidas</button>':'');
+    if(!NOTIFS.length){ host.innerHTML='<div class="tp-notif-empty">Nenhuma notificação por aqui.<br>Pedidos de amizade, depoimentos e recompensas do passe aparecem aqui.</div>'; return; }
+    host.innerHTML=NOTIFS.map(function(n){
+      return '<div class="tp-notif-row'+(n.read?'':' unread')+'" onclick="tpNotifClick(\''+n.id+'\')">'+notifAvatar(n)
+        +'<div><div class="tp-notif-tx">'+notifText(n)+'</div><div class="tp-notif-time">'+rel(n.created_at)+'</div></div></div>';
+    }).join('');
+    if(window.tpSocRenderAvatars) window.tpSocRenderAvatars(host);
+  }
+  async function markNotifsRead(ids){ try{ await rpc('tp_notif_read', ids?{p_ids:ids}:{}); }catch(e){}
+    NOTIFS.forEach(function(n){ if(!ids||ids.indexOf(n.id)>=0) n.read=true; });
+    notifUnread=NOTIFS.filter(function(n){return !n.read;}).length; renderNotifBadge(); }
+  window.tpNotifReadAll=function(ev){ if(ev){ ev.stopPropagation(); } markNotifsRead(null).then(function(){ if(notifPopOpen()) renderNotifPop(); }); };
+  window.tpNotifToggle=function(){ var p=document.getElementById('tp-notif-pop'); if(!p) return;
+    var sp=document.getElementById('tp-social-pop'); if(sp) sp.classList.remove('open');
+    p.classList.toggle('open');
+    if(p.classList.contains('open')){ renderNotifPop(); if(notifUnread>0) markNotifsRead(null); } };
+  window.tpNotifClick=function(id){ var n=NOTIFS.filter(function(x){return x.id===id;})[0]; if(!n) return;
+    var p=document.getElementById('tp-notif-pop'); if(p) p.classList.remove('open');
+    if(n.type==='friend_request'){ if(window.tpGoFriends) tpGoFriends(); }
+    else if(n.type==='pass_reward'){ tpGoPass(); }
+    else if((n.type==='friend_accept'||n.type==='testimonial') && n.actor_id){ if(window.tpOpenProfile) window.tpOpenProfile(n.actor_id); }
+    else if(window.tpGoFriends){ tpGoFriends(); } };
+  function tpGoPass(){ if(typeof showPage==='function'){ var b=document.querySelector('.nav-btn[onclick*="profile"]'); showPage('profile',b); }
+    var t=document.querySelector('#profile .pf-tab[data-tab=prog]'); if(t) t.click();
+    setTimeout(function(){ var el=document.querySelector('#profile .pass-track,#profile .pass-feature,#profile [class*="pass"]'); if(el&&el.scrollIntoView) el.scrollIntoView({behavior:'smooth',block:'center'}); },250); }
+  window.tpSocialToggle=function(){ var p=document.getElementById('tp-social-pop'); if(!p) return;
+    var np=document.getElementById('tp-notif-pop'); if(np) np.classList.remove('open');
+    p.classList.toggle('open'); if(p.classList.contains('open')) renderDockPop(); };
   window.tpGoFriends=function(){ if(typeof showPage==='function'){ var b=document.querySelector('.nav-btn[onclick*="profile"]'); showPage('profile',b); } var t=document.querySelector('#profile .pf-tab[data-tab=amigos]'); if(t) t.click(); var p=document.getElementById('tp-social-pop'); if(p) p.classList.remove('open'); };
 
   // ---- chat ----
