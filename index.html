@@ -1486,6 +1486,10 @@ async function tibiaFetch(path) {
       <div id="world-online-count"></div>
     </div>
     <div class="topbar-right">
+      <div id="tp-topnotif" style="display:none;position:relative">
+        <button class="tp-topnotif-btn" onclick="tpNotifToggle()" title="Notificações"><span>🔔</span><span id="tp-notif-unread" class="tp-social-unread" style="display:none">0</span></button>
+        <div id="tp-notif-pop" class="tp-social-pop tp-notif-pop-top"><div class="tp-social-pop-hd" id="tp-notif-pop-hd">Notificações</div><div id="tp-notif-pop-body"></div></div>
+      </div>
       <div id="tp-auth-area" style="display:flex;gap:.5rem;align-items:center"></div>
       <!-- dark-toggle oculto via CSS, gerenciado pelo sidebar-footer -->
       <button class="dark-toggle" onclick="toggleDark()" id="dark-btn-hidden" style="display:none"></button>
@@ -3596,7 +3600,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13au</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13aw</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6614,7 +6618,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13au';
+window.TP_BUILD = '2026-08-13aw';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -9524,22 +9528,28 @@ function showDeliveryPrice(row, data, est){
   priceCell.innerHTML = (data && (data.sell>0 || data.buy>0)) ? dtLiveHtml(data) : dtEstHtml(est);
 }
 
-// carrega TODAS as ofertas do mundo selecionado (uma leva, cacheada por mundo)
+// carrega TODAS as ofertas do mundo selecionado numa ÚNICA requisição (a API do
+// Tibia Market Tracker limita a 1 req / ~5s — por isso nada de chunk/loop).
+async function tmMarketFetch(world, ids){
+  const url = TM_API + '/market_values?server=' + encodeURIComponent(world) + '&limit=5000&item_ids=' + ids.join(',');
+  const ctrl = new AbortController(); const timer = setTimeout(()=>ctrl.abort(), 15000);
+  try {
+    let res = await fetch(url, { headers:{'Accept':'application/json'}, signal: ctrl.signal });
+    if (res.status === 429){ // respeita o rate-limit e tenta 1x
+      const wait = Math.min(6, (parseInt(res.headers.get('retry-after'))||5)) * 1000;
+      await new Promise(r=>setTimeout(r, wait));
+      res = await fetch(url, { headers:{'Accept':'application/json'} });
+    }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } finally { clearTimeout(timer); }
+}
 async function tmLoadWorld(world){
   if (window.__DT_MKT[world]) return window.__DT_MKT[world];
   const ids = Object.values(window.DT_MARKET_IDS || {});
   const map = {};
-  for (let i=0; i<ids.length; i+=250){
-    const chunk = ids.slice(i, i+250);
-    const url = TM_API + '/market_values?server=' + encodeURIComponent(world) + '&limit=1000&item_ids=' + chunk.join(',');
-    const ctrl = new AbortController(); const timer = setTimeout(()=>ctrl.abort(), 12000);
-    try {
-      const res = await fetch(url, { headers:{'Accept':'application/json'}, signal: ctrl.signal });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      const arr = await res.json();
-      (Array.isArray(arr)?arr:[]).forEach(r=>{ map[r.id] = { sell: r.buy_offer||0, buy: r.sell_offer||0, mavg: r.month_average_sell||0 }; });
-    } finally { clearTimeout(timer); }
-  }
+  const arr = await tmMarketFetch(world, ids);
+  (Array.isArray(arr)?arr:[]).forEach(r=>{ map[r.id] = { sell: r.buy_offer||0, buy: r.sell_offer||0, mavg: r.month_average_sell||0 }; });
   window.__DT_MKT[world] = map;
   return map;
 }
@@ -9572,6 +9582,16 @@ async function dtLoadLivePrices(){
   }
 }
 
+// trocou de mundo no topo → zera o market do Task Delivery (preço é por mundo)
+window.tpResetDeliveryPrices=function(world){
+  for(var k in dtPriceCache) delete dtPriceCache[k];
+  window.__DT_MKT={};
+  var wl=document.getElementById('dt-live-world'); if(wl&&world) wl.textContent=world;
+  var st=document.getElementById('dt-live-status');
+  if(st) st.innerHTML='Mundo alterado para <b>'+(world||dtWorld())+'</b> — clique em <b>⚡ Preços ao vivo</b> pra carregar o market dele.';
+  var sec=document.getElementById('delivery');
+  if(sec&&sec.classList.contains('active')&&typeof renderDeliveryTable==='function') renderDeliveryTable();
+};
 // clique numa linha: se o mundo já foi carregado, mostra do cache; senão busca só aquele item
 async function lookupDeliveryPrice(itemName, row){
   const est = dtEstOf(itemName);
@@ -10009,9 +10029,11 @@ async function loadPartyFinder() {
   const lvlMax = parseInt(document.getElementById('pf-lvl-max').value) || 4000;
 
   try {
+    // Mundo selecionado no topo (não mais fixo no Gentebra)
+    const pfWorld = (typeof CONFIG!=='undefined' && CONFIG.world) ? CONFIG.world : PF_WORLD;
     // Busca paralela: mundo + guild pandas + guildas a evitar
     const guildFetches = [
-      tibiaFetch('/v4/world/' + encodeURIComponent(PF_WORLD)),
+      tibiaFetch('/v4/world/' + encodeURIComponent(pfWorld)),
       tibiaFetch('/v4/guild/' + encodeURIComponent(PF_GUILD)),
     ];
     // Busca membros de cada guild selecionada para evitar
@@ -11264,9 +11286,11 @@ function ewEnsureTcInput() {
     const sd=g('server-display'); if(sd) sd.textContent=name;
     const sw=g('stat-world'); if(sw) sw.textContent=name;
     const bw=g('brand-world'); if(bw) bw.textContent=name;
+    try{ if(window.tpResetDeliveryPrices) window.tpResetDeliveryPrices(name); }catch(e){}
     if(typeof loadWorld==='function'){ try{ loadWorld(); }catch(e){} }
     try{ if(typeof bossSpawnData!=='undefined'){ bossSpawnData=[]; leverBossData=[]; } }catch(e){}
     const bp=g('bosses'); if(bp && bp.classList.contains('active') && typeof loadBossSpawn==='function'){ try{ loadBossSpawn(); }catch(e){} }
+    const pfp=g('partyfinder'); if(pfp && pfp.classList.contains('active') && typeof loadPartyFinder==='function'){ try{ loadPartyFinder(); }catch(e){} }
     render('');
   };
   async function loadList(){
@@ -11598,6 +11622,7 @@ function ewEnsureTcInput() {
 
   function updateUI(){
     const acct=g('nav-account'); if(acct) acct.style.display=(AUTH&&AUTH.user)?'block':'none';
+    const tn=g('tp-topnotif'); if(tn) tn.style.display=(AUTH&&AUTH.user)?'block':'none';
     const area=g('tp-auth-area'); if(!area) return;
     if(AUTH&&AUTH.user){
       const nm=(AUTH.profile&&AUTH.profile.display_name)||(AUTH.user.email||'').split('@')[0];
@@ -12334,6 +12359,12 @@ function ewEnsureTcInput() {
           +'</div>';
       }).join('');
       tpDrawAvatars(window.__tpChars);
+      // Os personagens carregam async DEPOIS do showPage já ter chamado a vitrine/resumo
+      // (que ficaram vazios por não ter char ainda). Agora que chegaram, reidrata a aba Visão.
+      if(window.__tpChars.length){
+        var visaoOn=document.querySelector('#profile .pf-tab[data-tab=visao].on') || !document.querySelector('#profile .pf-tab.on');
+        if(visaoOn){ if(window.tpLoadVitrine) tpLoadVitrine(); if(window.tpVisaoHome) tpVisaoHome(); }
+      }
     }catch(e){ list.innerHTML='<div style="color:#f8746a;font-size:.85rem">Erro: '+e.message+'</div>'; }
   };
   window.tpSetMain=async function(id){
@@ -12445,17 +12476,24 @@ function ewEnsureTcInput() {
   function tpFloorById(id){ for(var i=0;i<TP_FLOORS.length;i++){ if(TP_FLOORS[i].id===id) return TP_FLOORS[i]; } return TP_FLOORS[0]; }
   var _heroAnim=null, _heroCfg=null;
   function tpHeroStop(){ if(_heroAnim){ clearInterval(_heroAnim); _heroAnim=null; } var b=g('pf-hero-animbtn'); if(b){ b.classList.remove('on'); b.textContent='▶ Andar'; } var cv=g('pf-hero-cv'); if(cv) cv.style.transform=''; }
+  // nº de quadros de caminhada do outfit atual (0/1 = pack sem frames reais → usa balanço)
+  function tpWalkFrames(of){ try{ var o=of&&of.manifest&&of.manifest.outfits[_heroCfg.outfit]; return (o&&o.frames)||1; }catch(e){ return 1; } }
   window.tpHeroAnim=function(){
     var cv=g('pf-hero-cv'); if(!cv||!_heroCfg) return;
     if(_heroAnim){ tpHeroStop(); _heroCfg.frame=0; tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).catch(function(){}); }); return; }
     var b=g('pf-hero-animbtn'); if(b){ b.classList.add('on'); b.textContent='⏸ Parar'; }
-    // Animação de CAMINHAR: cicla frames (anima mount montada e outfit se o pack tiver quadros)
-    // + passo vertical (balanço) que dá o movimento de andar mesmo com pack de 1 frame.
-    var step=0;
-    _heroAnim=setInterval(function(){
-      _heroCfg.frame=((_heroCfg.frame||0)+1); step=(step+1)%2;
-      tpOutfitter().then(function(of){ of.render(_heroCfg,cv,3).then(function(){ cv.style.transform=step?'translateY(-3px)':'translateY(0)'; }).catch(function(){}); }).catch(function(){});
-    },200);
+    // Caminhar: se o pack tem quadros reais (frames>1), cicla o ciclo de andar de verdade
+    // (frame 0 = parado; 1..N-1 = passos). Sem quadros, cai num balanço vertical sutil.
+    tpOutfitter().then(function(of){
+      var frames=tpWalkFrames(of), real=frames>1, i=real?1:0, step=0;
+      _heroCfg.frame=real?1:0;
+      _heroAnim=setInterval(function(){
+        if(real){ _heroCfg.frame=i; i++; if(i>=frames) i=1;
+          of.render(_heroCfg,cv,3).catch(function(){}); }
+        else { step=(step+1)%2;
+          of.render(_heroCfg,cv,3).then(function(){ cv.style.transform=step?'translateY(-3px)':'translateY(0)'; }).catch(function(){}); }
+      }, real?140:200);
+    }).catch(function(){});
   };
   window.tpSetFloor=function(id){
     var f=tpFloorById(id); if(!f) return;
@@ -13130,7 +13168,13 @@ window.tpToast=function(msg,type){
     ta.value=ta.value.slice(0,a)+e+ta.value.slice(b); ta.focus(); try{ ta.selectionStart=ta.selectionEnd=a+e.length; }catch(_){}
     var pop=document.getElementById('tp-prof-emoji'); if(pop) pop.style.display='none'; };
   window.tpOpenProfile=async function(fid){
-    if(!fid) return;
+    // Sem id = MEU perfil → abre a PÁGINA completa (não o card flutuante de amigo)
+    if(!fid){
+      if(!(window.TP_AUTH&&window.TP_AUTH.user)){ if(window.tpOpenAuth) window.tpOpenAuth('login'); return; }
+      if(typeof showPage==='function'){ var pb=document.querySelector('.nav-btn[onclick*="profile"]')||document.querySelector('.nav-btn'); showPage('profile',pb); }
+      if(window.tpLoadGamify) window.tpLoadGamify();
+      return;
+    }
     var host=document.getElementById('tp-prof-modal');
     if(!host){ host=document.createElement('div'); host.id='tp-prof-modal'; host.className='tp-prof-ov'; host.onclick=function(e){ if(e.target===host) window.tpProfClose(); }; document.body.appendChild(host); }
     host.style.display='flex';
@@ -13749,6 +13793,11 @@ window.tpToast=function(msg,type){
   .tp-social-pop.open{display:block}
   .tp-social-pop-hd{font-weight:800;font-size:.85rem;color:var(--ink,#eae8f2);padding:.7rem .9rem;border-bottom:1px solid var(--rule,#2b2938);position:sticky;top:0;background:var(--bg-1,#14131c);display:flex;align-items:center;justify-content:space-between;gap:.5rem}
   .tp-notif-launch{padding:.6rem .75rem}
+  .tp-topnotif-btn{position:relative;background:transparent;border:1px solid var(--rule,#2b2938);color:var(--ink,#eae8f2);border-radius:10px;padding:.42rem .55rem;cursor:pointer;font-size:1rem;line-height:1;display:flex;align-items:center}
+  .tp-topnotif-btn:hover{background:var(--bg-2,#1c1a26)}
+  #tp-topnotif .tp-social-unread{position:absolute;top:-5px;right:-5px;min-width:15px}
+  .tp-notif-pop-top{bottom:auto!important;top:calc(100% + 8px)!important;right:0;left:auto;border-radius:12px!important;z-index:2000;max-height:70vh;width:320px}
+  @media(max-width:520px){ .tp-notif-pop-top{width:calc(100vw - 24px);position:fixed;top:56px!important;right:8px} }
   .tp-notif-mark{background:none;border:none;color:var(--muted,#9a97a8);font-size:.7rem;font-weight:700;cursor:pointer;text-decoration:underline;padding:0}
   .tp-notif-mark:hover{color:var(--ink,#eae8f2)}
   .tp-notif-row{display:flex;gap:.6rem;align-items:flex-start;padding:.6rem .8rem .6rem 1.15rem;border-bottom:1px solid var(--rule,#2b2938);cursor:pointer;position:relative}
@@ -13845,10 +13894,6 @@ window.tpToast=function(msg,type){
 </style>
 <div id="tp-social" style="display:none">
   <div id="tp-chat-wins"></div>
-  <div class="tp-social-bar" id="tp-notif-bar">
-    <div id="tp-notif-pop" class="tp-social-pop"><div class="tp-social-pop-hd" id="tp-notif-pop-hd">Notificações</div><div id="tp-notif-pop-body"></div></div>
-    <button class="tp-social-launch tp-notif-launch" onclick="tpNotifToggle()" title="Notificações"><span>🔔</span><span id="tp-notif-unread" class="tp-social-unread" style="display:none">0</span></button>
-  </div>
   <div class="tp-social-bar">
     <div id="tp-social-pop" class="tp-social-pop"><div class="tp-social-pop-hd" id="tp-social-pop-hd">Amigos</div><div id="tp-social-pop-body"></div></div>
     <button class="tp-social-launch" onclick="tpSocialToggle()"><span>👥</span><span id="tp-social-lbl">Amigos</span><span id="tp-social-unread" class="tp-social-unread" style="display:none">0</span></button>
