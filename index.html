@@ -3600,7 +3600,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13aw</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13ax</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6618,7 +6618,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13aw';
+window.TP_BUILD = '2026-08-13ax';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -12539,6 +12539,7 @@ function ewEnsureTcInput() {
   };
   window.tpDispGoStore=function(){
     tpCloseDisplay();
+    if(window.tpCloseOutfit) try{ window.tpCloseOutfit(); }catch(e){} // fecha o picker também (evita backdrop preto)
     var b=document.querySelector('.nav-btn[onclick*="store"]')||document.querySelector('[onclick*="showPage(\'store\'"]');
     if(typeof showPage==='function') showPage('store', b);
     setTimeout(function(){ var sb=document.querySelector('[data-smode="floors"]'); if(sb&&window.tpStoreMode){ try{ tpStoreMode('floors', sb); }catch(e){} } },60);
@@ -12624,7 +12625,7 @@ function ewEnsureTcInput() {
     }).catch(function(e){ body.innerHTML='<div style="color:#f8746a;font-size:.85rem;padding:.5rem">Não consegui carregar o pacote de outfits em <code>'+((typeof OUTFIT_BASE!=='undefined')?OUTFIT_BASE:'?')+'</code>. Confira o <code>OUTFIT_BASE</code> / hospedagem do pacote.</div>'; });
   };
   window.tpCloseOutfit=function(){ if(window.__tpSpinStop) window.__tpSpinStop(); var m=g('tp-of-modal'); if(m) m.style.display='none'; _ofApi=null; _ofCharId=null; };
-  window.tpOfGoStore=function(){ tpCloseOutfit(); var b=document.querySelector('.nav-btn[onclick*="store"]')||document.querySelector('[onclick*="showPage(\'store\'"]'); if(typeof showPage==='function') showPage('store', b); };
+  window.tpOfGoStore=function(){ tpCloseOutfit(); if(window.tpCloseDisplay) try{ window.tpCloseDisplay(); }catch(e){} /* fecha o display modal por baixo (evita sobreposição + tela preta) */ var b=document.querySelector('.nav-btn[onclick*="store"]')||document.querySelector('[onclick*="showPage(\'store\'"]'); if(typeof showPage==='function') showPage('store', b); };
   window.tpSaveOutfit=async function(){
     if(!_ofApi||!_ofCharId||!AUTH) return;
     var v=_ofApi.getValue(); var btn=g('tp-of-save'); if(btn){ btn.disabled=true; btn.textContent='Salvando...'; }
