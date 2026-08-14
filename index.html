@@ -3600,7 +3600,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13az</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13ba</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6618,7 +6618,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13az';
+window.TP_BUILD = '2026-08-13ba';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -8553,6 +8553,66 @@ function activityBadge(killedToday, killedWeek) {
   return `<span title="Sem mortes registradas nos últimos 7 dias no servidor" style="display:inline-flex;align-items:center;gap:3px;font-size:.68rem;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1px 7px;margin-top:3px">&#x1F4A4; Inativo</span>`;
 }
 
+// ── Tela de informações do boss (loot + vida/exp via TibiaData + atividade via kill stats) ──
+function _bossEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+function bossRace(name){ return (name||'').toLowerCase().replace(/['\u2019`]/g,'').trim(); }
+window.tpCloseBoss=function(){ var m=document.getElementById('tp-boss-modal'); if(m) m.style.display='none'; };
+window.tpBossCache=window.tpBossCache||{};
+window.tpOpenBoss=async function(name){
+  if(!name) return;
+  if(!document.getElementById('tp-boss-style')){
+    var st=document.createElement('style'); st.id='tp-boss-style';
+    st.textContent=".tp-boss-ov{position:fixed;inset:0;z-index:3000;background:rgba(6,6,10,.72);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;padding:6vh 16px;overflow:auto}"
+      +".tp-boss{position:relative;width:100%;max-width:480px;background:var(--bg-1,#14131c);border:1px solid var(--rule,#2b2938);border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.6);font-family:'Inter',sans-serif;overflow:hidden}"
+      +".tp-boss-x{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--muted,#9a97a8);font-size:1.1rem;cursor:pointer;z-index:2}"
+      +".tp-boss-hd{display:flex;gap:.9rem;align-items:center;padding:1.1rem 1.2rem;background:linear-gradient(135deg,rgba(139,92,246,.14),rgba(139,92,246,.03));border-bottom:1px solid var(--rule,#2b2938)}"
+      +".tp-boss-av{width:72px;height:72px;flex:none;border-radius:12px;background:var(--bg-2,#1c1a26);border:1px solid var(--rule,#2b2938);display:flex;align-items:center;justify-content:center;overflow:hidden}"
+      +".tp-boss-av img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}"
+      +".tp-boss-nm{font-size:1.15rem;font-weight:800;color:var(--ink,#eae8f2)}"
+      +".tp-boss-sub{font-size:.75rem;color:var(--muted,#9a97a8);margin-top:2px}"
+      +".tp-boss-body{padding:1rem 1.2rem 1.3rem}"
+      +".tp-boss-stats{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem}"
+      +".tp-boss-stat{flex:1;min-width:90px;background:var(--bg-2,#1c1a26);border:1px solid var(--rule,#2b2938);border-radius:10px;padding:.6rem .7rem}"
+      +".tp-boss-stat .v{font-size:1.02rem;font-weight:800;color:var(--ink,#eae8f2)}"
+      +".tp-boss-stat .k{font-size:.62rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted,#9a97a8);margin-top:2px}"
+      +".tp-boss-sec{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted,#9a97a8);margin:.2rem 0 .5rem}"
+      +".tp-boss-loot{display:flex;flex-wrap:wrap;gap:.35rem}"
+      +".tp-boss-loot span{font-size:.74rem;color:var(--ink,#eae8f2);background:var(--bg-2,#1c1a26);border:1px solid var(--rule,#2b2938);border-radius:20px;padding:.2rem .6rem}"
+      +".tp-boss-empty{color:var(--muted,#9a97a8);font-size:.8rem}";
+    document.head.appendChild(st);
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') tpCloseBoss(); });
+  }
+  var host=document.getElementById('tp-boss-modal');
+  if(!host){ host=document.createElement('div'); host.id='tp-boss-modal'; host.className='tp-boss-ov'; host.onclick=function(e){ if(e.target===host) tpCloseBoss(); }; document.body.appendChild(host); }
+  host.style.display='flex';
+  var b=(typeof bossSpawnData!=='undefined'?bossSpawnData:[]).filter(function(x){return x.name===name;})[0]||{name:name};
+  var act=activityBadge(b.killedToday!=null?b.killedToday:null, b.killedWeek!=null?b.killedWeek:null)||'';
+  var img=bossImgUrl(name), fb=creatureImgUrl(name);
+  host.innerHTML='<div class="tp-boss"><button class="tp-boss-x" onclick="tpCloseBoss()">\u2715</button>'
+    +'<div class="tp-boss-hd"><div class="tp-boss-av"><img src="'+img+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+fb.replace(/'/g,"\\'")+'\'}else{this.parentNode.innerHTML=\'<span style=font-size:2rem>\uD83D\uDC7F</span>\'}"></div>'
+    +'<div><div class="tp-boss-nm">'+_bossEsc(name)+'</div><div class="tp-boss-sub">Boss \u00b7 '+_bossEsc((typeof CONFIG!=='undefined'&&CONFIG.world)||'')+'</div><div style="margin-top:6px">'+act+'</div></div></div>'
+    +'<div class="tp-boss-body" id="tp-boss-body"><div class="api-loading"><div class="spinner"></div> Carregando informa\u00e7\u00f5es...</div></div></div>';
+  var c=window.tpBossCache[name];
+  try{
+    if(!c){ var d=await tibiaFetch('/v4/creature/'+encodeURIComponent(bossRace(name))); c=(d&&d.creature)?d.creature:null; if(c) window.tpBossCache[name]=c; }
+  }catch(e){ c=null; }
+  var body=document.getElementById('tp-boss-body'); if(!body) return;
+  var hp=c&&(c.hitpoints||c.hit_points), exp=c&&(c.experience_points||c.experience);
+  var loot=(c&&(c.loot_list||c.loot))||[];
+  var diff=hp?(hp>=90000?'Muito dif\u00edcil':hp>=25000?'Dif\u00edcil':hp>=8000?'M\u00e9dio':'Acess\u00edvel'):null;
+  var html='<div class="tp-boss-stats">'
+    +'<div class="tp-boss-stat"><div class="v">'+(hp?Number(hp).toLocaleString('pt-BR'):'\u2014')+'</div><div class="k">Vida (HP)</div></div>'
+    +'<div class="tp-boss-stat"><div class="v">'+(exp?Number(exp).toLocaleString('pt-BR'):'\u2014')+'</div><div class="k">Experi\u00eancia</div></div>'
+    +'<div class="tp-boss-stat"><div class="v">'+(diff||'\u2014')+'</div><div class="k">Dificuldade</div></div></div>'
+    +'<div class="tp-boss-sec">\uD83D\uDCB0 Loot principal</div>';
+  if(loot&&loot.length){ html+='<div class="tp-boss-loot">'+loot.slice(0,40).map(function(it){return '<span>'+_bossEsc(typeof it==='string'?it:(it&&(it.name||it.item)||it))+'</span>';}).join('')+'</div>'; }
+  else { html+='<div class="tp-boss-empty">Sem lista de loot na TibiaData pra este boss.</div>'; }
+  html+='<div class="tp-boss-sec" style="margin-top:1rem">\u2694\uFE0F Atividade no servidor</div>'
+    +'<div>'+(act||'<span class="tp-boss-empty">Sem dados de kill statistics.</span>')+'</div>';
+  if(!c) html+='<div class="tp-boss-empty" style="margin-top:.8rem">N\u00e3o achei ficha detalhada deste boss na TibiaData (alguns bosses de evento n\u00e3o t\u00eam). Vida/loot podem faltar.</div>';
+  body.innerHTML=html;
+};
+
 function renderBossSpawnGrid() {
   const grid   = document.getElementById('boss-spawn-grid');
   const banner = document.getElementById('boss-hot-banner');
@@ -8651,7 +8711,7 @@ function renderBossSpawnGrid() {
     const glowStyle = isHigh ? 'box-shadow:0 0 0 1px rgba(139,92,246,.2),0 3px 12px rgba(139,92,246,.12);' : '';
 
     return `
-    <div style="background:${bg};border:1px solid ${bc};border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;transition:transform .12s,box-shadow .12s;${glowStyle}"
+    <div onclick="tpOpenBoss('${b.name.replace(/'/g,"\\'")}')" style="cursor:pointer;background:${bg};border:1px solid ${bc};border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;transition:transform .12s,box-shadow .12s;${glowStyle}"
          onmouseenter="this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 14px rgba(0,0,0,.1)'"
          onmouseleave="this.style.transform='none';this.style.boxShadow='${isHigh?'0 0 0 1px rgba(139,92,246,.2),0 3px 12px rgba(139,92,246,.12)':'none'}'">
       <div style="width:64px;height:64px;background:var(--paper);border:1px solid var(--rule);border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative">
@@ -8668,7 +8728,7 @@ function renderBossSpawnGrid() {
         </div>` : ''}
         <div style="margin-top:4px">${activityBadge(b.killedToday ?? null, b.killedWeek ?? null)}</div>
       </div>
-      <button onclick="togglePin('${b.name.replace(/'/g,"\\'")}',this)" title="${isPinned?'Desafixar':'Fixar'}"
+      <button onclick="event.stopPropagation();togglePin('${b.name.replace(/'/g,"\\'")}',this)" title="${isPinned?'Desafixar':'Fixar'}"
         style="background:none;border:none;cursor:pointer;font-size:.95rem;opacity:${isPinned?'1':'0.25'};transition:opacity .15s;padding:4px"
         onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='${isPinned?'1':'0.25'}'">📌</button>
     </div>`;
