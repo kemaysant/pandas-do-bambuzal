@@ -2116,11 +2116,13 @@ async function tibiaFetch(path) {
     <div class="card" style="margin-bottom:1.5rem;background:var(--bamboo-pale);border-color:rgba(139,92,246,.2)">
       <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
         <span style="font-size:1rem">💰</span>
-        <div style="flex:1">
-          <div style="font-size:.85rem;font-weight:500;color:var(--bamboo)">Valor estimado (base) + market ao vivo</div>
-          <div style="font-size:.75rem;color:var(--muted);font-weight:300">A coluna mostra o valor <b>estimado</b> de cada item. Clique num item pra tentar o preço ao vivo — quando a API não expõe o market do jogo, mantemos a estimativa.</div>
+        <div style="flex:1;min-width:200px">
+          <div style="font-size:.85rem;font-weight:500;color:var(--bamboo)">Preços de market ao vivo — <span id="dt-live-world">Gentebra</span></div>
+          <div style="font-size:.75rem;color:var(--muted);font-weight:300" id="dt-live-status">A coluna mostra a <b>estimativa base</b>. Carregue os preços ao vivo pra ver <b>venda</b> (maior oferta de compra) e <b>compra</b> (menor oferta de venda) do market do seu mundo.</div>
         </div>
+        <button class="filter-btn active" id="dt-live-btn" onclick="dtLoadLivePrices()" style="white-space:nowrap">⚡ Preços ao vivo</button>
       </div>
+      <div style="font-size:.68rem;color:var(--muted);font-weight:300;margin-top:.5rem">Fonte: <b>Tibia Market Tracker</b> (tibiamarket.top) · cai na estimativa quando o item não tem oferta no seu mundo.</div>
     </div>
 
     <!-- Table -->
@@ -2132,7 +2134,7 @@ async function tibiaFetch(path) {
             <th>Item</th>
             <th>Grupo</th>
             <th>Qtd. Entrega</th>
-            <th>Valor Estimado</th>
+            <th>Valor (ao vivo / est.)</th>
             <th>Principais Drops</th>
           </tr>
         </thead>
@@ -2140,6 +2142,8 @@ async function tibiaFetch(path) {
       </table>
     </div>
   </section>
+
+  <script>window.DT_MARKET_IDS={"Afflicted Strider Head":36789,"Afflicted Strider Worms":36790,"Alloy Legs":21168,"Amber Souvenir":48508,"Ancient Belt Buckle":24384,"Ancient Stone":9632,"Angelic Axe":7436,"Badger Boots":22086,"Banana Sash":11511,"Basalt Crumbs":43858,"Basalt Fetish":17856,"Basalt Figurine":17857,"Bashmu Fang":36820,"Bashmu Feather":36823,"Bashmu Tongue":36821,"Battle Shield":3413,"Black Shield":3429,"Blemished Spawn Abdomen":36779,"Blemished Spawn Head":36778,"Blemished Spawn Tail":36780,"Bloated Maggot":43856,"Blood Amulet":51473,"Blood Hood":51480,"Blood Preservation":11449,"Blood Tincture In A Vial":18928,"Bloodshot Giant Eye":51482,"Blue Goanna Scale":31559,"Boar Man Hoof":40584,"Boggy Dreads":9667,"Bola":17809,"Bone Club":3337,"Bone Fetish":17831,"Bone Fibula":51485,"Bone Rattle":51478,"Bone Shoulderplate":10404,"Bone Toothpick":24380,"Bonebreaker":7428,"Bonecarving Knife":17830,"Bony Tail":10277,"Book Of Necromantic Rituals":10320,"Book Page":28569,"Book With A Dragon":51423,"Book With An Hourglass":51425,"Bowl Of Terror Sweat":20204,"Brigadeiro":48252,"Brinebrute Claw":50056,"Broadsword":3301,"Broken Draken Mail":11660,"Broken Gladiator Shield":9656,"Broken Halberd":10418,"Broken Mitmah Necklace":44438,"Broken Slicer":11661,"Broken Throwing Axe":17851,"Broodrider Saddle":50058,"Buckle":17829,"Bulltaur Armor Scrap":44738,"Bulltaur Hoof":44737,"Bulltaur Horn":44736,"Bundle Of Cursed Straw":9688,"Carnisylvan Bark":36806,"Carnisylvan Finger":36805,"Carnivostrich Feather":40586,"Cat'S Paw":5479,"Cave Devourer Eyes":27599,"Cave Devourer Legs":27601,"Cave Devourer Maw":27600,"Centipede Leg":10301,"Chain Leash":51472,"Chaos Mace":7427,"Chasm Spawn Abdomen":27603,"Chasm Spawn Head":27602,"Chasm Spawn Tail":27604,"Cheese Cutter":17817,"Cheesy Figurine":17818,"Cluster Of Crystallized Death":52720,"Cobra Crest":31678,"Colourful Feather":11514,"Colourful Snail Shell":25696,"Combat Knife":3292,"Compound Eye":14083,"Cookbook":3234,"Coral Branch":39406,"Cowbell":21204,"Crab Man Claws":40582,"Cracked Alabaster Vase":24385,"Crawler'S Essence":33982,"Cry-Stal":39394,"Crystal Bone":23521,"Crystal Crossbow":16163,"Crystal Mace":3333,"Crystal Of The Mitmah":44439,"Crystal Sword":7449,"Crystalline Armor":8050,"Crystalline Spikes":16138,"Crystalline Sword":16160,"Crystallized Death":52719,"Cuirass Plate":52663,"Curious Matter":23511,"Cursed Shoulder Spikes":10410,"Damaged Armor Plates":28822,"Damselfly Eye":17463,"Dandelion Seeds":25695,"Dangerous Proto Matter":23515,"Dark Obsidian Splinter":43850,"Dark Rosary":10303,"Dark Shield":3421,"Darklight Basalt Chunk":43852,"Darklight Core":43853,"Darklight Matter":43851,"Dead Weight":20202,"Deadly Fangs":52718,"Decayed Finger Bone":43846,"Deepling Breaktime Snack":14011,"Deepling Claw":14044,"Deepling Guard Belt Buckle":14010,"Deepling Ridge":14041,"Deepling Scales":14017,"Deeptags":14013,"Deepworm Jaws":27594,"Deepworm Spike Roots":27593,"Deepworm Spikes":27592,"Demon Root":48510,"Demonic Matter":49894,"Diamond Sceptre":7387,"Diremaw Brainpan":27597,"Diremaw Legs":27598,"Dirty Turban":11456,"Double Axe":3275,"Dowser":19110,"Dragolisk Eye":44746,"Dragolisk Poison Gland":44747,"Dragon Hammer":3322,"Dragon Priest'S Wandtip":10444,"Dragon Slayer":7402,"Dragon Tongue":24938,"Dragon'S Tail":11457,"Draken Wristbands":11659,"Dream Essence Egg":30005,"Dung Ball":14225,"Earflap":17819,"Elder Bonelord Tentacle":10276,"Elven Astral Observer":11465,"Emerald Tortoise Shell":39379,"Empty Honey Glass":31331,"Encrypted Notes":44739,"Energy Ball":23523,"Ensouled Essence":32698,"Essence Of A Bad Dream":10306,"Exalted Core":37110,"Execowtioner Mask":21201,"Eye Of A Deepling":12730,"Eye Of A Weeper":16132,"Eye Of Corruption":11671,"Eyeless Devourer Legs":36776,"Eyeless Devourer Maw":36775,"Eyeless Devourer Tongue":36777,"Fafnar Symbol":31443,"Falcon Crest":28823,"Fig Leaf":25742,"Fir Cone":19111,"Fire Axe":3320,"Flask Of Demonic Blood":6558,"Flotsam":39407,"Focus Cape":8043,"Fox Paw":27462,"Frazzle Tongue":20198,"Frozen Lightning":23519,"Fur Armor":22085,"Gauze Bandage":9649,"Ghastly Dragon Head":10449,"Giant Pacifier":21199,"Giant Tusk":52707,"Girlish Hair Decoration":11443,"Girtablilu Warrior Carapace":36971,"Glacier Mask":829,"Glacier Robe":824,"Glacier Shoes":819,"Glob Of Acid Slime":9054,"Glob Of Glooth":21182,"Glob Of Tar":9055,"Glooth Axe":21180,"Glooth Blade":21179,"Glooth Cape":21164,"Glooth Club":21178,"Glooth Injection Tube":21103,"Glorious Axe":7454,"Glowing Rune":28570,"Goanna Claw":31561,"Goanna Meat":31560,"Golden Legs":3364,"Golden Lotus Brooch":21974,"Golden Sickle":3306,"Golden Sun Coin":43734,"Gore Horn":39377,"Gorerilla Mane":39392,"Gorerilla Tail":39393,"Gorger Antlers":50059,"Grappling Hook":35588,"Green Bandage":25697,"Guardian Shield":3415,"Halberd":3269,"Half-Digested Stones":27369,"Half-Eaten Brain":9659,"Harpy Feathers":40585,"Headpecker Beak":39387,"Headpecker Feather":39388,"Heart Amphora":51484,"Heavy Machete":3330,"Heavy Trident":12683,"Hellhound Slobber":9637,"Hemp Rope":20206,"Hibiscus Dress":8045,"Hideous Chunk":16140,"High Guard Flag":10415,"High Guard Shoulderplates":10416,"Holy Ash":17850,"Horoscope":18926,"Human Teeth":36807,"Humongous Chunk":16139,"Hydra Head":10282,"Hydrophytes":39410,"Ice Flower":30058,"Idol Of The Forge":44742,"Inkwell":3509,"Instable Proto Matter":23516,"Ivory Carving":33945,"Key To The Drowned Library":14009,"Knife":3291,"Knight Axe":3318,"Knight Legs":3371,"Kongra'S Shoulderpad":11471,"Lamassu Hoof":31441,"Lamassu Horn":31442,"Lancer Beetle Shell":10455,"Lancet":18925,"Lavafungus Head":36785,"Lavafungus Ring":36786,"Lavaworm Jaws":36771,"Lavaworm Spike Roots":36769,"Lavaworm Spikes":36770,"Lightning Boots":820,"Lightning Headband":828,"Lightning Robe":825,"Lime Tart":48255,"Liodile Fang":40583,"Lion Cloak Patch":34162,"Lion Crest":34160,"Lost Basher'S Spike":17826,"Lost Bracers":17853,"Luminous Orb":11454,"Lump Of Earth":10305,"Mad Froth":17854,"Magma Boots":818,"Magma Clump":16130,"Magma Coat":826,"Magma Monocle":827,"Makara Fin":39401,"Makara Tongue":39402,"Mammoth Tusk":10321,"Mammoth Whopper":7381,"Manticore Ear":31440,"Manticore Tail":31439,"Mantosaurus Jaw":39386,"Mega Dragon Heart":44745,"Mercenary Sword":7386,"Mercurial Wing":39395,"Metal Bat":21171,"Metal Jaw":21193,"Metal Spats":21169,"Mino Lance":21174,"Mino Shield":21175,"Molten Dragon Essence":44744,"Mould Heart":34141,"Mouldy Powder":35596,"Mummified Demon Finger":49908,"Mutated Bat Ear":9662,"Mutated Flesh":10308,"Mutated Rat Tail":9668,"Naga Archer Scales":39413,"Naga Armring":39411,"Naga Earring":39412,"Naga Warrior Scales":39414,"Necromantic Core":52705,"Necromantic Rust":21196,"Night Harpy Feathers":52633,"Nighthunter Wing":39381,"Nimmersatt'S Seal":44743,"Odd Organ":23510,"Ogre Ear Stud":22188,"Old Girtablilu Carapace":36972,"Orcish Axe":3316,"Orcish Gear":11477,"Orcish Toothbrush":51477,"Ornate Crossbow":14247,"Pair Of Hellflayer Horns":22729,"Paper Boat":51420,"Paper Plane":51419,"Piece Of Draconian Steel":5889,"Piece Of Frozen Night":51474,"Piece Of Hell Steel":5888,"Piece Of Warrior Armor":11482,"Pirat'S Tail":35573,"Pirate Coin":35572,"Plasma Pearls":23506,"Plasmatic Lightning":23520,"Plate Legs":3557,"Poisoned Fang":21195,"Pool Of Chitinous Glue":20207,"Pot Of Orcish Warpaint":51476,"Prehemoth Claw":39383,"Prehemoth Horns":39382,"Pressed Flower":51428,"Pulverized Ore":16133,"Quara Bone":11491,"Quara Eye":11488,"Quara Pincers":11490,"Quara Tentacle":11487,"Ratana":17812,"Raw Meat":22186,"Red Goanna Scale":31558,"Red Hair Dye":17855,"Relic Sword":7383,"Resin Parasite":48511,"Resinous Fish Fin":48509,"Rhindeer Antlers":40587,"Ripper Lance":3346,"Ripptor Claw":39389,"Ripptor Scales":39391,"Ritual Bone Knife":51475,"Ritual Tooth":40528,"Roots":33938,"Rotten Feather":40527,"Rotten Piece Of Cloth":10291,"Rotten Roots":43849,"Rubber Cap":21165,"Sabretooth Fur":39378,"Sandcrawler Shell":10456,"Scale Of Corruption":11673,"Scarab Pincers":9631,"Scimitar":3307,"Scorpion Charm":36822,"Scroll Of Heroic Deeds":11510,"Scythe Leg":10312,"Sealing Wax":51426,"Shaggy Tail":10407,"Shamanic Talisman":22184,"Shark Fins":35574,"Shimmering Beetles":25693,"Shiny Stone":10310,"Silencer Resonating Chamber":20201,"Silken Bookmark":28566,"Silver Moon Coin":43732,"Silver Poniard":52662,"Sineater Wing":50057,"Single Human Eye":25701,"Skull Fetish":22191,"Skullcracker Armor":8061,"Slimy Leaf Tentacle":21197,"Sliver":37109,"Small Flask Of Eyedrops":11512,"Small Notebook":11450,"Small Treasure Chest":35571,"Small Tropical Fish":39408,"Spark Sphere":23518,"Sparkion Claw":23502,"Sparkion Legs":23504,"Sparkion Stings":23505,"Sparkion Tail":23503,"Spellbook Of Mind Control":8074,"Spellsinger'S Seal":14008,"Spellweaver'S Robe":10438,"Sphinx Tiara":31438,"Spiked Bracers":51479,"Spiked Gorget":51486,"Spiked Iron Ball":10408,"Spiky Club":17859,"Spitter Nose":14078,"Staff Piece":44741,"Stag Parchment":52664,"Stalking Seeds":39384,"Stampor Talons":12313,"Star Ink":51422,"Stone Wing":10278,"Stonerefiner's Skull":27606,"Strange Helmet":3373,"Strange Substance":44740,"Streaked Devourer Eyes":36772,"Streaked Devourer Legs":36774,"Streaked Devourer Maw":36773,"Striped Fur":10293,"Sulphider Shell":39375,"Sulphur Powder":39376,"Sulphurous Stone":10315,"Swampling Club":17824,"Swarmer Antenna":14076,"Tail Of Corruption":11672,"Taurus Mace":7425,"Telescope Eye":33934,"Terra Boots":813,"Terra Hood":830,"Terra Mantle":811,"Terramite Legs":10454,"Thorn":9643,"Titan Axe":7413,"Toe Nails":52706,"Tooth File":18924,"Torn Page":51427,"Trapped Bad Dream Monster":20203,"Tunnel Tyrant Head":27595,"Tunnel Tyrant Shell":27596,"Two-Headed Turtle Heads":39409,"Undertaker Fangs":39380,"Unholy Bone":10316,"Vampire'S Cape Chain":18927,"Vein Of Ore":16135,"Venison":18995,"Vile Axe":7388,"Volatile Proto Matter":23514,"War Axe":3342,"Wardragon Claw":44748,"Wardragon Tooth":44749,"Waspoid Claw":14080,"Weaver'S Wandtip":10397,"Werebadger Claws":22051,"Werebadger Skull":22055,"Werebear Fur":22057,"Werebear Skull":22056,"Wereboar Loincloth":22087,"Wereboar Tusks":22054,"Werecrocodile Tongue":43729,"Werefox Tail":27463,"Werehyaena Nose":33943,"Werehyaena Talisman":33944,"Werepanther Claw":43731,"Weretiger Tooth":43730,"Werewolf Fur":10317,"Widow'S Mandibles":10411,"Wild Flowers":25691,"Wimp Tooth Chain":17847,"Winged Tail":10313,"Witch Broom":9652,"Wood Cape":3575,"Wooden Spellbook":25699,"Worm Sponge":43848,"Yapunac Dagger":44440,"Zaoan Armor":10384,"Zaoan Robe":10439,"Zaoan Shoes":10386,"Zaogun Flag":10413,"Zaogun Shoulderplates":10414};</script>
 
   <!-- ─── LOOT SPLIT ─── -->
   <section class="page-section" id="lootsplit">
@@ -3592,7 +3596,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13at</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13au</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6610,7 +6614,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13at';
+window.TP_BUILD = '2026-08-13au';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -9193,7 +9197,7 @@ const DELIVERY_ITEMS = [
   {n:'Lump Of Earth',g:'c',v:0,drops:''},
   {n:'Mad Froth',g:'d',v:0,drops:''},
   {n:'Magma Boots',g:'c',v:0,drops:''},
-  {n:'Magma Clumb',g:'e',v:0,drops:''},
+  {n:'Magma Clump',g:'e',v:0,drops:'Magma Crawler · Orewalker'},
   {n:'Magma Coat',g:'c',v:0,drops:''},
   {n:'Magma Monocle',g:'b',v:0,drops:''},
   {n:'Makara Fin',g:'c',v:0,drops:''},
@@ -9282,7 +9286,7 @@ const DELIVERY_ITEMS = [
   {n:'Scimitar',g:'c',v:0,drops:''},
   {n:'Scorpion Charm',g:'b',v:0,drops:''},
   {n:'Scroll Of Heroic Deeds',g:'c',v:0,drops:''},
-  {n:'Scythe Legs',g:'c',v:0,drops:''},
+  {n:'Scythe Leg',g:'c',v:0,drops:'Reaper'},
   {n:'Sealing Wax',g:'c',v:0,drops:''},
   {n:'Shaggy Tail',g:'d',v:0,drops:''},
   {n:'Shamanic Talisman',g:'c',v:0,drops:''},
@@ -9323,7 +9327,7 @@ const DELIVERY_ITEMS = [
   {n:'Stampor Talons',g:'c',v:0,drops:''},
   {n:'Star Ink',g:'c',v:0,drops:''},
   {n:'Stone Wing',g:'d',v:0,drops:''},
-  {n:'Stonerefine\'S Skull',g:'e',v:0,drops:''},
+  {n:'Stonerefiner\'s Skull',g:'e',v:0,drops:'Stonerefiner'},
   {n:'Strange Helmet',g:'b',v:0,drops:''},
   {n:'Strange Substance',g:'d',v:0,drops:''},
   {n:'Streaked Devourer Eyes',g:'d',v:0,drops:''},
@@ -9390,36 +9394,6 @@ const DELIVERY_ITEMS = [
   {n:'Zaoan Shoes',g:'b',v:0,drops:''},
   {n:'Zaogun Flag',g:'c',v:600,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'},
   {n:'Zaogun Shoulderplates',g:'d',v:150,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''},
-  {n:'Nan',g:'c',v:0,drops:''}
 ];
 let dtFiltered = [...DELIVERY_ITEMS];
 
@@ -9509,55 +9483,120 @@ function renderDeliveryTable() {
         <span style="font-size:.72rem;background:${groupColor}22;color:${groupColor};border:1px solid ${groupColor}44;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap">${item.g} · ${groupLabel}</span>
       </td>
       <td style="font-family:'DM Mono',monospace;font-size:.85rem;color:var(--ink-3)">${qtyMid} un.</td>
-      <td id="dt-price-${i}" style="font-family:'DM Mono',monospace;font-size:.85rem;color:var(--muted)">${valueStr}</td>
+      <td id="dt-price-${i}" style="font-family:'DM Mono',monospace;font-size:.85rem;color:var(--muted)">${dtCellHtml(item)}</td>
       <td style="font-size:.78rem;color:var(--muted);font-weight:300;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.drops}</td>
     </tr>`;
   }).join('');
 }
 
-// Lookup market price via TibiaData (com fallback pra estimativa base — TibiaData não expõe
-// o market do jogo, então o clique tenta ao vivo mas NUNCA apaga a estimativa se falhar).
-const dtPriceCache = {};
+// Preços de market AO VIVO via Tibia Market Tracker (api.tibiamarket.top).
+// CORS liberado no browser (a API devolve access-control-allow-origin:* quando há Origin).
+// buy_offer  = maior oferta de COMPRA do mercado → é por quanto VOCÊ VENDE o item.
+// sell_offer = menor oferta de VENDA do mercado  → é por quanto VOCÊ COMPRA o item.
+// Nunca apaga a estimativa base: item sem oferta no mundo cai de volta pra estimativa.
+const TM_API = 'https://api.tibiamarket.top';
+const dtPriceCache = {};          // itemName -> {sell,buy,mavg,name}  (sell=venda, buy=compra)
+window.__DT_MKT = window.__DT_MKT || {}; // world -> { id -> {sell,buy,mavg} }
 function dtEstOf(itemName){ const it=DELIVERY_ITEMS.find(x=>x.n===itemName); return (it&&it.v)||0; }
-async function lookupDeliveryPrice(itemName, row) {
-  const est = dtEstOf(itemName);
-  if (dtPriceCache[itemName]) {
-    showDeliveryPrice(row, dtPriceCache[itemName], est);
-    return;
-  }
+function dtIdOf(itemName){ return (window.DT_MARKET_IDS||{})[itemName]||0; }
+function dtWorld(){ return (typeof CONFIG!=='undefined' && CONFIG.world) ? CONFIG.world : 'Gentebra'; }
+
+// célula da tabela: usa preço ao vivo (cache) quando existe, senão a estimativa
+function dtCellHtml(item){
+  const c = dtPriceCache[item.n];
+  if (c && (c.sell>0 || c.buy>0)) return dtLiveHtml(c);
+  return dtEstHtml((item&&item.v)||0);
+}
+function dtLiveHtml(c){
+  return `<div style="line-height:1.4">` +
+    (c.sell>0 ? `<div style="color:var(--bamboo);font-weight:600" title="Maior oferta de compra — por quanto você vende">${c.sell.toLocaleString('pt-BR')} gp <span style="font-size:.65rem;font-weight:300;color:var(--muted)">venda</span></div>` : '') +
+    (c.buy>0  ? `<div style="color:var(--gold)" title="Menor oferta de venda — por quanto você compra">${c.buy.toLocaleString('pt-BR')} gp <span style="font-size:.65rem;font-weight:300;color:var(--muted)">compra</span></div>` : '') +
+    `</div>`;
+}
+function dtEstHtml(est){
+  return est > 0
+    ? `<span title="Estimativa base do site. Carregue os preços ao vivo pra ver o market do seu mundo.">${est.toLocaleString('pt-BR')} gp <span style="font-size:.62rem;font-weight:300;color:var(--muted)">est.</span></span>`
+    : `<span style="color:var(--muted)">sem estimativa</span>`;
+}
+function showDeliveryPrice(row, data, est){
   const priceCell = row.querySelector('[id^="dt-price-"]');
-  if (priceCell) priceCell.innerHTML = '<span class="spinner" style="display:inline-block;width:12px;height:12px;border-width:1px;margin:0"></span>';
+  if (!priceCell) return;
+  priceCell.innerHTML = (data && (data.sell>0 || data.buy>0)) ? dtLiveHtml(data) : dtEstHtml(est);
+}
+
+// carrega TODAS as ofertas do mundo selecionado (uma leva, cacheada por mundo)
+async function tmLoadWorld(world){
+  if (window.__DT_MKT[world]) return window.__DT_MKT[world];
+  const ids = Object.values(window.DT_MARKET_IDS || {});
+  const map = {};
+  for (let i=0; i<ids.length; i+=250){
+    const chunk = ids.slice(i, i+250);
+    const url = TM_API + '/market_values?server=' + encodeURIComponent(world) + '&limit=1000&item_ids=' + chunk.join(',');
+    const ctrl = new AbortController(); const timer = setTimeout(()=>ctrl.abort(), 12000);
+    try {
+      const res = await fetch(url, { headers:{'Accept':'application/json'}, signal: ctrl.signal });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const arr = await res.json();
+      (Array.isArray(arr)?arr:[]).forEach(r=>{ map[r.id] = { sell: r.buy_offer||0, buy: r.sell_offer||0, mavg: r.month_average_sell||0 }; });
+    } finally { clearTimeout(timer); }
+  }
+  window.__DT_MKT[world] = map;
+  return map;
+}
+
+// botão "⚡ Preços ao vivo": carrega o mundo e redesenha a tabela com os preços
+async function dtLoadLivePrices(){
+  const world = dtWorld();
+  const btn = document.getElementById('dt-live-btn');
+  const status = document.getElementById('dt-live-status');
+  const wlbl = document.getElementById('dt-live-world'); if (wlbl) wlbl.textContent = world;
+  const prev = btn ? btn.innerHTML : '';
+  if (btn){ btn.disabled = true; btn.innerHTML = '<span class="spinner" style="display:inline-block;width:12px;height:12px;border-width:1px;margin:0"></span> Carregando…'; }
   try {
-    const encoded = encodeURIComponent(itemName);
-    const data = await tibiaFetch(`/v4/item/${encoded}`);
-    const item = data?.item;
-    const marketBuy  = item?.market?.buy_price  || 0;
-    const marketSell = item?.market?.sell_price || 0;
-    const result = { buy: marketBuy, sell: marketSell, name: itemName };
-    if (marketBuy > 0 || marketSell > 0) dtPriceCache[itemName] = result; // só cacheia se veio market
-    showDeliveryPrice(row, result, est);
-  } catch(e) {
-    showDeliveryPrice(row, { buy:0, sell:0, name:itemName }, est);
+    const mkt = await tmLoadWorld(world);
+    let hits = 0;
+    Object.keys(window.DT_MARKET_IDS || {}).forEach(nm=>{
+      const v = mkt[window.DT_MARKET_IDS[nm]];
+      if (v && (v.sell>0 || v.buy>0)) { dtPriceCache[nm] = Object.assign({name:nm}, v); hits++; }
+    });
+    renderDeliveryTable();
+    if (status) status.innerHTML = hits>0
+      ? `Preços ao vivo de <b>${world}</b> — ${hits} itens com oferta. Os demais mostram estimativa.`
+      : `<b>${world}</b> não tem ofertas registradas no Tibia Market Tracker — mostrando estimativas.`;
+    if (window.tpToast) tpToast(hits>0 ? `Preços ao vivo carregados (${world}) 🐼` : `Sem ofertas pra ${world} — usando estimativas.`, hits>0?'success':'info');
+  } catch(e){
+    if (status) status.textContent = 'Não consegui o market ao vivo agora — mostrando estimativas.';
+    if (window.tpToast) tpToast('Falha ao carregar o market ao vivo.', 'error');
+  } finally {
+    if (btn){ btn.disabled = false; btn.innerHTML = prev || '⚡ Preços ao vivo'; }
   }
 }
 
-function dtEstHtml(est){
-  return est > 0
-    ? `<span title="Valor estimado (base do site). O market ao vivo do jogo não é exposto pela API pública.">${est.toLocaleString('pt-BR')} gp <span style="font-size:.62rem;font-weight:300;color:var(--muted)">est.</span></span>`
-    : `<span style="color:var(--muted)">sem estimativa</span>`;
-}
-function showDeliveryPrice(row, data, est) {
+// clique numa linha: se o mundo já foi carregado, mostra do cache; senão busca só aquele item
+async function lookupDeliveryPrice(itemName, row){
+  const est = dtEstOf(itemName);
+  if (dtPriceCache[itemName]) { showDeliveryPrice(row, dtPriceCache[itemName], est); return; }
+  const id = dtIdOf(itemName);
+  if (!id){ showDeliveryPrice(row, {sell:0,buy:0}, est); return; }
   const priceCell = row.querySelector('[id^="dt-price-"]');
-  if (!priceCell) return;
-  if (data.sell > 0 || data.buy > 0) {
-    priceCell.innerHTML =
-      `<div style="line-height:1.4">` +
-      (data.sell > 0 ? `<div style="color:var(--bamboo);font-weight:600">${data.sell.toLocaleString('pt-BR')} gp <span style="font-size:.65rem;font-weight:300;color:var(--muted)">venda</span></div>` : '') +
-      (data.buy  > 0 ? `<div style="color:var(--gold)">${data.buy.toLocaleString('pt-BR')} gp <span style="font-size:.65rem;font-weight:300;color:var(--muted)">compra</span></div>` : '') +
-      `</div>`;
-  } else {
-    // sem market ao vivo → mantém/mostra a estimativa (nunca "Sem dados")
-    priceCell.innerHTML = dtEstHtml(est);
+  if (priceCell) priceCell.innerHTML = '<span class="spinner" style="display:inline-block;width:12px;height:12px;border-width:1px;margin:0"></span>';
+  try {
+    const world = dtWorld();
+    const cached = window.__DT_MKT[world] && window.__DT_MKT[world][id];
+    let data;
+    if (cached){ data = Object.assign({name:itemName}, cached); }
+    else {
+      const url = TM_API + '/market_values?server=' + encodeURIComponent(world) + '&item_ids=' + id;
+      const res = await fetch(url, { headers:{'Accept':'application/json'} });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const arr = await res.json();
+      const r = (Array.isArray(arr) && arr[0]) || null;
+      data = r ? { sell: r.buy_offer||0, buy: r.sell_offer||0, mavg: r.month_average_sell||0, name: itemName } : { sell:0, buy:0 };
+    }
+    if (data.sell>0 || data.buy>0) dtPriceCache[itemName] = data;
+    showDeliveryPrice(row, data, est);
+  } catch(e){
+    showDeliveryPrice(row, { sell:0, buy:0 }, est);
   }
 }
 
