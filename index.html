@@ -3600,7 +3600,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13ax</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13ay</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6618,7 +6618,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13ax';
+window.TP_BUILD = '2026-08-13ay';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11690,14 +11690,30 @@ function ewEnsureTcInput() {
         const handle=((g('tp-handle')||{value:''}).value||'').trim().replace(/^@/,'').toLowerCase();
         if(!/^[a-z0-9_]{3,20}$/.test(handle)){ set('Escolha um @identificador (3–20 · a-z, 0-9, _).','#f8746a'); var _h=g('tp-handle'); if(_h) _h.focus(); return; }
         window.__tpPendingHandle=handle;
-        const d=await req('/auth/v1/signup',{email,password:pass,data:{display_name:name||email.split('@')[0],handle:handle}});
+        const d=await req('/auth/v1/signup?redirect_to='+encodeURIComponent(location.origin),{email,password:pass,data:{display_name:name||email.split('@')[0],handle:handle}});
         if(d.access_token){ await afterLogin(d); }
         else { set('Conta criada! Seu @'+handle+' é aplicado no primeiro acesso. Se a confirmação por e-mail estiver ativa, confirme e depois entre.','var(--bamboo)'); tpSetMode('login'); }
       } else {
         const d=await req('/auth/v1/token?grant_type=password',{email,password:pass});
         await afterLogin(d);
       }
-    }catch(e){ set(e.message,'#f8746a'); }
+    }catch(e){
+      var lm=(e.message||'').toLowerCase();
+      if(lm.indexOf('not confirmed')>=0 || lm.indexOf('não confirmad')>=0 || lm.indexOf('email not')>=0){
+        msg.style.color='#f0b429';
+        msg.innerHTML='Seu e-mail ainda não foi confirmado. Veja a caixa de entrada e o <b>spam</b>. <a href="#" onclick="tpResendConfirm(event)" style="color:var(--bamboo-light,#a78bfa);font-weight:700">Reenviar confirmação</a>';
+      } else {
+        set(e.message||'Não consegui entrar. Tente de novo.','#f8746a');
+      }
+    }
+  };
+  window.tpResendConfirm=async function(ev){ if(ev&&ev.preventDefault) ev.preventDefault();
+    var em=((g('tp-email')||{}).value||'').trim(); var msg=g('tp-auth-msg'); if(!msg) return;
+    if(!em){ msg.style.color='#f8746a'; msg.textContent='Digite seu e-mail primeiro.'; return; }
+    msg.style.color='var(--muted)'; msg.textContent='Reenviando...';
+    try{ await fetch(SB+'/auth/v1/resend?redirect_to='+encodeURIComponent(location.origin),{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({type:'signup',email:em})});
+      msg.style.color='var(--bamboo)'; msg.textContent='Reenviei a confirmação para '+em+'. Confira a caixa de entrada e o spam. 🐼';
+    }catch(e){ msg.style.color='#f8746a'; msg.textContent='Não consegui reenviar agora — tente em instantes.'; }
   };
 
   async function afterLogin(d){
