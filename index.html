@@ -3600,7 +3600,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13ba</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13bb</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6618,7 +6618,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13ba';
+window.TP_BUILD = '2026-08-13bb';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -7511,6 +7511,28 @@ const HUNTS = [
     creatures:[{n:'Rotworm'},{n:'Carrion Worm'}],
     desc:'Caverna clássica para iniciantes em Venore.', wiki:'https://tibia.fandom.com/wiki/Venore_Rotworm_Cave' },
 
+  // ── SPOTS MODERNOS (alto nível) ───────────────────────
+  // Kilmaresh Steppe — Gore Horn / Carnivostrich / Headpecker (todos da estepe de Kilmaresh)
+  { name:'Kilmaresh Steppe', xphNum:1400, minLvl:250, maxLvl:500,
+    vocs:['all'], modes:['solo','duo'], xph:'1kk–2.2kk', profit:'200k–600k', tipo:'profit', dif:'medio', task:true,
+    req:'Secret of Sea Serpent / Kilmaresh Access',
+    creatures:[{n:'Gore Horn'},{n:'Carnivostrich'},{n:'Headpecker'}],
+    desc:'Estepe de Kilmaresh — boa densidade, task de bestiary e drops de imbuement.', wiki:'https://tibia.fandom.com/wiki/Kilmaresh' },
+
+  // Guzzlemaw Valley — Frazzlemaw (spot clássico de XP alto)
+  { name:'Guzzlemaw Valley', xphNum:1700, minLvl:250, maxLvl:600,
+    vocs:['all'], modes:['solo','duo'], xph:'1.5kk–3kk', profit:'0 a 300k', tipo:'xp', dif:'dificil', task:true,
+    req:'Forgotten Knowledge Quest',
+    creatures:[{n:'Frazzlemaw'}],
+    desc:'Vale de Guzzlemaw — XP altíssimo. Cuidado com a densidade e o dano.', wiki:'https://tibia.fandom.com/wiki/Frazzlemaw' },
+
+  // Rotten Wasteland — acesso via Soul War (spot meta de alto nível)
+  { name:'Rotten Wasteland', xphNum:2100, minLvl:400, maxLvl:999,
+    vocs:['all'], modes:['solo','duo','time'], xph:'2kk–4kk', profit:'300k–1kk', tipo:'xp', dif:'dificil', task:false,
+    req:'Rotten Blood / Soul War Quest',
+    creatures:[{n:'Cloak Of Terror'},{n:'Many Faces'},{n:'Courage Leech'},{n:'Branchy Crawler'},{n:'Rotten Golem'}],
+    desc:'Rotten Wasteland (Soul War) — um dos melhores spots de XP e profit do topo.', wiki:'https://tibia.fandom.com/wiki/Rotten_Wasteland' },
+
 ];
 
 // Map API vocation to internal key
@@ -7595,6 +7617,46 @@ function setHFFocus(focus, btn) {
   hfAutoSearch();
 }
 
+// ── Hunt Finder shared helpers: reliable sprites + item cross-reference ──
+window.HF_SLUG_OV = {
+  'dawnfireasura':'Dawnfire-Asura','midnightasura':'Midnight-Asura',
+  'flimsylostsoul':'Flimsy-Lost-Soul','meanlostsoul':'Mean-Lost-Soul',
+  'freakishlostsoul':'Freakish-Lost-Soul','gnomevil':'Gnomevil',
+  'branchycrawler':'Branchy-Crawler','adeptofthecult':'Adept-Of-The-Cult',
+  'soulbrokenharbinger':'Soul-Broken-Harbinger',
+  'guardianoftales':'Guardian-of-Tales','energuardianoftales':'Energuardian-of-Tales'
+};
+function hfCreatureSlug(name){
+  const key=(name||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  return window.HF_SLUG_OV[key] || (name||'').split(' ').map(w=>w?w.charAt(0).toUpperCase()+w.slice(1):'').join('-');
+}
+// Sprites go through the wsrv.nl proxy (same as the modal) so they don't break.
+function hfCreatureImg(name){
+  return 'https://wsrv.nl/?url='+encodeURIComponent('https://cdn.tibiaroute.com/monsters/'+hfCreatureSlug(name)+'.gif');
+}
+// Cross-reference a hunt's dropped loot against imbuement materials + weekly-task items.
+function hfHuntTags(h){
+  let taskSet, imbuSet;
+  try { taskSet=getDeliverySet(); imbuSet=getImbuItemSet(); }
+  catch(e){ taskSet=new Set(); imbuSet=new Set(); }
+  const loot=new Set();
+  (h.creatures||[]).forEach(c=>{
+    const st=CREATURE_STATS[(c.n||c).toLowerCase()]||{};
+    (st.loot||[]).forEach(l=>loot.add(String(l).toLowerCase()));
+  });
+  (h.loots||[]).forEach(l=>loot.add(String(typeof l==='string'?l:(l.name||'')).toLowerCase()));
+  (h.lootNames||[]).forEach(l=>loot.add(String(l).toLowerCase()));
+  let task=0, imbu=0;
+  loot.forEach(l=>{ if(l && taskSet.has(l)) task++; if(l && imbuSet.has(l)) imbu++; });
+  return {task, imbu};
+}
+// "Ideal" = char level sits inside the hunt's recommended bracket.
+function hfIsIdeal(h, lvl){
+  if(!lvl) return false;
+  const top = h.maxLvl<999 ? h.maxLvl : (h.minLvl + 400);
+  return lvl >= h.minLvl && lvl <= top;
+}
+
 function runHuntFinder() {
   const lvl   = parseInt(document.getElementById('hf-level').value) || 0;
   const voc   = document.getElementById('hf-voc').value;
@@ -7606,10 +7668,11 @@ function runHuntFinder() {
   document.getElementById('hf-empty').style.display = 'none';
 
   let results = HUNTS.filter(h => {
-    // level filter
+    // level filter — só exige o nível MÍNIMO (com uma pequena janela aspiracional
+    // de 10% abaixo). NUNCA esconde uma hunt só porque o char passou do nível:
+    // char alto continua vendo todos os spots de alto nível.
     if (lvl) {
-      if (lvl < h.minLvl) return false;
-      if (h.maxLvl < 999 && lvl > h.maxLvl + 80) return false;
+      if (lvl < Math.floor(h.minLvl * 0.9)) return false;
     }
     // vocation filter
     if (voc !== 'all' && !h.vocs.includes('all') && !h.vocs.includes(voc)) return false;
@@ -7627,12 +7690,19 @@ function runHuntFinder() {
   });
 
   // Sort: quest focus → profit desc; profit focus → profit desc (by xphNum as proxy); else xphNum desc
-  if (focus === 'profit') {
-    results.sort((a, b) => (b.xphNum || 0) - (a.xphNum || 0));
-  } else if (focus === 'quest') {
+  if (focus === 'quest') {
     results.sort((a, b) => a.minLvl - b.minLvl);
   } else {
-    results.sort((a, b) => (b.xphNum || 0) - (a.xphNum || 0));
+    // Quando há nível: hunts "ideais" (dentro da faixa do char) vêm primeiro,
+    // depois ordenadas por XP/h. Sem nível: só XP/h desc.
+    results.sort((a, b) => {
+      if (lvl) {
+        const ai = hfIsIdeal(a, lvl) ? 1 : 0;
+        const bi = hfIsIdeal(b, lvl) ? 1 : 0;
+        if (ai !== bi) return bi - ai;
+      }
+      return (b.xphNum || 0) - (a.xphNum || 0);
+    });
   }
 
   // Show count
@@ -7664,6 +7734,10 @@ function runHuntFinder() {
 
   grid.innerHTML = results.map((h, i) => {
     const isBest = (i === 0 && focus !== 'quest');
+    const tg = hfHuntTags(h);
+    const crossChips =
+      (tg.imbu ? `<span class="hf-tag hf-tag-blue" title="${tg.imbu} itens de loot servem para imbuements">🔨 Imbue ×${tg.imbu}</span>` : '') +
+      (tg.task ? `<span class="hf-tag hf-tag-gold" title="${tg.task} itens de loot são de weekly task (Yasir/Rashid)">📦 Task ×${tg.task}</span>` : '');
     const vocStr  = h.vocs.includes('all') ? 'Todas' : h.vocs.map(v => vocLabel[v] || v.toUpperCase()).join(' · ');
     const modesStr = h.modes.map(m => modeLabel[m] || m).join(' · ');
     const cardId  = 'hfc-' + i;
@@ -7707,7 +7781,7 @@ function runHuntFinder() {
           <div style="display:flex;gap:4px;margin-top:5px;flex-wrap:wrap">
             <span class="hf-tag ${difClass[h.dif] || 'hf-tag-muted'}">${difLabel[h.dif] || h.dif}</span>
             <span class="hf-tag ${tipoClass[h.tipo] || 'hf-tag-muted'}">${tipoLabel[h.tipo] || h.tipo}</span>
-            ${h.task ? '<span class="hf-tag hf-tag-muted">📋 Task</span>' : ''}
+            ${crossChips}
           </div>
         </div>
       </div>
@@ -7745,33 +7819,25 @@ function runHuntFinder() {
 
   document.getElementById('hf-results').style.display = 'block';
 
-  // Inject creature images via cdn.tibiaroute.com/monsters/{Pascal-Case}.gif
-  // Overrides para nomes cujo slug difere do nome de exibição
-  const SLUG_OVERRIDES = {
-    'dawnfireasura':        'Dawnfire-Asura',
-    'midnightasura':        'Midnight-Asura',
-    'flimsylostsoul':       'Flimsy-Lost-Soul',
-    'meanlostsoul':         'Mean-Lost-Soul',
-    'freakishlostsoul':     'Freakish-Lost-Soul',
-    'gnomevil':             'Gnomevil',
-    'branchycrawler':       'Branchy-Crawler',
-    'adeptofthecult':       'Adept-Of-The-Cult',
-    'soulbrokenharbinger':  'Soul-Broken-Harbinger',
-  };
+  // Inject creature sprites through the wsrv.nl proxy (hfCreatureImg) — same as the
+  // modal — so they render reliably instead of breaking on the raw CDN.
   results.forEach((h, i) => {
-    const creatures = (h.creatures || []).slice(0, 3);
+    // de-dup creature names so a spot never shows the same sprite twice
+    const seen = new Set();
+    const creatures = (h.creatures || []).filter(c => {
+      const nm = (c.n || c);
+      const k = String(nm).toLowerCase();
+      if (seen.has(k)) return false;
+      seen.add(k); return true;
+    }).slice(0, 4);
     if (!creatures.length) return;
     const container = document.getElementById('hfc-' + i + '-imgs');
     if (!container) return;
     container.innerHTML = creatures.map(c => {
       const name = c.n || c;
-      const key  = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-      const slug = SLUG_OVERRIDES[key] ||
-                   name.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
-      const url  = `https://cdn.tibiaroute.com/monsters/${slug}.gif`;
-      return `<img src="${url}" alt="${name}" title="${name}" referrerpolicy="no-referrer"
+      return `<img src="${hfCreatureImg(name)}" alt="${name}" title="${name}"
         style="width:52px;height:52px;image-rendering:pixelated;border-radius:6px;object-fit:contain;background:rgba(0,0,0,.2)"
-        onerror="this.style.display='none'">`;
+        onerror="this.style.opacity='.12'">`;
     }).join('');
   });
 
@@ -8556,6 +8622,11 @@ function activityBadge(killedToday, killedWeek) {
 // ── Tela de informações do boss (loot + vida/exp via TibiaData + atividade via kill stats) ──
 function _bossEsc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 function bossRace(name){ return (name||'').toLowerCase().replace(/['\u2019`]/g,'').trim(); }
+// Bosstiary: categoria \u2192 s\u00edmbolo, cor e kills p/ completar (Nemesis 5, Archfoe 60, Bane 300)
+var BOSS_CATS={ nemesis:{label:'Nemesis',sym:'\ud83d\udd34',color:'#e05a5a',kills:5}, archfoe:{label:'Archfoe',sym:'\ud83d\udfe3',color:'#a06bd8',kills:60}, bane:{label:'Bane',sym:'\ud83d\udd35',color:'#5a9ae0',kills:300} };
+function bossCategory(name){ return (typeof NEMESIS_NAMES!=='undefined' && NEMESIS_NAMES.has(name)) ? 'nemesis' : null; }
+function bossCatBadge(name,big){ var c=bossCategory(name); if(!c) return ''; var m=BOSS_CATS[c];
+  return '<span title="Categoria do Bosstiary" style="display:inline-flex;align-items:center;gap:4px;font-size:'+(big?'.72rem':'.6rem')+';font-weight:800;color:'+m.color+';background:'+m.color+'1f;border:1px solid '+m.color+'55;border-radius:20px;padding:'+(big?'2px 9px':'1px 6px')+'">'+m.sym+' '+m.label+'</span>'; }
 window.tpCloseBoss=function(){ var m=document.getElementById('tp-boss-modal'); if(m) m.style.display='none'; };
 window.tpBossCache=window.tpBossCache||{};
 window.tpOpenBoss=async function(name){
@@ -8590,7 +8661,7 @@ window.tpOpenBoss=async function(name){
   var img=bossImgUrl(name), fb=creatureImgUrl(name);
   host.innerHTML='<div class="tp-boss"><button class="tp-boss-x" onclick="tpCloseBoss()">\u2715</button>'
     +'<div class="tp-boss-hd"><div class="tp-boss-av"><img src="'+img+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+fb.replace(/'/g,"\\'")+'\'}else{this.parentNode.innerHTML=\'<span style=font-size:2rem>\uD83D\uDC7F</span>\'}"></div>'
-    +'<div><div class="tp-boss-nm">'+_bossEsc(name)+'</div><div class="tp-boss-sub">Boss \u00b7 '+_bossEsc((typeof CONFIG!=='undefined'&&CONFIG.world)||'')+'</div><div style="margin-top:6px">'+act+'</div></div></div>'
+    +'<div><div class="tp-boss-nm">'+_bossEsc(name)+'</div><div class="tp-boss-sub">'+(bossCatBadge(name,true)||'Boss')+' \u00b7 '+_bossEsc((typeof CONFIG!=='undefined'&&CONFIG.world)||'')+'</div><div style="margin-top:6px">'+act+'</div></div></div>'
     +'<div class="tp-boss-body" id="tp-boss-body"><div class="api-loading"><div class="spinner"></div> Carregando informa\u00e7\u00f5es...</div></div></div>';
   var c=window.tpBossCache[name];
   try{
