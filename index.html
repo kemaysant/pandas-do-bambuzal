@@ -3600,7 +3600,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13ay</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13az</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6618,7 +6618,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13ay';
+window.TP_BUILD = '2026-08-13az';
 
 // Guild member login state
 let hfLoginChar = null; // {name, vocation, level}
@@ -11670,10 +11670,14 @@ function ewEnsureTcInput() {
   };
 
   async function req(path,body){
-    const res=await fetch(SB+path,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const data=await res.json().catch(()=>({}));
-    if(!res.ok) throw new Error(data.msg||data.error_description||data.error||('HTTP '+res.status));
-    return data;
+    const ctrl=new AbortController(); const _t=setTimeout(()=>ctrl.abort(),20000);
+    try{
+      const res=await fetch(SB+path,{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify(body),signal:ctrl.signal});
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok) throw new Error(data.msg||data.error_description||data.error||('HTTP '+res.status));
+      return data;
+    }catch(e){ if(e&&e.name==='AbortError') throw new Error('A conexão demorou demais. Verifique sua internet e tente de novo.'); throw e; }
+    finally{ clearTimeout(_t); }
   }
 
   window.tpSubmitAuth=async function(){
@@ -11719,20 +11723,25 @@ function ewEnsureTcInput() {
   async function afterLogin(d){
     const a={access_token:d.access_token,refresh_token:d.refresh_token,user:d.user,profile:null};
     saveAuth(a);
-    try{
-      const r=await tpAuthFetch(SB+'/rest/v1/profiles?select=*&id=eq.'+a.user.id);
-      const p=await r.json(); if(Array.isArray(p)&&p[0]){ a.profile=p[0]; saveAuth(a); }
-    }catch(e){}
-    if(window.__tpPendingHandle){
-      var _wanted=window.__tpPendingHandle; window.__tpPendingHandle=null;
-      try{
-        const hr=await tpAuthFetch(SB+'/rest/v1/rpc/tp_set_handle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({h:_wanted})});
-        const hres=await hr.json().catch(()=>null);
-        if(hres==='taken' && window.tpToast) tpToast('O @'+_wanted+' já estava em uso — escolha outro no seu perfil.','error');
-      }catch(e){}
-    }
+    // ENTRA NA HORA: fecha o modal e vai pro perfil ANTES de buscar dados extras.
+    // Se a rede do usuário travar a busca do perfil, o login NÃO pode ficar preso no "Aguarde...".
     if(window.tpToast) tpToast('Login efetuado com sucesso!','success');
     tpCloseAuth(); tpOpenProfile();
+    // Perfil + handle em segundo plano (não travam mais o login).
+    (async function(){
+      try{
+        const r=await tpAuthFetch(SB+'/rest/v1/profiles?select=*&id=eq.'+a.user.id);
+        const p=await r.json(); if(Array.isArray(p)&&p[0]){ a.profile=p[0]; saveAuth(a); if(window.tpLoadGamify){ try{ tpLoadGamify(); }catch(e){} } }
+      }catch(e){}
+      if(window.__tpPendingHandle){
+        var _wanted=window.__tpPendingHandle; window.__tpPendingHandle=null;
+        try{
+          const hr=await tpAuthFetch(SB+'/rest/v1/rpc/tp_set_handle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({h:_wanted})});
+          const hres=await hr.json().catch(()=>null);
+          if(hres==='taken' && window.tpToast) tpToast('O @'+_wanted+' já estava em uso — escolha outro no seu perfil.','error');
+        }catch(e){}
+      }
+    })();
   }
 
   window.tpLogout=function(){ saveAuth(null); const h=document.querySelector('.nav-btn'); if(typeof showPage==='function'&&h) showPage('home',h); };
