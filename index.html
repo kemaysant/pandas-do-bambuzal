@@ -3634,7 +3634,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13be</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13bf</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -4528,7 +4528,10 @@ function openImbuModal(id) {
             <img data-item-img="${i.n}" src="" alt="${i.n}" referrerpolicy="no-referrer" style="width:24px;height:24px;image-rendering:pixelated;flex-shrink:0;border-radius:3px;opacity:.2" onerror="this.style.opacity='0.1'">
             <span style="color:var(--ink-3);font-weight:300;font-size:.83rem">${i.n}</span>
           </div>
-          <span style="font-family:'DM Mono',monospace;font-weight:500;color:var(--ink);font-size:.83rem;flex-shrink:0">${i.q}x</span>
+          <div style="text-align:right;flex-shrink:0;line-height:1.25">
+            <span style="font-family:'DM Mono',monospace;font-weight:500;color:var(--ink);font-size:.83rem">${i.q}x</span>
+            <span data-imbu-uprice="${i.n}" title="Preço ao vivo por unidade" style="display:block;font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted)"></span>
+          </div>
         </div>`).join('')}
       ${hasToken ? `<div style="margin-top:.6rem;padding:.5rem .75rem;background:var(--gold-pale);border-radius:6px;font-size:.78rem;color:var(--gold);font-weight:500">🪙 NPC: ${Object.values(GOLD_TOKEN_IMBU[id])[ti]} Gold Token${Object.values(GOLD_TOKEN_IMBU[id])[ti]>1?'s':''}</div>` : ''}
       <div style="margin-top:1rem;padding-top:.75rem;border-top:2px solid var(--rule)">
@@ -4551,7 +4554,11 @@ function openImbuModal(id) {
 
   let calcHtml = `
     <div style="padding:1.5rem 1.75rem;border-top:1px solid var(--rule);background:var(--paper);border-radius:0 0 0 0">
-      <div style="font-size:.72rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:1rem">Calculadora de Custo Real</div>`;
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-bottom:.5rem">
+        <div style="font-size:.72rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Calculadora de Custo Real</div>
+        <button class="filter-btn" id="imbu-live-btn" onclick="_imbuAutoPrice('${d.id}')" style="white-space:nowrap;font-size:.74rem;padding:.35rem .75rem">⚡ Atualizar preços</button>
+      </div>
+      <div id="imbu-live-status" style="font-size:.72rem;color:var(--muted);font-weight:300;margin-bottom:1rem">Preços preenchidos com o <b>market ao vivo</b> do mundo selecionado. Fonte: Tibia Market Tracker.</div>`;
 
   if (hasToken) {
     calcHtml += `
@@ -4595,6 +4602,9 @@ function openImbuModal(id) {
       });
     });
   });
+
+  // Preenche os preços dos materiais com o market ao vivo (mesmo esquema do Task Delivery)
+  _imbuAutoPrice(id);
 }
 
 function calcImbuCost(id) {
@@ -4698,6 +4708,86 @@ function injectImbuIcons() {
     if (!imgEl || imgEl.src) continue;
     imgEl.src = itemImgUrl(d.name + ' (Powerful)');
   }
+}
+
+// ══════════════════════════════════════════════════
+//  IMBUEMENTS — PREÇOS AO VIVO DOS MATERIAIS (Tibia Market Tracker)
+// ══════════════════════════════════════════════════
+// Mesmo mecanismo do Task Delivery: uma requisição por mundo, preenche a
+// calculadora com o preço de COMPRA (menor oferta de venda) de cada material.
+// Itens sem oferta / sem id ficam para preencher à mão.
+const IMBU_MARKET_IDS = {
+  'Blazing Bone':16131, 'Bloody Pincers':9633, 'Brimstone Fangs':11702, 'Broken Shamanic Staff':11452,
+  'Compass':10302, 'Crawler Head Plating':14079, 'Crystallized Anger':23507, 'Cultish Mask':9638,
+  'Cultish Robe':9639, 'Damselfly Wing':17458, 'Deepling Warts':14012, 'Demon Horn':5954,
+  'Demonic Skeletal Hand':9647, 'Draken Sulphur':11658, 'Elven Hoof':18994, 'Elven Scouting Glass':11464,
+  'Elvish Talisman':9635, 'Energy Vein':23508, 'Fairy Wings':25694, 'Fern':3737, 'Fiery Heart':9636,
+  'Flask of Embalming Fluid':11466, 'Frosty Heart':9661, 'Gloom Wolf Fur':22007, 'Goosebump Leather':20205,
+  'Green Dragon Leather':5877, 'Green Dragon Scale':5920, 'Hardened Bone':5925, 'Hellspawn Tail':10304,
+  'Little Bowl of Myrrh':25702, 'Metal Spike':10298, 'Mystical Hourglass':9660, 'Orichalcum Pearl':5021,
+  'Peacock Feather Fan':21975, 'Petrified Scream':10420, 'Piece of Dead Brain':9663,
+  'Piece of Scarab Shell':9641, 'Piece of Swampling Wood':17823, 'Pile of Grave Earth':11484,
+  'Poisonous Slime':9640, 'Polar Bear Paw':9650, 'Protective Charm':11444, 'Quill':28567, 'Rope Belt':11492,
+  'Rorc Feather':18993, 'Sabretooth':10311, 'Scarab Pincers':9631, 'Seacrest Hair':21801,
+  'Silencer Claws':20200, 'Slime Heart':21194, 'Snake Skin':9694, 'Some Grimeleech Wings':22730,
+  'Strand of Medusa Hair':10309, 'Swamp Grass':9686, 'Thick Fur':10307, 'Troll Green':3741,
+  'Vampire Teeth':9685, 'Vexclaw Talon':22728, 'Vile Axe':7388, 'War Crystal':9654, 'Waspoid Wing':14081,
+  'Wereboar Hooves':22053, 'Winter Wolf Fur':10295, 'Wyrm Scale':9665, 'Wyvern Talisman':9644
+};
+window.__IMBU_MKT = window.__IMBU_MKT || {}; // world -> { id -> {sell_offer,buy_offer,mavg} }
+
+function imbuIdOf(name){ return IMBU_MARKET_IDS[name] || (window.DT_MARKET_IDS && window.DT_MARKET_IDS[name]) || 0; }
+
+async function imbuLoadWorld(world){
+  if (window.__IMBU_MKT[world]) return window.__IMBU_MKT[world];
+  const ids = [...new Set(Object.values(IMBU_MARKET_IDS))];
+  const map = {};
+  const arr = await tmMarketFetch(world, ids); // reusa o fetch/rate-limit do Task Delivery
+  (Array.isArray(arr) ? arr : []).forEach(r => {
+    map[r.id] = { sell_offer: r.sell_offer||0, buy_offer: r.buy_offer||0, mavg: r.month_average_sell||0 };
+  });
+  window.__IMBU_MKT[world] = map;
+  return map;
+}
+
+// Preenche automaticamente os inputs de preço do modal de imbuement aberto
+async function _imbuAutoPrice(id){
+  const d = IMBU_ALL.find(i => i.id === id); if (!d) return;
+  const uniqueItems = [...new Set(d.tiers.flatMap(t => t.items.map(i => i.n)))];
+  const status = document.getElementById('imbu-live-status');
+  const btn = document.getElementById('imbu-live-btn');
+  const world = (typeof dtWorld === 'function') ? dtWorld() : 'Gentebra';
+  if (btn){ btn.disabled = true; }
+  if (status) status.innerHTML = 'Carregando preços ao vivo de <b>' + world + '</b>…';
+  let mkt = null;
+  try { mkt = await imbuLoadWorld(world); } catch(e) { mkt = null; }
+  if (!mkt) {
+    if (status) status.textContent = 'Não consegui o market ao vivo agora — digite os preços manualmente.';
+    if (btn) btn.disabled = false;
+    return;
+  }
+  let hits = 0; const total = uniqueItems.length;
+  const fmt = n => n.toLocaleString('pt-BR');
+  uniqueItems.forEach(name => {
+    const iid = imbuIdOf(name);
+    const v = iid ? mkt[iid] : null;
+    const price = v ? (v.sell_offer || v.mavg || v.buy_offer || 0) : 0; // preço pra COMPRAR o material
+    // preço unitário na lista "Itens necessários"
+    document.querySelectorAll('[data-imbu-uprice="' + name.replace(/"/g,'\\"') + '"]').forEach(el => {
+      el.textContent = price > 0 ? fmt(price) + ' gp' : '—';
+      el.style.color = price > 0 ? 'var(--bamboo-light)' : 'var(--muted)';
+    });
+    if (price > 0) {
+      const key = name.replace(/\s/g,'-').replace(/[^a-zA-Z0-9-]/g,'');
+      const inp = document.getElementById('imbu-item-' + key);
+      if (inp) { inp.value = price; hits++; }
+    }
+  });
+  if (status) status.innerHTML = hits > 0
+    ? '⚡ Preços ao vivo de <b>' + world + '</b> — <b>' + hits + '/' + total + '</b> itens preenchidos. Ajuste se quiser.'
+    : 'Sem ofertas pra <b>' + world + '</b> — digite os preços manualmente.';
+  if (btn) btn.disabled = false;
+  calcImbuCost(id);
 }
 
 
@@ -6652,7 +6742,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13be';
+window.TP_BUILD = '2026-08-13bf';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -9741,6 +9831,7 @@ async function dtLoadLivePrices(){
 window.tpResetDeliveryPrices=function(world){
   for(var k in dtPriceCache) delete dtPriceCache[k];
   window.__DT_MKT={};
+  window.__IMBU_MKT={}; // imbuements também são por mundo
   var wl=document.getElementById('dt-live-world'); if(wl&&world) wl.textContent=world;
   var st=document.getElementById('dt-live-status');
   if(st) st.innerHTML='Mundo alterado para <b>'+(world||dtWorld())+'</b> — clique em <b>⚡ Preços ao vivo</b> pra carregar o market dele.';
