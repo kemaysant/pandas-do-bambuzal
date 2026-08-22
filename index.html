@@ -7,6 +7,28 @@
      sem o header Referer, que é bloqueado pelo CDN quando vem de domínios externos -->
 <meta name="referrer" content="no-referrer">
 <title>Tibia Panda · Ferramentas de Tibia para toda a comunidade</title>
+<meta name="description" content="Ferramentas grátis para a comunidade de Tibia: Hunt Finder, Bestiary e charms, bosses, guia de quests, imbuements, Task Delivery com preços ao vivo e perfil social. Feito por jogadores, pra jogadores.">
+<link rel="canonical" href="https://tibiapanda.com.br/">
+<meta name="theme-color" content="#8b5cf6">
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
+<!-- Open Graph (preview de link no WhatsApp / Discord / Telegram / Facebook) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tibia Panda">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://tibiapanda.com.br/">
+<meta property="og:title" content="Tibia Panda · Ferramentas de Tibia para toda a comunidade">
+<meta property="og:description" content="Hunt Finder, Bestiary e charms, bosses, guia de quests, imbuements, Task Delivery com preços ao vivo e perfil social. Feito por jogadores, pra jogadores.">
+<meta property="og:image" content="https://tibiapanda.com.br/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tibia Panda — ferramentas de Tibia para a comunidade">
+<!-- Twitter/X card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tibia Panda · Ferramentas de Tibia para toda a comunidade">
+<meta name="twitter:description" content="Hunt Finder, Bestiary e charms, bosses, guia de quests, imbuements, Task Delivery com preços ao vivo e perfil social.">
+<meta name="twitter:image" content="https://tibiapanda.com.br/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -3612,7 +3634,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13bd</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13be</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6630,161 +6652,140 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13bd';
+window.TP_BUILD = '2026-08-13be';
 
-// Guild member login state
-let hfLoginChar = null; // {name, vocation, level}
+// Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
+// Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
+let _hfVerifiedChar = undefined; // undefined = não checado, null = nenhum, {name} = tem verificado
 
-// ADM accounts (hardcoded, always allowed)
-const PANDA_ADM = ['Bambu Admin', 'PandaGM']; // customize
+function _pandaHeaders(json) {
+  const A = window.TP_AUTH;
+  const h = { apikey: PANDA_SB_ANON, Authorization: 'Bearer ' + ((A && A.access_token) || PANDA_SB_ANON), Accept: 'application/json' };
+  if (json) h['Content-Type'] = 'application/json';
+  return h;
+}
+
+// Descobre se o usuário logado tem ao menos 1 personagem verificado (cacheia o resultado)
+async function _hfCheckVerified() {
+  const A = window.TP_AUTH;
+  if (!A || !A.access_token) { _hfVerifiedChar = null; return null; }
+  try {
+    const uid = A.user && A.user.id;
+    const url = `${PANDA_SB_URL}/rest/v1/characters?select=name,level&verified=is.true${uid ? ('&user_id=eq.' + uid) : ''}&order=level.desc&limit=1`;
+    const r = await fetch(url, { headers: _pandaHeaders() });
+    const rows = r.ok ? await r.json() : [];
+    _hfVerifiedChar = (Array.isArray(rows) && rows.length) ? rows[0] : null;
+  } catch (e) { _hfVerifiedChar = null; }
+  return _hfVerifiedChar;
+}
 
 async function initHuntComments(huntName) {
   const el = document.getElementById('hf-comments-inner');
   if (!el) return;
-
-  if (!PANDA_SB_URL) {
-    el.innerHTML = _commentsNotConfiguredHtml();
-    return;
-  }
-
-  if (!hfLoginChar) {
-    el.innerHTML = _commentsLoginFormHtml();
-    return;
-  }
-
+  _hfVerifiedChar = undefined; // re-checa a cada abertura (login pode ter mudado)
   await _renderComments(huntName, el);
-}
-
-function _commentsNotConfiguredHtml() {
-  return `<div class="hf-comments-login">
-    <p style="font-size:.75rem;color:var(--muted)">Comentários disponíveis após configurar o Supabase próprio em <code>PANDA_SB_URL</code>.</p>
-  </div>`;
-}
-
-function _commentsLoginFormHtml() {
-  return `<div class="hf-comments-login">
-    <p style="margin-bottom:.6rem;color:var(--ink-2);font-size:.82rem">Faça login com seu personagem da guild para comentar.</p>
-    <div class="hf-comments-login-form">
-      <input id="hf-login-char-input" class="tool-input" type="text" placeholder="Nome do personagem" style="background:var(--bg-3);border:1px solid var(--border-2);border-radius:6px;padding:7px 11px;color:var(--ink);font-size:.82rem;width:100%;outline:none">
-      <button onclick="hfLoginWithChar()" class="hf-comment-submit" style="align-self:flex-start">
-        Verificar →
-      </button>
-      <div id="hf-login-err" style="display:none;font-size:.75rem;color:var(--red)"></div>
-    </div>
-  </div>`;
-}
-
-async function hfLoginWithChar() {
-  const input = document.getElementById('hf-login-char-input');
-  const errEl = document.getElementById('hf-login-err');
-  const name  = (input?.value || '').trim();
-  if (!name) return;
-  errEl.style.display = 'none';
-
-  // ADM bypass
-  if (PANDA_ADM.some(a => a.toLowerCase() === name.toLowerCase())) {
-    hfLoginChar = { name, vocation: 'ADM', level: 0 };
-    const el = document.getElementById('hf-comments-inner');
-    if (el) {
-      const huntName = document.querySelector('.hf-mhdr-title')?.textContent || '';
-      await _renderComments(huntName, el);
-    }
-    return;
-  }
-
-  try {
-    const data = await tibiaFetch('/v4/guild/Pandas do Bambuzal');
-    const members = data?.guild?.members || [];
-    const member  = members.find(m => m.name.toLowerCase() === name.toLowerCase());
-    if (!member) throw new Error('Personagem não é membro da guild Pandas do Bambuzal.');
-    hfLoginChar = { name: member.name, vocation: member.vocation, level: member.level };
-    const el = document.getElementById('hf-comments-inner');
-    if (el) {
-      const huntName = document.querySelector('.hf-mhdr-title')?.textContent || '';
-      await _renderComments(huntName, el);
-    }
-  } catch(e) {
-    if (errEl) { errEl.textContent = e.message || 'Erro ao verificar membro.'; errEl.style.display = 'block'; }
-  }
 }
 
 async function _renderComments(huntName, el) {
   el.innerHTML = `<div style="font-size:.75rem;color:var(--muted)">Carregando comentários...</div>`;
   const comments = await _fetchComments(huntName);
-  el.innerHTML = `
-    <div style="margin-bottom:.5rem;font-size:.75rem;color:var(--muted)">
-      Logado como <strong style="color:var(--bamboo-light)">${hfLoginChar.name}</strong>
-      <button onclick="hfLogout()" style="background:none;border:none;color:var(--red);font-size:.68rem;cursor:pointer;margin-left:.5rem">Sair</button>
-    </div>
+  const listHtml = comments.length
+    ? comments.map(c => `
+        <div class="hf-comment-item">
+          <div class="hf-comment-meta">
+            <span class="hf-comment-author">${_escHtml(c.autor_nome || c.autor || '—')}</span>
+            <span class="hf-comment-date">${_fmtDate(c.data)}</span>
+          </div>
+          <div class="hf-comment-text">${_escHtml(c.texto)}</div>
+        </div>`).join('')
+    : '<div class="hf-comment-empty">Nenhum comentário ainda. Seja o primeiro!</div>';
+  el.innerHTML = `<div id="hf-comment-compose"></div><div id="hf-comment-list">${listHtml}</div>`;
+  await _renderCompose(huntName);
+}
+
+// Renderiza a caixa de escrever conforme o estado: deslogado / logado-sem-boneco / apto
+async function _renderCompose(huntName) {
+  const box = document.getElementById('hf-comment-compose');
+  if (!box) return;
+  const A = window.TP_AUTH;
+  if (!A || !A.access_token) {
+    box.innerHTML = `<div class="hf-comments-login"><p style="font-size:.8rem;color:var(--ink-2);margin:0">Entre na sua conta para comentar. <button class="tp-btn-primary" style="margin-left:.35rem" onclick="tpOpenAuth('login')">Entrar</button></p></div>`;
+    return;
+  }
+  box.innerHTML = `<div style="font-size:.75rem;color:var(--muted);padding:.3rem 0">Verificando personagem…</div>`;
+  const v = (_hfVerifiedChar !== undefined) ? _hfVerifiedChar : await _hfCheckVerified();
+  if (!v) {
+    box.innerHTML = `<div class="hf-comments-login"><p style="font-size:.8rem;color:var(--ink-2);margin:0">Para comentar você precisa ter <strong>pelo menos um personagem verificado</strong>. Verifique um boneco na aba <strong>Personagem</strong>.</p></div>`;
+    return;
+  }
+  box.innerHTML = `
+    <div style="margin-bottom:.5rem;font-size:.75rem;color:var(--muted)">Comentando como <strong style="color:var(--bamboo-light)">${_escHtml(v.name)}</strong></div>
     <div class="hf-comment-form">
-      <textarea id="hf-comment-text" class="hf-comment-textarea" placeholder="Dica, observação ou estratégia para esta hunt..."></textarea>
+      <textarea id="hf-comment-text" class="hf-comment-textarea" maxlength="600" placeholder="Dica, observação ou estratégia para esta hunt..."></textarea>
       <button class="hf-comment-submit" onclick="hfSubmitComment('${huntName.replace(/'/g,"\\'")}')">Publicar</button>
-    </div>
-    <div id="hf-comment-list">
-      ${comments.length
-        ? comments.map(c => `
-          <div class="hf-comment-item">
-            <div class="hf-comment-meta">
-              <span class="hf-comment-author">${_escHtml(c.autor)}</span>
-              <span class="hf-comment-date">${_fmtDate(c.data)}</span>
-            </div>
-            <div class="hf-comment-text">${_escHtml(c.texto)}</div>
-          </div>`).join('')
-        : '<div class="hf-comment-empty">Nenhum comentário ainda. Seja o primeiro!</div>'
-      }
+      <div id="hf-comment-err" style="display:none;color:var(--red);font-size:.72rem;margin-top:.35rem"></div>
     </div>`;
 }
 
 async function _fetchComments(huntName) {
   if (!PANDA_SB_URL || !PANDA_SB_ANON) return [];
   try {
-    const url = `${PANDA_SB_URL}/rest/v1/comentarios_hunt?hunt_name=eq.${encodeURIComponent(huntName)}&order=data.desc&limit=30`;
-    const r = await fetch(url, { headers: { apikey: PANDA_SB_ANON, Authorization: 'Bearer ' + PANDA_SB_ANON, Accept: 'application/json' } });
+    const url = `${PANDA_SB_URL}/rest/v1/comentarios_hunt?hunt_name=eq.${encodeURIComponent(huntName)}&order=data.desc&limit=50`;
+    const r = await fetch(url, { headers: _pandaHeaders() });
     if (!r.ok) return [];
     return await r.json();
   } catch { return []; }
 }
 
 async function hfSubmitComment(huntName) {
-  if (!hfLoginChar || !PANDA_SB_URL || !PANDA_SB_ANON) return;
+  const A = window.TP_AUTH;
+  if (!A || !A.access_token) { tpOpenAuth('login'); return; }
   const ta  = document.getElementById('hf-comment-text');
-  const btn = document.querySelector('.hf-comment-submit');
+  const btn = document.querySelector('#hf-comment-compose .hf-comment-submit');
+  const errEl = document.getElementById('hf-comment-err');
   const text = (ta?.value || '').trim();
+  if (errEl) errEl.style.display = 'none';
   if (!text) return;
   if (btn) btn.disabled = true;
   try {
-    const url = `${PANDA_SB_URL}/rest/v1/comentarios_hunt`;
-    const r = await fetch(url, {
+    const r = await fetch(`${PANDA_SB_URL}/rest/v1/rpc/tp_hunt_comment_add`, {
       method: 'POST',
-      headers: { apikey: PANDA_SB_ANON, Authorization: 'Bearer ' + PANDA_SB_ANON,
-                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ hunt_name: huntName, autor: hfLoginChar.name, texto: text, data: new Date().toISOString() })
+      headers: _pandaHeaders(true),
+      body: JSON.stringify({ p_hunt: huntName, p_text: text })
     });
-    if (r.ok || r.status === 201) {
-      ta.value = '';
+    if (r.ok) {
+      const row = await r.json().catch(() => null);
+      const nome = (row && row.autor_nome) || (_hfVerifiedChar && _hfVerifiedChar.name) || 'você';
+      if (ta) ta.value = '';
       const listEl = document.getElementById('hf-comment-list');
       if (listEl) {
-        const newItem = document.createElement('div');
-        newItem.className = 'hf-comment-item';
-        newItem.innerHTML = `
+        const it = document.createElement('div');
+        it.className = 'hf-comment-item';
+        it.innerHTML = `
           <div class="hf-comment-meta">
-            <span class="hf-comment-author">${_escHtml(hfLoginChar.name)}</span>
+            <span class="hf-comment-author">${_escHtml(nome)}</span>
             <span class="hf-comment-date">agora</span>
           </div>
           <div class="hf-comment-text">${_escHtml(text)}</div>`;
         const emptyEl = listEl.querySelector('.hf-comment-empty');
         if (emptyEl) emptyEl.remove();
-        listEl.prepend(newItem);
+        listEl.prepend(it);
       }
+    } else {
+      let msg = 'Não foi possível publicar.';
+      const e = await r.json().catch(() => null);
+      if (e && e.message) {
+        if (/verificado/i.test(e.message)) msg = 'Você precisa de um personagem verificado para comentar.';
+        else if (/authenticated/i.test(e.message)) msg = 'Sessão expirada — entre novamente.';
+        else msg = e.message;
+      }
+      if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
     }
-  } catch(e) { console.error('Comment error', e); }
+  } catch (e) {
+    if (errEl) { errEl.textContent = 'Erro de conexão ao publicar.'; errEl.style.display = 'block'; }
+    console.error('Comment error', e);
+  }
   if (btn) btn.disabled = false;
-}
-
-function hfLogout() {
-  hfLoginChar = null;
-  const el = document.getElementById('hf-comments-inner');
-  if (el) el.innerHTML = _commentsLoginFormHtml();
 }
 
 function _escHtml(s) {
