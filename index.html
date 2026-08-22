@@ -117,6 +117,12 @@ body{background:var(--bg-0);color:var(--ink);font-family:'Inter',sans-serif;font
 .sidebar::-webkit-scrollbar{width:3px}
 .sidebar::-webkit-scrollbar-track{background:transparent}
 .sidebar::-webkit-scrollbar-thumb{background:var(--border)}
+/* scrollbar padrão do site (modais e áreas roláveis) */
+.tp-scroll{scrollbar-width:thin;scrollbar-color:var(--border-2) transparent}
+.tp-scroll::-webkit-scrollbar{width:8px;height:8px}
+.tp-scroll::-webkit-scrollbar-track{background:transparent}
+.tp-scroll::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px}
+.tp-scroll::-webkit-scrollbar-thumb:hover{background:var(--bamboo)}
 
 .sidebar-brand {
   padding: 1.25rem 1rem 1rem;
@@ -3634,7 +3640,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13bf</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13bg</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -4516,34 +4522,30 @@ function openImbuModal(id) {
 
   // Render tier cards
   document.getElementById('imbu-modal-tiers').innerHTML = d.tiers.map((t,ti) => `
-    <div style="background:var(--white);border:1px solid ${t.color}55;border-top:3px solid ${t.color};border-radius:10px;padding:1.25rem;flex:1;min-width:180px">
-      <div style="margin-bottom:1rem">
-        <span style="font-size:.75rem;background:${t.color};color:white;padding:3px 12px;border-radius:10px;font-weight:600">${t.label}</span>
-        <div style="font-size:.9rem;color:${t.color};font-weight:600;margin-top:.6rem">${t.effect}</div>
+    <div style="background:var(--bg-2);border:1px solid var(--border);border-top:3px solid ${t.color};border-radius:12px;padding:1.1rem 1.15rem;flex:1 1 200px;min-width:190px;display:flex;flex-direction:column">
+      <div style="margin-bottom:.9rem">
+        <span style="font-size:.72rem;background:${t.color};color:#fff;padding:3px 12px;border-radius:20px;font-weight:600">${t.label}</span>
+        <div style="font-size:.9rem;color:${t.color};font-weight:600;margin-top:.55rem">${t.effect}</div>
       </div>
-      <div style="font-size:.68rem;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Itens necessários</div>
+      <div style="font-size:.66rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem">Itens necessários</div>
       ${t.items.map(i=>`
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--rule);gap:.5rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border);gap:.5rem">
           <div style="display:flex;align-items:center;gap:.5rem;min-width:0">
             <img data-item-img="${i.n}" src="" alt="${i.n}" referrerpolicy="no-referrer" style="width:24px;height:24px;image-rendering:pixelated;flex-shrink:0;border-radius:3px;opacity:.2" onerror="this.style.opacity='0.1'">
-            <span style="color:var(--ink-3);font-weight:300;font-size:.83rem">${i.n}</span>
+            <span style="color:var(--ink-2);font-weight:300;font-size:.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${i.n}</span>
           </div>
-          <div style="text-align:right;flex-shrink:0;line-height:1.25">
-            <span style="font-family:'DM Mono',monospace;font-weight:500;color:var(--ink);font-size:.83rem">${i.q}x</span>
-            <span data-imbu-uprice="${i.n}" title="Preço ao vivo por unidade" style="display:block;font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted)"></span>
+          <div style="text-align:right;flex-shrink:0;line-height:1.2">
+            <span style="font-family:'JetBrains Mono',monospace;font-weight:500;color:var(--ink);font-size:.8rem">${i.q}x</span>
+            <span data-imbu-uprice="${i.n}" title="Preço ao vivo por unidade" style="display:block;font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--muted)"></span>
           </div>
         </div>`).join('')}
-      ${hasToken ? `<div style="margin-top:.6rem;padding:.5rem .75rem;background:var(--gold-pale);border-radius:6px;font-size:.78rem;color:var(--gold);font-weight:500">🪙 NPC: ${Object.values(GOLD_TOKEN_IMBU[id])[ti]} Gold Token${Object.values(GOLD_TOKEN_IMBU[id])[ti]>1?'s':''}</div>` : ''}
-      <div style="margin-top:1rem;padding-top:.75rem;border-top:2px solid var(--rule)">
-        <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:4px">
-          <span style="color:var(--muted);font-weight:300">1 hora</span>
-          <span style="font-family:'DM Mono',monospace;color:var(--ink-3)">${t.gold1.toLocaleString('pt-BR')} gp</span>
+      ${hasToken ? `<div style="margin-top:.65rem;padding:.4rem .7rem;background:var(--gold-dim);border:1px solid rgba(201,168,64,.25);border-radius:8px;font-size:.75rem;color:var(--gold-light);font-weight:500;display:flex;align-items:center;gap:.4rem">🪙 ${Object.values(GOLD_TOKEN_IMBU[id])[ti]} Gold Token${Object.values(GOLD_TOKEN_IMBU[id])[ti]>1?'s':''} no NPC</div>` : ''}
+      <div style="margin-top:.8rem;padding-top:.65rem;border-top:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;font-size:.76rem">
+          <span style="color:var(--muted);font-weight:300">Taxa shrine (20h)</span>
+          <span style="font-family:'JetBrains Mono',monospace;color:var(--ink-2)">${t.gold20.toLocaleString('pt-BR')} gp</span>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:.9rem">
-          <span style="color:var(--muted);font-weight:300">20 horas</span>
-          <span style="font-family:'DM Mono',monospace;font-weight:700;color:${t.color}">${t.gold20.toLocaleString('pt-BR')} gp</span>
-        </div>
-        <div id="imbu-cost-result-${ti}" style="display:none;margin-top:.6rem;padding:.5rem .75rem;border-radius:6px;font-size:.82rem;font-weight:600;text-align:center"></div>
+        <div id="imbu-cost-result-${ti}" style="display:none;margin-top:.6rem;padding:.45rem .6rem;border-radius:8px;font-size:.78rem;font-weight:600;text-align:center"></div>
       </div>
     </div>`).join('');
 
@@ -4553,40 +4555,42 @@ function openImbuModal(id) {
   const uniqueItems = Object.keys(allItems);
 
   let calcHtml = `
-    <div style="padding:1.5rem 1.75rem;border-top:1px solid var(--rule);background:var(--paper);border-radius:0 0 0 0">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-bottom:.5rem">
-        <div style="font-size:.72rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Calculadora de Custo Real</div>
-        <button class="filter-btn" id="imbu-live-btn" onclick="_imbuAutoPrice('${d.id}')" style="white-space:nowrap;font-size:.74rem;padding:.35rem .75rem">⚡ Atualizar preços</button>
+    <div style="padding:1.35rem 1.75rem;border-top:1px solid var(--border);background:var(--bg-1)">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-bottom:.4rem">
+        <div style="font-size:.7rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)">Calculadora de custo</div>
+        <button class="filter-btn" id="imbu-live-btn" onclick="_imbuAutoPrice('${d.id}', true)" style="white-space:nowrap;font-size:.74rem;padding:.35rem .8rem">⚡ Atualizar preços</button>
       </div>
-      <div id="imbu-live-status" style="font-size:.72rem;color:var(--muted);font-weight:300;margin-bottom:1rem">Preços preenchidos com o <b>market ao vivo</b> do mundo selecionado. Fonte: Tibia Market Tracker.</div>`;
+      <div id="imbu-live-status" style="font-size:.72rem;color:var(--muted);font-weight:300;margin-bottom:1rem"></div>`;
 
   if (hasToken) {
     calcHtml += `
-      <div style="background:var(--gold-pale);border:1px solid rgba(160,120,40,.25);border-radius:8px;padding:.9rem 1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.75rem">
+      <div style="background:var(--gold-dim);border:1px solid rgba(201,168,64,.28);border-radius:10px;padding:.85rem 1rem;margin-bottom:1.1rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
         <img src="https://static.wikia.nocookie.net/tibia/images/0/0b/Gold_Token.gif/revision/latest?path-prefix=en"
-             alt="Gold Token" referrerpolicy="no-referrer" style="width:32px;height:32px;image-rendering:pixelated;flex-shrink:0"
-             onerror="this.outerHTML='<span style=\'font-size:1.4rem\'>🪙</span>'">
-        <div>
-          <div style="font-size:.85rem;font-weight:500;color:var(--gold)">Disponível via Gold Token no NPC</div>
-          <div style="font-size:.78rem;color:var(--muted);font-weight:300">Basic: ${GOLD_TOKEN_IMBU[id].basic} · Intricate: ${GOLD_TOKEN_IMBU[id].intricate} · Powerful: ${GOLD_TOKEN_IMBU[id].powerful} tokens</div>
+             alt="Gold Token" referrerpolicy="no-referrer" style="width:30px;height:30px;image-rendering:pixelated;flex-shrink:0"
+             onerror="this.outerHTML='<span style=\'font-size:1.35rem\'>🪙</span>'">
+        <div style="min-width:0">
+          <div style="font-size:.83rem;font-weight:600;color:var(--gold-light)">Trocável por Gold Token no NPC</div>
+          <div style="font-size:.74rem;color:var(--muted);font-weight:300">Basic ${GOLD_TOKEN_IMBU[id].basic} · Intricate ${GOLD_TOKEN_IMBU[id].intricate} · Powerful ${GOLD_TOKEN_IMBU[id].powerful} tokens</div>
         </div>
         <div style="margin-left:auto">
-          <label style="font-size:.75rem;color:var(--muted);font-weight:300;display:block;margin-bottom:4px">Preço do Gold Token (gp)</label>
-          <input type="number" id="imbu-token-price" placeholder="ex: 45000" min="0" class="tool-input" style="width:140px;font-size:.85rem" oninput="calcImbuCost('${id}')">
+          <label style="font-size:.72rem;color:var(--muted);font-weight:300;display:block;margin-bottom:4px">Preço do Gold Token <span style="color:var(--gold-light);font-weight:500">· auto</span></label>
+          <input type="number" id="imbu-token-price" placeholder="—" min="0" class="tool-input" style="width:150px;font-size:.85rem" oninput="calcImbuCost('${id}')">
         </div>
       </div>`;
   }
 
   calcHtml += `
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin-bottom:1rem">
-        ${uniqueItems.map(item => `
-          <div>
-            <label style="font-size:.75rem;color:var(--muted);font-weight:300;display:block;margin-bottom:4px">${item} (gp cada)</label>
-            <input type="number" id="imbu-item-${item.replace(/\s/g,'-').replace(/[^a-zA-Z0-9-]/g,'')}" placeholder="0" min="0" class="tool-input" style="font-size:.85rem" oninput="calcImbuCost('${id}')">
-          </div>`).join('')}
-      </div>
-      <button class="calc-btn" onclick="calcImbuCost('${id}')" style="margin-top:0">Calcular custo total →</button>
-      <div id="imbu-calc-result" style="display:none;margin-top:1.25rem"></div>
+      <details style="margin-bottom:1.1rem">
+        <summary style="font-size:.74rem;color:var(--ink-3);cursor:pointer;font-weight:400;user-select:none;list-style:none">⚙️ Preço veio errado? Ajustar manualmente (o market muda bastante)</summary>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.7rem;margin-top:.85rem">
+          ${uniqueItems.map(item => `
+            <div>
+              <label style="font-size:.72rem;color:var(--muted);font-weight:300;display:block;margin-bottom:4px">${item} <span style="opacity:.6">(gp/un)</span></label>
+              <input type="number" id="imbu-item-${item.replace(/\s/g,'-').replace(/[^a-zA-Z0-9-]/g,'')}" placeholder="0" min="0" class="tool-input" style="font-size:.85rem;width:100%" oninput="calcImbuCost('${id}')">
+            </div>`).join('')}
+        </div>
+      </details>
+      <div id="imbu-calc-result" style="display:none"></div>
     </div>`;
 
   document.getElementById('imbu-modal-calc').innerHTML = calcHtml;
@@ -4618,68 +4622,82 @@ function calcImbuCost(id) {
     return parseInt(document.getElementById('imbu-item-' + key)?.value) || 0;
   };
 
+  const fmt = n => n.toLocaleString('pt-BR');
+  const tokenKeys = ['basic','intricate','powerful'];
+
   const results = d.tiers.map((t, ti) => {
-    // Cost via items
-    let itemCost = t.items.reduce((sum, i) => sum + (i.q * getItemPrice(i.n)), 0);
-    let totalItems = itemCost + t.gold20;
-
-    // Cost via token (if applicable)
-    let tokenKeys = ['basic','intricate','powerful'];
-    let totalToken = hasToken && tokenPrice > 0
-      ? (GOLD_TOKEN_IMBU[id][tokenKeys[ti]] * tokenPrice) + t.gold20
-      : null;
-
-    return { label: t.label, color: t.color, itemCost, totalItems, totalToken, tokens: hasToken ? GOLD_TOKEN_IMBU[id][tokenKeys[ti]] : 0 };
+    const itemsCost = t.items.reduce((sum, i) => sum + (i.q * getItemPrice(i.n)), 0); // materiais no market
+    const tokens = hasToken ? GOLD_TOKEN_IMBU[id][tokenKeys[ti]] : 0;
+    const tokenCost = (hasToken && tokenPrice > 0) ? tokens * tokenPrice : null;      // materiais via Gold Token
+    return { label:t.label, color:t.color, gold20:t.gold20, itemsCost, tokens, tokenCost };
   });
-
-  // Find cheapest
-  const allTotals = results.flatMap(r => [r.totalItems, r.totalToken].filter(v => v !== null && v > 0));
-  const minTotal = allTotals.length ? Math.min(...allTotals) : 0;
 
   const resultEl = document.getElementById('imbu-calc-result');
   resultEl.style.display = 'block';
   resultEl.innerHTML = `
-    <div style="font-size:.72rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">Custo total por tier (20h)</div>
-    <div style="display:flex;flex-direction:column;gap:.5rem">
+    <div style="font-size:.7rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">
+      ${hasToken ? 'Market × Gold Token — por tier' : 'Custo por tier (20h)'}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:.55rem">
       ${results.map(r => {
-        const cheapestThisTier = Math.min(...[r.totalItems, r.totalToken].filter(v => v !== null && v > 0));
-        const isBest = cheapestThisTier === minTotal && cheapestThisTier > 0;
+        const hasMarket = r.itemsCost > 0;
+        const hasTok = r.tokenCost !== null && r.tokenCost > 0;
+        // decisão: compara só a AQUISIÇÃO dos materiais (market × tokens); a taxa do shrine é igual nos dois
+        const recMarket = !hasTok || (hasMarket && r.itemsCost <= r.tokenCost);
+        const savings = (hasMarket && hasTok) ? Math.abs(r.itemsCost - r.tokenCost) : 0;
+        const acq = hasTok ? Math.min(hasMarket ? r.itemsCost : Infinity, r.tokenCost) : r.itemsCost;
+        const total = (isFinite(acq) ? acq : 0) + r.gold20;
+
+        const marketCol = `
+          <div style="flex:1;min-width:0">
+            <div style="color:var(--muted);font-weight:300;font-size:.68rem;margin-bottom:2px">Materiais (market)</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${hasMarket && recMarket ? 'var(--bamboo-light)' : 'var(--ink)'}">${hasMarket ? fmt(r.itemsCost)+' gp' : '—'}</div>
+          </div>`;
+        const tokenCol = hasToken ? `
+          <div style="flex:1;min-width:0">
+            <div style="color:var(--muted);font-weight:300;font-size:.68rem;margin-bottom:2px">Gold Token (${r.tokens})</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-weight:600;color:${hasTok && !recMarket ? 'var(--gold-light)' : 'var(--ink)'}">${hasTok ? fmt(r.tokenCost)+' gp' : '—'}</div>
+          </div>` : '';
+
+        let recBadge = '';
+        if (hasToken && hasMarket && hasTok) {
+          recBadge = recMarket
+            ? `<span style="font-size:.65rem;background:var(--bamboo);color:#fff;padding:2px 9px;border-radius:20px;font-weight:600">✓ Market · −${fmt(savings)}</span>`
+            : `<span style="font-size:.65rem;background:var(--gold);color:#1a1400;padding:2px 9px;border-radius:20px;font-weight:600">✓ Gold Token · −${fmt(savings)}</span>`;
+        }
+
         return `
-        <div style="background:${isBest ? 'var(--bamboo-pale)' : 'var(--white)'};border:1px solid ${isBest ? 'rgba(90,158,68,.4)' : 'var(--rule)'};border-radius:8px;padding:.9rem 1.1rem">
-          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
-            <span style="font-size:.72rem;background:${r.color};color:white;padding:1px 8px;border-radius:8px;font-weight:600">${r.label}</span>
-            ${isBest ? '<span style="font-size:.68rem;background:var(--bamboo);color:white;padding:1px 8px;border-radius:8px;font-weight:600">✓ MAIS BARATO</span>' : ''}
+        <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:.8rem 1rem">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.55rem;flex-wrap:wrap">
+            <span style="font-size:.7rem;background:${r.color};color:#fff;padding:1px 10px;border-radius:20px;font-weight:600">${r.label}</span>
+            ${recBadge}
+            <span style="margin-left:auto;font-size:.72rem;color:var(--muted)">Total 20h: <strong style="font-family:'JetBrains Mono',monospace;color:var(--ink)">${total>0?fmt(total)+' gp':'—'}</strong></span>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
-            <div style="font-size:.82rem">
-              <div style="color:var(--muted);font-weight:300;font-size:.72rem;margin-bottom:2px">Via itens (market)</div>
-              <div style="font-family:'DM Mono',monospace;font-weight:600;color:${r.totalItems === cheapestThisTier && r.totalItems > 0 ? 'var(--bamboo)' : 'var(--ink)'}">
-                ${r.totalItems > 0 ? r.totalItems.toLocaleString('pt-BR') + ' gp' : '—'}
-              </div>
-            </div>
-            ${r.totalToken !== null ? `
-            <div style="font-size:.82rem">
-              <div style="color:var(--muted);font-weight:300;font-size:.72rem;margin-bottom:2px">Via Gold Token (${r.tokens}x)</div>
-              <div style="font-family:'DM Mono',monospace;font-weight:600;color:${r.totalToken === cheapestThisTier && r.totalToken > 0 ? 'var(--bamboo)' : 'var(--ink)'}">
-                ${tokenPrice > 0 ? r.totalToken.toLocaleString('pt-BR') + ' gp' : '—'}
-              </div>
-            </div>` : ''}
-          </div>
+          <div style="display:flex;gap:1rem">${marketCol}${tokenCol}</div>
         </div>`;
       }).join('')}
     </div>
-    <p style="font-size:.72rem;color:var(--muted);margin-top:.75rem;font-weight:300">* Inclui custo base de gold (20h). Preço dos itens baseado nos valores que você inseriu.</p>`;
+    <p style="font-size:.7rem;color:var(--muted);margin-top:.75rem;font-weight:300">Total inclui a taxa fixa do shrine (20h). A recomendação compara só a aquisição dos materiais (market × tokens).${hasToken ? '' : ' Este imbuement não é trocável por Gold Token — materiais só no market ou farmando.'}</p>`;
 
-  // Also update per-tier result badges inside the tier cards
+  // Badge de recomendação dentro de cada card de tier
   results.forEach((r, ti) => {
     const el = document.getElementById('imbu-cost-result-' + ti);
     if (!el) return;
-    const cheapest = Math.min(...[r.totalItems, r.totalToken].filter(v => v !== null && v > 0));
-    if (cheapest > 0) {
-      el.style.display = 'block';
-      el.style.background = 'var(--bamboo-pale)';
-      el.style.color = 'var(--bamboo)';
-      el.textContent = 'Total: ' + cheapest.toLocaleString('pt-BR') + ' gp';
+    const hasMarket = r.itemsCost > 0;
+    const hasTok = r.tokenCost !== null && r.tokenCost > 0;
+    if (!hasMarket && !hasTok) { el.style.display = 'none'; return; }
+    const recMarket = !hasTok || (hasMarket && r.itemsCost <= r.tokenCost);
+    const acq = hasTok ? Math.min(hasMarket ? r.itemsCost : Infinity, r.tokenCost) : r.itemsCost;
+    const total = (isFinite(acq) ? acq : 0) + r.gold20;
+    el.style.display = 'block';
+    if (hasToken && hasMarket && hasTok) {
+      el.style.background = recMarket ? 'var(--bamboo-dim)' : 'var(--gold-dim)';
+      el.style.color = recMarket ? 'var(--bamboo-light)' : 'var(--gold-light)';
+      el.textContent = (recMarket ? '✓ Market · ' : '✓ Gold Token · ') + fmt(total) + ' gp';
+    } else {
+      el.style.background = 'var(--bamboo-dim)';
+      el.style.color = 'var(--bamboo-light)';
+      el.textContent = 'Total: ' + fmt(total) + ' gp';
     }
   });
 }
@@ -4738,9 +4756,11 @@ window.__IMBU_MKT = window.__IMBU_MKT || {}; // world -> { id -> {sell_offer,buy
 
 function imbuIdOf(name){ return IMBU_MARKET_IDS[name] || (window.DT_MARKET_IDS && window.DT_MARKET_IDS[name]) || 0; }
 
+const GOLD_TOKEN_ID = 22721; // item_id do Gold Token no market
+
 async function imbuLoadWorld(world){
   if (window.__IMBU_MKT[world]) return window.__IMBU_MKT[world];
-  const ids = [...new Set(Object.values(IMBU_MARKET_IDS))];
+  const ids = [...new Set([...Object.values(IMBU_MARKET_IDS), GOLD_TOKEN_ID])];
   const map = {};
   const arr = await tmMarketFetch(world, ids); // reusa o fetch/rate-limit do Task Delivery
   (Array.isArray(arr) ? arr : []).forEach(r => {
@@ -4750,13 +4770,15 @@ async function imbuLoadWorld(world){
   return map;
 }
 
-// Preenche automaticamente os inputs de preço do modal de imbuement aberto
-async function _imbuAutoPrice(id){
+// Preenche automaticamente os inputs de preço do modal de imbuement aberto.
+// force=true (botão) ignora o cache e busca de novo — o market muda bastante.
+async function _imbuAutoPrice(id, force){
   const d = IMBU_ALL.find(i => i.id === id); if (!d) return;
   const uniqueItems = [...new Set(d.tiers.flatMap(t => t.items.map(i => i.n)))];
   const status = document.getElementById('imbu-live-status');
   const btn = document.getElementById('imbu-live-btn');
   const world = (typeof dtWorld === 'function') ? dtWorld() : 'Gentebra';
+  if (force && window.__IMBU_MKT) { delete window.__IMBU_MKT[world]; } // busca fresca
   if (btn){ btn.disabled = true; }
   if (status) status.innerHTML = 'Carregando preços ao vivo de <b>' + world + '</b>…';
   let mkt = null;
@@ -4783,8 +4805,16 @@ async function _imbuAutoPrice(id){
       if (inp) { inp.value = price; hits++; }
     }
   });
+  // Preço do Gold Token (só pros imbuements trocáveis: vampirism/void/strike)
+  let gtNote = '';
+  if (GOLD_TOKEN_IMBU[id]) {
+    const gt = mkt[GOLD_TOKEN_ID];
+    const gtPrice = gt ? (gt.sell_offer || gt.mavg || gt.buy_offer || 0) : 0;
+    const gtInp = document.getElementById('imbu-token-price');
+    if (gtInp && gtPrice > 0) { gtInp.value = gtPrice; gtNote = ' · Gold Token ' + fmt(gtPrice) + ' gp'; }
+  }
   if (status) status.innerHTML = hits > 0
-    ? '⚡ Preços ao vivo de <b>' + world + '</b> — <b>' + hits + '/' + total + '</b> itens preenchidos. Ajuste se quiser.'
+    ? '⚡ Preços ao vivo de <b>' + world + '</b> — <b>' + hits + '/' + total + '</b> itens preenchidos' + gtNote + '. Ajuste se quiser.'
     : 'Sem ofertas pra <b>' + world + '</b> — digite os preços manualmente.';
   if (btn) btn.disabled = false;
   calcImbuCost(id);
@@ -6742,7 +6772,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13bf';
+window.TP_BUILD = '2026-08-13bg';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -9954,22 +9984,22 @@ async function loadHomeNews() {
 </script>
 <!-- ═══ IMBUEMENTS MODAL ═══ -->
 <div id="imbu-modal" style="display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1rem" onclick="if(event.target===this)closeImbuModal()">
-  <div style="background:var(--white);border-radius:14px;width:100%;max-width:820px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.4)">
+  <div class="tp-scroll" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;width:100%;max-width:860px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,.4)">
     <!-- Header -->
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.5rem 1.75rem;border-bottom:1px solid var(--rule)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:1.35rem 1.75rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:2">
       <div>
-        <h2 id="imbu-modal-title" style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--ink)"></h2>
+        <h2 id="imbu-modal-title" style="font-family:'Cinzel',serif;font-size:1.35rem;font-weight:700;letter-spacing:.5px;color:var(--ink)"></h2>
         <p id="imbu-modal-desc" style="font-size:.88rem;color:var(--muted);font-weight:300;margin-top:3px"></p>
       </div>
       <button onclick="closeImbuModal()" style="background:var(--paper);border:1px solid var(--rule);border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:1.2rem;color:var(--ink-3);display:flex;align-items:center;justify-content:center;flex-shrink:0">✕</button>
     </div>
     <!-- Tier comparison -->
-    <div id="imbu-modal-tiers" style="display:flex;gap:1rem;padding:1.5rem 1.75rem;flex-wrap:wrap"></div>
+    <div id="imbu-modal-tiers" style="display:flex;gap:1rem;padding:1.5rem 1.75rem;flex-wrap:wrap;align-items:flex-start"></div>
     <!-- Cost calculator (injected by JS) -->
     <div id="imbu-modal-calc"></div>
     <!-- Footer -->
-    <div style="padding:.75rem 1.75rem 1.25rem;font-size:.75rem;color:var(--muted);font-weight:300;border-top:1px solid var(--rule)">
-      Preços de gold são base do NPC de imbuimento. O custo real inclui o valor dos itens no market de <strong style="color:var(--ink);font-weight:500">Gentebra</strong> — use a calculadora acima para calcular.
+    <div style="padding:.85rem 1.75rem 1.25rem;font-size:.72rem;color:var(--muted);font-weight:300;border-top:1px solid var(--border)">
+      Preços dos materiais puxados ao vivo do <strong style="color:var(--ink-2);font-weight:500">Tibia Market Tracker</strong> (mundo selecionado no topo). A taxa do shrine (20h) é fixa do NPC de imbuimento.
     </div>
   </div>
 </div>
