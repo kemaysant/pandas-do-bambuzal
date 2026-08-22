@@ -3640,7 +3640,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13bg</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13bh</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6772,7 +6772,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13bg';
+window.TP_BUILD = '2026-08-13bh';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -11262,11 +11262,11 @@ function applyMult(charges, loyaltyPct, double_, dummy) {
   return Math.ceil(charges / mult);
 }
 
-// Pontos brutos para ir de from+pct% até to
+// Pontos brutos para ir de from até to.
+// pctFrom = % QUE AINDA FALTA do nível atual (bate com o label "% restante" e com o Intibia).
 function totalRawPts(voc, sk, from, pctFrom, to) {
   const ptsAtFrom = ptsForLevel(voc, sk, from);
-  const done      = Math.floor(ptsAtFrom * (pctFrom / 100));
-  let total       = ptsAtFrom - done;
+  let total       = Math.ceil(ptsAtFrom * (pctFrom / 100)); // só o que falta do nível atual
   for (let lv = from + 1; lv < to; lv++) total += ptsForLevel(voc, sk, lv);
   return total;
 }
@@ -11419,7 +11419,7 @@ function ewBreakdown(voc, sk, from, pct, to, loyaltyPct, double_, dummy) {
   let rows = '';
   for (let lv = from; lv < from + max; lv++) {
     const basePts = ptsForLevel(voc, sk, lv);
-    const adjPts  = lv === from ? Math.ceil(basePts * (1 - pct/100)) : basePts;
+    const adjPts  = lv === from ? Math.ceil(basePts * (pct/100)) : basePts; // pct = % que falta
     const rawChg  = ptsToChargesRaw(voc, sk, adjPts);
     const effChg  = applyMult(rawChg, loyaltyPct, double_, dummy);
     const lasting = Math.ceil(effChg / WEAPONS[0].charges);
