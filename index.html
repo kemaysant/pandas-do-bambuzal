@@ -2105,6 +2105,142 @@ async function tibiaFetch(path) {
     </div>
   </div>
 
+  <!-- ─── HOUSES ─── -->
+  <section class="page-section" id="houses">
+    <style>
+      #houses .hs-top{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;margin-bottom:1.1rem}
+      #houses .hs-top .hs-field{display:flex;flex-direction:column;gap:.25rem}
+      #houses .hs-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+      #houses select,#houses input[type=text]{background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);color:var(--ink,#eae8f2);border-radius:8px;padding:.5rem .7rem;font-size:.82rem;font-family:inherit}
+      #houses select:focus,#houses input:focus{outline:none;border-color:var(--bamboo,#8b5cf6)}
+      #houses .hs-seg{display:inline-flex;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:8px;padding:3px;gap:2px}
+      #houses .hs-seg button{background:none;border:none;color:var(--muted,#63607a);font-size:.74rem;font-weight:600;padding:.35rem .7rem;border-radius:6px;cursor:pointer;font-family:inherit;transition:.15s}
+      #houses .hs-seg button.on{background:linear-gradient(135deg,#7c4fe0,#9265f0);color:#fff}
+      #houses .hs-seg button:not(.on):hover{color:var(--ink,#eae8f2)}
+      #houses .hs-mod-btn{margin-left:auto;background:var(--bamboo-dim,#211a3d);border:1px solid var(--bamboo,#8b5cf6);color:var(--bamboo-light,#a78bfa);border-radius:8px;padding:.5rem .8rem;font-size:.76rem;font-weight:700;cursor:pointer;font-family:inherit;display:none}
+      #houses .hs-mod-btn .hs-badge{background:var(--red,#e87070);color:#1b1a25;border-radius:999px;padding:0 6px;font-size:.66rem;margin-left:5px;font-weight:900}
+      #houses .hs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:.9rem}
+      #houses .hs-card{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:12px;padding:.85rem;cursor:pointer;transition:.16s;position:relative;overflow:hidden}
+      #houses .hs-card:hover{border-color:var(--bamboo,#8b5cf6);transform:translateY(-2px);box-shadow:0 10px 26px -14px rgba(139,92,246,.5)}
+      #houses .hs-card-nm{font-size:.9rem;font-weight:700;color:var(--ink,#eae8f2);line-height:1.2;margin-bottom:.5rem;min-height:2.2em}
+      #houses .hs-card-meta{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted,#63607a);margin-bottom:.55rem}
+      #houses .hs-card-meta b{color:var(--gold-light,#e0c060);font-weight:700}
+      #houses .hs-st{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:999px}
+      #houses .hs-st.rented{background:#e8707022;color:var(--red,#e87070)}
+      #houses .hs-st.free{background:#3ecf8e22;color:#3ecf8e}
+      #houses .hs-st.auction{background:#c9a84022;color:var(--gold-light,#e0c060)}
+      #houses .hs-st .dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+      #houses .hs-photobadge{position:absolute;top:.6rem;right:.6rem;background:rgba(13,12,18,.85);color:var(--bamboo-light,#a78bfa);border-radius:999px;font-size:.64rem;font-weight:800;padding:2px 8px;backdrop-filter:blur(4px)}
+      #houses .hs-empty,#houses .hs-loading{color:var(--muted,#63607a);font-size:.86rem;padding:2rem 0;text-align:center}
+      /* Modal */
+      .hs-modal{display:none;position:fixed;inset:0;z-index:1400;background:rgba(8,7,12,.74);backdrop-filter:blur(4px);align-items:flex-start;justify-content:center;padding:5vh 16px;overflow:auto}
+      .hs-modal.open{display:flex}
+      .hs-modal-card{position:relative;width:100%;max-width:720px;background:var(--bg-1,#14131c);border:1px solid var(--border,#2b2938);border-radius:16px;padding:1.5rem;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
+      .hs-x{position:absolute;top:.9rem;right:1rem;background:none;border:none;color:var(--muted,#63607a);font-size:1.15rem;cursor:pointer;z-index:3}
+      .hs-x:hover{color:var(--ink,#eae8f2)}
+      .hs-hero{display:flex;gap:1.1rem;flex-wrap:wrap;align-items:flex-start;margin-bottom:1.1rem}
+      .hs-hero-img{width:190px;flex:none;border-radius:12px;border:1px solid var(--border,#2b2938);background:var(--bg-2,#1b1a25);image-rendering:pixelated}
+      .hs-hero-info{flex:1;min-width:200px}
+      .hs-hero-info h3{font-size:1.25rem;margin:0 0 .3rem;color:var(--ink,#eae8f2)}
+      .hs-facts{display:grid;grid-template-columns:1fr 1fr;gap:.5rem .9rem;margin-top:.7rem;font-size:.8rem}
+      .hs-fact .k{color:var(--muted,#63607a);font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+      .hs-fact .v{color:var(--ink,#eae8f2);font-weight:600}
+      .hs-fact .v a{color:var(--bamboo-light,#a78bfa);text-decoration:none}
+      .hs-fact .v a:hover{text-decoration:underline}
+      .hs-sec{margin-top:1.3rem}
+      .hs-sec-t{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted,#63607a);font-weight:800;margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem}
+      .hs-map{width:100%;height:240px;border-radius:12px;border:1px solid var(--border,#2b2938);background:#0d0d10;overflow:hidden}
+      .hs-map-none{color:var(--muted,#63607a);font-size:.8rem;padding:1.2rem;text-align:center;background:var(--bg-2,#1b1a25);border-radius:12px}
+      .hs-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}
+      .hs-ph{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:10px;overflow:hidden}
+      .hs-ph img{width:100%;height:120px;object-fit:cover;display:block;cursor:pointer}
+      .hs-ph-cap{padding:.5rem .6rem}
+      .hs-ph-cap .who{font-size:.76rem;font-weight:700;color:var(--ink,#eae8f2)}
+      .hs-ph-cap .who small{color:var(--gold-light,#e0c060);font-weight:600}
+      .hs-ph-cap .titles{font-size:.66rem;color:var(--bamboo-light,#a78bfa);margin-top:2px}
+      .hs-ph-cap .cmt{font-size:.72rem;color:var(--muted,#8a879c);margin-top:4px;line-height:1.35}
+      .hs-form{background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:12px;padding:1rem}
+      .hs-form .row{display:flex;flex-wrap:wrap;gap:.7rem;margin-bottom:.7rem}
+      .hs-form .row>div{flex:1;min-width:130px;display:flex;flex-direction:column;gap:.25rem}
+      .hs-form label{font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted,#63607a);font-weight:700}
+      .hs-form input,.hs-form select,.hs-form textarea{background:var(--bg-1,#14131c);border:1px solid var(--border,#2b2938);color:var(--ink,#eae8f2);border-radius:8px;padding:.5rem .65rem;font-size:.82rem;font-family:inherit;width:100%}
+      .hs-form textarea{resize:vertical;min-height:60px}
+      .hs-form input:focus,.hs-form select:focus,.hs-form textarea:focus{outline:none;border-color:var(--bamboo,#8b5cf6)}
+      .hs-drop{border:1.5px dashed var(--border,#2b2938);border-radius:10px;padding:1rem;text-align:center;color:var(--muted,#63607a);font-size:.8rem;cursor:pointer;transition:.15s}
+      .hs-drop:hover{border-color:var(--bamboo,#8b5cf6);color:var(--ink,#eae8f2)}
+      .hs-drop.has{border-style:solid;border-color:#3ecf8e;color:#3ecf8e}
+      .hs-note{font-size:.72rem;color:var(--muted,#63607a);margin-top:.5rem}
+      .hs-gate{text-align:center;padding:1.4rem;background:var(--bg-2,#1b1a25);border-radius:12px;color:var(--muted,#8a879c);font-size:.85rem}
+      /* Moderation rows */
+      .hs-mq-row{display:flex;gap:.9rem;align-items:flex-start;background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:12px;padding:.8rem;margin-bottom:.7rem}
+      .hs-mq-row img{width:130px;height:98px;object-fit:cover;border-radius:8px;flex:none;cursor:pointer}
+      .hs-mq-info{flex:1;min-width:0;font-size:.8rem}
+      .hs-mq-info .h{font-weight:700;color:var(--ink,#eae8f2)}
+      .hs-mq-info .m{color:var(--muted,#8a879c);font-size:.72rem;margin-top:2px}
+      .hs-mq-actions{display:flex;flex-direction:column;gap:.4rem;flex:none}
+      .hs-mq-actions button{border:none;border-radius:8px;padding:.45rem .8rem;font-size:.74rem;font-weight:700;cursor:pointer;font-family:inherit}
+      .hs-approve{background:#3ecf8e;color:#08140d}
+      .hs-reject{background:#e8707022;color:var(--red,#e87070);border:1px solid var(--red,#e87070)!important}
+      .hs-lightbox{display:none;position:fixed;inset:0;z-index:1600;background:rgba(4,4,7,.9);align-items:center;justify-content:center;padding:4vh;cursor:zoom-out}
+      .hs-lightbox.open{display:flex}
+      .hs-lightbox img{max-width:96vw;max-height:92vh;border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+      @media(max-width:620px){ .hs-hero-img{width:100%} .hs-facts{grid-template-columns:1fr} }
+    </style>
+    <h2 class="sec-title">Houses</h2>
+    <p class="sec-sub">Casas e guildhalls do seu mundo — dono, aluguel, localização no mapa e fotos das houses enviadas pela comunidade.</p>
+
+    <div class="hs-top">
+      <div class="hs-field">
+        <span class="hs-lbl">Cidade</span>
+        <select id="hs-town" onchange="if(window.tpHouseTown)tpHouseTown()"></select>
+      </div>
+      <div class="hs-field">
+        <span class="hs-lbl">Tipo</span>
+        <div class="hs-seg" id="hs-typebar">
+          <button class="on" data-t="house" onclick="if(window.tpHouseType)tpHouseType('house',this)">Casas</button>
+          <button data-t="guildhall" onclick="if(window.tpHouseType)tpHouseType('guildhall',this)">Guildhalls</button>
+        </div>
+      </div>
+      <div class="hs-field">
+        <span class="hs-lbl">Status</span>
+        <div class="hs-seg" id="hs-statusbar">
+          <button class="on" data-s="all" onclick="if(window.tpHouseStatus)tpHouseStatus('all',this)">Todas</button>
+          <button data-s="free" onclick="if(window.tpHouseStatus)tpHouseStatus('free',this)">Livres</button>
+          <button data-s="auction" onclick="if(window.tpHouseStatus)tpHouseStatus('auction',this)">Leilão</button>
+          <button data-s="rented" onclick="if(window.tpHouseStatus)tpHouseStatus('rented',this)">Alugadas</button>
+        </div>
+      </div>
+      <div class="hs-field" style="flex:1;min-width:150px">
+        <span class="hs-lbl">Buscar</span>
+        <input type="text" id="hs-search" placeholder="Nome da casa…" oninput="if(window.tpHouseSearch)tpHouseSearch()">
+      </div>
+      <button class="hs-mod-btn" id="hs-mod-btn" onclick="if(window.tpHouseModQueue)tpHouseModQueue()">🛡️ Moderação<span class="hs-badge" id="hs-mod-badge" style="display:none">0</span></button>
+    </div>
+
+    <div id="hs-grid" class="hs-grid"></div>
+    <div id="hs-empty" class="hs-empty" style="display:none"></div>
+  </section>
+
+  <!-- House detail modal -->
+  <div id="hs-modal" class="hs-modal" onclick="if(event.target===this&&window.tpHouseClose)tpHouseClose()">
+    <div class="hs-modal-card">
+      <button class="hs-x" onclick="if(window.tpHouseClose)tpHouseClose()">✕</button>
+      <div id="hs-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Moderation modal -->
+  <div id="hs-modq" class="hs-modal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="hs-modal-card">
+      <button class="hs-x" onclick="document.getElementById('hs-modq').classList.remove('open')">✕</button>
+      <div class="hs-sec-t" style="font-size:1rem;color:var(--ink)">🛡️ Moderação de fotos</div>
+      <div id="hs-modq-body"><div class="hs-loading">Carregando…</div></div>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div id="hs-lightbox" class="hs-lightbox" onclick="this.classList.remove('open')"><img src="" alt=""></div>
+
   <!-- ─── QUEST GUIDE ─── -->
   <section class="page-section" id="quests">
     <h2 class="sec-title">Guia de Quests</h2>
@@ -3176,6 +3312,9 @@ PlayerName (Leader)
     #bestiary .bc-animus.on{color:#5bd6e0}
     #bestiary .bc-animus input{accent-color:#35c4d1}
     #bestiary .bc-checks{font-size:.66rem}
+    #bestiary .bc-animus.locked,#bestiary .bc-warden.locked{cursor:pointer;opacity:1;color:var(--muted,#63607a)}
+    #bestiary .bc-animus.locked:hover,#bestiary .bc-warden.locked:hover{background:var(--bg-3);color:var(--ink)}
+    #bestiary .bc-animus.locked input,#bestiary .bc-warden.locked input{cursor:pointer;accent-color:#63607a}
     #bestiary .bc-loot-btn{font-size:.66rem;color:var(--bamboo-light,#a78bfa);cursor:pointer;background:none;border:none;padding:0;text-align:left}
     #bestiary .bc-loot{display:none;font-size:.68rem;color:var(--muted);line-height:1.5;border-top:1px solid var(--rule);padding-top:.35rem}
     #bestiary .bc-loot.open{display:block}
@@ -3753,7 +3892,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cb</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cc</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6897,7 +7036,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cb';
+window.TP_BUILD = '2026-08-13cc';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -14334,13 +14473,19 @@ window.tpLoadJornada=async function(){
       (Array.isArray(dch)?dch:[]).forEach(function(x){ if(x&&x.name) CHARLIST.push(String(x.name)); });
     }catch(e){}
     if(BEST_CHAR && CHARLIST.indexOf(BEST_CHAR)<0 && !CHARTOTALS[BEST_CHAR]) BEST_CHAR='';
-    TOTALS = (BEST_CHAR && CHARTOTALS[BEST_CHAR]) ? CHARTOTALS[BEST_CHAR] : TOTALS_ALL;
+    if(!BEST_CHAR){
+      var _tot={}; CHARLIST.forEach(function(c){ _tot[c]=0; });
+      Object.keys(CHARTOTALS).forEach(function(c){ var s=0,mm=CHARTOTALS[c]; for(var m in mm) s+=mm[m]; _tot[c]=(_tot[c]||0)+s; });
+      var _best='',_bn=-1; Object.keys(_tot).forEach(function(c){ if(_tot[c]>_bn){ _bn=_tot[c]; _best=c; } });
+      if(_best) BEST_CHAR=_best;
+    }
+    TOTALS = BEST_CHAR ? (CHARTOTALS[BEST_CHAR]||{}) : TOTALS_ALL;
     tpBestPopulateChars();
     tpBestiaryRender();
   };
   window.tpBestChar=function(ch){
     BEST_CHAR = ch || '';
-    TOTALS = (BEST_CHAR && CHARTOTALS[BEST_CHAR]) ? CHARTOTALS[BEST_CHAR] : TOTALS_ALL;
+    TOTALS = BEST_CHAR ? (CHARTOTALS[BEST_CHAR]||{}) : TOTALS_ALL;
     if(window.tpBestiaryRender) tpBestiaryRender();
   };
   function tpBestPopulateChars(){
@@ -14348,8 +14493,9 @@ window.tpLoadJornada=async function(){
     var seen={}, chars=[];
     CHARLIST.concat(Object.keys(CHARTOTALS)).forEach(function(c){ if(c && !seen[c.toLowerCase()]){ seen[c.toLowerCase()]=1; chars.push(c); } });
     chars.sort(function(a,b){ return a.toLowerCase()<b.toLowerCase()?-1:1; });
-    var opts='<option value="">🐼 Todos os bonecos</option>';
+    var opts='';
     chars.forEach(function(c){ var e=(window.esc?window.esc(c):c); opts += '<option value="'+e+'"'+(c===BEST_CHAR?' selected':'')+'>'+e+'</option>'; });
+    opts += '<option value=""'+(BEST_CHAR?'':' selected')+'>🐼 Todos os bonecos (visão geral)</option>';
     sel.innerHTML=opts;
   }
   // Resumo do bestiário (para a Vitrine de Conquistas) — carrega kills se preciso
@@ -14399,10 +14545,10 @@ window.tpLoadJornada=async function(){
           +'<input type="checkbox" data-mon="'+encodeURIComponent(b.name)+'"'+(b.done?' checked':'')+(b.autoKills?' disabled':'')+' onchange="tpBestToggle(this,\'done\')">'
           +'<span>'+(b.autoKills?'Completo (kills)':(b.manual?'Completo':'Completar'))+'</span></label>'
         +'<label class="bc-check bc-animus'+(b.animus?' on':'')+(b.wardenEditable?'':' locked')+'" title="'+(b.wardenEditable?'Animus Mastery — destravado no Soulpit desta criatura (+XP raw). Marca por boneco.':'Selecione um boneco no topo pra marcar o Animus Mastery')+'">'
-          +'<input type="checkbox" data-mon="'+encodeURIComponent(b.name)+'"'+(b.animus?' checked':'')+(b.wardenEditable?'':' disabled')+' onchange="tpBestToggle(this,\'animus\')">'
+          +'<input type="checkbox" data-mon="'+encodeURIComponent(b.name)+'"'+(b.animus?' checked':'')+' onchange="tpBestToggle(this,\'animus\')">'
           +'<span>'+(b.animus?'Animus ✓':'Animus')+'</span></label>'
         +'<label class="bc-check bc-warden'+(b.warden?' on':'')+(b.wardenEditable?'':' locked')+'" title="'+(b.wardenEditable?'Marcar o Echo Warden desta criatura (por boneco)':'Selecione um boneco no topo pra marcar o Warden')+'">'
-          +'<input type="checkbox" data-mon="'+encodeURIComponent(b.name)+'"'+(b.warden?' checked':'')+(b.wardenEditable?'':' disabled')+' onchange="tpBestToggle(this,\'warden\')">'
+          +'<input type="checkbox" data-mon="'+encodeURIComponent(b.name)+'"'+(b.warden?' checked':'')+' onchange="tpBestToggle(this,\'warden\')">'
           +'<span>'+(b.warden?'Warden ✓':'Warden')+'</span></label>'
       +'</div>'
       +lootBtn+'</div>';
