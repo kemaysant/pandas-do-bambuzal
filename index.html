@@ -2163,6 +2163,9 @@ async function tibiaFetch(path) {
       .hs-ph-cap .who small{color:var(--gold-light,#e0c060);font-weight:600}
       .hs-ph-cap .titles{font-size:.66rem;color:var(--bamboo-light,#a78bfa);margin-top:2px}
       .hs-ph-cap .cmt{font-size:.72rem;color:var(--muted,#8a879c);margin-top:4px;line-height:1.35}
+      .hs-like{margin-top:7px;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);color:var(--muted,#8a879c);border-radius:999px;padding:3px 11px;font-size:.72rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-family:inherit;transition:.15s}
+      .hs-like:hover{border-color:var(--red,#e87070);color:var(--ink,#eae8f2)}
+      .hs-like.on{border-color:var(--red,#e87070);color:var(--red,#e87070);background:#e8707018}
       .hs-form{background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:12px;padding:1rem}
       .hs-form .row{display:flex;flex-wrap:wrap;gap:.7rem;margin-bottom:.7rem}
       .hs-form .row>div{flex:1;min-width:130px;display:flex;flex-direction:column;gap:.25rem}
@@ -2209,8 +2212,7 @@ async function tibiaFetch(path) {
         <span class="hs-lbl">Status</span>
         <div class="hs-seg" id="hs-statusbar">
           <button class="on" data-s="all" onclick="if(window.tpHouseStatus)tpHouseStatus('all',this)">Todas</button>
-          <button data-s="free" onclick="if(window.tpHouseStatus)tpHouseStatus('free',this)">Livres</button>
-          <button data-s="auction" onclick="if(window.tpHouseStatus)tpHouseStatus('auction',this)">Leilão</button>
+          <button data-s="available" onclick="if(window.tpHouseStatus)tpHouseStatus('available',this)">Disponíveis</button>
           <button data-s="rented" onclick="if(window.tpHouseStatus)tpHouseStatus('rented',this)">Alugadas</button>
         </div>
       </div>
@@ -3361,9 +3363,10 @@ PlayerName (Leader)
       <div class="best-sum" id="best-summary"></div>
       <div id="best-recs"></div>
       <div class="best-filters">
-        <select id="best-char" onchange="if(window.tpBestChar)tpBestChar(this.value)" title="Ver o bestiary de um personagem específico" style="background:var(--bg-2);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:.5rem .6rem;font-size:.82rem">
-          <option value="">🐼 Todos os bonecos</option>
-        </select>
+        <div style="display:inline-flex;align-items:center;gap:.5rem;background:var(--bamboo-pale,#17122b);border:1.5px solid var(--bamboo,#8b5cf6);border-radius:10px;padding:.3rem .3rem .3rem .7rem;box-shadow:0 0 0 3px rgba(139,92,246,.1)">
+          <span style="font-size:.68rem;font-weight:800;color:var(--bamboo-light,#a78bfa);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap">🎽 Bestiary de</span>
+          <select id="best-char" onchange="if(window.tpBestChar)tpBestChar(this.value)" title="Ver o bestiary de um personagem específico" style="background:var(--bg-1,#14131c);border:1px solid var(--bamboo,#8b5cf6);color:var(--bamboo-light,#a78bfa);font-weight:700;border-radius:8px;padding:.45rem .6rem;font-size:.85rem"></select>
+        </div>
         <input type="text" id="best-search" placeholder="Buscar criatura…" oninput="tpBestiaryRender()" style="flex:1;min-width:140px;background:var(--bg-2);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:.5rem .7rem;font-size:.85rem">
         <select id="best-diff" onchange="tpBestiaryRender()" style="background:var(--bg-2);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:.5rem .6rem;font-size:.82rem">
           <option value="">Toda dificuldade</option>
@@ -3905,7 +3908,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cf</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cg</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7049,7 +7052,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cf';
+window.TP_BUILD = '2026-08-13cg';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -11896,6 +11899,7 @@ function ewEnsureTcInput() {
     try{ if(typeof bossSpawnData!=='undefined'){ bossSpawnData=[]; leverBossData=[]; } }catch(e){}
     const bp=g('bosses'); if(bp && bp.classList.contains('active') && typeof loadBossSpawn==='function'){ try{ loadBossSpawn(); }catch(e){} }
     const pfp=g('partyfinder'); if(pfp && pfp.classList.contains('active') && typeof loadPartyFinder==='function'){ try{ loadPartyFinder(); }catch(e){} }
+    const hsp=g('houses'); if(hsp && hsp.classList.contains('active') && window.tpHousesInit){ try{ window.tpHousesInit(); }catch(e){} }
     render('');
   };
   async function loadList(){
@@ -14507,9 +14511,10 @@ window.tpLoadJornada=async function(){
     CHARLIST.forEach(function(c){ if(c && !seen[c.toLowerCase()]){ seen[c.toLowerCase()]=1; chars.push(c); } });
     chars.sort(function(a,b){ return a.toLowerCase()<b.toLowerCase()?-1:1; });
     var opts='';
+    if(!chars.length){ opts='<option value="">Nenhum boneco verificado</option>'; }
     chars.forEach(function(c){ var e=(window.esc?window.esc(c):c); opts += '<option value="'+e+'"'+(c===BEST_CHAR?' selected':'')+'>'+e+'</option>'; });
-    opts += '<option value=""'+(BEST_CHAR?'':' selected')+'>🐼 Todos os bonecos (visão geral)</option>';
     sel.innerHTML=opts;
+    var lbl=document.getElementById('best-char-name'); if(lbl) lbl.textContent=BEST_CHAR||'—';
   }
   // Resumo do bestiário (para a Vitrine de Conquistas) — carrega kills se preciso
   window.tpBestSummary=async function(){
@@ -15202,7 +15207,8 @@ window.tpLoadJornada=async function(){
     var list=(state.type==='guildhall'?state.guildhallList:state.houseList)||[];
     var q=state.q.toLowerCase();
     var fr=list.filter(function(h){
-      if(state.status!=='all' && statusOf(h)!==state.status) return false;
+      if(state.status==='rented' && statusOf(h)!=='rented') return false;
+      if(state.status==='available' && statusOf(h)==='rented') return false;
       if(q && String(h.name).toLowerCase().indexOf(q)<0) return false;
       return true;
     });
@@ -15307,21 +15313,50 @@ window.tpLoadJornada=async function(){
   function loadPhotos(h){
     var host=document.getElementById('hs-photos'); if(!host) return;
     host.innerHTML='<div class="hs-loading" style="padding:1rem">Carregando fotos…</div>';
-    af()(SBURL()+'/rest/v1/house_photos?select=*&world=eq.'+encodeURIComponent(h.world)+'&house_id=eq.'+h.houseid+'&status=eq.approved&order=created_at.desc',{headers:{Accept:'application/json'}})
+    af()(SBURL()+'/rest/v1/house_photos?select=*&world=eq.'+encodeURIComponent(h.world)+'&house_id=eq.'+h.houseid+'&status=eq.approved&order=created_at.desc&limit=4',{headers:{Accept:'application/json'}})
       .then(function(r){ return r.json(); }).then(function(rows){
         rows=Array.isArray(rows)?rows:[];
+        state.curPhotoCount=rows.length;
+        if(rows.length>=4){ var fw=document.getElementById('hs-formwrap'); if(fw) fw.innerHTML='<div class="hs-gate">Esta casa já atingiu o limite de 4 fotos da comunidade. 🙌</div>'; }
         if(!rows.length){ host.innerHTML='<div class="hs-map-none">Ainda não há fotos desta casa. Seja o primeiro a enviar! 📸</div>'; return; }
-        host.innerHTML='<div class="hs-gallery">'+rows.map(function(p){
-          var img=SBURL()+'/storage/v1/object/public/house-photos/'+p.image_path;
-          return '<div class="hs-ph"><img src="'+esc(img)+'" onclick="tpHouseLightbox(this.src)" alt=""><div class="hs-ph-cap"><div class="who">'+esc(p.character)+(p.level?' <small>Lvl '+p.level+'</small>':'')+'</div>'+(p.titles?'<div class="titles">'+esc(p.titles)+'</div>':'')+(p.comment?'<div class="cmt">'+esc(p.comment)+'</div>':'')+'</div></div>';
-        }).join('')+'</div>';
+        var ids=rows.map(function(p){ return p.id; }), A=auth();
+        af()(SBURL()+'/rest/v1/house_photo_likes?select=photo_id,user_id&photo_id=in.('+ids.join(',')+')',{headers:{Accept:'application/json'}})
+          .then(function(rr){ return rr.json(); }).then(function(likes){
+            likes=Array.isArray(likes)?likes:[]; var cnt={}, mine={};
+            likes.forEach(function(l){ cnt[l.photo_id]=(cnt[l.photo_id]||0)+1; if(A&&A.user&&l.user_id===A.user.id) mine[l.photo_id]=1; });
+            renderPhotos(host,rows,cnt,mine);
+          }).catch(function(){ renderPhotos(host,rows,{},{}); });
       }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar as fotos.</div>'; });
   }
+  function renderPhotos(host,rows,cnt,mine){
+    host.innerHTML='<div class="hs-gallery">'+rows.map(function(p){
+      var img=SBURL()+'/storage/v1/object/public/house-photos/'+p.image_path;
+      var liked=!!mine[p.id], c=cnt[p.id]||0;
+      return '<div class="hs-ph"><img src="'+esc(img)+'" onclick="tpHouseLightbox(this.src)" alt="">'
+        +'<div class="hs-ph-cap"><div class="who">'+esc(p.character)+(p.level?' <small>Lvl '+p.level+'</small>':'')+'</div>'
+        +(p.titles?'<div class="titles">'+esc(p.titles)+'</div>':'')
+        +(p.comment?'<div class="cmt">'+esc(p.comment)+'</div>':'')
+        +'<button class="hs-like'+(liked?' on':'')+'" data-pid="'+p.id+'" onclick="tpHouseLike(this)"><span class="hl-i">'+(liked?'❤':'🤍')+'</span> <span class="hl-c">'+c+'</span></button>'
+        +'</div></div>';
+    }).join('')+'</div>';
+  }
+  window.tpHouseLike=async function(btn){
+    var A=auth();
+    if(!A||!A.user){ if(window.tpHouseClose) tpHouseClose(); if(window.tpOpenAuth) tpOpenAuth('login'); return; }
+    var pid=btn.getAttribute('data-pid'); if(!pid) return;
+    var on=!btn.classList.contains('on');
+    var ic=btn.querySelector('.hl-i'), cs=btn.querySelector('.hl-c'), c=parseInt(cs.textContent,10)||0;
+    btn.classList.toggle('on',on); if(ic) ic.textContent=on?'❤':'🤍'; cs.textContent=Math.max(0,c+(on?1:-1));
+    try{
+      if(on){ await af()(SBURL()+'/rest/v1/house_photo_likes',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify({photo_id:pid,user_id:A.user.id})}); }
+      else { await af()(SBURL()+'/rest/v1/house_photo_likes?photo_id=eq.'+pid+'&user_id=eq.'+A.user.id,{method:'DELETE',headers:{Prefer:'return=minimal'}}); }
+    }catch(e){ btn.classList.toggle('on',!on); if(ic) ic.textContent=!on?'❤':'🤍'; cs.textContent=c; if(window.tpToast) tpToast('Não consegui votar.','error'); }
+  };
 
   function setupForm(h){
     var wrap=document.getElementById('hs-formwrap'); if(!wrap) return;
     var A=auth();
-    if(!A||!A.user){ wrap.innerHTML='<div class="hs-gate">Entre na sua conta e verifique um boneco para enviar fotos da sua house. <a href="#" onclick="if(window.tpOpenAuth)tpOpenAuth(\'login\');return false" style="color:var(--bamboo-light)">Entrar</a></div>'; return; }
+    if(!A||!A.user){ wrap.innerHTML='<div class="hs-gate">Entre na sua conta e verifique um boneco para enviar fotos da sua house. <a href="#" onclick="if(window.tpHouseClose)tpHouseClose();if(window.tpOpenAuth)tpOpenAuth(\'login\');return false" style="color:var(--bamboo-light)">Entrar</a></div>'; return; }
     wrap.innerHTML='<div class="hs-loading" style="padding:.6rem">Carregando seus bonecos…</div>';
     af()(SBURL()+'/rest/v1/characters?select=name,level&verified=is.true&order=level.desc.nullslast',{headers:{Accept:'application/json'}})
       .then(function(r){ return r.json(); }).then(function(chars){
@@ -15334,14 +15369,14 @@ window.tpLoadJornada=async function(){
           +'<div class="row"><div><label>Comentário</label><textarea id="hs-f-comment" maxlength="400" placeholder="Um breve comentário sobre a decoração / inspiração…"></textarea></div></div>'
           +'<div class="hs-drop" id="hs-f-drop" onclick="document.getElementById(\'hs-f-file\').click()">📷 Clique para escolher a foto da house</div>'
           +'<input type="file" id="hs-f-file" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="tpHouseFilePick(this)">'
-          +'<div class="hs-note">A foto passa por aprovação de um moderador antes de aparecer na galeria. Máx. 5MB (JPG, PNG ou WebP).</div>'
+          +'<div class="hs-note">A foto passa por aprovação de um moderador antes de aparecer na galeria. Máx. 3MB (JPG, PNG ou WebP) · até 4 fotos por casa.</div>'
           +'<div style="margin-top:.8rem"><button class="tp-btn-primary" id="hs-f-submit" onclick="tpHouseSubmitPhoto()">Enviar para aprovação</button></div>'
           +'</div>';
         tpHouseCharPick();
       }).catch(function(){ wrap.innerHTML='<div class="hs-gate">Não consegui carregar seus bonecos.</div>'; });
   }
   window.tpHouseCharPick=function(){ var s=document.getElementById('hs-f-char'), lv=document.getElementById('hs-f-level'); if(s&&lv){ var o=s.options[s.selectedIndex], l=o&&o.getAttribute('data-lvl'); if(l&&!lv.value) lv.value=l; } };
-  window.tpHouseFilePick=function(inp){ var d=document.getElementById('hs-f-drop'), f=inp.files&&inp.files[0]; if(f){ if(f.size>5*1024*1024){ toast('A foto passa de 5MB. Escolhe uma menor.','error'); inp.value=''; return; } if(d){ d.classList.add('has'); d.textContent='✓ '+f.name; } } };
+  window.tpHouseFilePick=function(inp){ var d=document.getElementById('hs-f-drop'), f=inp.files&&inp.files[0]; if(f){ if(f.size>3*1024*1024){ toast('A foto passa de 3MB. Escolhe uma menor (prints do Tibia geralmente são bem menores).','error'); inp.value=''; if(d){ d.classList.remove('has'); d.textContent='📷 Clique para escolher a foto da house'; } return; } if(d){ d.classList.add('has'); d.textContent='✓ '+f.name; } } };
 
   window.tpHouseSubmitPhoto=async function(){
     var A=auth(); if(!A||!A.user){ toast('Entre na sua conta.','info'); return; }
@@ -15353,6 +15388,8 @@ window.tpLoadJornada=async function(){
     var fileInp=document.getElementById('hs-f-file'), file=fileInp&&fileInp.files&&fileInp.files[0];
     if(!char){ toast('Escolha um boneco.','info'); return; }
     if(!file){ toast('Escolha uma foto da house.','info'); return; }
+    if(file.size>3*1024*1024){ toast('A foto passa de 3MB. Escolhe uma menor.','error'); return; }
+    if((state.curPhotoCount||0)>=4){ toast('Esta casa já atingiu o limite de 4 fotos.','info'); return; }
     var btn=document.getElementById('hs-f-submit'); if(btn){ btn.disabled=true; btn.textContent='Enviando…'; }
     try{
       var ext=((file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,''))||'jpg';
