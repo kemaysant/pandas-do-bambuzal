@@ -3896,7 +3896,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cd</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13ce</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7040,7 +7040,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cd';
+window.TP_BUILD = '2026-08-13ce';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -14476,12 +14476,11 @@ window.tpLoadJornada=async function(){
       var dch=await rch.json();
       (Array.isArray(dch)?dch:[]).forEach(function(x){ if(x&&x.name) CHARLIST.push(String(x.name)); });
     }catch(e){}
-    if(BEST_CHAR && CHARLIST.indexOf(BEST_CHAR)<0 && !CHARTOTALS[BEST_CHAR]) BEST_CHAR='';
-    if(!BEST_CHAR){
-      var _tot={}; CHARLIST.forEach(function(c){ _tot[c]=0; });
-      Object.keys(CHARTOTALS).forEach(function(c){ var s=0,mm=CHARTOTALS[c]; for(var m in mm) s+=mm[m]; _tot[c]=(_tot[c]||0)+s; });
-      var _best='',_bn=-1; Object.keys(_tot).forEach(function(c){ if(_tot[c]>_bn){ _bn=_tot[c]; _best=c; } });
-      if(_best) BEST_CHAR=_best;
+    if(BEST_CHAR && CHARLIST.indexOf(BEST_CHAR)<0) BEST_CHAR='';
+    if(!BEST_CHAR && CHARLIST.length){
+      var _best=CHARLIST[0], _bn=-1;
+      CHARLIST.forEach(function(c){ var s=0, mm=CHARTOTALS[c]||{}; for(var m in mm) s+=mm[m]; if(s>_bn){ _bn=s; _best=c; } });
+      BEST_CHAR=_best;
     }
     TOTALS = BEST_CHAR ? (CHARTOTALS[BEST_CHAR]||{}) : TOTALS_ALL;
     tpBestPopulateChars();
@@ -14495,7 +14494,7 @@ window.tpLoadJornada=async function(){
   function tpBestPopulateChars(){
     var sel=document.getElementById('best-char'); if(!sel) return;
     var seen={}, chars=[];
-    CHARLIST.concat(Object.keys(CHARTOTALS)).forEach(function(c){ if(c && !seen[c.toLowerCase()]){ seen[c.toLowerCase()]=1; chars.push(c); } });
+    CHARLIST.forEach(function(c){ if(c && !seen[c.toLowerCase()]){ seen[c.toLowerCase()]=1; chars.push(c); } });
     chars.sort(function(a,b){ return a.toLowerCase()<b.toLowerCase()?-1:1; });
     var opts='';
     chars.forEach(function(c){ var e=(window.esc?window.esc(c):c); opts += '<option value="'+e+'"'+(c===BEST_CHAR?' selected':'')+'>'+e+'</option>'; });
