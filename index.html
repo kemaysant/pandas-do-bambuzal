@@ -2196,6 +2196,12 @@ async function tibiaFetch(path) {
     <h2 class="sec-title">Houses</h2>
     <p class="sec-sub">Casas e guildhalls do seu mundo — dono, aluguel, localização no mapa e fotos das houses enviadas pela comunidade.</p>
 
+    <div class="hs-seg" id="hs-modebar" style="margin-bottom:1.1rem">
+      <button class="on" data-m="browse" onclick="if(window.tpHouseMode)tpHouseMode('browse',this)">🔎 Explorar casas</button>
+      <button data-m="feed" onclick="if(window.tpHouseMode)tpHouseMode('feed',this)">📸 Feed da comunidade</button>
+    </div>
+    <div id="hs-feed" style="display:none"></div>
+
     <div class="hs-top">
       <div class="hs-field">
         <span class="hs-lbl">Cidade</span>
@@ -3908,7 +3914,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cg</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13ch</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7052,7 +7058,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cg';
+window.TP_BUILD = '2026-08-13ch';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -15263,7 +15269,7 @@ window.tpLoadJornada=async function(){
       +'<div class="hs-hero">'
         +(img?'<img class="hs-hero-img" src="'+esc(img)+'" onerror="this.style.display=\'none\'" alt="">':'')
         +'<div class="hs-hero-info"><h3>'+esc(h.name)+'</h3>'
-          +'<span class="hs-st '+stClass+'"><span class="dot"></span>'+stLabel+'</span>'
+          +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span class="hs-st '+stClass+'"><span class="dot"></span>'+stLabel+'</span><button class="hs-like" onclick="tpHouseShare()">🔗 Compartilhar</button></div>'
           +'<div class="hs-facts">'+fact('Cidade',esc(h.town))+fact('Tipo',h.type==='guildhall'?'Guildhall':'Casa')+fact('Tamanho',(h.size||'?')+' sqm')+fact('Camas',h.beds!=null?h.beds:'—')+fact('Aluguel',fmtGp(h.rent)+' gp/mês')+fact('Status',stDetail)+'</div>'
         +'</div>'
       +'</div>'
@@ -15442,6 +15448,64 @@ window.tpLoadJornada=async function(){
     }catch(e){ toast('Não consegui atualizar.','error'); }
   };
 
+  // ── Modo Explorar / Feed da comunidade
+  window.tpHouseMode=function(m,btn){
+    state.mode=m; segOn('hs-modebar',btn);
+    var browse=(m!=='feed');
+    var top=document.querySelector('#houses .hs-top'), grid=document.getElementById('hs-grid'), empty=document.getElementById('hs-empty'), feed=document.getElementById('hs-feed');
+    if(top) top.style.display=browse?'':'none';
+    if(grid) grid.style.display=browse?'':'none';
+    if(empty) empty.style.display='none';
+    if(feed) feed.style.display=browse?'none':'';
+    if(m==='feed') loadFeed();
+  };
+  function feedCard(p,c,liked){
+    var img=SBURL()+'/storage/v1/object/public/house-photos/'+p.image_path;
+    return '<div class="hs-ph"><img src="'+esc(img)+'" onclick="tpHouseLightbox(this.src)" alt="">'
+      +'<div class="hs-ph-cap"><div class="who">'+esc(p.house_name)+'</div>'
+      +'<div class="titles">'+esc(p.character)+(p.town?' · '+esc(p.town):'')+'</div>'
+      +(p.comment?'<div class="cmt">'+esc(p.comment)+'</div>':'')
+      +'<div style="display:flex;gap:6px;margin-top:7px;align-items:center;flex-wrap:wrap">'
+      +'<button class="hs-like'+(liked?' on':'')+'" data-pid="'+p.id+'" onclick="tpHouseLike(this)"><span class="hl-i">'+(liked?'❤':'🤍')+'</span> <span class="hl-c">'+c+'</span></button>'
+      +'<button class="hs-like" onclick="tpHouseOpenFromFeed('+p.house_id+',\''+encodeURIComponent(p.world)+'\')">🏠 Ver casa</button>'
+      +'</div></div></div>';
+  }
+  function loadFeed(){
+    var host=document.getElementById('hs-feed'); if(!host) return;
+    host.innerHTML='<div class="hs-loading">Carregando feed…</div>';
+    af()(SBURL()+'/rest/v1/house_photos?select=*&status=eq.approved&order=created_at.desc&limit=24',{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.json(); }).then(function(rows){
+        rows=Array.isArray(rows)?rows:[];
+        if(!rows.length){ host.innerHTML='<div class="hs-map-none">Nenhuma foto na comunidade ainda. Abra uma casa e seja o primeiro a enviar! 📸</div>'; return; }
+        var ids=rows.map(function(p){ return p.id; }), A=auth();
+        af()(SBURL()+'/rest/v1/house_photo_likes?select=photo_id,user_id&photo_id=in.('+ids.join(',')+')',{headers:{Accept:'application/json'}})
+          .then(function(rr){ return rr.json(); }).then(function(likes){
+            likes=Array.isArray(likes)?likes:[]; var cnt={},mine={};
+            likes.forEach(function(l){ cnt[l.photo_id]=(cnt[l.photo_id]||0)+1; if(A&&A.user&&l.user_id===A.user.id) mine[l.photo_id]=1; });
+            host.innerHTML='<div class="hs-gallery">'+rows.map(function(p){ return feedCard(p,cnt[p.id]||0,!!mine[p.id]); }).join('')+'</div>';
+          }).catch(function(){ host.innerHTML='<div class="hs-gallery">'+rows.map(function(p){ return feedCard(p,0,false); }).join('')+'</div>'; });
+      }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar o feed.</div>'; });
+  }
+  window.tpHouseOpenFromFeed=function(id,w){ state.world=decodeURIComponent(w); tpHouseOpen(id); };
+
+  // ── Compartilhar (link + Web Share) + deep-link por hash
+  window.tpHouseShare=function(){
+    var h=state.current; if(!h) return;
+    var url=location.origin+location.pathname+'#house='+encodeURIComponent(h.world)+'/'+h.houseid;
+    if(navigator.share){ navigator.share({ title:h.name+' — Tibia Panda', text:'Olha essa house no Tibia Panda: '+h.name, url:url }).catch(function(){}); return; }
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(function(){ toast('Link da house copiado! 🔗','success'); }).catch(function(){ window.prompt('Copie o link da house:', url); }); }
+    else { window.prompt('Copie o link da house:', url); }
+  };
+  function handleHouseHash(){
+    var m=(location.hash||'').match(/^#house=([^/]+)\/(\d+)/); if(!m) return;
+    state.world=decodeURIComponent(m[1]); var id=+m[2];
+    if(typeof showPage==='function'){ var nav=document.querySelector('.nav-btn[onclick*="houses"]'); showPage('houses', nav); }
+    if(window.tpHousesInit) tpHousesInit();
+    setTimeout(function(){ if(window.tpHouseOpen) tpHouseOpen(id); }, 350);
+  }
+  window.addEventListener('hashchange', handleHouseHash);
+  if(/^#house=/.test(location.hash||'')){ if(document.readyState!=='loading') setTimeout(handleHouseHash,700); else document.addEventListener('DOMContentLoaded',function(){ setTimeout(handleHouseHash,700); }); }
+
   // Abre o personagem (link do dono da casa)
   window.tpHouseViewChar=function(name){
     if(window.tpHouseClose) tpHouseClose();
@@ -15483,6 +15547,25 @@ window.tpLoadJornada=async function(){
         return '<div class="hs-ph"><img src="'+esc(img)+'" onclick="tpHouseLightbox(this.src)" alt=""><div class="hs-ph-cap"><div class="who">'+esc(p.house_name)+'</div><div class="titles">'+esc(p.character)+'</div><span class="hs-st '+stc+'" style="margin-top:6px"><span class="dot"></span>'+stt+'</span></div></div>';
       }).join('')+'</div>';
     } else { html+='<div class="hs-map-none">Você ainda não enviou fotos. Abra uma casa na aba <b>Houses</b> e envie!</div>'; }
+    // Casas dos amigos (baseado nas fotos aprovadas dos amigos)
+    var friendIds=[];
+    try{
+      var rf=await af()(SBURL()+'/rest/v1/friendships?select=requester,addressee,status&status=eq.accepted&or=(requester.eq.'+A.user.id+',addressee.eq.'+A.user.id+')',{headers:{Accept:'application/json'}});
+      var fj=await rf.json();
+      (Array.isArray(fj)?fj:[]).forEach(function(f){ var other=f.requester===A.user.id?f.addressee:f.requester; if(other&&friendIds.indexOf(other)<0) friendIds.push(other); });
+    }catch(e){}
+    var fHouses=[];
+    if(friendIds.length){
+      try{ var rfp=await af()(SBURL()+'/rest/v1/house_photos?select=*&status=eq.approved&user_id=in.('+friendIds.join(',')+')&order=created_at.desc&limit=24',{headers:{Accept:'application/json'}}); var fpj=await rfp.json(); fHouses=Array.isArray(fpj)?fpj:[]; }catch(e){}
+    }
+    html+='<div class="hs-sec-t" style="margin-top:1.4rem">👥 Casas dos amigos</div>';
+    if(fHouses.length){
+      html+='<div class="hs-gallery">'+fHouses.map(function(p){
+        var img=SBURL()+'/storage/v1/object/public/house-photos/'+p.image_path;
+        return '<div class="hs-ph"><img src="'+esc(img)+'" onclick="tpHouseLightbox(this.src)" alt=""><div class="hs-ph-cap"><div class="who">'+esc(p.house_name)+'</div><div class="titles">'+esc(p.character)+(p.town?' · '+esc(p.town):'')+'</div>'+(p.comment?'<div class="cmt">'+esc(p.comment)+'</div>':'')+'<button class="hs-like" style="margin-top:7px" onclick="tpHouseOpenFromFeed('+p.house_id+',\''+encodeURIComponent(p.world)+'\')">🏠 Ver casa</button></div></div>';
+      }).join('')+'</div>';
+    } else if(!friendIds.length){ html+='<div class="hs-map-none">Adicione amigos (aba Amigos) pra ver as houses deles aqui.</div>'; }
+    else { html+='<div class="hs-map-none">Seus amigos ainda não compartilharam fotos de houses.</div>'; }
     host.innerHTML=html;
   };
 })();
