@@ -1458,6 +1458,10 @@ async function tibiaFetch(path) {
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 12.094A5.973 5.973 0 004 15v1H1v-1a3 3 0 013.75-2.906z"/></svg>
         <span class="nav-label">Party Finder</span>
       </button>
+      <button class="nav-btn" onclick="showPage('houses',this);if(window.tpHousesInit)tpHousesInit()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h0a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+        <span class="nav-label">Houses</span>
+      </button>
       <button class="nav-btn" onclick="showPage('character',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Personagem</span>
@@ -3892,7 +3896,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cc</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cd</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7036,7 +7040,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cc';
+window.TP_BUILD = '2026-08-13cd';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -14416,7 +14420,7 @@ window.tpLoadJornada=async function(){
   var CLASS_EMOJI={Amphibic:'🐸',Aquatic:'🐟',Bird:'🦅',Construct:'🗿',Demon:'😈',Dragon:'🐉',Elemental:'🔥','Extra Dimensional':'🌀',Fairy:'🧚',Giant:'🗿',Human:'🧑',Humanoid:'👹',Inkborn:'🖋️',Lycanthrope:'🐺',Magical:'✨',Mammal:'🐗',Plant:'🌿',Reptile:'🦎',Slime:'🫧',Undead:'💀',Worm:'🕷️'};
   var CLASS_PT={Amphibic:'Anfíbios',Aquatic:'Aquáticos',Bird:'Aves',Construct:'Constructos',Demon:'Demônios',Dragon:'Dragões',Elemental:'Elementais','Extra Dimensional':'Extra Dimensionais',Fairy:'Fadas',Giant:'Gigantes',Human:'Humanos',Humanoid:'Humanóides',Inkborn:'Inkborn',Lycanthrope:'Licantropos',Magical:'Mágicas',Mammal:'Mamíferos',Plant:'Plantas',Reptile:'Répteis',Slime:'Slimes',Undead:'Mortos-Vivos',Worm:'Vermes'};
   var RARCOL={'Comum':'#9ca3af','Incomum':'#3ecf8e','Semi-raro':'#4a7de0','Raro':'#a78bfa','Muito raro':'#e0774a'};
-  var BEST=null, TOTALS={}, TOTALS_ALL={}, CHARTOTALS={}, CHARLIST=[], BEST_CHAR='', MANUAL={}, WARDENC={}, ANIMUSC={};
+  var BEST=null, TOTALS={}, TOTALS_ALL={}, CHARTOTALS={}, CHARLIST=[], BEST_CHAR='', MANUALC={}, WARDENC={}, ANIMUSC={};
   function slug(n){ return String(n||'').toLowerCase().replace(/\s*\(.*?\)\s*/g,'').replace(/[''`]/g,'').replace(/[^a-z0-9]+/g,''); }
   function build(){
     if(BEST) return BEST;
@@ -14435,7 +14439,7 @@ window.tpLoadJornada=async function(){
     var A=window.TP_AUTH, gate=document.getElementById('best-gate'), main=document.getElementById('best-main');
     if(!A||!A.user){ if(gate)gate.style.display=''; if(main)main.style.display='none'; return; }
     if(gate)gate.style.display='none'; if(main)main.style.display='';
-    build(); TOTALS={}; TOTALS_ALL={}; CHARTOTALS={}; CHARLIST=[]; MANUAL={}; WARDENC={}; ANIMUSC={};
+    build(); TOTALS={}; TOTALS_ALL={}; CHARTOTALS={}; CHARLIST=[]; MANUALC={}; WARDENC={}; ANIMUSC={};
     try{
       var base=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
       var r=await (window.tpAuthFetch||fetch)(base+'/rest/v1/pt_kills_totals?select=monster,total_kills');
@@ -14450,9 +14454,9 @@ window.tpLoadJornada=async function(){
     }catch(e){}
     try{
       var base2=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
-      var rm=await (window.tpAuthFetch||fetch)(base2+'/rest/v1/user_bestiary_manual?select=monster,done');
+      var rm=await (window.tpAuthFetch||fetch)(base2+'/rest/v1/user_bestiary_manual?select=character,monster');
       var dm=await rm.json();
-      (Array.isArray(dm)?dm:[]).forEach(function(x){ var kk=String(x.monster).toLowerCase().trim(); if(x.done!==false) MANUAL[kk]=1; });
+      (Array.isArray(dm)?dm:[]).forEach(function(x){ var ch=x.character; if(!ch) return; (MANUALC[ch]=MANUALC[ch]||{})[String(x.monster).toLowerCase().trim()]=1; });
     }catch(e){}
     try{
       var baseW=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
@@ -14508,13 +14512,14 @@ window.tpLoadJornada=async function(){
         (Array.isArray(d)?d:[]).forEach(function(x){ TOTALS_ALL[String(x.monster).toLowerCase().trim()]=+x.total_kills||0; });
       }catch(e){}
       try{ var baseM=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
-        var rM=await (window.tpAuthFetch||fetch)(baseM+'/rest/v1/user_bestiary_manual?select=monster,done');
+        var rM=await (window.tpAuthFetch||fetch)(baseM+'/rest/v1/user_bestiary_manual?select=character,monster');
         var dM=await rM.json();
-        (Array.isArray(dM)?dM:[]).forEach(function(x){ var kk=String(x.monster).toLowerCase().trim(); if(x.done!==false) MANUAL[kk]=1; });
+        (Array.isArray(dM)?dM:[]).forEach(function(x){ var ch=x.character; if(!ch) return; (MANUALC[ch]=MANUALC[ch]||{})[String(x.monster).toLowerCase().trim()]=1; });
       }catch(e){}
     }
+    var _many={}; for(var _cx in MANUALC){ for(var _mx in MANUALC[_cx]){ _many[_mx]=1; } }
     var discovered=0,done=0,charmTotal=0,charmGot=0;
-    list.forEach(function(b){ var k=TOTALS_ALL[b.name.toLowerCase()]||0; var m=!!MANUAL[b.name.toLowerCase()]; charmTotal+=b.charm; if(k>0||m)discovered++; if(k>=b.target||m){done++;charmGot+=b.charm;} });
+    list.forEach(function(b){ var k=TOTALS_ALL[b.name.toLowerCase()]||0; var m=!!_many[b.name.toLowerCase()]; charmTotal+=b.charm; if(k>0||m)discovered++; if(k>=b.target||m){done++;charmGot+=b.charm;} });
     return {discovered:discovered,done:done,total:list.length,charmGot:charmGot,charmTotal:charmTotal};
   };
   function card(n,l){ return '<div class="card"><div class="n">'+n+'</div><div class="l">'+l+'</div></div>'; }
@@ -14616,14 +14621,16 @@ window.tpLoadJornada=async function(){
       }catch(e){ console.warn('[warden]',e); if(prev){ (WARDENC[ch]=WARDENC[ch]||{})[key]=1; } else if(WARDENC[ch]){ delete WARDENC[ch][key]; } if(window.tpBestiaryRender) tpBestiaryRender(); if(window.tpToast) tpToast('Não consegui salvar — tenta de novo.','error'); }
       return;
     }
-    var prevDone=!!MANUAL[key];
-    if(on) MANUAL[key]=1; else delete MANUAL[key];
+    // 'done' (Completar) — agora POR PERSONAGEM
+    if(!BEST_CHAR){ if(el) el.checked=false; if(window.tpToast) tpToast('Escolha um boneco no topo do bestiary pra marcar como completo por personagem.','info'); return; }
+    var chd=BEST_CHAR, prevDone=!!(MANUALC[chd]&&MANUALC[chd][key]);
+    if(on){ (MANUALC[chd]=MANUALC[chd]||{})[key]=1; } else if(MANUALC[chd]){ delete MANUALC[chd][key]; }
     if(window.tpBestiaryRender) tpBestiaryRender();
     try{
-      if(on){ await (window.tpAuthFetch||fetch)(base+'/rest/v1/user_bestiary_manual',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:A.user.id,monster:key,done:true})}); }
-      else { await (window.tpAuthFetch||fetch)(base+'/rest/v1/user_bestiary_manual?user_id=eq.'+A.user.id+'&monster=eq.'+encodeURIComponent(key),{method:'DELETE',headers:{Prefer:'return=minimal'}}); }
-      if(window.tpToast) tpToast(on?('✓ '+mon+' — completo (charm somado)'):(mon+' desmarcado'), on?'success':'info');
-    }catch(e){ console.warn('[done]',e); if(prevDone) MANUAL[key]=1; else delete MANUAL[key]; if(window.tpBestiaryRender) tpBestiaryRender(); if(window.tpToast) tpToast('Não consegui salvar — tenta de novo.','error'); }
+      if(on){ await (window.tpAuthFetch||fetch)(base+'/rest/v1/user_bestiary_manual',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify({user_id:A.user.id,character:chd,monster:key})}); }
+      else { await (window.tpAuthFetch||fetch)(base+'/rest/v1/user_bestiary_manual?user_id=eq.'+A.user.id+'&character=eq.'+encodeURIComponent(chd)+'&monster=eq.'+encodeURIComponent(key),{method:'DELETE',headers:{Prefer:'return=minimal'}}); }
+      if(window.tpToast) tpToast(on?('✓ '+mon+' — completo pra '+chd+' (charm somado)'):(mon+' desmarcado'), on?'success':'info');
+    }catch(e){ console.warn('[done]',e); if(prevDone){ (MANUALC[chd]=MANUALC[chd]||{})[key]=1; } else if(MANUALC[chd]){ delete MANUALC[chd][key]; } if(window.tpBestiaryRender) tpBestiaryRender(); if(window.tpToast) tpToast('Não consegui salvar — tenta de novo.','error'); }
   };
   window.tpBestiaryRender=function(){
     var host=document.getElementById('best-cats'); if(!host) return;
@@ -14632,12 +14639,12 @@ window.tpLoadJornada=async function(){
     var df=document.getElementById('best-diff').value;
     var fl=document.getElementById('best-filter').value;
     var discovered=0, done=0, total=list.length, charmTotal=0, charmGot=0;
-    var wardenEditable=!!BEST_CHAR, activeWarden={}, activeAnimus={};
-    if(BEST_CHAR){ activeWarden=WARDENC[BEST_CHAR]||{}; activeAnimus=ANIMUSC[BEST_CHAR]||{}; }
-    else { for(var _c in WARDENC){ for(var _m in WARDENC[_c]){ activeWarden[_m]=1; } } for(var _ca in ANIMUSC){ for(var _ma in ANIMUSC[_ca]){ activeAnimus[_ma]=1; } } }
+    var wardenEditable=!!BEST_CHAR, activeWarden={}, activeAnimus={}, activeManual={};
+    if(BEST_CHAR){ activeWarden=WARDENC[BEST_CHAR]||{}; activeAnimus=ANIMUSC[BEST_CHAR]||{}; activeManual=MANUALC[BEST_CHAR]||{}; }
+    else { for(var _c in WARDENC){ for(var _m in WARDENC[_c]){ activeWarden[_m]=1; } } for(var _ca in ANIMUSC){ for(var _ma in ANIMUSC[_ca]){ activeAnimus[_ma]=1; } } for(var _cm in MANUALC){ for(var _mm in MANUALC[_cm]){ activeManual[_mm]=1; } } }
     var rows=list.map(function(b){
       var k=TOTALS[b.name.toLowerCase()]||0;
-      var autoKills=k>=b.target, isManual=!!MANUAL[b.name.toLowerCase()], isWarden=!!activeWarden[b.name.toLowerCase()], isAnimus=!!activeAnimus[b.name.toLowerCase()];
+      var autoKills=k>=b.target, isManual=!!activeManual[b.name.toLowerCase()], isWarden=!!activeWarden[b.name.toLowerCase()], isAnimus=!!activeAnimus[b.name.toLowerCase()];
       var isDone=autoKills||isManual, isDisc=k>0||isManual;
       if(isDisc) discovered++; if(isDone){ done++; charmGot+=b.charm; }
       charmTotal+=b.charm;
@@ -15122,6 +15129,272 @@ window.tpLoadJornada=async function(){
 
   function boot(){ if(me()) startSocial(); setInterval(function(){ if(me()&&!started) startSocial(); else if(!me()&&started) stopSocial(); },5000); }
   if(document.readyState!=='loading') boot(); else document.addEventListener('DOMContentLoaded',boot);
+})();
+</script>
+
+<script>
+/* ─── HOUSES ─── browser (TibiaData) + mapa (TibiaWiki/Leaflet) + fotos da comunidade (Supabase) */
+(function(){
+  var TOWNS=["Ab'Dendriel","Ankrahmun","Carlin","Darashia","Edron","Farmine","Gray Beach","Issavi","Kazordoon","Liberty Bay","Port Hope","Rathleton","Svargrond","Thais","Venore","Yalahar"];
+  var state={ world:'', town:'Thais', type:'house', status:'all', q:'', houseList:[], guildhallList:[], photoCounts:{}, current:null };
+  var HS_COORDS={}, IS_MOD=false, townPop=false;
+
+  function SBURL(){ return (typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:''; }
+  function af(){ return window.tpAuthFetch||fetch; }
+  function auth(){ return window.TP_AUTH; }
+  function toast(m,t){ if(window.tpToast) tpToast(m,t||'info'); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function world(){ try{ return (typeof CONFIG!=='undefined'&&CONFIG.world)||'Gentebra'; }catch(e){ return 'Gentebra'; } }
+  function fmtGp(n){ return (+n||0).toLocaleString('pt-BR'); }
+  function fmtDate(s){ try{ return new Date(s).toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'}); }catch(e){ return s; } }
+  function fact(k,v){ return '<div class="hs-fact"><div class="k">'+k+'</div><div class="v">'+v+'</div></div>'; }
+
+  function tdFetch(path){
+    var bases=['https://api.tibiadata.com'];
+    try{ if(typeof API_FALLBACK!=='undefined'&&API_FALLBACK && bases.indexOf(API_FALLBACK)<0) bases.push(API_FALLBACK); }catch(e){}
+    var i=0;
+    function tryNext(){
+      if(i>=bases.length) return Promise.reject(new Error('all failed'));
+      return fetch(bases[i++]+path).then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.json(); }).catch(function(){ return tryNext(); });
+    }
+    return tryNext();
+  }
+
+  function statusOf(h){
+    if(h.auctioned || (h.auction && (h.auction.current_bid>0 || h.auction.time_left))) return 'auction';
+    if(h.rented) return 'rented';
+    return 'free';
+  }
+
+  window.tpHousesInit=function(){
+    state.world=world();
+    var sel=document.getElementById('hs-town');
+    if(sel && !townPop){ sel.innerHTML=TOWNS.map(function(t){ return '<option value="'+esc(t)+'"'+(t===state.town?' selected':'')+'>'+esc(t)+'</option>'; }).join(''); townPop=true; }
+    checkMod().then(function(){ var b=document.getElementById('hs-mod-btn'); if(b) b.style.display=IS_MOD?'':'none'; if(IS_MOD) refreshModBadge(); });
+    loadPhotoCounts();
+    loadTown();
+  };
+
+  function loadTown(){
+    var grid=document.getElementById('hs-grid'), empty=document.getElementById('hs-empty');
+    if(!grid) return;
+    grid.innerHTML='<div class="hs-loading">Carregando casas de '+esc(state.town)+'…</div>'; if(empty) empty.style.display='none';
+    tdFetch('/v4/houses/'+encodeURIComponent(state.world)+'/'+encodeURIComponent(state.town)).then(function(d){
+      var h=(d&&d.houses)||{};
+      state.houseList=Array.isArray(h.house_list)?h.house_list:[];
+      state.guildhallList=Array.isArray(h.guildhall_list)?h.guildhall_list:[];
+      render();
+    }).catch(function(){ grid.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent='Não consegui carregar as casas de '+state.town+' agora. Tenta de novo.'; } });
+  }
+
+  function render(){
+    var grid=document.getElementById('hs-grid'), empty=document.getElementById('hs-empty');
+    if(!grid) return;
+    var list=(state.type==='guildhall'?state.guildhallList:state.houseList)||[];
+    var q=state.q.toLowerCase();
+    var fr=list.filter(function(h){
+      if(state.status!=='all' && statusOf(h)!==state.status) return false;
+      if(q && String(h.name).toLowerCase().indexOf(q)<0) return false;
+      return true;
+    });
+    if(!fr.length){ grid.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent='Nenhuma '+(state.type==='guildhall'?'guildhall':'casa')+' com esse filtro.'; } return; }
+    if(empty) empty.style.display='none';
+    grid.innerHTML=fr.map(function(h){
+      var st=statusOf(h), stTxt=st==='auction'?'Em leilão':(st==='rented'?'Alugada':'Livre');
+      var pc=(state.photoCounts&&state.photoCounts[h.house_id])||0;
+      return '<div class="hs-card" onclick="tpHouseOpen('+h.house_id+')">'
+        +(pc?'<span class="hs-photobadge">📸 '+pc+'</span>':'')
+        +'<div class="hs-card-nm">'+esc(h.name)+'</div>'
+        +'<div class="hs-card-meta"><span>'+(h.size||'?')+' sqm</span><span><b>'+fmtGp(h.rent)+'</b> gp/mês</span></div>'
+        +'<span class="hs-st '+st+'"><span class="dot"></span>'+stTxt+'</span>'
+        +'</div>';
+    }).join('');
+  }
+
+  window.tpHouseTown=function(){ var s=document.getElementById('hs-town'); if(s){ state.town=s.value; loadTown(); } };
+  window.tpHouseType=function(t,btn){ state.type=t; segOn('hs-typebar',btn); render(); };
+  window.tpHouseStatus=function(s,btn){ state.status=s; segOn('hs-statusbar',btn); render(); };
+  window.tpHouseSearch=function(){ var i=document.getElementById('hs-search'); state.q=i?(i.value||'').trim():''; render(); };
+  function segOn(barId,btn){ var bar=document.getElementById(barId); if(bar) bar.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on',b===btn); }); }
+
+  function loadPhotoCounts(){
+    af()(SBURL()+'/rest/v1/house_photos?select=house_id&world=eq.'+encodeURIComponent(state.world)+'&status=eq.approved',{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.json(); }).then(function(rows){
+        var c={}; (Array.isArray(rows)?rows:[]).forEach(function(p){ if(p.house_id!=null) c[p.house_id]=(c[p.house_id]||0)+1; });
+        state.photoCounts=c; render();
+      }).catch(function(){});
+  }
+
+  window.tpHouseOpen=function(id){
+    var modal=document.getElementById('hs-modal'), body=document.getElementById('hs-modal-body');
+    if(!modal||!body) return;
+    body.innerHTML='<div class="hs-loading">Carregando…</div>'; modal.classList.add('open');
+    tdFetch('/v4/house/'+encodeURIComponent(state.world)+'/'+id).then(function(d){
+      var h=d&&d.house; if(!h){ body.innerHTML='<div class="hs-map-none">Casa não encontrada.</div>'; return; }
+      state.current=h; renderDetail(h);
+    }).catch(function(){ body.innerHTML='<div class="hs-map-none">Não consegui carregar essa casa.</div>'; });
+  };
+  window.tpHouseClose=function(){ var m=document.getElementById('hs-modal'); if(m) m.classList.remove('open'); var el=document.getElementById('hs-map'); if(el&&el._map){ try{ el._map.remove(); }catch(e){} el._map=null; } };
+  window.tpHouseLightbox=function(src){ var lb=document.getElementById('hs-lightbox'); if(lb){ lb.querySelector('img').src=src; lb.classList.add('open'); } };
+
+  function renderDetail(h){
+    var body=document.getElementById('hs-modal-body'); if(!body) return;
+    var st=h.status||{}, stLabel='', stClass='free', stDetail='';
+    if(st.is_auctioned && st.auction){ stClass='auction'; stLabel='Em leilão'; stDetail='Lance atual: <b>'+fmtGp(st.auction.current_bid)+'</b> gp'+(st.auction.auction_end?' · termina '+fmtDate(st.auction.auction_end):''); }
+    else if(st.is_rented && st.rental){ stClass='rented'; stLabel='Alugada'; stDetail='Dono: <b>'+esc(st.rental.owner)+'</b>'+(st.rental.paid_until?' · pago até '+fmtDate(st.rental.paid_until):''); }
+    else { stClass='free'; stLabel='Livre'; stDetail='Disponível para alugar.'; }
+    var img=h.img||'';
+    body.innerHTML=''
+      +'<div class="hs-hero">'
+        +(img?'<img class="hs-hero-img" src="'+esc(img)+'" onerror="this.style.display=\'none\'" alt="">':'')
+        +'<div class="hs-hero-info"><h3>'+esc(h.name)+'</h3>'
+          +'<span class="hs-st '+stClass+'"><span class="dot"></span>'+stLabel+'</span>'
+          +'<div class="hs-facts">'+fact('Cidade',esc(h.town))+fact('Tipo',h.type==='guildhall'?'Guildhall':'Casa')+fact('Tamanho',(h.size||'?')+' sqm')+fact('Camas',h.beds!=null?h.beds:'—')+fact('Aluguel',fmtGp(h.rent)+' gp/mês')+fact('Status',stDetail)+'</div>'
+        +'</div>'
+      +'</div>'
+      +'<div class="hs-sec"><div class="hs-sec-t">📍 Localização</div><div id="hs-map" class="hs-map"></div></div>'
+      +'<div class="hs-sec"><div class="hs-sec-t">📸 Fotos da comunidade</div><div id="hs-photos"></div></div>'
+      +'<div class="hs-sec"><div class="hs-sec-t">➕ Enviar foto da sua house</div><div id="hs-formwrap"></div></div>';
+    fetchCoords(h.name).then(function(c){
+      var mapEl=document.getElementById('hs-map'); if(!mapEl) return;
+      if(c){ initHouseMap('hs-map',c.x,c.y,c.z); } else { mapEl.outerHTML='<div class="hs-map-none">Localização não encontrada na TibiaWiki para esta casa.</div>'; }
+    });
+    loadPhotos(h); setupForm(h);
+  }
+
+  function fetchCoords(name){
+    if(HS_COORDS[name]!==undefined) return Promise.resolve(HS_COORDS[name]);
+    var url='https://www.tibiawiki.com.br/api.php?action=query&prop=revisions&rvprop=content&rvslots=main&format=json&origin=*&titles='+encodeURIComponent(String(name).replace(/ /g,'_'));
+    return fetch(url).then(function(r){ return r.json(); }).then(function(d){
+      var pages=(d&&d.query&&d.query.pages)||{}, txt='';
+      for(var k in pages){ var p=pages[k]; if(p&&p.revisions&&p.revisions[0]){ var sl=p.revisions[0].slots&&p.revisions[0].slots.main; txt=(sl&&sl['*'])||p.revisions[0]['*']||''; } }
+      var m=txt.match(/\{\{\s*mapa\s*\|\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+      var c=m?{x:+m[1],y:+m[2],z:+m[3]}:null; HS_COORDS[name]=c; return c;
+    }).catch(function(){ HS_COORDS[name]=null; return null; });
+  }
+
+  function ensureCRS(){
+    if(window.L && !L.CRS.TibiaSimple){
+      L.CRS.TibiaSimple=L.extend({},L.CRS.Simple,{
+        scale:function(z){ return 256*Math.pow(2,z); },
+        latLngToPoint:function(ll,z){ var pt=this.projection.project(ll),s=this.scale(z); return this.transformation._transform(pt,s); },
+        pointToLatLng:function(p,z){ var s=this.scale(z),pt=this.transformation.untransform(p,s); return this.projection.unproject(pt); }
+      });
+    }
+  }
+  function initHouseMap(elId,x,y,floor){
+    ensureCRS();
+    var el=document.getElementById(elId); if(!el||!window.L) return;
+    if(el._map){ try{ el._map.remove(); }catch(e){} el._map=null; }
+    var map=el._map=L.map(el,{ crs:L.CRS.TibiaSimple||L.CRS.Simple, minZoom:0, maxZoom:5, zoomControl:true, attributionControl:false, fadeAnimation:false });
+    if(typeof _hfMakeTileLayer==='function'){ _hfMakeTileLayer(map,floor).addTo(map); }
+    var latlng=map.unproject([x,y],0);
+    var icon=L.divIcon({ html:'<div style="width:14px;height:14px;background:#c9a840;border:2px solid #fff;border-radius:50%;box-shadow:0 0 9px rgba(201,168,64,.9)"></div>', iconSize:[14,14], iconAnchor:[7,7], className:'' });
+    L.marker(latlng,{icon:icon}).addTo(map);
+    map.setView(latlng,3);
+    setTimeout(function(){ try{ map.invalidateSize(); }catch(e){} },140);
+  }
+
+  function loadPhotos(h){
+    var host=document.getElementById('hs-photos'); if(!host) return;
+    host.innerHTML='<div class="hs-loading" style="padding:1rem">Carregando fotos…</div>';
+    af()(SBURL()+'/rest/v1/house_photos?select=*&world=eq.'+encodeURIComponent(h.world)+'&house_id=eq.'+h.houseid+'&status=eq.approved&order=created_at.desc',{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.json(); }).then(function(rows){
+        rows=Array.isArray(rows)?rows:[];
+        if(!rows.length){ host.innerHTML='<div class="hs-map-none">Ainda não há fotos desta casa. Seja o primeiro a enviar! 📸</div>'; return; }
+        host.innerHTML='<div class="hs-gallery">'+rows.map(function(p){
+          var img=SBURL()+'/storage/v1/object/public/house-photos/'+p.image_path;
+          return '<div class="hs-ph"><img src="'+esc(img)+'" onclick="tpHouseLightbox(this.src)" alt=""><div class="hs-ph-cap"><div class="who">'+esc(p.character)+(p.level?' <small>Lvl '+p.level+'</small>':'')+'</div>'+(p.titles?'<div class="titles">'+esc(p.titles)+'</div>':'')+(p.comment?'<div class="cmt">'+esc(p.comment)+'</div>':'')+'</div></div>';
+        }).join('')+'</div>';
+      }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar as fotos.</div>'; });
+  }
+
+  function setupForm(h){
+    var wrap=document.getElementById('hs-formwrap'); if(!wrap) return;
+    var A=auth();
+    if(!A||!A.user){ wrap.innerHTML='<div class="hs-gate">Entre na sua conta e verifique um boneco para enviar fotos da sua house. <a href="#" onclick="if(window.tpOpenAuth)tpOpenAuth(\'login\');return false" style="color:var(--bamboo-light)">Entrar</a></div>'; return; }
+    wrap.innerHTML='<div class="hs-loading" style="padding:.6rem">Carregando seus bonecos…</div>';
+    af()(SBURL()+'/rest/v1/characters?select=name,level&verified=is.true&order=level.desc.nullslast',{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.json(); }).then(function(chars){
+        chars=Array.isArray(chars)?chars.filter(function(c){ return c&&c.name; }):[];
+        if(!chars.length){ wrap.innerHTML='<div class="hs-gate">Você precisa de um boneco verificado para enviar fotos. Verifique um na aba <b>Personagem</b>.</div>'; return; }
+        var opts=chars.map(function(c){ return '<option value="'+esc(c.name)+'" data-lvl="'+(c.level||'')+'">'+esc(c.name)+(c.level?' (Lvl '+c.level+')':'')+'</option>'; }).join('');
+        wrap.innerHTML='<div class="hs-form">'
+          +'<div class="row"><div><label>Boneco</label><select id="hs-f-char" onchange="tpHouseCharPick()">'+opts+'</select></div><div><label>Level</label><input type="number" id="hs-f-level" min="1" placeholder="Level"></div></div>'
+          +'<div class="row"><div><label>Títulos / Achievements</label><input type="text" id="hs-f-titles" maxlength="120" placeholder="Ex.: Guildmaster, Reign of Tibia…"></div></div>'
+          +'<div class="row"><div><label>Comentário</label><textarea id="hs-f-comment" maxlength="400" placeholder="Um breve comentário sobre a decoração / inspiração…"></textarea></div></div>'
+          +'<div class="hs-drop" id="hs-f-drop" onclick="document.getElementById(\'hs-f-file\').click()">📷 Clique para escolher a foto da house</div>'
+          +'<input type="file" id="hs-f-file" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="tpHouseFilePick(this)">'
+          +'<div class="hs-note">A foto passa por aprovação de um moderador antes de aparecer na galeria. Máx. 5MB (JPG, PNG ou WebP).</div>'
+          +'<div style="margin-top:.8rem"><button class="tp-btn-primary" id="hs-f-submit" onclick="tpHouseSubmitPhoto()">Enviar para aprovação</button></div>'
+          +'</div>';
+        tpHouseCharPick();
+      }).catch(function(){ wrap.innerHTML='<div class="hs-gate">Não consegui carregar seus bonecos.</div>'; });
+  }
+  window.tpHouseCharPick=function(){ var s=document.getElementById('hs-f-char'), lv=document.getElementById('hs-f-level'); if(s&&lv){ var o=s.options[s.selectedIndex], l=o&&o.getAttribute('data-lvl'); if(l&&!lv.value) lv.value=l; } };
+  window.tpHouseFilePick=function(inp){ var d=document.getElementById('hs-f-drop'), f=inp.files&&inp.files[0]; if(f){ if(f.size>5*1024*1024){ toast('A foto passa de 5MB. Escolhe uma menor.','error'); inp.value=''; return; } if(d){ d.classList.add('has'); d.textContent='✓ '+f.name; } } };
+
+  window.tpHouseSubmitPhoto=async function(){
+    var A=auth(); if(!A||!A.user){ toast('Entre na sua conta.','info'); return; }
+    var h=state.current; if(!h) return;
+    var char=(document.getElementById('hs-f-char')||{}).value;
+    var level=parseInt((document.getElementById('hs-f-level')||{}).value,10)||null;
+    var titles=((document.getElementById('hs-f-titles')||{}).value||'').trim();
+    var comment=((document.getElementById('hs-f-comment')||{}).value||'').trim();
+    var fileInp=document.getElementById('hs-f-file'), file=fileInp&&fileInp.files&&fileInp.files[0];
+    if(!char){ toast('Escolha um boneco.','info'); return; }
+    if(!file){ toast('Escolha uma foto da house.','info'); return; }
+    var btn=document.getElementById('hs-f-submit'); if(btn){ btn.disabled=true; btn.textContent='Enviando…'; }
+    try{
+      var ext=((file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,''))||'jpg';
+      var path=A.user.id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+      var up=await af()(SBURL()+'/storage/v1/object/house-photos/'+path,{ method:'POST', headers:{'Content-Type':file.type||'application/octet-stream','x-upsert':'true'}, body:file });
+      if(!up.ok) throw new Error('upload '+up.status);
+      var row={ user_id:A.user.id, world:h.world, house_id:h.houseid, house_name:h.name, town:h.town, character:char, level:level, titles:titles||null, comment:comment||null, image_path:path, status:'pending' };
+      var ins=await af()(SBURL()+'/rest/v1/house_photos',{ method:'POST', headers:{'Content-Type':'application/json',Prefer:'return=minimal'}, body:JSON.stringify(row) });
+      if(!ins.ok) throw new Error('insert '+ins.status);
+      toast('Foto enviada! Vai aparecer após aprovação de um moderador. 📸','success');
+      var wrap=document.getElementById('hs-formwrap'); if(wrap) wrap.innerHTML='<div class="hs-gate">✓ Foto enviada e aguardando aprovação. Obrigado por contribuir!</div>';
+      if(IS_MOD) refreshModBadge();
+    }catch(e){ console.warn('[house photo]',e); toast('Não consegui enviar a foto. Tenta de novo.','error'); if(btn){ btn.disabled=false; btn.textContent='Enviar para aprovação'; } }
+  };
+
+  function checkMod(){
+    var A=auth(); if(!A||!A.user){ IS_MOD=false; return Promise.resolve(false); }
+    return af()(SBURL()+'/rest/v1/user_roles?select=role&role=eq.moderator&user_id=eq.'+A.user.id,{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.json(); }).then(function(rows){ IS_MOD=Array.isArray(rows)&&rows.length>0; return IS_MOD; }).catch(function(){ IS_MOD=false; return false; });
+  }
+  function refreshModBadge(){
+    af()(SBURL()+'/rest/v1/house_photos?select=id&status=eq.pending',{headers:{Accept:'application/json',Prefer:'count=exact',Range:'0-0'}})
+      .then(function(r){ var cr=r.headers.get('content-range'), total=cr?parseInt(cr.split('/')[1],10):0; var b=document.getElementById('hs-mod-badge'); if(b){ if(total>0){ b.textContent=total; b.style.display=''; } else b.style.display='none'; } }).catch(function(){});
+  }
+  window.tpHouseModQueue=function(){
+    var modal=document.getElementById('hs-modq'), body=document.getElementById('hs-modq-body');
+    if(!modal||!body) return;
+    body.innerHTML='<div class="hs-loading">Carregando…</div>'; modal.classList.add('open');
+    af()(SBURL()+'/rest/v1/house_photos?select=*&status=eq.pending&order=created_at.asc',{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.json(); }).then(function(rows){
+        rows=Array.isArray(rows)?rows:[];
+        if(!rows.length){ body.innerHTML='<div class="hs-map-none">Nenhuma foto pendente. Tudo em dia! ✨</div>'; return; }
+        body.innerHTML=rows.map(function(p){
+          var img=SBURL()+'/storage/v1/object/public/house-photos/'+p.image_path;
+          return '<div class="hs-mq-row" id="mq-'+p.id+'"><img src="'+esc(img)+'" onclick="tpHouseLightbox(this.src)" alt="">'
+            +'<div class="hs-mq-info"><div class="h">'+esc(p.house_name)+'</div><div class="m">'+esc(p.character)+(p.level?' · Lvl '+p.level:'')+' · '+esc(p.world)+(p.town?' · '+esc(p.town):'')+'</div>'+(p.titles?'<div class="m" style="color:var(--bamboo-light)">'+esc(p.titles)+'</div>':'')+(p.comment?'<div class="m">"'+esc(p.comment)+'"</div>':'')+'</div>'
+            +'<div class="hs-mq-actions"><button class="hs-approve" onclick="tpHouseModAct(\''+p.id+'\',\'approved\')">✓ Aprovar</button><button class="hs-reject" onclick="tpHouseModAct(\''+p.id+'\',\'rejected\')">Recusar</button></div></div>';
+        }).join('');
+      }).catch(function(){ body.innerHTML='<div class="hs-map-none">Não consegui carregar a fila.</div>'; });
+  };
+  window.tpHouseModAct=async function(id,action){
+    var A=auth(); if(!A||!A.user) return;
+    try{
+      var r=await af()(SBURL()+'/rest/v1/house_photos?id=eq.'+id,{ method:'PATCH', headers:{'Content-Type':'application/json',Prefer:'return=minimal'}, body:JSON.stringify({ status:action, reviewed_by:A.user.id, reviewed_at:new Date().toISOString() }) });
+      if(!r.ok) throw new Error('patch '+r.status);
+      var row=document.getElementById('mq-'+id); if(row) row.remove();
+      toast(action==='approved'?'Foto aprovada! ✓':'Foto recusada.',action==='approved'?'success':'info');
+      refreshModBadge(); loadPhotoCounts();
+      var body=document.getElementById('hs-modq-body'); if(body && !body.querySelector('.hs-mq-row')) body.innerHTML='<div class="hs-map-none">Nenhuma foto pendente. Tudo em dia! ✨</div>';
+    }catch(e){ toast('Não consegui atualizar.','error'); }
+  };
 })();
 </script>
 
