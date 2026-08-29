@@ -2319,7 +2319,7 @@ PlayerName (Leader)
   <!-- ─── RANKINGS ─── -->
   <section class="page-section" id="rankings">
     <h2 class="sec-title">🏆 Rankings da comunidade</h2>
-    <p class="sec-sub">O placar do Tibia Panda. XP de hunt (hoje, semana e mês), profit, bestiary e mais — global ou entre seus amigos. Salve hunts no Loot Split pra aparecer.</p>
+    <p class="sec-sub">O placar do Tibia Panda. XP de hunt (hoje, semana e mês), profit e XP da comunidade — global ou entre seus amigos. Salve hunts no Loot Split pra aparecer.</p>
     <style>
       #rk-gate{display:none}
       #rankings.gated > #rk-content{display:none}
@@ -2344,9 +2344,6 @@ PlayerName (Leader)
             <button class="rk-mbtn" data-metric="xpday" onclick="tpRankMetric('xpday',this)">🌅 XP hoje</button>
             <button class="rk-mbtn" data-metric="xpmonth" onclick="tpRankMetric('xpmonth',this)">🌙 XP mês</button>
             <button class="rk-mbtn" data-metric="profit_week" onclick="tpRankMetric('profit_week',this)">💰 Profit (semana)</button>
-            <button class="rk-mbtn" data-metric="bestiary" onclick="tpRankMetric('bestiary',this)">🐉 Bestiary</button>
-            <button class="rk-mbtn" data-metric="completas" onclick="tpRankMetric('completas',this)">✅ Completas</button>
-            <button class="rk-mbtn" data-metric="charm" onclick="tpRankMetric('charm',this)">💎 Charm</button>
             <button class="rk-mbtn" data-metric="xp" onclick="tpRankMetric('xp',this)">🐼 XP comunidade</button>
           </div>
           <div class="rk-scope">
@@ -2542,18 +2539,6 @@ PlayerName (Leader)
           <div class="ab-role">Fundador</div>
           <div class="ab-bio">Idealizador do Tibia Panda. Cuida da visão do projeto e de deixar as ferramentas úteis e confiáveis pra comunidade.</div>
         </div>
-        <div class="ab-card">
-          <div class="ab-av"><span class="ini">?</span></div>
-          <div class="ab-name">[Nome]</div>
-          <div class="ab-role">[Cargo]</div>
-          <div class="ab-bio">[Bio curta do integrante — me manda os dados que eu preencho.]</div>
-        </div>
-        <div class="ab-card">
-          <div class="ab-av"><span class="ini">?</span></div>
-          <div class="ab-name">[Nome]</div>
-          <div class="ab-role">[Cargo]</div>
-          <div class="ab-bio">[Bio curta do integrante — me manda os dados que eu preencho.]</div>
-        </div>
       </div>
     </div>
 
@@ -2568,7 +2553,7 @@ PlayerName (Leader)
       </div>
     </div>
 
-    <div class="ab-note">A equipe ainda é exemplo — me passa os nomes, cargos e bios (e o link do Discord) que eu deixo oficial.</div>
+    <div class="ab-note">Quando tiver o link do Discord da comunidade, me passa que eu coloco aqui. 🐼</div>
   </section>
 
   <!-- ─── MEU PERFIL ─── -->
@@ -2592,11 +2577,14 @@ PlayerName (Leader)
       #profile .pf-tab:hover{color:var(--ink,#e8e6f0)}
       #profile .pf-tab.on{color:var(--bamboo,#8b5cf6);border-bottom-color:var(--bamboo,#8b5cf6)}
       /* ── Rankings ── */
-      .rk-bar{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.6rem;margin-bottom:1rem}
-      .rk-metrics,.rk-scope{display:flex;gap:.35rem;flex-wrap:wrap}
-      .rk-mbtn,.rk-sbtn{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);color:var(--muted);border-radius:999px;padding:.4rem .8rem;cursor:pointer;font-size:.78rem;font-weight:700}
-      .rk-mbtn.on{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6);color:#fff}
+      .rk-bar{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-bottom:1.1rem;padding:.7rem .8rem;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:12px}
+      .rk-metrics{display:flex;gap:.4rem;flex-wrap:wrap}
+      .rk-scope{display:flex;gap:.4rem;flex-wrap:wrap;margin-left:auto;padding-left:.7rem;border-left:1px solid var(--rule)}
+      .rk-mbtn,.rk-sbtn{background:var(--bg-1,#14131c);border:1px solid var(--rule);color:var(--muted);border-radius:999px;padding:.42rem .85rem;cursor:pointer;font-size:.78rem;font-weight:600;transition:background .18s,border-color .18s,color .18s,box-shadow .18s;white-space:nowrap}
+      .rk-mbtn:hover,.rk-sbtn:hover{border-color:var(--bamboo,#8b5cf6);color:var(--ink,#eae8f2)}
+      .rk-mbtn.on{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6);color:#fff;box-shadow:0 4px 14px -6px rgba(139,92,246,.55)}
       .rk-sbtn.on{background:#3ecf8e;border-color:#3ecf8e;color:#0c2b1d}
+      @media(max-width:640px){ .rk-scope{margin-left:0;padding-left:0;border-left:0;width:100%} }
       .rk-list{display:flex;flex-direction:column;gap:.4rem}
       .rk-row{display:flex;align-items:center;gap:.7rem;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:11px;padding:.5rem .7rem;cursor:pointer;transition:transform .1s,border-color .12s}
       .rk-row:hover{transform:translateX(2px);border-color:var(--bamboo,#8b5cf6)}
@@ -3052,9 +3040,6 @@ PlayerName (Leader)
             <button class="rk-mbtn" data-metric="xpday" onclick="tpRankMetric('xpday',this)">🌅 XP hoje</button>
             <button class="rk-mbtn" data-metric="xpweek" onclick="tpRankMetric('xpweek',this)">⚔️ XP semana</button>
             <button class="rk-mbtn" data-metric="xpmonth" onclick="tpRankMetric('xpmonth',this)">🌙 XP mês</button>
-            <button class="rk-mbtn" data-metric="bestiary" onclick="tpRankMetric('bestiary',this)">🐉 Bestiary</button>
-            <button class="rk-mbtn" data-metric="completas" onclick="tpRankMetric('completas',this)">✅ Completas</button>
-            <button class="rk-mbtn" data-metric="charm" onclick="tpRankMetric('charm',this)">💎 Charm points</button>
             <button class="rk-mbtn" data-metric="xp" onclick="tpRankMetric('xp',this)">🐼 XP comunidade</button>
           </div>
           <div class="rk-scope">
@@ -3752,7 +3737,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13bu</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13bv</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6884,7 +6869,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13bu';
+window.TP_BUILD = '2026-08-13bv';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -14263,7 +14248,7 @@ window.tpLoadJornada=async function(){
   var CLASS_EMOJI={Amphibic:'🐸',Aquatic:'🐟',Bird:'🦅',Construct:'🗿',Demon:'😈',Dragon:'🐉',Elemental:'🔥','Extra Dimensional':'🌀',Fairy:'🧚',Giant:'🗿',Human:'🧑',Humanoid:'👹',Inkborn:'🖋️',Lycanthrope:'🐺',Magical:'✨',Mammal:'🐗',Plant:'🌿',Reptile:'🦎',Slime:'🫧',Undead:'💀',Worm:'🕷️'};
   var CLASS_PT={Amphibic:'Anfíbios',Aquatic:'Aquáticos',Bird:'Aves',Construct:'Constructos',Demon:'Demônios',Dragon:'Dragões',Elemental:'Elementais','Extra Dimensional':'Extra Dimensionais',Fairy:'Fadas',Giant:'Gigantes',Human:'Humanos',Humanoid:'Humanóides',Inkborn:'Inkborn',Lycanthrope:'Licantropos',Magical:'Mágicas',Mammal:'Mamíferos',Plant:'Plantas',Reptile:'Répteis',Slime:'Slimes',Undead:'Mortos-Vivos',Worm:'Vermes'};
   var RARCOL={'Comum':'#9ca3af','Incomum':'#3ecf8e','Semi-raro':'#4a7de0','Raro':'#a78bfa','Muito raro':'#e0774a'};
-  var BEST=null, TOTALS={}, TOTALS_ALL={}, CHARTOTALS={}, BEST_CHAR='', MANUAL={}, WARDEN={};
+  var BEST=null, TOTALS={}, TOTALS_ALL={}, CHARTOTALS={}, CHARLIST=[], BEST_CHAR='', MANUAL={}, WARDENC={};
   function slug(n){ return String(n||'').toLowerCase().replace(/\s*\(.*?\)\s*/g,'').replace(/[''`]/g,'').replace(/[^a-z0-9]+/g,''); }
   function build(){
     if(BEST) return BEST;
@@ -14282,7 +14267,7 @@ window.tpLoadJornada=async function(){
     var A=window.TP_AUTH, gate=document.getElementById('best-gate'), main=document.getElementById('best-main');
     if(!A||!A.user){ if(gate)gate.style.display=''; if(main)main.style.display='none'; return; }
     if(gate)gate.style.display='none'; if(main)main.style.display='';
-    build(); TOTALS={}; TOTALS_ALL={}; CHARTOTALS={}; MANUAL={}; WARDEN={};
+    build(); TOTALS={}; TOTALS_ALL={}; CHARTOTALS={}; CHARLIST=[]; MANUAL={}; WARDENC={};
     try{
       var base=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
       var r=await (window.tpAuthFetch||fetch)(base+'/rest/v1/pt_kills_totals?select=monster,total_kills');
@@ -14297,11 +14282,23 @@ window.tpLoadJornada=async function(){
     }catch(e){}
     try{
       var base2=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
-      var rm=await (window.tpAuthFetch||fetch)(base2+'/rest/v1/user_bestiary_manual?select=monster,done,warden');
+      var rm=await (window.tpAuthFetch||fetch)(base2+'/rest/v1/user_bestiary_manual?select=monster,done');
       var dm=await rm.json();
-      (Array.isArray(dm)?dm:[]).forEach(function(x){ var kk=String(x.monster).toLowerCase().trim(); if(x.done!==false) MANUAL[kk]=1; if(x.warden) WARDEN[kk]=1; });
+      (Array.isArray(dm)?dm:[]).forEach(function(x){ var kk=String(x.monster).toLowerCase().trim(); if(x.done!==false) MANUAL[kk]=1; });
     }catch(e){}
-    if(BEST_CHAR && !CHARTOTALS[BEST_CHAR]) BEST_CHAR='';
+    try{
+      var baseW=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
+      var rw=await (window.tpAuthFetch||fetch)(baseW+'/rest/v1/user_bestiary_warden?select=character,monster');
+      var dw=await rw.json();
+      (Array.isArray(dw)?dw:[]).forEach(function(x){ var ch=x.character; if(!ch) return; (WARDENC[ch]=WARDENC[ch]||{})[String(x.monster).toLowerCase().trim()]=1; });
+    }catch(e){}
+    try{
+      var baseCh=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
+      var rch=await (window.tpAuthFetch||fetch)(baseCh+'/rest/v1/characters?select=name&verified=is.true');
+      var dch=await rch.json();
+      (Array.isArray(dch)?dch:[]).forEach(function(x){ if(x&&x.name) CHARLIST.push(String(x.name)); });
+    }catch(e){}
+    if(BEST_CHAR && CHARLIST.indexOf(BEST_CHAR)<0 && !CHARTOTALS[BEST_CHAR]) BEST_CHAR='';
     TOTALS = (BEST_CHAR && CHARTOTALS[BEST_CHAR]) ? CHARTOTALS[BEST_CHAR] : TOTALS_ALL;
     tpBestPopulateChars();
     tpBestiaryRender();
@@ -14313,7 +14310,9 @@ window.tpLoadJornada=async function(){
   };
   function tpBestPopulateChars(){
     var sel=document.getElementById('best-char'); if(!sel) return;
-    var chars=Object.keys(CHARTOTALS).sort();
+    var seen={}, chars=[];
+    CHARLIST.concat(Object.keys(CHARTOTALS)).forEach(function(c){ if(c && !seen[c.toLowerCase()]){ seen[c.toLowerCase()]=1; chars.push(c); } });
+    chars.sort(function(a,b){ return a.toLowerCase()<b.toLowerCase()?-1:1; });
     var opts='<option value="">🐼 Todos os bonecos</option>';
     chars.forEach(function(c){ var e=(window.esc?window.esc(c):c); opts += '<option value="'+e+'"'+(c===BEST_CHAR?' selected':'')+'>'+e+'</option>'; });
     sel.innerHTML=opts;
@@ -14328,9 +14327,9 @@ window.tpLoadJornada=async function(){
         (Array.isArray(d)?d:[]).forEach(function(x){ TOTALS_ALL[String(x.monster).toLowerCase().trim()]=+x.total_kills||0; });
       }catch(e){}
       try{ var baseM=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
-        var rM=await (window.tpAuthFetch||fetch)(baseM+'/rest/v1/user_bestiary_manual?select=monster,done,warden');
+        var rM=await (window.tpAuthFetch||fetch)(baseM+'/rest/v1/user_bestiary_manual?select=monster,done');
         var dM=await rM.json();
-        (Array.isArray(dM)?dM:[]).forEach(function(x){ var kk=String(x.monster).toLowerCase().trim(); if(x.done!==false) MANUAL[kk]=1; if(x.warden) WARDEN[kk]=1; });
+        (Array.isArray(dM)?dM:[]).forEach(function(x){ var kk=String(x.monster).toLowerCase().trim(); if(x.done!==false) MANUAL[kk]=1; });
       }catch(e){}
     }
     var discovered=0,done=0,charmTotal=0,charmGot=0;
@@ -14364,8 +14363,8 @@ window.tpLoadJornada=async function(){
         +'<label class="bc-check'+(b.done?' on':'')+(b.autoKills?' locked':'')+'" title="'+(b.autoKills?'Completo pelas suas kills':'Marcar bestiary como completo (soma o charm)')+'">'
           +'<input type="checkbox" data-mon="'+encodeURIComponent(b.name)+'"'+(b.done?' checked':'')+(b.autoKills?' disabled':'')+' onchange="tpBestToggle(this,\'done\')">'
           +'<span>'+(b.autoKills?'Completo (kills)':(b.manual?'Completo':'Completar'))+'</span></label>'
-        +'<label class="bc-check bc-warden'+(b.warden?' on':'')+'" title="Marcar o Echo Warden desta criatura como derrotado">'
-          +'<input type="checkbox" data-mon="'+encodeURIComponent(b.name)+'"'+(b.warden?' checked':'')+' onchange="tpBestToggle(this,\'warden\')">'
+        +'<label class="bc-check bc-warden'+(b.warden?' on':'')+(b.wardenEditable?'':' locked')+'" title="'+(b.wardenEditable?'Marcar o Echo Warden desta criatura (por boneco)':'Selecione um boneco no topo pra marcar o Warden')+'">'
+          +'<input type="checkbox" data-mon="'+encodeURIComponent(b.name)+'"'+(b.warden?' checked':'')+(b.wardenEditable?'':' disabled')+' onchange="tpBestToggle(this,\'warden\')">'
           +'<span>'+(b.warden?'Warden ✓':'Warden')+'</span></label>'
       +'</div>'
       +lootBtn+'</div>';
@@ -14408,20 +14407,27 @@ window.tpLoadJornada=async function(){
     var mon=decodeURIComponent(el.getAttribute('data-mon')||''); var key=mon.toLowerCase().trim(); if(!key) return;
     kind=(kind==='warden')?'warden':'done';
     var on=el.checked;
-    var prevDone=!!MANUAL[key], prevWarden=!!WARDEN[key];
-    if(kind==='warden'){ if(on) WARDEN[key]=1; else delete WARDEN[key]; }
-    else { if(on) MANUAL[key]=1; else delete MANUAL[key]; }
+    var base=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
+    if(kind==='warden'){
+      if(!BEST_CHAR){ if(el) el.checked=false; if(window.tpToast) tpToast('Escolha um boneco no topo do bestiary pra marcar o Warden por personagem.','info'); return; }
+      var ch=BEST_CHAR, prev=!!(WARDENC[ch]&&WARDENC[ch][key]);
+      if(on){ (WARDENC[ch]=WARDENC[ch]||{})[key]=1; } else if(WARDENC[ch]){ delete WARDENC[ch][key]; }
+      if(window.tpBestiaryRender) tpBestiaryRender();
+      try{
+        if(on){ await (window.tpAuthFetch||fetch)(base+'/rest/v1/user_bestiary_warden',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify({user_id:A.user.id,character:ch,monster:key})}); }
+        else { await (window.tpAuthFetch||fetch)(base+'/rest/v1/user_bestiary_warden?user_id=eq.'+A.user.id+'&character=eq.'+encodeURIComponent(ch)+'&monster=eq.'+encodeURIComponent(key),{method:'DELETE',headers:{Prefer:'return=minimal'}}); }
+        if(window.tpToast) tpToast(on?('⚔️ Warden de '+mon+' marcado pra '+ch):('Warden de '+mon+' desmarcado'), on?'success':'info');
+      }catch(e){ console.warn('[warden]',e); if(prev){ (WARDENC[ch]=WARDENC[ch]||{})[key]=1; } else if(WARDENC[ch]){ delete WARDENC[ch][key]; } if(window.tpBestiaryRender) tpBestiaryRender(); if(window.tpToast) tpToast('Não consegui salvar — tenta de novo.','error'); }
+      return;
+    }
+    var prevDone=!!MANUAL[key];
+    if(on) MANUAL[key]=1; else delete MANUAL[key];
     if(window.tpBestiaryRender) tpBestiaryRender();
-    var done=!!MANUAL[key], warden=!!WARDEN[key];
     try{
-      var base=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
-      if(!done && !warden){
-        await (window.tpAuthFetch||fetch)(base+'/rest/v1/user_bestiary_manual?user_id=eq.'+A.user.id+'&monster=eq.'+encodeURIComponent(key),{method:'DELETE',headers:{Prefer:'return=minimal'}});
-      } else {
-        await (window.tpAuthFetch||fetch)(base+'/rest/v1/user_bestiary_manual',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:A.user.id,monster:key,done:done,warden:warden})});
-      }
-      if(window.tpToast){ if(kind==='warden') tpToast(warden?('⚔️ Warden de '+mon+' marcado'):('Warden de '+mon+' desmarcado'), warden?'success':'info'); else tpToast(done?('✓ '+mon+' — completo (charm somado)'):(mon+' desmarcado'), done?'success':'info'); }
-    }catch(e){ console.warn('[tpBestToggle]',e); if(prevDone) MANUAL[key]=1; else delete MANUAL[key]; if(prevWarden) WARDEN[key]=1; else delete WARDEN[key]; if(window.tpBestiaryRender) tpBestiaryRender(); if(window.tpToast) tpToast('Não consegui salvar — tenta de novo.','error'); }
+      if(on){ await (window.tpAuthFetch||fetch)(base+'/rest/v1/user_bestiary_manual',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:A.user.id,monster:key,done:true})}); }
+      else { await (window.tpAuthFetch||fetch)(base+'/rest/v1/user_bestiary_manual?user_id=eq.'+A.user.id+'&monster=eq.'+encodeURIComponent(key),{method:'DELETE',headers:{Prefer:'return=minimal'}}); }
+      if(window.tpToast) tpToast(on?('✓ '+mon+' — completo (charm somado)'):(mon+' desmarcado'), on?'success':'info');
+    }catch(e){ console.warn('[done]',e); if(prevDone) MANUAL[key]=1; else delete MANUAL[key]; if(window.tpBestiaryRender) tpBestiaryRender(); if(window.tpToast) tpToast('Não consegui salvar — tenta de novo.','error'); }
   };
   window.tpBestiaryRender=function(){
     var host=document.getElementById('best-cats'); if(!host) return;
@@ -14430,14 +14436,17 @@ window.tpLoadJornada=async function(){
     var df=document.getElementById('best-diff').value;
     var fl=document.getElementById('best-filter').value;
     var discovered=0, done=0, total=list.length, charmTotal=0, charmGot=0;
+    var wardenEditable=!!BEST_CHAR, activeWarden={};
+    if(BEST_CHAR){ activeWarden=WARDENC[BEST_CHAR]||{}; }
+    else { for(var _c in WARDENC){ for(var _m in WARDENC[_c]){ activeWarden[_m]=1; } } }
     var rows=list.map(function(b){
       var k=TOTALS[b.name.toLowerCase()]||0;
-      var autoKills=k>=b.target, isManual=!!MANUAL[b.name.toLowerCase()], isWarden=!!WARDEN[b.name.toLowerCase()];
+      var autoKills=k>=b.target, isManual=!!MANUAL[b.name.toLowerCase()], isWarden=!!activeWarden[b.name.toLowerCase()];
       var isDone=autoKills||isManual, isDisc=k>0||isManual;
       if(isDisc) discovered++; if(isDone){ done++; charmGot+=b.charm; }
       charmTotal+=b.charm;
       return { name:b.name,cls:b.cls,diff:b.diff,target:b.target,charm:b.charm,icon:b.icon,loot:b.loot,
-        kills:k,done:isDone,autoKills:autoKills,manual:isManual,warden:isWarden,disc:isDisc,pct:Math.min(100,Math.round(k/b.target*100)) };
+        kills:k,done:isDone,autoKills:autoKills,manual:isManual,warden:isWarden,wardenEditable:wardenEditable,disc:isDisc,pct:Math.min(100,Math.round(k/b.target*100)) };
     });
     var sum=document.getElementById('best-summary');
     if(sum) sum.innerHTML=
