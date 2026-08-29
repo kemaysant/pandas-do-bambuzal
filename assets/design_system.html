@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark" class="scroll-smooth">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Panda Design System</title>
+    <meta name="description" content="O sistema de design da comunidade Tibia Panda — bambu, ouro e pergaminho sobre a penumbra. Tipografia, cor, componentes e movimento." />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/iconify-icon@2.1.0/dist/iconify-icon.min.js"></script>
+
+    <style>
+        /* ===================== TOKENS (do site real) ===================== */
+        :root, [data-theme="dark"] {
+            --bg-0:#0d0c12; --bg-1:#14131c; --bg-2:#1b1a25; --bg-3:#23212f;
+            --surface:#1a1922; --ink:#eae8f2; --ink-2:#c3bfd4; --ink-3:#8b87a0; --muted:#63607a;
+            --bamboo:#8b5cf6; --bamboo-light:#a78bfa; --bamboo-pale:#17122b; --bamboo-dim:#211a3d;
+            --gold:#c9a840; --gold-light:#e0c060; --gold-dim:#2a2000;
+            --red:#e87070; --red-dim:#2a0a0a; --green:#4ade80;
+            --border:#2b2938; --border-2:#3a3750;
+            --glow: rgba(139,92,246,.30);
+        }
+        [data-theme="light"] {
+            --bg-0:#f6f6fb; --bg-1:#f0eff7; --bg-2:#e8e7f2; --bg-3:#dcdaec;
+            --surface:#ffffff; --ink:#14121c; --ink-2:#2f2b3d; --ink-3:#524d63; --muted:#7b7690;
+            --bamboo:#7c3aed; --bamboo-light:#8b5cf6; --bamboo-pale:#efeafe; --bamboo-dim:#efeafe;
+            --gold:#a07828; --gold-light:#c9a840; --gold-dim:#f7f0dc;
+            --red:#8b1a1a; --red-dim:#fdf0f0; --green:#16a34a;
+            --border:#ddd9ec; --border-2:#cbc6e0;
+            --glow: rgba(124,58,237,.18);
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0; font-family: 'Inter', sans-serif; background: var(--bg-0); color: var(--ink);
+            -webkit-font-smoothing: antialiased; overflow-x: hidden;
+            transition: background .3s, color .3s;
+        }
+        ::selection { background: rgba(139,92,246,.30); color: #fff; }
+        .font-display { font-family: 'Cinzel', serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        h1,h2,h3,h4 { margin: 0; }
+
+        /* scrollbar */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-0); }
+        ::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 8px; border: 2px solid var(--bg-0); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--bamboo); }
+
+        /* ===================== SIDEBAR (menu lateral — assinatura) ===================== */
+        .sidebar {
+            width: 240px; min-width: 240px; background: var(--bg-1);
+            border-right: 1px solid var(--border); display: flex; flex-direction: column;
+            position: fixed; top: 0; left: 0; bottom: 0; z-index: 200; overflow-y: auto;
+            scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border); }
+        .sidebar-brand { padding: 1.25rem 1rem 1rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .brand-logo {
+            width: 44px; height: 44px; background: var(--bamboo); border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: .65rem;
+            box-shadow: 0 6px 20px -6px var(--glow);
+        }
+        .brand-name { font-family: 'Cinzel', serif; font-size: .82rem; font-weight: 700; letter-spacing: .5px; color: var(--ink); line-height: 1.2; text-transform: uppercase; }
+        .brand-sub { font-size: .62rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; font-weight: 300; }
+        .brand-tag {
+            display: inline-flex; align-items: center; gap: 5px; background: var(--bamboo-dim);
+            border: 1px solid rgba(139,92,246,.25); color: var(--bamboo-light); font-size: .58rem; font-weight: 600;
+            letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; margin-top: .55rem;
+        }
+        .brand-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+        .site-nav { display: flex; flex-direction: column; padding: .5rem .5rem; }
+        .nav-inner { display: flex; flex-direction: column; gap: 1px; }
+        .nav-btn {
+            display: flex; align-items: center; gap: .6rem; width: 100%; background: none; border: none;
+            border-radius: 7px; padding: .55rem .75rem; font-family: 'Inter', sans-serif; font-size: .8rem; font-weight: 400;
+            color: var(--ink-3); cursor: pointer; text-align: left; white-space: nowrap;
+            transition: background .15s, color .15s; line-height: 1.4;
+        }
+        .nav-btn:hover { background: var(--bg-3); color: var(--ink); }
+        .nav-btn.active { background: var(--bamboo-dim); color: var(--bamboo-light); font-weight: 500; }
+        .nav-icon { width: 16px; height: 16px; flex-shrink: 0; opacity: .55; transition: opacity .15s; }
+        .nav-btn:hover .nav-icon { opacity: .85; }
+        .nav-btn.active .nav-icon { opacity: 1; }
+        .nav-label { flex: 1; }
+        .nav-badge { font-family:'JetBrains Mono',monospace; font-size:.55rem; background:var(--gold-dim); color:var(--gold-light); padding:1px 6px; border-radius:20px; letter-spacing:.5px; }
+        .nav-group-label { font-size: .58rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: .75rem .75rem .25rem; }
+        .sidebar-footer { margin-top: auto; padding: .75rem; border-top: 1px solid var(--border); flex-shrink: 0; }
+        .sidebar-theme-btn {
+            display: flex; align-items: center; gap: .5rem; width: 100%; background: var(--bg-2);
+            border: 1px solid var(--border); border-radius: 7px; padding: .5rem .75rem;
+            font-family: 'Inter', sans-serif; font-size: .75rem; color: var(--ink-3); cursor: pointer; transition: all .2s;
+        }
+        .sidebar-theme-btn:hover { background: var(--bg-3); color: var(--ink); }
+
+        /* ===================== LOGGED-IN TOP NAVBAR ===================== */
+        .page-wrapper { margin-left: 240px; }
+        @media (max-width: 900px) { .sidebar { transform: translateX(-100%); transition: transform .25s; } .sidebar.open { transform: translateX(0); } .page-wrapper { margin-left: 0; } }
+
+        .topbar {
+            position: sticky; top: 0; z-index: 150; height: 60px;
+            background: color-mix(in srgb, var(--bg-1) 82%, transparent);
+            backdrop-filter: blur(14px); border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: .75rem; padding: 0 1.25rem;
+        }
+        .topbar-menu { display: none; }
+        @media (max-width: 900px) { .topbar-menu { display: inline-flex; } }
+        .tb-search {
+            flex: 1; max-width: 360px; display: flex; align-items: center; gap: .5rem;
+            background: var(--bg-2); border: 1px solid var(--border); border-radius: 9px; padding: .45rem .7rem;
+            color: var(--muted); font-size: .8rem;
+        }
+        .tb-search input { flex: 1; background: none; border: none; outline: none; color: var(--ink); font-family: inherit; font-size: .8rem; }
+        .tb-spacer { flex: 1; }
+        .tb-pill {
+            display: inline-flex; align-items: center; gap: .4rem; background: var(--bg-2); border: 1px solid var(--border);
+            border-radius: 20px; padding: .3rem .7rem; font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--ink-2);
+        }
+        .tb-gold { color: var(--gold-light); }
+        .tb-icon-btn {
+            position: relative; width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--border);
+            background: var(--bg-2); color: var(--ink-3); display: grid; place-items: center; cursor: pointer; transition: all .2s; font-size: 1.05rem;
+        }
+        .tb-icon-btn:hover { color: var(--ink); border-color: var(--bamboo); }
+        .tb-dot { position: absolute; top: 8px; right: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--red); border: 2px solid var(--bg-2); }
+        .tb-avatar {
+            display: inline-flex; align-items: center; gap: .55rem; background: var(--bg-2); border: 1px solid var(--border);
+            border-radius: 30px; padding: .28rem .28rem .28rem .8rem; cursor: pointer; transition: border-color .2s;
+        }
+        .tb-avatar:hover { border-color: var(--bamboo); }
+        .tb-av-img { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,var(--bamboo),var(--bamboo-light)); display: grid; place-items: center; font-size: 15px; }
+
+        /* ===================== SHELL COMPONENTS ===================== */
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+        .card-sm { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; }
+        .tp-btn-primary {
+            background: linear-gradient(135deg,#7c4fe0,#8b5cf6); border: none; color: #fff; border-radius: 9px;
+            padding: .6rem 1.1rem; font-family: inherit; font-weight: 700; font-size: .82rem; cursor: pointer;
+            display: inline-flex; align-items: center; gap: .5rem; transition: filter .2s, transform .2s, box-shadow .2s;
+            box-shadow: 0 6px 22px -10px var(--glow);
+        }
+        .tp-btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 10px 26px -8px var(--glow); }
+        .tp-btn-ghost {
+            border: 1px solid var(--border-2); background: var(--surface); border-radius: 9px; padding: .55rem 1rem;
+            font-family: inherit; font-weight: 600; font-size: .82rem; color: var(--ink); cursor: pointer;
+            display: inline-flex; align-items: center; gap: .5rem; transition: border-color .2s, color .2s;
+        }
+        .tp-btn-ghost:hover { border-color: var(--bamboo); color: var(--bamboo-light); }
+        .tp-btn-gold {
+            border: 1px solid rgba(201,168,64,.4); background: var(--gold-dim); border-radius: 9px; padding: .55rem 1rem;
+            font-family: inherit; font-weight: 700; font-size: .82rem; color: var(--gold-light); cursor: pointer;
+            display: inline-flex; align-items: center; gap: .5rem; transition: all .2s;
+        }
+        .tp-btn-gold:hover { background: color-mix(in srgb, var(--gold) 25%, var(--gold-dim)); }
+        .tp-btn-primary:disabled { opacity: .45; cursor: not-allowed; filter: none; transform: none; box-shadow: none; }
+
+        .ds-input {
+            width: 100%; background: var(--bg-2); border: 1px solid var(--border); border-radius: 9px;
+            padding: .7rem .9rem; font-size: .85rem; color: var(--ink); font-family: inherit;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .ds-input::placeholder { color: var(--muted); }
+        .ds-input:focus { outline: none; border-color: var(--bamboo); box-shadow: 0 0 0 4px rgba(139,92,246,.15); }
+        .ds-input.is-error { border-color: var(--red); box-shadow: 0 0 0 4px rgba(232,112,112,.12); }
+
+        /* badges */
+        .badge { display: inline-flex; align-items: center; gap: .35rem; border-radius: 20px; padding: .22rem .65rem; font-family: 'JetBrains Mono', monospace; font-size: .66rem; font-weight: 500; letter-spacing: .5px; text-transform: uppercase; border: 1px solid transparent; }
+        .badge-voc { background: var(--bamboo-dim); color: var(--bamboo-light); border-color: rgba(139,92,246,.25); }
+        .badge-gold { background: var(--gold-dim); color: var(--gold-light); border-color: rgba(201,168,64,.3); }
+        .badge-ok { background: rgba(74,222,128,.12); color: var(--green); border-color: rgba(74,222,128,.25); }
+        .badge-warn { background: var(--gold-dim); color: var(--gold-light); }
+        .badge-crit { background: var(--red-dim); color: var(--red); border-color: rgba(232,112,112,.3); }
+        .badge-live { position: relative; background: linear-gradient(110deg, var(--bamboo) 0%, var(--bamboo-light) 40%, var(--bamboo) 70%); background-size: 200% 100%; color: #fff; animation: shimmer 2.5s linear infinite; }
+        @keyframes shimmer { from { background-position: 0 0; } to { background-position: -200% 0; } }
+
+        /* tooltip */
+        .ds-tip { position: relative; }
+        .ds-tip > .tip {
+            position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%) translateY(6px);
+            background: var(--bg-3); border: 1px solid var(--border-2); color: var(--ink); font-size: .68rem;
+            padding: .4rem .65rem; border-radius: 7px; white-space: nowrap; opacity: 0; pointer-events: none;
+            transition: all .25s cubic-bezier(.16,1,.3,1); z-index: 40; box-shadow: 0 8px 24px -8px rgba(0,0,0,.6);
+        }
+        .ds-tip:hover > .tip { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* modal */
+        .ds-modal { position: fixed; inset: 0; z-index: 300; display: none; place-items: center; padding: 1.5rem; }
+        .ds-modal.open { display: grid; }
+        .ds-modal .backdrop { position: absolute; inset: 0; background: rgba(5,4,10,.6); backdrop-filter: blur(6px); animation: mfade .3s ease; }
+        .ds-modal .panel { position: relative; animation: mrise .5s cubic-bezier(.16,1,.3,1); }
+        @keyframes mfade { from { opacity: 0; } }
+        @keyframes mrise { from { opacity: 0; transform: translateY(24px) scale(.97); } }
+
+        /* ===================== SIGNATURE: TRANSPARENT LETTERING ===================== */
+        .lettering-outline { color: transparent; -webkit-text-stroke: 1.5px var(--ink); }
+        .lettering-outline-bamboo { color: transparent; -webkit-text-stroke: 1.5px var(--bamboo-light); text-shadow: 0 0 40px var(--glow); }
+        .lettering-gradient { background: linear-gradient(120deg, var(--ink) 0%, var(--bamboo-light) 55%, var(--gold-light) 110%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .lettering-shimmer { background: linear-gradient(110deg, var(--muted) 20%, var(--ink) 40%, var(--ink) 60%, var(--muted) 80%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 3.5s linear infinite; }
+        .lettering-glow { color: var(--ink); text-shadow: 0 0 24px var(--glow), 0 0 60px var(--glow); }
+
+        /* ===================== ATMOSPHERE ===================== */
+        .bg-grid { background-size: 44px 44px; background-image: linear-gradient(to right, rgba(139,92,246,.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(139,92,246,.05) 1px, transparent 1px); }
+        .bg-dots { background-size: 22px 22px; background-image: radial-gradient(rgba(139,92,246,.10) 1px, transparent 1px); }
+        .orb { position: absolute; border-radius: 50%; filter: blur(70px); pointer-events: none; }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-26px)} }
+        .float { animation: float 9s ease-in-out infinite; }
+        .float-slow { animation: float 15s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spin-slow { animation: spin 9s linear infinite; }
+        .noise { position: fixed; inset: 0; opacity: .04; z-index: 250; pointer-events: none; mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+        /* reveal */
+        .reveal { opacity: 0; transform: translateY(2rem); transition: all 1s cubic-bezier(.16,1,.3,1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .d1 { transition-delay: .1s; } .d2 { transition-delay: .2s; } .d3 { transition-delay: .3s; } .d4 { transition-delay: .4s; } .d5 { transition-delay: .5s; }
+
+        /* flashlight card */
+        .flashlight { position: relative; overflow: hidden; }
+        .flashlight::before { content:""; position: absolute; inset: 0; background: radial-gradient(400px circle at var(--mx,-100%) var(--my,-100%), var(--glow), transparent 55%); opacity: 0; transition: opacity .4s; pointer-events: none; z-index: 1; }
+        .flashlight:hover::before { opacity: 1; }
+
+        /* beam button */
+        .btn-beam { position: relative; overflow: hidden; z-index: 1; }
+        .btn-beam::before { content:""; position: absolute; inset: -2px; z-index: -1; border-radius: inherit;
+            background: conic-gradient(from 90deg at 50% 50%, transparent 0%, var(--bamboo) 45%, var(--gold) 55%, transparent 100%);
+            animation: spin 4s linear infinite; opacity: 0; transition: opacity .3s; }
+        .btn-beam:hover::before { opacity: 1; }
+
+        /* marquee */
+        @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        .marquee { display: flex; width: max-content; animation: marquee 34s linear infinite; }
+        .marquee-mask { -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent); }
+
+        /* layout helpers */
+        .wrap { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; }
+        .section { position: relative; border-bottom: 1px solid var(--border); overflow: hidden; }
+        .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: .7rem; text-transform: uppercase; letter-spacing: .28em; color: var(--bamboo-light); }
+        .grid { display: grid; gap: 1rem; }
+        .swatch { cursor: pointer; transition: transform .25s cubic-bezier(.16,1,.3,1); }
+        .swatch:hover { transform: translateY(-4px); }
+        .icon-tile { transition: transform .25s cubic-bezier(.16,1,.3,1), background .2s, color .2s; }
+        .icon-tile:hover { transform: translateY(-4px); background: var(--bamboo-dim); color: var(--bamboo-light); }
+
+        #progress { position: fixed; top: 0; left: 0; height: 2px; width: 0; z-index: 400; background: linear-gradient(90deg, var(--bamboo), var(--gold)); }
+        #toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(240%); background: var(--bg-3); border: 1px solid var(--border-2); color: var(--ink); padding: .6rem 1.1rem; border-radius: 30px; font-size: .8rem; z-index: 420; transition: transform .4s cubic-bezier(.16,1,.3,1); box-shadow: 0 12px 30px -12px rgba(0,0,0,.7); }
+        #toast.show { transform: translateX(-50%) translateY(0); }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+            .reveal { opacity: 1; transform: none; }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="progress"></div>
+    <div class="noise"></div>
+    <div id="toast">Copiado ✦</div>
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar(false)" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:199"></div>
+
+    <!-- ============ SIDEBAR (menu lateral) ============ -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-logo">🐼</div>
+            <div class="brand-name">Tibia<span style="color:var(--gold)">Panda</span></div>
+            <div class="brand-sub">Design System</div>
+            <span class="brand-tag"><span class="brand-dot"></span> v3.0 · Live</span>
+        </div>
+        <nav class="site-nav">
+            <div class="nav-inner">
+                <div class="nav-group-label">Sistema</div>
+                <button class="nav-btn active" onclick="go('hero',this)"><iconify-icon class="nav-icon" icon="solar:home-smile-bold"></iconify-icon><span class="nav-label">Visão geral</span></button>
+                <button class="nav-btn" onclick="go('type',this)"><iconify-icon class="nav-icon" icon="solar:text-bold"></iconify-icon><span class="nav-label">Tipografia</span></button>
+                <button class="nav-btn" onclick="go('color',this)"><iconify-icon class="nav-icon" icon="solar:pallete-2-bold"></iconify-icon><span class="nav-label">Cores</span></button>
+
+                <div class="nav-group-label">Interface</div>
+                <button class="nav-btn" onclick="go('components',this)"><iconify-icon class="nav-icon" icon="solar:widget-5-bold"></iconify-icon><span class="nav-label">Componentes</span></button>
+                <button class="nav-btn" onclick="go('nav',this)"><iconify-icon class="nav-icon" icon="solar:hamburger-menu-bold"></iconify-icon><span class="nav-label">Navegação</span></button>
+                <button class="nav-btn" onclick="go('icons',this)"><iconify-icon class="nav-icon" icon="solar:star-bold"></iconify-icon><span class="nav-label">Ícones</span></button>
+                <button class="nav-btn" onclick="go('motion',this)"><iconify-icon class="nav-icon" icon="solar:bolt-bold"></iconify-icon><span class="nav-label">Movimento</span></button>
+
+                <div class="nav-group-label">Exemplo · Ferramentas</div>
+                <button class="nav-btn" onclick="go('hero',this)"><iconify-icon class="nav-icon" icon="solar:magic-stick-3-bold"></iconify-icon><span class="nav-label">Imbuements</span></button>
+                <button class="nav-btn" onclick="go('hero',this)"><iconify-icon class="nav-icon" icon="solar:box-bold"></iconify-icon><span class="nav-label">Task Delivery</span><span class="nav-badge">LIVE</span></button>
+                <button class="nav-btn" onclick="go('hero',this)"><iconify-icon class="nav-icon" icon="solar:users-group-rounded-bold"></iconify-icon><span class="nav-label">Party Finder</span></button>
+            </div>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="sidebar-theme-btn" onclick="toggleTheme()"><iconify-icon id="themeIcon" icon="solar:moon-bold"></iconify-icon><span id="themeLabel">Tema escuro</span></button>
+        </div>
+    </aside>
+
+    <!-- ============ PAGE ============ -->
+    <div class="page-wrapper">
+
+        <!-- LOGGED-IN TOP NAVBAR -->
+        <div class="topbar">
+            <button class="tb-icon-btn topbar-menu" onclick="toggleSidebar(true)"><iconify-icon icon="solar:hamburger-menu-linear"></iconify-icon></button>
+            <div class="tb-search"><iconify-icon icon="solar:magnifer-linear"></iconify-icon><input placeholder="Buscar boneco, boss, item…" /></div>
+            <div class="tb-spacer"></div>
+            <span class="tb-pill" title="Mundo / vocação / level">Yonabra · <span style="color:var(--bamboo-light)">MS</span> 960</span>
+            <span class="tb-pill tb-gold"><iconify-icon icon="solar:wad-of-money-bold"></iconify-icon> 4.2kk</span>
+            <button class="tb-icon-btn" title="Notificações"><iconify-icon icon="solar:bell-linear"></iconify-icon><span class="tb-dot"></span></button>
+            <button class="tb-avatar"><span class="tb-av-img">🐼</span><iconify-icon icon="solar:alt-arrow-down-linear" style="font-size:.8rem;color:var(--muted)"></iconify-icon></button>
+        </div>
+
+        <!-- ============ HERO ============ -->
+        <header class="section" id="hero" style="min-height: calc(100vh - 60px); display:flex; flex-direction:column; justify-content:center;">
+            <div class="bg-grid" style="position:absolute; inset:0; opacity:.7;"></div>
+            <div class="orb float" style="width:560px; height:560px; top:-160px; right:-120px; background:radial-gradient(circle at 30% 30%, rgba(139,92,246,.45), transparent 70%);"></div>
+            <div class="orb float-slow" style="width:480px; height:480px; bottom:-180px; left:-140px; background:radial-gradient(circle, rgba(201,168,64,.20), transparent 70%);"></div>
+            <div style="position:absolute; inset:0; background:radial-gradient(120% 80% at 50% 0%, transparent 40%, var(--bg-0) 100%);"></div>
+
+            <div class="wrap" style="position:relative; padding-top:3rem; padding-bottom:3rem;">
+                <div class="reveal" style="display:inline-flex; align-items:center; gap:.6rem; margin-bottom:1.75rem;">
+                    <span class="brand-dot"></span>
+                    <span class="eyebrow">O Reino do Design · Tibia Panda</span>
+                </div>
+                <h1 class="font-display reveal d1" style="font-weight:900; line-height:.92; text-transform:uppercase; letter-spacing:-.01em; font-size:clamp(3rem,10vw,8.5rem); margin-bottom:1.5rem;">
+                    <span style="display:block;" class="lettering-glow">Tibia</span>
+                    <span style="display:block;" class="lettering-outline-bamboo">Panda</span>
+                </h1>
+                <p class="reveal d2" style="max-width:540px; color:var(--ink-2); font-size:1.1rem; line-height:1.7; font-weight:300;">
+                    A linguagem visual da comunidade. Bambu, ouro e pergaminho sobre a penumbra —
+                    <span style="color:var(--ink)">tipografia, cor, componentes e movimento</span> reunidos num só reino.
+                </p>
+                <div class="reveal d3" style="display:flex; flex-wrap:wrap; gap:.75rem; margin-top:2.25rem;">
+                    <button class="tp-btn-primary" onclick="go('components')"><iconify-icon icon="solar:widget-5-bold"></iconify-icon> Explorar componentes</button>
+                    <button class="tp-btn-gold btn-beam" onclick="go('color')"><iconify-icon icon="solar:pallete-2-bold"></iconify-icon> Ver as cores</button>
+                    <button class="tp-btn-ghost">Baixar o kit</button>
+                </div>
+
+                <!-- stat / token strip -->
+                <div class="reveal d4 grid" style="grid-template-columns:repeat(2,1fr); gap:.75rem; max-width:520px; margin-top:2.75rem;">
+                    <div class="card-sm flashlight" onmousemove="fl(event,this)">
+                        <div class="eyebrow" style="margin-bottom:.4rem;">Display</div>
+                        <div class="font-display" style="font-size:1.5rem; font-weight:700;">Cinzel</div>
+                    </div>
+                    <div class="card-sm flashlight" onmousemove="fl(event,this)">
+                        <div class="eyebrow" style="margin-bottom:.4rem;">Acentos</div>
+                        <div style="display:flex; gap:.4rem;"><span style="width:26px;height:26px;border-radius:7px;background:var(--bamboo)"></span><span style="width:26px;height:26px;border-radius:7px;background:var(--gold)"></span><span style="width:26px;height:26px;border-radius:7px;background:var(--red)"></span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- marquee -->
+            <div class="marquee-mask" style="position:relative; border-top:1px solid var(--border); background:color-mix(in srgb, var(--bg-1) 60%, transparent); padding:.9rem 0; overflow:hidden;">
+                <div class="marquee mono" style="font-size:.72rem; text-transform:uppercase; letter-spacing:.3em; color:var(--muted);">
+                    <span style="display:flex; gap:2rem; padding-right:2rem;"><span>Cinzel</span><span style="color:var(--bamboo-light)">✦</span><span>Inter</span><span style="color:var(--gold-light)">✦</span><span>JetBrains Mono</span><span style="color:var(--bamboo-light)">✦</span><span>Bambu</span><span style="color:var(--gold-light)">✦</span><span>Ouro</span><span style="color:var(--bamboo-light)">✦</span><span>Pergaminho</span><span style="color:var(--gold-light)">✦</span></span>
+                    <span style="display:flex; gap:2rem; padding-right:2rem;" aria-hidden="true"><span>Cinzel</span><span style="color:var(--bamboo-light)">✦</span><span>Inter</span><span style="color:var(--gold-light)">✦</span><span>JetBrains Mono</span><span style="color:var(--bamboo-light)">✦</span><span>Bambu</span><span style="color:var(--gold-light)">✦</span><span>Ouro</span><span style="color:var(--gold-light)">✦</span><span>Pergaminho</span><span style="color:var(--gold-light)">✦</span></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- ============ TYPOGRAPHY ============ -->
+        <section class="section" id="type">
+            <div class="bg-dots" style="position:absolute; inset:0; opacity:.4;"></div>
+            <div class="wrap" style="position:relative; padding:6rem 1.5rem;">
+                <div class="reveal" style="margin-bottom:3rem;">
+                    <div class="eyebrow" style="margin-bottom:1rem;">01 — Tipografia</div>
+                    <h2 class="font-display" style="font-size:clamp(2.2rem,5vw,3.75rem); font-weight:700; letter-spacing:-.01em;">O alfabeto do reino</h2>
+                    <p style="max-width:520px; margin-top:1rem; color:var(--ink-2); font-weight:300; line-height:1.7;">Três vozes: <span class="font-display" style="color:var(--ink)">Cinzel</span> para títulos épicos, <span style="color:var(--ink)">Inter</span> para leitura e <span class="mono" style="color:var(--ink)">JetBrains Mono</span> para dados e rótulos.</p>
+                </div>
+
+                <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); margin-bottom:2.5rem;">
+                    <div class="reveal card flashlight" onmousemove="fl(event,this)">
+                        <div class="eyebrow" style="margin-bottom:1.25rem;">Display · Serif</div>
+                        <div class="font-display" style="font-size:3.5rem; font-weight:900; line-height:1; margin-bottom:.75rem;">Aa</div>
+                        <div class="font-display" style="font-size:1.05rem; font-weight:700;">Cinzel</div>
+                        <div class="mono" style="font-size:.72rem; color:var(--muted); margin-top:.25rem;">700 · 900 · uppercase</div>
+                    </div>
+                    <div class="reveal d1 card flashlight" onmousemove="fl(event,this)">
+                        <div class="eyebrow" style="margin-bottom:1.25rem;">Body · Sans</div>
+                        <div style="font-size:3.5rem; font-weight:600; line-height:1; margin-bottom:.75rem;">Aa</div>
+                        <div style="font-size:1.05rem; font-weight:500;">Inter</div>
+                        <div class="mono" style="font-size:.72rem; color:var(--muted); margin-top:.25rem;">300 · 400 · 500 · 600</div>
+                    </div>
+                    <div class="reveal d2 card flashlight" onmousemove="fl(event,this)">
+                        <div class="eyebrow" style="margin-bottom:1.25rem;">Mono · Dados</div>
+                        <div class="mono" style="font-size:3.5rem; font-weight:500; line-height:1; margin-bottom:.75rem;">Aa</div>
+                        <div class="mono" style="font-size:1.05rem;">JetBrains Mono</div>
+                        <div class="mono" style="font-size:.72rem; color:var(--muted); margin-top:.25rem;">400 · 500</div>
+                    </div>
+                </div>
+
+                <!-- type scale -->
+                <div class="reveal card" style="padding:0; overflow:hidden;">
+                    <div class="grid mono" style="grid-template-columns:1fr auto auto; gap:1rem; padding:.9rem 1.5rem; border-bottom:1px solid var(--border); font-size:.62rem; text-transform:uppercase; letter-spacing:.2em; color:var(--muted);">
+                        <div>Amostra</div><div style="text-align:right;">Tam / Altura</div><div style="text-align:right; min-width:90px;">Fonte · Peso</div>
+                    </div>
+                    <div id="scaleRows"></div>
+                </div>
+
+                <!-- lettering showcase -->
+                <div class="reveal" style="margin-top:2.5rem;">
+                    <div class="eyebrow" style="margin-bottom:1.25rem;">Lettering — a assinatura</div>
+                    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));">
+                        <div class="card" style="display:grid; place-items:center; min-height:180px; background:var(--bg-1);"><span class="font-display lettering-outline-bamboo" style="font-size:3.5rem; font-weight:900; text-transform:uppercase;">Bambu</span></div>
+                        <div class="card" style="display:grid; place-items:center; min-height:180px;"><span class="font-display lettering-gradient" style="font-size:3.5rem; font-weight:900; text-transform:uppercase;">Ouro</span></div>
+                        <div class="card" style="display:grid; place-items:center; min-height:180px;"><span class="font-display lettering-shimmer" style="font-size:3.5rem; font-weight:900; text-transform:uppercase;">Brilho</span></div>
+                        <div class="card bg-grid" style="display:grid; place-items:center; min-height:180px;"><span class="font-display lettering-glow" style="font-size:3.5rem; font-weight:900; text-transform:uppercase;">Glow</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ COLOR ============ -->
+        <section class="section" id="color">
+            <div class="orb float" style="width:420px; height:420px; top:-120px; right:0; background:radial-gradient(circle, rgba(139,92,246,.18), transparent 70%);"></div>
+            <div class="wrap" style="position:relative; padding:6rem 1.5rem;">
+                <div class="reveal" style="margin-bottom:2.5rem;">
+                    <div class="eyebrow" style="margin-bottom:1rem;">02 — Sistema de cores</div>
+                    <h2 class="font-display" style="font-size:clamp(2.2rem,5vw,3.75rem); font-weight:700;">Bambu, ouro & penumbra</h2>
+                    <p style="max-width:560px; margin-top:1rem; color:var(--ink-2); font-weight:300; line-height:1.7;">Fundo escuro por padrão. <span style="color:var(--bamboo-light)">Bambu</span> (roxo) é a ação principal, <span style="color:var(--gold-light)">ouro</span> marca conquista e destaque, <span style="color:var(--red)">vermelho</span> é alerta. Clique num tom para copiar.</p>
+                </div>
+
+                <div class="reveal" style="margin-bottom:.6rem;"><div class="eyebrow" style="color:var(--muted); margin-bottom:.6rem;">Fundos · penumbra</div><div id="bgRamp" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(90px,1fr));"></div></div>
+                <div class="reveal d1" style="margin-bottom:.6rem;"><div class="eyebrow" style="color:var(--muted); margin-bottom:.6rem;">Bambu · primário</div><div id="bambooRamp" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(90px,1fr));"></div></div>
+                <div class="reveal d2" style="margin-bottom:2rem;"><div class="eyebrow" style="color:var(--muted); margin-bottom:.6rem;">Ouro · vermelho · verde</div><div id="accentRamp" class="grid" style="grid-template-columns:repeat(auto-fit,minmax(90px,1fr));"></div></div>
+
+                <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));">
+                    <div class="reveal card swatch" data-copy="#8b5cf6"><div style="height:80px; border-radius:9px; background:var(--bamboo); margin-bottom:1rem; box-shadow:0 8px 26px -12px var(--glow);"></div><div style="font-weight:600;">Bambu / Primário</div><div class="mono" style="font-size:.72rem; color:var(--muted); margin-top:.35rem;">HEX #8b5cf6</div><div class="mono" style="font-size:.72rem; color:var(--muted);">RGB 139 92 246 · HSL 258 90% 66%</div></div>
+                    <div class="reveal d1 card swatch" data-copy="#c9a840"><div style="height:80px; border-radius:9px; background:var(--gold); margin-bottom:1rem;"></div><div style="font-weight:600;">Ouro / Destaque</div><div class="mono" style="font-size:.72rem; color:var(--muted); margin-top:.35rem;">HEX #c9a840</div><div class="mono" style="font-size:.72rem; color:var(--muted);">RGB 201 168 64 · HSL 44 52% 52%</div></div>
+                    <div class="reveal d2 card swatch" data-copy="#0d0c12"><div style="height:80px; border-radius:9px; background:var(--bg-0); border:1px solid var(--border); margin-bottom:1rem;"></div><div style="font-weight:600;">Penumbra / Fundo</div><div class="mono" style="font-size:.72rem; color:var(--muted); margin-top:.35rem;">HEX #0d0c12</div><div class="mono" style="font-size:.72rem; color:var(--muted);">RGB 13 12 18 · HSL 250 20% 6%</div></div>
+                </div>
+
+                <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); margin-top:1rem;">
+                    <div class="reveal card">
+                        <div class="eyebrow" style="color:var(--muted); margin-bottom:1rem;">Semântica / Feedback</div>
+                        <div style="display:flex; flex-direction:column; gap:.7rem;">
+                            <div style="display:flex; align-items:center; gap:.7rem;"><span style="width:30px;height:30px;border-radius:8px;background:var(--green)"></span><div><div style="font-size:.85rem; font-weight:500;">Sucesso · verificado</div><div class="mono" style="font-size:.66rem; color:var(--muted);">#4ade80</div></div></div>
+                            <div style="display:flex; align-items:center; gap:.7rem;"><span style="width:30px;height:30px;border-radius:8px;background:var(--gold)"></span><div><div style="font-size:.85rem; font-weight:500;">Atenção · pendente</div><div class="mono" style="font-size:.66rem; color:var(--muted);">#c9a840</div></div></div>
+                            <div style="display:flex; align-items:center; gap:.7rem;"><span style="width:30px;height:30px;border-radius:8px;background:var(--red)"></span><div><div style="font-size:.85rem; font-weight:500;">Crítico · erro</div><div class="mono" style="font-size:.66rem; color:var(--muted);">#e87070</div></div></div>
+                            <div style="display:flex; align-items:center; gap:.7rem;"><span style="width:30px;height:30px;border-radius:8px;background:var(--bamboo)"></span><div><div style="font-size:.85rem; font-weight:500;">Info · ação</div><div class="mono" style="font-size:.66rem; color:var(--muted);">#8b5cf6</div></div></div>
+                        </div>
+                    </div>
+                    <div class="reveal d1 card">
+                        <div class="eyebrow" style="color:var(--muted); margin-bottom:1rem;">Uso contextual</div>
+                        <table style="width:100%; border-collapse:collapse; font-size:.78rem;" class="mono">
+                            <tbody>
+                                <tr><td style="color:var(--muted); padding:.45rem 0; border-bottom:1px solid var(--border);">texto</td><td style="padding:.45rem 0; border-bottom:1px solid var(--border);">ink #eae8f2 · muted #63607a</td></tr>
+                                <tr><td style="color:var(--muted); padding:.45rem 0; border-bottom:1px solid var(--border);">fundo</td><td style="padding:.45rem 0; border-bottom:1px solid var(--border);">bg-0…bg-3 · surface</td></tr>
+                                <tr><td style="color:var(--muted); padding:.45rem 0; border-bottom:1px solid var(--border);">borda</td><td style="padding:.45rem 0; border-bottom:1px solid var(--border);">#2b2938</td></tr>
+                                <tr><td style="color:var(--muted); padding:.45rem 0; border-bottom:1px solid var(--border);">hover</td><td style="padding:.45rem 0; border-bottom:1px solid var(--border);">bamboo / bg-3</td></tr>
+                                <tr><td style="color:var(--muted); padding:.45rem 0;">disabled</td><td style="padding:.45rem 0;">opacity 45%</td></tr>
+                            </tbody>
+                        </table>
+                        <div style="display:flex; gap:.5rem; margin-top:1rem;"><span class="badge badge-voc">AA ✓ em corpo</span><span class="badge badge-gold">Ambos os temas</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ COMPONENTS ============ -->
+        <section class="section" id="components">
+            <div class="bg-grid" style="position:absolute; inset:0; opacity:.4;"></div>
+            <div class="wrap" style="position:relative; padding:6rem 1.5rem;">
+                <div class="reveal" style="margin-bottom:2.5rem;">
+                    <div class="eyebrow" style="margin-bottom:1rem;">03 — Componentes</div>
+                    <h2 class="font-display" style="font-size:clamp(2.2rem,5vw,3.75rem); font-weight:700;">Peças do arsenal</h2>
+                </div>
+                <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr));">
+                    <div class="reveal card">
+                        <div class="eyebrow" style="color:var(--muted); margin-bottom:1.25rem;">Botões</div>
+                        <div style="display:flex; flex-wrap:wrap; gap:.6rem; align-items:center;">
+                            <button class="tp-btn-primary">Primário</button>
+                            <button class="tp-btn-gold btn-beam">Ouro</button>
+                            <button class="tp-btn-ghost">Ghost</button>
+                            <button class="tb-icon-btn"><iconify-icon icon="solar:heart-bold"></iconify-icon></button>
+                            <button class="tp-btn-primary" disabled>Desativado</button>
+                        </div>
+                    </div>
+                    <div class="reveal d1 card">
+                        <div class="eyebrow" style="color:var(--muted); margin-bottom:1.25rem;">Inputs</div>
+                        <label class="mono" style="font-size:.62rem; text-transform:uppercase; letter-spacing:.15em; color:var(--muted); display:block; margin-bottom:.4rem;">Nome do boneco</label>
+                        <input class="ds-input" placeholder="Ex.: Panda Knight" style="margin-bottom:.6rem;" />
+                        <div class="grid" style="grid-template-columns:1fr 1fr; gap:.6rem;"><input class="ds-input" placeholder="Mundo" /><input class="ds-input is-error" value="lvl inválido" /></div>
+                        <p style="font-size:.72rem; color:var(--red); margin:.5rem 0 0;">Informe um level entre 1 e 5000.</p>
+                    </div>
+                    <div class="reveal card">
+                        <div class="eyebrow" style="color:var(--muted); margin-bottom:1.25rem;">Card · hunt</div>
+                        <div class="card-sm flashlight" onmousemove="fl(event,this)" style="position:relative;">
+                            <div style="position:relative; z-index:2; display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:.9rem;">
+                                <div><div class="font-display" style="font-size:1.15rem; font-weight:700;">Crypt Construct</div><div class="mono" style="font-size:.68rem; color:var(--muted);">Hunt · 2h · solo</div></div>
+                                <span class="badge badge-live">Novo</span>
+                            </div>
+                            <div class="mono" style="position:relative; z-index:2; display:grid; grid-template-columns:repeat(3,1fr); text-align:center; gap:.5rem;">
+                                <div><div style="font-size:1.05rem; font-weight:500;">+1.2M</div><div style="font-size:.6rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em;">XP/h</div></div>
+                                <div><div style="font-size:1.05rem; font-weight:500; color:var(--gold-light);">+340k</div><div style="font-size:.6rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em;">Loot/h</div></div>
+                                <div><div style="font-size:1.05rem; font-weight:500;">98%</div><div style="font-size:.6rem; color:var(--muted); text-transform:uppercase; letter-spacing:.1em;">Aprov.</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="reveal d1 card">
+                        <div class="eyebrow" style="color:var(--muted); margin-bottom:1.25rem;">Badges & Tooltips</div>
+                        <div style="display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.25rem;">
+                            <span class="badge badge-voc">EK</span><span class="badge badge-voc">MS</span><span class="badge badge-voc">ED</span><span class="badge badge-voc">RP</span>
+                            <span class="badge badge-ok">Verificado</span><span class="badge badge-warn">Pendente</span><span class="badge badge-crit">Banido</span><span class="badge badge-gold">Premium</span>
+                        </div>
+                        <div style="display:flex; gap:1.5rem; align-items:center;">
+                            <div class="ds-tip"><span class="tip">Aparece com spring ✦</span><button class="tp-btn-ghost">Hover me</button></div>
+                            <div class="ds-tip"><span class="tip">Verifique um boneco 🐼</span><span style="display:inline-flex; align-items:center; gap:.4rem; color:var(--muted); font-size:.82rem;"><iconify-icon icon="solar:info-circle-linear"></iconify-icon> Info</span></div>
+                        </div>
+                    </div>
+                    <div class="reveal card" style="grid-column:1/-1; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;">
+                        <div><div class="eyebrow" style="color:var(--muted); margin-bottom:.5rem;">Modal</div><p style="color:var(--ink-2); font-size:.88rem; max-width:440px; margin:0;">Overlay com blur, entrada em spring e painel de vidro escuro. Mesmo ritmo de todas as seções: eyebrow mono, hairline e reveal ao rolar.</p></div>
+                        <button class="tp-btn-primary" onclick="openModal()"><iconify-icon icon="solar:square-top-down-bold"></iconify-icon> Abrir modal</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ NAVIGATION ============ -->
+        <section class="section" id="nav">
+            <div class="wrap" style="position:relative; padding:6rem 1.5rem;">
+                <div class="reveal" style="margin-bottom:2.5rem;">
+                    <div class="eyebrow" style="margin-bottom:1rem;">04 — Navegação</div>
+                    <h2 class="font-display" style="font-size:clamp(2.2rem,5vw,3.75rem); font-weight:700;">Menu lateral & navbar</h2>
+                    <p style="max-width:600px; margin-top:1rem; color:var(--ink-2); font-weight:300; line-height:1.7;">O <span style="color:var(--ink)">menu lateral</span> é a assinatura do modelo Tibia — ajuda o usuário a se localizar e nunca vira menu de topo. Quando o jogador está logado, uma <span style="color:var(--ink)">navbar superior</span> aparece com busca, saldo, notificações e perfil. (Os dois estão vivos no topo e na esquerda desta página.)</p>
+                </div>
+                <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
+                    <div class="reveal card">
+                        <div class="eyebrow" style="color:var(--muted); margin-bottom:1rem;">Menu lateral · item</div>
+                        <div style="background:var(--bg-1); border:1px solid var(--border); border-radius:10px; padding:.5rem;">
+                            <div class="nav-group-label">Ferramentas</div>
+                            <button class="nav-btn active"><iconify-icon class="nav-icon" icon="solar:magic-stick-3-bold"></iconify-icon><span class="nav-label">Imbuements</span></button>
+                            <button class="nav-btn"><iconify-icon class="nav-icon" icon="solar:box-bold"></iconify-icon><span class="nav-label">Task Delivery</span><span class="nav-badge">LIVE</span></button>
+                            <button class="nav-btn"><iconify-icon class="nav-icon" icon="solar:users-group-rounded-bold"></iconify-icon><span class="nav-label">Party Finder</span></button>
+                        </div>
+                        <p class="mono" style="font-size:.66rem; color:var(--muted); margin:.9rem 0 0;">.nav-btn · .nav-btn.active · .nav-group-label</p>
+                    </div>
+                    <div class="reveal d1 card">
+                        <div class="eyebrow" style="color:var(--muted); margin-bottom:1rem;">Navbar logado · estados</div>
+                        <div style="display:flex; align-items:center; gap:.5rem; background:var(--bg-1); border:1px solid var(--border); border-radius:10px; padding:.55rem .7rem; flex-wrap:wrap;">
+                            <span class="tb-pill">Yonabra · <span style="color:var(--bamboo-light)">MS</span> 960</span>
+                            <span class="tb-pill tb-gold"><iconify-icon icon="solar:wad-of-money-bold"></iconify-icon> 4.2kk</span>
+                            <button class="tb-icon-btn" style="width:34px;height:34px;"><iconify-icon icon="solar:bell-linear"></iconify-icon><span class="tb-dot"></span></button>
+                            <span class="tb-avatar"><span class="tb-av-img" style="width:26px;height:26px;font-size:13px;">🐼</span></span>
+                        </div>
+                        <p class="mono" style="font-size:.66rem; color:var(--muted); margin:.9rem 0 0;">.topbar · .tb-pill · .tb-icon-btn · .tb-avatar</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ ICONS ============ -->
+        <section class="section" id="icons">
+            <div class="wrap" style="position:relative; padding:6rem 1.5rem;">
+                <div class="reveal" style="margin-bottom:2.5rem;">
+                    <div class="eyebrow" style="margin-bottom:1rem;">05 — Ícones</div>
+                    <h2 class="font-display" style="font-size:clamp(2.2rem,5vw,3.75rem); font-weight:700;">Iconify · Solar</h2>
+                    <p style="max-width:520px; margin-top:1rem; color:var(--ink-2); font-weight:300; line-height:1.7;">Conjunto <span class="mono" style="color:var(--ink)">solar</span> em bold e linear — traço consistente que combina com a penumbra. Além dos SVGs inline do próprio site.</p>
+                </div>
+                <div id="iconGrid" class="grid" style="grid-template-columns:repeat(auto-fill,minmax(84px,1fr));"></div>
+            </div>
+        </section>
+
+        <!-- ============ MOTION ============ -->
+        <section class="section" id="motion">
+            <div class="orb float-slow" style="width:460px; height:460px; bottom:-160px; right:-100px; background:radial-gradient(circle, rgba(201,168,64,.14), transparent 70%);"></div>
+            <div class="wrap" style="position:relative; padding:6rem 1.5rem;">
+                <div class="reveal" style="margin-bottom:2.5rem;">
+                    <div class="eyebrow" style="margin-bottom:1rem;">06 — Movimento</div>
+                    <h2 class="font-display" style="font-size:clamp(2.2rem,5vw,3.75rem); font-weight:700;">O reino respira</h2>
+                    <p style="max-width:540px; margin-top:1rem; color:var(--ink-2); font-weight:300; line-height:1.7;">Transições em <span class="mono" style="color:var(--ink)">cubic-bezier(.16,1,.3,1)</span> — a curva calma e confiante. Respeita <span class="mono" style="color:var(--ink)">prefers-reduced-motion</span>.</p>
+                </div>
+                <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(150px,1fr));">
+                    <div class="reveal card" style="aspect-ratio:1; display:flex; flex-direction:column; justify-content:space-between;"><div style="flex:1; display:grid; place-items:center;"><span class="float" style="width:52px;height:52px;border-radius:12px;background:var(--bamboo)"></span></div><div class="mono" style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.15em;">float · 9s</div></div>
+                    <div class="reveal d1 card" style="aspect-ratio:1; display:flex; flex-direction:column; justify-content:space-between;"><div style="flex:1; display:grid; place-items:center;"><iconify-icon class="spin-slow" icon="solar:settings-bold-duotone" style="font-size:3rem; color:var(--bamboo-light);"></iconify-icon></div><div class="mono" style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.15em;">spin · 9s</div></div>
+                    <div class="reveal d2 card" style="aspect-ratio:1; display:flex; flex-direction:column; justify-content:space-between;"><div style="flex:1; display:grid; place-items:center;"><span class="font-display lettering-shimmer" style="font-size:2rem; font-weight:900;">Aa</span></div><div class="mono" style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.15em;">shimmer</div></div>
+                    <div class="reveal d3 card" style="aspect-ratio:1; display:flex; flex-direction:column; justify-content:space-between;"><div style="flex:1; display:grid; place-items:center;"><span class="font-display lettering-glow" style="font-size:2rem; font-weight:900;">Aa</span></div><div class="mono" style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.15em;">glow</div></div>
+                    <div class="reveal card flashlight" onmousemove="fl(event,this)" style="aspect-ratio:1; display:flex; flex-direction:column; justify-content:space-between;"><div style="flex:1; display:grid; place-items:center; position:relative; z-index:2;"><iconify-icon icon="solar:flashlight-bold" style="font-size:2.4rem; color:var(--gold-light);"></iconify-icon></div><div class="mono" style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.15em; position:relative; z-index:2;">flashlight</div></div>
+                    <div class="reveal d1 card" style="aspect-ratio:1; display:flex; flex-direction:column; justify-content:space-between;"><div style="flex:1; display:grid; place-items:center;"><button class="tp-btn-gold btn-beam" style="font-size:.7rem;">Beam</button></div><div class="mono" style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.15em;">beam</div></div>
+                    <div class="reveal d2 card" style="aspect-ratio:1; display:flex; flex-direction:column; justify-content:space-between;"><div style="flex:1; display:grid; place-items:center;"><span class="badge badge-live">Live</span></div><div class="mono" style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.15em;">pulse</div></div>
+                    <div class="reveal d3 card" style="aspect-ratio:1; display:flex; flex-direction:column; justify-content:space-between; overflow:hidden;"><div style="flex:1; display:grid; place-items:center; width:100%; overflow:hidden;"><div class="marquee mono" style="font-size:.72rem; color:var(--muted); white-space:nowrap;"><span style="padding-right:1rem;">panda ✦ panda ✦</span><span style="padding-right:1rem;">panda ✦ panda ✦</span></div></div><div class="mono" style="font-size:.62rem; color:var(--muted); text-transform:uppercase; letter-spacing:.15em;">marquee</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ FOOTER ============ -->
+        <footer style="position:relative; background:var(--bg-1); overflow:hidden;">
+            <div class="bg-grid" style="position:absolute; inset:0; opacity:.4;"></div>
+            <div class="wrap" style="position:relative; padding:5rem 1.5rem 2.5rem;">
+                <div class="reveal">
+                    <div class="eyebrow" style="color:var(--muted); margin-bottom:1rem;">Tibia Panda · Design System</div>
+                    <div class="font-display lettering-outline" style="font-size:clamp(4rem,16vw,12rem); font-weight:900; line-height:.85; text-transform:uppercase; letter-spacing:-.02em; user-select:none;">Panda</div>
+                </div>
+                <div style="margin-top:2.5rem; padding-top:1.5rem; border-top:1px solid var(--border); display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;">
+                    <p style="color:var(--muted); font-size:.85rem; max-width:420px; margin:0; font-weight:300;">Construído em bambu, ouro e pergaminho — para a comunidade. <span style="color:var(--ink)">tibiapanda.com.br</span></p>
+                    <div class="mono" style="display:flex; gap:1.25rem; font-size:.7rem; text-transform:uppercase; letter-spacing:.15em; color:var(--muted);">
+                        <span style="color:var(--bamboo-light);">v3.0</span>
+                        <a href="#type" style="color:inherit; text-decoration:none;">Tipografia</a>
+                        <a href="#color" style="color:inherit; text-decoration:none;">Cores</a>
+                        <a href="#hero" style="color:inherit; text-decoration:none;">Topo ↑</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- ============ MODAL ============ -->
+    <div class="ds-modal" id="dsModal">
+        <div class="backdrop" onclick="closeModal()"></div>
+        <div class="panel card" style="width:100%; max-width:420px;">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:1rem;">
+                <div><div class="eyebrow" style="margin-bottom:.5rem;">Modal</div><h3 class="font-display" style="font-size:1.5rem; font-weight:700;">Registrar boneco</h3></div>
+                <button class="tb-icon-btn" onclick="closeModal()"><iconify-icon icon="solar:close-circle-linear"></iconify-icon></button>
+            </div>
+            <p style="color:var(--ink-2); font-size:.88rem; line-height:1.6; margin:0 0 1.25rem;">Verifique seu personagem para liberar comentários, rankings e a Jornada de Quests.</p>
+            <input class="ds-input" placeholder="Nome do boneco" style="margin-bottom:.9rem;" />
+            <button class="tp-btn-primary" style="width:100%; justify-content:center;">Verificar agora</button>
+        </div>
+    </div>
+
+    <script>
+        /* reveal */
+        const io = new IntersectionObserver((es) => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('active'); io.unobserve(e.target); } }), { threshold: .12, rootMargin: '0px 0px -6% 0px' });
+        document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+        /* flashlight */
+        function fl(e, el) { const r = el.getBoundingClientRect(); el.style.setProperty('--mx', (e.clientX - r.left) + 'px'); el.style.setProperty('--my', (e.clientY - r.top) + 'px'); }
+
+        /* scroll progress */
+        const prog = document.getElementById('progress');
+        addEventListener('scroll', () => { const h = document.documentElement.scrollHeight - innerHeight; prog.style.width = (scrollY / h * 100) + '%'; }, { passive: true });
+
+        /* nav */
+        function go(id, btn) {
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+            if (btn) { document.querySelectorAll('.site-nav .nav-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+            if (innerWidth <= 900) toggleSidebar(false);
+        }
+        function toggleSidebar(open) { const s = document.getElementById('sidebar'), o = document.getElementById('overlay'); s.classList.toggle('open', open); o.style.display = open ? 'block' : 'none'; }
+
+        /* theme */
+        function toggleTheme() {
+            const dark = document.documentElement.getAttribute('data-theme') !== 'light';
+            document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+            document.getElementById('themeIcon').setAttribute('icon', dark ? 'solar:sun-bold' : 'solar:moon-bold');
+            document.getElementById('themeLabel').textContent = dark ? 'Tema claro' : 'Tema escuro';
+        }
+
+        /* type scale */
+        const scale = [
+            ['Espaço épico', 'Cinzel', 900, 'clamp(2.4rem,6vw,4.5rem)', '96 / .92', '.9'],
+            ['Componentes vivos', 'Cinzel', 700, 'clamp(1.9rem,4vw,3rem)', '60 / 1.0', '1'],
+            ['Registrar boneco', 'Cinzel', 700, 'clamp(1.5rem,3vw,2.1rem)', '34 / 1.1', '1.1'],
+            ['Party Finder ativo', 'Inter', 600, '1.4rem', '22 / 1.3', '1.3'],
+            ['Task Delivery hoje', 'Inter', 600, '1.15rem', '18 / 1.4', '1.4'],
+            ['Corpo · leitura contínua e conteúdo do reino', 'Inter', 400, '.95rem', '15 / 1.7', '1.7'],
+        ];
+        document.getElementById('scaleRows').innerHTML = scale.map(([s, f, w, sz, spec]) => `
+            <div style="display:grid; grid-template-columns:1fr auto auto; gap:1rem; align-items:center; padding:1rem 1.5rem; border-bottom:1px solid var(--border);">
+                <div style="font-family:${f === 'Cinzel' ? "'Cinzel',serif" : "'Inter',sans-serif"}; font-weight:${w}; font-size:${sz}; line-height:1; ${f === 'Cinzel' ? 'text-transform:uppercase;letter-spacing:-.01em;' : ''} overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${s}</div>
+                <div class="mono" style="font-size:.7rem; color:var(--muted); text-align:right; white-space:nowrap;">${spec}</div>
+                <div class="mono" style="font-size:.7rem; color:var(--ink-3); text-align:right; min-width:90px; white-space:nowrap;">${f} ${w}</div>
+            </div>`).join('');
+
+        /* color ramps */
+        const bg = { 'bg-0': '#0d0c12', 'bg-1': '#14131c', 'bg-2': '#1b1a25', 'bg-3': '#23212f', surface: '#1a1922', border: '#2b2938' };
+        const bamboo = { pale: '#17122b', dim: '#211a3d', bamboo: '#8b5cf6', light: '#a78bfa' };
+        const acc = { gold: '#c9a840', 'gold-lt': '#e0c060', red: '#e87070', green: '#4ade80' };
+        function ramp(el, obj, lightText) {
+            document.getElementById(el).innerHTML = Object.entries(obj).map(([k, v]) => `
+                <div class="swatch" data-copy="${v}" style="height:74px; border-radius:10px; border:1px solid var(--border); background:${v}; padding:.5rem; display:flex; flex-direction:column; justify-content:space-between;">
+                    <span class="mono" style="font-size:.6rem; color:${lightText(v) ? 'rgba(255,255,255,.85)' : 'rgba(0,0,0,.65)'}">${k}</span>
+                    <span class="mono" style="font-size:.56rem; color:${lightText(v) ? 'rgba(255,255,255,.55)' : 'rgba(0,0,0,.5)'}">${v}</span>
+                </div>`).join('');
+        }
+        const lum = h => { const n = parseInt(h.slice(1), 16); return (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)); };
+        ramp('bgRamp', bg, v => lum(v) < 140); ramp('bambooRamp', bamboo, v => lum(v) < 140); ramp('accentRamp', acc, v => lum(v) < 150);
+
+        /* copy */
+        const toast = document.getElementById('toast'); let tt;
+        addEventListener('click', e => { const s = e.target.closest('[data-copy]'); if (!s) return; const v = s.getAttribute('data-copy'); navigator.clipboard?.writeText(v).catch(() => { }); toast.textContent = v + ' copiado ✦'; toast.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => toast.classList.remove('show'), 1600); });
+
+        /* icons */
+        const icons = ['solar:home-smile-bold', 'solar:magic-stick-3-bold', 'solar:box-bold', 'solar:users-group-rounded-bold', 'solar:sword-bold', 'solar:shield-bold', 'solar:cup-star-bold', 'solar:map-point-bold', 'solar:bolt-bold', 'solar:heart-bold', 'solar:wad-of-money-bold', 'solar:crown-bold', 'solar:fire-bold', 'solar:star-bold', 'solar:bell-bold', 'solar:settings-bold', 'solar:calendar-bold', 'solar:diagram-up-bold', 'solar:chat-round-line-bold', 'solar:filter-bold', 'solar:eye-bold', 'solar:rocket-2-bold', 'solar:cart-large-bold', 'solar:pallete-2-bold'];
+        document.getElementById('iconGrid').innerHTML = icons.map(ic => `<div class="icon-tile card-sm" style="aspect-ratio:1; display:grid; place-items:center; padding:0; cursor:pointer;" title="${ic}"><iconify-icon icon="${ic}" style="font-size:1.5rem;"></iconify-icon></div>`).join('');
+
+        /* modal */
+        function openModal() { document.getElementById('dsModal').classList.add('open'); }
+        function closeModal() { document.getElementById('dsModal').classList.remove('open'); }
+        addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    </script>
+</body>
+
+</html>
