@@ -3150,6 +3150,11 @@ PlayerName (Leader)
     #bestiary .bc.undisc{opacity:.5}
     #bestiary .bc-top{display:flex;align-items:center;gap:.55rem}
     #bestiary .bc-ic{width:34px;height:34px;object-fit:contain;flex:none;image-rendering:pixelated}
+    #bestiary .bc-icwrap{position:relative;flex:none;display:inline-flex}
+    #bestiary .bc-corner{position:absolute;top:-2px;width:0;height:0;z-index:2;animation:sealpop .3s cubic-bezier(.16,1,.3,1)}
+    #bestiary .bc-corner-am{left:-2px;border-top:11px solid #35c4d1;border-right:11px solid transparent;filter:drop-shadow(0 1px 2px rgba(53,196,209,.5))}
+    #bestiary .bc-corner-wd{right:-2px;border-top:11px solid #e3a53a;border-left:11px solid transparent;filter:drop-shadow(0 1px 2px rgba(227,165,58,.5))}
+    @keyframes sealpop{from{transform:scale(0);opacity:0}}
     #bestiary .bc-nm{font-size:.82rem;font-weight:700;color:var(--ink,#eae8f2);text-transform:capitalize;line-height:1.15}
     #bestiary .bc-diff{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:20px;white-space:nowrap}
     #bestiary .bc-track{height:7px;border-radius:999px;background:var(--bg-3,#23212f);overflow:hidden}
@@ -3744,7 +3749,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13bx</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13bz</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6888,7 +6893,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13bx';
+window.TP_BUILD = '2026-08-13bz';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -14278,7 +14283,7 @@ window.tpLoadJornada=async function(){
       var c=CS[key]; if(!c||!c.c||!c.d) return;
       var target=KILLS[c.d]; if(!target) return;
       BEST.push({ name:c.n, cls:c.c, diff:c.d, target:target, charm:(c.m!=null?c.m:CHARM[c.d]||0),
-        icon:'https://static.tibia.com/images/library/'+slug(c.n)+'.gif', loot:c.l||[] });
+        icon:'https://www.tibiawiki.com.br/wiki/Special:FilePath/'+encodeURIComponent(String(c.n).replace(/ /g,'_'))+'.gif', loot:c.l||[] });
     });
     BEST.sort(function(a,b){ return a.cls.localeCompare(b.cls)||a.name.localeCompare(b.name); });
     return BEST;
@@ -14373,8 +14378,8 @@ window.tpLoadJornada=async function(){
     var lootBtn=lootBlock(b.loot);
     return '<div class="bc'+(b.done?' done':'')+(b.disc?'':' undisc')+'">'
       +'<div class="bc-top">'
-        +'<img class="bc-ic" src="'+b.icon+'" onerror="this.style.visibility=\'hidden\'" alt="">'
-        +'<div style="flex:1"><div class="bc-nm">'+b.name+(b.done?' ✓':'')+'</div></div>'
+        +'<span class="bc-icwrap"><img class="bc-ic" src="'+b.icon+'" onerror="this.style.visibility=\'hidden\'" alt="">'+(b.done?'<span class="bc-corner bc-corner-am" title="Animus Mastery"></span>':'')+(b.warden?'<span class="bc-corner bc-corner-wd" title="Warden"></span>':'')+'</span>'
+        +'<div style="flex:1"><div class="bc-nm">'+b.name+'</div></div>'
         +'<span class="bc-diff" style="background:'+col+'22;color:'+col+'">'+b.diff+'</span>'
       +'</div>'
       +'<div class="bc-track"><i style="width:'+b.pct+'%"></i></div>'
