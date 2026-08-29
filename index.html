@@ -2248,6 +2248,7 @@ async function tibiaFetch(path) {
     <div class="hs-modal-card">
       <button class="hs-x" onclick="document.getElementById('hs-modq').classList.remove('open')">✕</button>
       <div class="hs-sec-t" style="font-size:1rem;color:var(--ink)">🛡️ Moderação de fotos</div>
+      <div style="font-size:.74rem;color:var(--muted);margin:-.3rem 0 .8rem">Aprove apenas <b>prints do jogo Tibia</b> relacionados à casa. Recuse: imagens fora do tema, conteúdo ofensivo/impróprio, spam ou baixa qualidade.</div>
       <div id="hs-modq-body"><div class="hs-loading">Carregando…</div></div>
     </div>
   </div>
@@ -3916,7 +3917,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13ci</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cj</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7060,7 +7061,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13ci';
+window.TP_BUILD = '2026-08-13cj';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -15377,7 +15378,7 @@ window.tpLoadJornada=async function(){
           +'<div class="row"><div><label>Descrição da decoração</label><textarea id="hs-f-desc" maxlength="400" placeholder="A inspiração, o tema, o objetivo da decoração… (aparece no card)"></textarea></div></div>'
           +'<div class="hs-drop" id="hs-f-drop" onclick="document.getElementById(\'hs-f-file\').click()">📷 Clique para escolher a foto da house</div>'
           +'<input type="file" id="hs-f-file" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="tpHouseFilePick(this)">'
-          +'<div class="hs-note">A foto passa por aprovação de um moderador antes de aparecer na galeria. Máx. 3MB (JPG, PNG ou WebP) · até 4 fotos por casa.</div>'
+          +'<div class="hs-note">📌 <b>Apenas prints do jogo Tibia.</b> Fotos fora do tema, ofensivas ou de baixa qualidade são recusadas na moderação. Máx. 3MB (JPG, PNG ou WebP) · até 4 fotos por casa.</div>'
           +'<div style="margin-top:.8rem"><button class="tp-btn-primary" id="hs-f-submit" onclick="tpHouseSubmitPhoto()">Enviar para aprovação</button></div>'
           +'</div>';
         tpHouseCharPick();
@@ -15393,7 +15394,39 @@ window.tpLoadJornada=async function(){
       if(info) info.innerHTML='🎽 <b>Lvl '+(c.level||'?')+'</b>'+(c.title?' · <span style="color:var(--bamboo-light,#a78bfa);font-weight:600">'+esc(c.title)+'</span>':'')+(c.vocation?' <span style="color:var(--muted,#63607a)">· '+esc(c.vocation)+'</span>':'');
     }).catch(function(){ state.formChar={ name:name, level:null, title:'' }; if(info) info.innerHTML='<span style="color:var(--muted,#63607a)">Não consegui buscar o level agora — pode enviar mesmo assim.</span>'; });
   };
-  window.tpHouseFilePick=function(inp){ var d=document.getElementById('hs-f-drop'), f=inp.files&&inp.files[0]; if(f){ if(f.size>3*1024*1024){ toast('A foto passa de 3MB. Escolhe uma menor (prints do Tibia geralmente são bem menores).','error'); inp.value=''; if(d){ d.classList.remove('has'); d.textContent='📷 Clique para escolher a foto da house'; } return; } if(d){ d.classList.add('has'); d.textContent='✓ '+f.name; } } };
+  function hsMagic(b){
+    if(b[0]===0x89&&b[1]===0x50&&b[2]===0x4E&&b[3]===0x47) return 'png';
+    if(b[0]===0xFF&&b[1]===0xD8&&b[2]===0xFF) return 'jpg';
+    if(b[0]===0x52&&b[1]===0x49&&b[2]===0x46&&b[3]===0x46&&b[8]===0x57&&b[9]===0x45&&b[10]===0x42&&b[11]===0x50) return 'webp';
+    return null;
+  }
+  function hsDecode(file){
+    return new Promise(function(resolve,reject){
+      var url=URL.createObjectURL(file), img=new Image();
+      img.onload=function(){ var w=img.naturalWidth,h=img.naturalHeight; URL.revokeObjectURL(url); resolve({w:w,h:h}); };
+      img.onerror=function(){ URL.revokeObjectURL(url); reject(new Error('decode')); };
+      img.src=url;
+    });
+  }
+  async function hsValidateImage(file){
+    if(!file) return {ok:false,msg:'Escolha uma foto.'};
+    if(['image/png','image/jpeg','image/webp'].indexOf(file.type)<0) return {ok:false,msg:'Formato não permitido — só JPG, PNG ou WebP.'};
+    if(file.size>3*1024*1024) return {ok:false,msg:'A foto passa de 3MB. Escolhe uma menor.'};
+    try{ var head=new Uint8Array(await file.slice(0,16).arrayBuffer()); if(!hsMagic(head)) return {ok:false,msg:'Esse arquivo não é uma imagem válida (não bate com JPG/PNG/WebP).'}; }
+    catch(e){ return {ok:false,msg:'Não consegui ler o arquivo.'}; }
+    try{ var dim=await hsDecode(file); if(dim.w<400||dim.h<200) return {ok:false,msg:'Imagem pequena demais — envie um print do jogo (mín. 400px de largura).'}; if(dim.w>8000||dim.h>8000) return {ok:false,msg:'Imagem com dimensões absurdas.'}; return {ok:true,w:dim.w,h:dim.h}; }
+    catch(e){ return {ok:false,msg:'Arquivo corrompido ou não é uma imagem de verdade.'}; }
+  }
+  window.tpHouseFilePick=async function(inp){
+    var d=document.getElementById('hs-f-drop'), f=inp.files&&inp.files[0];
+    state.fileValid=false;
+    if(!f){ if(d){ d.classList.remove('has'); d.textContent='📷 Clique para escolher a foto da house'; } return; }
+    if(d){ d.classList.remove('has'); d.textContent='🔍 Verificando a imagem…'; }
+    var v=await hsValidateImage(f);
+    if(!v.ok){ toast(v.msg,'error'); inp.value=''; if(d){ d.classList.remove('has'); d.textContent='📷 Clique para escolher a foto da house'; } return; }
+    state.fileValid=true;
+    if(d){ d.classList.add('has'); d.textContent='✓ '+f.name+' ('+v.w+'×'+v.h+')'; }
+  };
 
   window.tpHouseSubmitPhoto=async function(){
     var A=auth(); if(!A||!A.user){ toast('Entre na sua conta.','info'); return; }
@@ -15406,7 +15439,7 @@ window.tpLoadJornada=async function(){
     var fileInp=document.getElementById('hs-f-file'), file=fileInp&&fileInp.files&&fileInp.files[0];
     if(!char){ toast('Escolha um boneco.','info'); return; }
     if(!file){ toast('Escolha uma foto da house.','info'); return; }
-    if(file.size>3*1024*1024){ toast('A foto passa de 3MB. Escolhe uma menor.','error'); return; }
+    var _v=await hsValidateImage(file); if(!_v.ok){ toast(_v.msg,'error'); return; }
     if((state.curPhotoCount||0)>=4){ toast('Esta casa já atingiu o limite de 4 fotos.','info'); return; }
     var btn=document.getElementById('hs-f-submit'); if(btn){ btn.disabled=true; btn.textContent='Enviando…'; }
     try{
