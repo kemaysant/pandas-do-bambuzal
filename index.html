@@ -2555,8 +2555,9 @@ PlayerName (Leader)
       <div class="ab-timeline">
         <div class="ab-step"><b>O começo</b><span>Começou como o site da guild e virou um portal de ferramentas gratuitas — pra qualquer mundo.</span></div>
         <div class="ab-step"><b>O kit de ferramentas</b><span>Loot Split, Hunt Finder, Party Finder, Bosses e Task Delivery com preço ao vivo: o essencial do dia a dia.</span></div>
-        <div class="ab-step"><b>Conta &amp; progresso</b><span>Login, verificação de boneco via Tibia.com, perfil com outfit, bestiary e rankings da comunidade.</span></div>
-        <div class="ab-step"><b>O que vem por aí</b><span>Mais boards, eventos e melhorias contínuas — construído junto com quem joga.</span></div>
+        <div class="ab-step"><b>Conta &amp; progresso</b><span>Login e verificação de boneco via Tibia.com, perfil com outfit e histórico de hunts protegido contra duplicata.</span></div>
+        <div class="ab-step"><b>Bestiary &amp; rankings</b><span>Bestiary por boneco com contagem de charm, marcadores de Animus Mastery e Warden, e rankings de XP diária, semanal e mensal da comunidade.</span></div>
+        <div class="ab-step"><b>O que vem por aí</b><span>Galeria de Houses da comunidade — casas do seu mundo com mapa, dono e fotos enviadas pelos jogadores. Em construção.</span></div>
       </div>
     </div>
 
@@ -3172,6 +3173,9 @@ PlayerName (Leader)
     #bestiary .bc-checks{display:flex;justify-content:space-between;align-items:center;gap:.4rem;flex-wrap:wrap}
     #bestiary .bc-warden.on{color:var(--gold-light,#e0c060)}
     #bestiary .bc-warden input{accent-color:var(--gold,#c9a840)}
+    #bestiary .bc-animus.on{color:#5bd6e0}
+    #bestiary .bc-animus input{accent-color:#35c4d1}
+    #bestiary .bc-checks{font-size:.66rem}
     #bestiary .bc-loot-btn{font-size:.66rem;color:var(--bamboo-light,#a78bfa);cursor:pointer;background:none;border:none;padding:0;text-align:left}
     #bestiary .bc-loot{display:none;font-size:.68rem;color:var(--muted);line-height:1.5;border-top:1px solid var(--rule);padding-top:.35rem}
     #bestiary .bc-loot.open{display:block}
@@ -3749,7 +3753,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13bz</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cb</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6893,7 +6897,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13bz';
+window.TP_BUILD = '2026-08-13cb';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -14273,7 +14277,7 @@ window.tpLoadJornada=async function(){
   var CLASS_EMOJI={Amphibic:'🐸',Aquatic:'🐟',Bird:'🦅',Construct:'🗿',Demon:'😈',Dragon:'🐉',Elemental:'🔥','Extra Dimensional':'🌀',Fairy:'🧚',Giant:'🗿',Human:'🧑',Humanoid:'👹',Inkborn:'🖋️',Lycanthrope:'🐺',Magical:'✨',Mammal:'🐗',Plant:'🌿',Reptile:'🦎',Slime:'🫧',Undead:'💀',Worm:'🕷️'};
   var CLASS_PT={Amphibic:'Anfíbios',Aquatic:'Aquáticos',Bird:'Aves',Construct:'Constructos',Demon:'Demônios',Dragon:'Dragões',Elemental:'Elementais','Extra Dimensional':'Extra Dimensionais',Fairy:'Fadas',Giant:'Gigantes',Human:'Humanos',Humanoid:'Humanóides',Inkborn:'Inkborn',Lycanthrope:'Licantropos',Magical:'Mágicas',Mammal:'Mamíferos',Plant:'Plantas',Reptile:'Répteis',Slime:'Slimes',Undead:'Mortos-Vivos',Worm:'Vermes'};
   var RARCOL={'Comum':'#9ca3af','Incomum':'#3ecf8e','Semi-raro':'#4a7de0','Raro':'#a78bfa','Muito raro':'#e0774a'};
-  var BEST=null, TOTALS={}, TOTALS_ALL={}, CHARTOTALS={}, CHARLIST=[], BEST_CHAR='', MANUAL={}, WARDENC={};
+  var BEST=null, TOTALS={}, TOTALS_ALL={}, CHARTOTALS={}, CHARLIST=[], BEST_CHAR='', MANUAL={}, WARDENC={}, ANIMUSC={};
   function slug(n){ return String(n||'').toLowerCase().replace(/\s*\(.*?\)\s*/g,'').replace(/[''`]/g,'').replace(/[^a-z0-9]+/g,''); }
   function build(){
     if(BEST) return BEST;
@@ -14292,7 +14296,7 @@ window.tpLoadJornada=async function(){
     var A=window.TP_AUTH, gate=document.getElementById('best-gate'), main=document.getElementById('best-main');
     if(!A||!A.user){ if(gate)gate.style.display=''; if(main)main.style.display='none'; return; }
     if(gate)gate.style.display='none'; if(main)main.style.display='';
-    build(); TOTALS={}; TOTALS_ALL={}; CHARTOTALS={}; CHARLIST=[]; MANUAL={}; WARDENC={};
+    build(); TOTALS={}; TOTALS_ALL={}; CHARTOTALS={}; CHARLIST=[]; MANUAL={}; WARDENC={}; ANIMUSC={};
     try{
       var base=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
       var r=await (window.tpAuthFetch||fetch)(base+'/rest/v1/pt_kills_totals?select=monster,total_kills');
@@ -14316,6 +14320,12 @@ window.tpLoadJornada=async function(){
       var rw=await (window.tpAuthFetch||fetch)(baseW+'/rest/v1/user_bestiary_warden?select=character,monster');
       var dw=await rw.json();
       (Array.isArray(dw)?dw:[]).forEach(function(x){ var ch=x.character; if(!ch) return; (WARDENC[ch]=WARDENC[ch]||{})[String(x.monster).toLowerCase().trim()]=1; });
+    }catch(e){}
+    try{
+      var baseA=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
+      var ra=await (window.tpAuthFetch||fetch)(baseA+'/rest/v1/user_bestiary_animus?select=character,monster');
+      var da=await ra.json();
+      (Array.isArray(da)?da:[]).forEach(function(x){ var ch=x.character; if(!ch) return; (ANIMUSC[ch]=ANIMUSC[ch]||{})[String(x.monster).toLowerCase().trim()]=1; });
     }catch(e){}
     try{
       var baseCh=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
@@ -14378,7 +14388,7 @@ window.tpLoadJornada=async function(){
     var lootBtn=lootBlock(b.loot);
     return '<div class="bc'+(b.done?' done':'')+(b.disc?'':' undisc')+'">'
       +'<div class="bc-top">'
-        +'<span class="bc-icwrap"><img class="bc-ic" src="'+b.icon+'" onerror="this.style.visibility=\'hidden\'" alt="">'+(b.done?'<span class="bc-corner bc-corner-am" title="Animus Mastery"></span>':'')+(b.warden?'<span class="bc-corner bc-corner-wd" title="Warden"></span>':'')+'</span>'
+        +'<span class="bc-icwrap"><img class="bc-ic" src="'+b.icon+'" onerror="this.style.visibility=\'hidden\'" alt="">'+(b.animus?'<span class="bc-corner bc-corner-am" title="Animus Mastery (Soulpit)"></span>':'')+(b.warden?'<span class="bc-corner bc-corner-wd" title="Warden"></span>':'')+'</span>'
         +'<div style="flex:1"><div class="bc-nm">'+b.name+'</div></div>'
         +'<span class="bc-diff" style="background:'+col+'22;color:'+col+'">'+b.diff+'</span>'
       +'</div>'
@@ -14388,6 +14398,9 @@ window.tpLoadJornada=async function(){
         +'<label class="bc-check'+(b.done?' on':'')+(b.autoKills?' locked':'')+'" title="'+(b.autoKills?'Completo pelas suas kills':'Marcar bestiary como completo (soma o charm)')+'">'
           +'<input type="checkbox" data-mon="'+encodeURIComponent(b.name)+'"'+(b.done?' checked':'')+(b.autoKills?' disabled':'')+' onchange="tpBestToggle(this,\'done\')">'
           +'<span>'+(b.autoKills?'Completo (kills)':(b.manual?'Completo':'Completar'))+'</span></label>'
+        +'<label class="bc-check bc-animus'+(b.animus?' on':'')+(b.wardenEditable?'':' locked')+'" title="'+(b.wardenEditable?'Animus Mastery — destravado no Soulpit desta criatura (+XP raw). Marca por boneco.':'Selecione um boneco no topo pra marcar o Animus Mastery')+'">'
+          +'<input type="checkbox" data-mon="'+encodeURIComponent(b.name)+'"'+(b.animus?' checked':'')+(b.wardenEditable?'':' disabled')+' onchange="tpBestToggle(this,\'animus\')">'
+          +'<span>'+(b.animus?'Animus ✓':'Animus')+'</span></label>'
         +'<label class="bc-check bc-warden'+(b.warden?' on':'')+(b.wardenEditable?'':' locked')+'" title="'+(b.wardenEditable?'Marcar o Echo Warden desta criatura (por boneco)':'Selecione um boneco no topo pra marcar o Warden')+'">'
           +'<input type="checkbox" data-mon="'+encodeURIComponent(b.name)+'"'+(b.warden?' checked':'')+(b.wardenEditable?'':' disabled')+' onchange="tpBestToggle(this,\'warden\')">'
           +'<span>'+(b.warden?'Warden ✓':'Warden')+'</span></label>'
@@ -14430,9 +14443,21 @@ window.tpLoadJornada=async function(){
   window.tpBestToggle=async function(el, kind){
     var A=window.TP_AUTH; if(!A||!A.user){ if(el) el.checked=false; if(typeof tpOpenAuth==='function') tpOpenAuth('login'); return; }
     var mon=decodeURIComponent(el.getAttribute('data-mon')||''); var key=mon.toLowerCase().trim(); if(!key) return;
-    kind=(kind==='warden')?'warden':'done';
+    kind=(kind==='warden'||kind==='animus')?kind:'done';
     var on=el.checked;
     var base=(typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:'';
+    if(kind==='animus'){
+      if(!BEST_CHAR){ if(el) el.checked=false; if(window.tpToast) tpToast('Escolha um boneco no topo do bestiary pra marcar o Animus Mastery por personagem.','info'); return; }
+      var cha=BEST_CHAR, preva=!!(ANIMUSC[cha]&&ANIMUSC[cha][key]);
+      if(on){ (ANIMUSC[cha]=ANIMUSC[cha]||{})[key]=1; } else if(ANIMUSC[cha]){ delete ANIMUSC[cha][key]; }
+      if(window.tpBestiaryRender) tpBestiaryRender();
+      try{
+        if(on){ await (window.tpAuthFetch||fetch)(base+'/rest/v1/user_bestiary_animus',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify({user_id:A.user.id,character:cha,monster:key})}); }
+        else { await (window.tpAuthFetch||fetch)(base+'/rest/v1/user_bestiary_animus?user_id=eq.'+A.user.id+'&character=eq.'+encodeURIComponent(cha)+'&monster=eq.'+encodeURIComponent(key),{method:'DELETE',headers:{Prefer:'return=minimal'}}); }
+        if(window.tpToast) tpToast(on?('✨ Animus Mastery de '+mon+' marcado pra '+cha):('Animus de '+mon+' desmarcado'), on?'success':'info');
+      }catch(e){ console.warn('[animus]',e); if(preva){ (ANIMUSC[cha]=ANIMUSC[cha]||{})[key]=1; } else if(ANIMUSC[cha]){ delete ANIMUSC[cha][key]; } if(window.tpBestiaryRender) tpBestiaryRender(); if(window.tpToast) tpToast('Não consegui salvar — tenta de novo.','error'); }
+      return;
+    }
     if(kind==='warden'){
       if(!BEST_CHAR){ if(el) el.checked=false; if(window.tpToast) tpToast('Escolha um boneco no topo do bestiary pra marcar o Warden por personagem.','info'); return; }
       var ch=BEST_CHAR, prev=!!(WARDENC[ch]&&WARDENC[ch][key]);
@@ -14461,19 +14486,19 @@ window.tpLoadJornada=async function(){
     var df=document.getElementById('best-diff').value;
     var fl=document.getElementById('best-filter').value;
     var discovered=0, done=0, total=list.length, charmTotal=0, charmGot=0;
-    var wardenEditable=!!BEST_CHAR, activeWarden={};
-    if(BEST_CHAR){ activeWarden=WARDENC[BEST_CHAR]||{}; }
-    else { for(var _c in WARDENC){ for(var _m in WARDENC[_c]){ activeWarden[_m]=1; } } }
+    var wardenEditable=!!BEST_CHAR, activeWarden={}, activeAnimus={};
+    if(BEST_CHAR){ activeWarden=WARDENC[BEST_CHAR]||{}; activeAnimus=ANIMUSC[BEST_CHAR]||{}; }
+    else { for(var _c in WARDENC){ for(var _m in WARDENC[_c]){ activeWarden[_m]=1; } } for(var _ca in ANIMUSC){ for(var _ma in ANIMUSC[_ca]){ activeAnimus[_ma]=1; } } }
     var rows=list.map(function(b){
       var k=TOTALS[b.name.toLowerCase()]||0;
-      var autoKills=k>=b.target, isManual=!!MANUAL[b.name.toLowerCase()], isWarden=!!activeWarden[b.name.toLowerCase()];
+      var autoKills=k>=b.target, isManual=!!MANUAL[b.name.toLowerCase()], isWarden=!!activeWarden[b.name.toLowerCase()], isAnimus=!!activeAnimus[b.name.toLowerCase()];
       var isDone=autoKills||isManual, isDisc=k>0||isManual;
       if(isDisc) discovered++; if(isDone){ done++; charmGot+=b.charm; }
       charmTotal+=b.charm;
       var dispKills = isDone ? Math.max(k, b.target) : k;
       var dispPct = isDone ? 100 : Math.min(100,Math.round(k/b.target*100));
       return { name:b.name,cls:b.cls,diff:b.diff,target:b.target,charm:b.charm,icon:b.icon,loot:b.loot,
-        kills:dispKills,done:isDone,autoKills:autoKills,manual:isManual,warden:isWarden,wardenEditable:wardenEditable,disc:isDisc,pct:dispPct };
+        kills:dispKills,done:isDone,autoKills:autoKills,manual:isManual,warden:isWarden,animus:isAnimus,wardenEditable:wardenEditable,disc:isDisc,pct:dispPct };
     });
     var sum=document.getElementById('best-summary');
     if(sum) sum.innerHTML=
