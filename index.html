@@ -2567,7 +2567,9 @@ async function tibiaFetch(path) {
       #eventpage .evp-karma{font-size:.6rem;font-weight:800;border:1px solid;border-radius:999px;padding:1px 6px;white-space:nowrap}
       #eventpage .evp-krate{background:var(--bg-3,#23212f);border:1px solid var(--border,#2b2938);color:var(--muted);border-radius:6px;font-size:.66rem;padding:1px 6px;cursor:pointer;font-family:inherit}
       #eventpage .evp-krate:hover{border-color:var(--bamboo,#8b5cf6);color:var(--bamboo-light,#a78bfa)}
-      #eventpage .evp-diff{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:2px 8px;border-radius:999px;background:#2f1a1a;color:#f08a8a}
+      #eventpage .evp-diff{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:2px 8px;border-radius:999px}
+      #eventpage .evp-diff.hard{background:#2f1a1a;color:#f08a8a}
+      #eventpage .evp-diff.med{background:#2a2410;color:#e6c964}
       #eventpage .evp-p .mb{font-size:.6rem;color:var(--gold-light,#e0c060)}
       /* Kanban */
       #eventpage .kb-wrap{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1.1rem}
@@ -4318,7 +4320,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13dd</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13de</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7462,7 +7464,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13dd';
+window.TP_BUILD = '2026-08-13de';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -16531,7 +16533,9 @@ window.tpLoadJornada=async function(){
     var em=(res.body&&res.body.message)||''; var m='Não consegui confirmar presença.';
     if(/karma_admin_block/.test(em)) m='🚫 Sua conta está bloqueada para acessos até um moderador liberar (karma).';
     else if(/karma_blocked/.test(em)) m='⛔ Sua conta está temporariamente bloqueada para acessos por causa do karma. Tente mais tarde.';
-    else if(/karma_low/.test(em)) m='🔴 Esse é um acesso difícil e exige karma mais alto. Melhore seu karma participando bem dos eventos.';
+    else if(/karma_low_hard/.test(em)) m='🔴 Acesso difícil: exige karma 5+. Melhore seu karma participando bem dos eventos.';
+    else if(/karma_low_medium/.test(em)) m='🟡 Acesso médio: exige karma 3+. Seu karma está baixo demais pra este acesso.';
+    else if(/karma_low/.test(em)) m='Seu karma está baixo demais para este acesso.';
     else if(/wrong_world/.test(em)) m='Esse personagem não é do mundo do evento. Só dá pra confirmar com um boneco do mesmo servidor.';
     else if(/need_verified_char/.test(em)) m='Esse personagem não está verificado na sua conta. Verifique um boneco na aba Personagem.';
     else if(/need_char/.test(em)) m='Escolha o personagem que vai.';
@@ -16577,7 +16581,7 @@ window.tpLoadJornada=async function(){
     var typeOpts=Object.keys(ETYPES).map(function(k){ return '<option value="'+k+'"'+(k===ev.type?' selected':'')+'>'+ETYPES[k][0]+' '+ETYPES[k][1]+'</option>'; }).join('');
     body.innerHTML=''
       +'<div style="margin-bottom:.7rem"><label>Título</label><input id="agm-title" maxlength="120" value="'+esc(ev.title||'')+'"></div>'
-      +'<div class="row"><div><label>Tipo</label><select id="agm-type">'+typeOpts+'</select></div><div><label>Vagas (opcional)</label><input type="number" id="agm-cap" min="1" value="'+(ev.capacity||'')+'"></div><div><label>Dificuldade</label><select id="agm-diff"><option value="normal"'+(ev.difficulty!=='hard'?' selected':'')+'>🟢 Normal</option><option value="hard"'+(ev.difficulty==='hard'?' selected':'')+'>🔴 Difícil (exige karma)</option></select></div></div>'
+      +'<div class="row"><div><label>Tipo</label><select id="agm-type">'+typeOpts+'</select></div><div><label>Vagas (opcional)</label><input type="number" id="agm-cap" min="1" value="'+(ev.capacity||'')+'"></div><div><label>Dificuldade</label><select id="agm-diff"><option value="normal"'+(!ev.difficulty||ev.difficulty==='normal'?' selected':'')+'>🟢 Normal (básico)</option><option value="medium"'+(ev.difficulty==='medium'?' selected':'')+'>🟡 Média (karma 3+)</option><option value="hard"'+(ev.difficulty==='hard'?' selected':'')+'>🔴 Difícil (karma 5+)</option></select></div></div>'
       +'<div class="row"><div><label>Início</label><input type="datetime-local" id="agm-start" value="'+toLocalInput(ev.starts_at)+'"></div><div><label>Fim (opcional)</label><input type="datetime-local" id="agm-end" value="'+toLocalInput(ev.ends_at)+'"></div></div>'
       +'<div style="margin-bottom:.7rem"><label>Local (opcional)</label><input id="agm-loc" maxlength="80" value="'+esc(ev.location||'')+'"></div>'
       +'<div style="margin-bottom:.7rem"><label>Descrição (opcional)</label><textarea id="agm-desc" maxlength="2000">'+esc(ev.description||'')+'</textarea></div>'
@@ -16615,7 +16619,7 @@ window.tpLoadJornada=async function(){
         +'<div class="row"><div><label>Tipo</label><select id="agm-type">'+typeOpts+'</select></div><div><label>Visibilidade</label><select id="agm-vis" onchange="tpAgendaVisHint()"><option value="public">🌎 Público (servidor)</option><option value="friends">👥 Amigos</option><option value="guild">🛡️ Guild (líderes)</option><option value="private">🔒 Privado (por link)</option></select></div></div>'
         +'<div id="agm-vishint" style="font-size:.72rem;color:var(--muted);margin:-.3rem 0 .7rem"></div>'
         +'<div class="row"><div><label>Início</label><input type="datetime-local" id="agm-start" value="'+dv+'"></div><div><label>Fim (opcional)</label><input type="datetime-local" id="agm-end"></div></div>'
-        +'<div class="row"><div><label>Local (opcional)</label><input id="agm-loc" maxlength="80" placeholder="Ex.: Soul War, Thais depot…"></div><div><label>Vagas (opcional)</label><input type="number" id="agm-cap" min="1" placeholder="ex.: 4"></div><div><label>Dificuldade</label><select id="agm-diff"><option value="normal">🟢 Normal</option><option value="hard">🔴 Difícil (exige karma)</option></select></div></div>'
+        +'<div class="row"><div><label>Local (opcional)</label><input id="agm-loc" maxlength="80" placeholder="Ex.: Soul War, Thais depot…"></div><div><label>Vagas (opcional)</label><input type="number" id="agm-cap" min="1" placeholder="ex.: 4"></div><div><label>Dificuldade</label><select id="agm-diff"><option value="normal">🟢 Normal (básico)</option><option value="medium">🟡 Média (karma 3+)</option><option value="hard">🔴 Difícil (karma 5+)</option></select></div></div>'
         +(chars.length?'<div style="margin-bottom:.7rem"><label>Seu personagem</label><select id="agm-char">'+charOpts+'</select></div>':'<div id="agm-char-warn" style="font-size:.74rem;color:var(--gold-light,#e0c060);margin-bottom:.7rem">⚠️ Você não tem boneco verificado em '+esc(world())+' — só dá pra criar eventos de amigos/privados neste servidor. Verifique um personagem de '+esc(world())+' na aba Personagem pra criar públicos/guild.</div>')
         +'<div style="margin-bottom:.7rem"><label>Descrição (opcional)</label><textarea id="agm-desc" maxlength="2000" placeholder="Detalhes: o que levar, ponto de encontro…"></textarea></div>'
         +'<div style="margin-bottom:.7rem"><label>Requisitos (opcional)</label><textarea id="agm-req" maxlength="2000" placeholder="Ex.: Level mínimo 250, vocação promovida, set completo…"></textarea></div>'
@@ -16823,7 +16827,7 @@ window.tpLoadJornada=async function(){
     var maybe=parts.filter(function(p){return p.response==='maybe';});
     var dfull=new Date(ev.starts_at).toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'});
     var head='<div class="evp-head"><div class="evp-ttl">'+t[0]+' '+esc(ev.title)+'</div>'
-      +'<div class="evp-badges"><span class="evp-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span><span class="evp-badge" style="background:var(--bg-3,#23212f);color:var(--muted)">'+(VISLBL[ev.visibility]||ev.visibility)+'</span>'+(ev.difficulty==='hard'?'<span class="evp-diff">🔴 Acesso difícil · exige karma</span>':'')+'</div>'
+      +'<div class="evp-badges"><span class="evp-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span><span class="evp-badge" style="background:var(--bg-3,#23212f);color:var(--muted)">'+(VISLBL[ev.visibility]||ev.visibility)+'</span>'+(ev.difficulty==='hard'?'<span class="evp-diff hard">🔴 Difícil · karma 5+</span>':(ev.difficulty==='medium'?'<span class="evp-diff med">🟡 Média · karma 3+</span>':''))+'</div>'
       +'<div class="evp-meta"><span>🗓 <b>'+esc(dfull)+'</b></span><span>🌎 <b>'+esc(ev.world||'')+'</b></span>'+(ev.location?'<span>📍 <b>'+esc(ev.location)+'</b></span>':'')+(ev.creator_char?'<span>👑 Host: <b>'+esc(ev.creator_char)+'</b></span>':'')+(ev.capacity?'<span>👥 <b>'+going.length+'/'+ev.capacity+'</b> vagas</span>':'<span>👥 <b>'+going.length+'</b> confirmados</span>')+'</div>'
       +(ev.description?'<div class="evp-text" style="margin-top:.8rem">'+esc(ev.description)+'</div>':'')
       +'<div class="evp-actions">'
