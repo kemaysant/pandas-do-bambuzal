@@ -2313,11 +2313,25 @@ async function tibiaFetch(path) {
       #creators .cr-lk.yt{color:#f0a0a0;background:#2f1a1a}
       #creators .cr-lk.pf{color:var(--bamboo-light,#a78bfa);background:var(--bamboo-dim,#211a3d);border-color:var(--bamboo,#8b5cf6)}
       #creators .cr-empty,#creators .cr-loading{color:var(--muted,#63607a);padding:2rem 0;text-align:center;font-size:.9rem}
+      #creators .cr-seg{display:inline-flex;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:9px;padding:3px;gap:2px;margin-bottom:1.1rem}
+      #creators .cr-seg button{background:none;border:none;color:var(--muted,#63607a);font-size:.76rem;font-weight:700;padding:.4rem .85rem;border-radius:6px;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+      #creators .cr-seg button.on{background:linear-gradient(135deg,#7c4fe0,#9265f0);color:#fff}
+      #creators .cr-seg button:not(.on):hover{color:var(--ink,#eae8f2)}
+      #creators .cr-seg .live-dot{width:7px;height:7px;border-radius:50%;background:#e0397a;box-shadow:0 0 6px #e0397a}
+      #creators .cr-livecount{font-size:.72rem;color:var(--muted);margin-left:.5rem;font-weight:600}
+      #creators .cr-livecount b{color:#e0397a}
+      #cr-grid.liveonly .cr-card:not(.live){display:none}
     </style>
     <h2 class="sec-title">🎥 Criadores &amp; Streamers</h2>
-    <p class="sec-sub">Jogadores da comunidade que criam conteúdo de Tibia. Quem está <b style="color:#e0397a">ao vivo na Twitch</b> aparece destacado. Cadastre seus canais no seu perfil (Dados, privacidade &amp; segurança) pra aparecer aqui.</p>
+    <p class="sec-sub">Jogadores da comunidade que criam conteúdo de Tibia. Quem está <b style="color:#e0397a">ao vivo na Twitch</b> aparece destacado. Cadastre seus canais no seu perfil (Dados Pessoais) pra aparecer aqui.</p>
+    <div class="cr-seg" id="cr-filterbar">
+      <button class="on" data-f="all" onclick="if(window.tpCreatorsFilter)tpCreatorsFilter('all',this)">Todos</button>
+      <button data-f="live" onclick="if(window.tpCreatorsFilter)tpCreatorsFilter('live',this)"><span class="live-dot"></span> Ao vivo agora</button>
+      <span class="cr-livecount" id="cr-livecount"></span>
+    </div>
     <div id="cr-grid" class="cr-grid"></div>
     <div id="cr-empty" class="cr-empty" style="display:none"></div>
+    <div id="cr-live-empty" class="cr-empty" style="display:none"></div>
   </section>
 
   <!-- ─── AGENDA DA COMUNIDADE ─── -->
@@ -4125,7 +4139,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cr</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cs</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7269,7 +7283,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cr';
+window.TP_BUILD = '2026-08-13cs';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -12593,9 +12607,10 @@ function ewEnsureTcInput() {
 
   function fmtk(n){ n=Number(n)||0; var a=Math.abs(n); if(a>=1e9) return (n/1e9).toFixed(2)+'kkk'; if(a>=1e6) return (n/1e6).toFixed(1)+'kk'; if(a>=1e3) return Math.round(n/1e3)+'k'; return ''+n; }
   function pfCard(label,val){ return '<div style="background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:10px;padding:.7rem .85rem"><div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">'+label+'</div><div style="font-size:1.15rem;font-weight:800;margin-top:.15rem">'+val+'</div></div>'; }
-  function pfFeatured(chars, mainId){
+  function pfFeatured(chars, mainKey){
     var ver=chars.filter(function(c){return c.verified;}); if(!ver.length) return null;
-    var chosen=mainId?ver.filter(function(c){return c.id===mainId;})[0]:null;
+    var mk=mainKey?String(mainKey).toLowerCase():null;
+    var chosen=mk?ver.filter(function(c){return c.id===mainKey || (c.name&&c.name.toLowerCase()===mk);})[0]:null;
     if(chosen && (chosen.level||0)>=100) return chosen;
     return ver.slice().sort(function(a,b){return (b.level||0)-(a.level||0);})[0];
   }
@@ -13243,10 +13258,12 @@ function ewEnsureTcInput() {
   };
   window.tpSetMain=async function(id){
     if(!AUTH) return;
+    var ch=(window.__tpChars||[]).filter(function(c){return c.id===id;})[0];
+    var val=ch&&ch.name?ch.name:id;   // main_char guarda o NOME do personagem (não o id)
     try{
-      var res=await tpAuthFetch(SB+'/rest/v1/profiles?id=eq.'+AUTH.user.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({main_char:id,updated_at:new Date().toISOString()})});
+      var res=await tpAuthFetch(SB+'/rest/v1/profiles?id=eq.'+AUTH.user.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({main_char:val,updated_at:new Date().toISOString()})});
       if(!res.ok) throw new Error('HTTP '+res.status);
-      AUTH.profile=Object.assign(AUTH.profile||{},{main_char:id}); saveAuth(AUTH);
+      AUTH.profile=Object.assign(AUTH.profile||{},{main_char:val}); saveAuth(AUTH);
       if(window.tpToast) tpToast('Personagem principal definido! ⭐','success');
       tpLoadChars();
     }catch(e){ if(window.tpToast) tpToast('Erro ao definir principal.','error'); }
@@ -14054,7 +14071,7 @@ window.tpToast=function(msg,type){
     handle=String(handle||'').replace(/^@/,'');
     if(!handle){ if(window.tpToast) tpToast('Este jogador ainda não definiu um @apelido.','info'); return; }
     var url=location.origin+location.pathname+'#user='+encodeURIComponent(handle);
-    if(navigator.share){ navigator.share({ title:'Perfil no Tibia Panda', text:'Olha esse perfil no Tibia Panda:', url:url }).catch(function(){}); return; }
+    if(window.tpShareOrCopy){ window.tpShareOrCopy({ title:'Perfil no Tibia Panda', text:'Olha esse perfil no Tibia Panda:', url:url, okMsg:'Link do perfil copiado! 🔗' }); return; }
     if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(function(){ if(window.tpToast) tpToast('Link do perfil copiado! 🔗','success'); }).catch(function(){ window.prompt('Copie o link do perfil:',url); }); }
     else window.prompt('Copie o link do perfil:',url);
   };
@@ -15913,7 +15930,7 @@ window.tpLoadJornada=async function(){
   window.tpHouseShare=function(){
     var h=state.current; if(!h) return;
     var url=location.origin+location.pathname+'#house='+encodeURIComponent(h.world)+'/'+h.houseid;
-    if(navigator.share){ navigator.share({ title:h.name+' — Tibia Panda', text:'Olha essa house no Tibia Panda: '+h.name, url:url }).catch(function(){}); return; }
+    if(window.tpShareOrCopy){ window.tpShareOrCopy({ title:h.name+' — Tibia Panda', text:'Olha essa house no Tibia Panda: '+h.name, url:url, okMsg:'Link da house copiado! 🔗' }); return; }
     if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(function(){ toast('Link da house copiado! 🔗','success'); }).catch(function(){ window.prompt('Copie o link da house:', url); }); }
     else { window.prompt('Copie o link da house:', url); }
   };
@@ -16001,8 +16018,9 @@ window.tpLoadJornada=async function(){
   function twitchLogin(v){ v=String(v||'').trim(); if(!v) return ''; return v.replace(/^https?:\/\//i,'').replace(/^www\./i,'').replace(/^twitch\.tv\//i,'').replace(/^@/,'').replace(/[\/?#].*$/,'').toLowerCase(); }
   function twitchUrl(v){ var l=twitchLogin(v); return l?('https://twitch.tv/'+l):null; }
   function ytUrl(v){ v=String(v||'').trim(); if(!v) return null; if(/^https?:\/\//i.test(v)) return v; var h=v.replace(/^.*youtube\.com\//i,'').replace(/^\//,''); return h?('https://youtube.com/'+h):null; }
+  function cname(v){ return (v && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(v)))?v:null; }
   function crCard(c){
-    var name=c.main_char||c.display_name||(c.handle?('@'+c.handle):'Jogador');
+    var name=cname(c.display_name)||cname(c.main_char)||(c.handle?('@'+c.handle):'Jogador');
     var sub=[c.vocation,(c.level?('Lvl '+c.level):null),c.world].filter(Boolean).join(' · ');
     var tw=twitchUrl(c.twitch), login=twitchLogin(c.twitch||''), yt=ytUrl(c.youtube);
     var links='';
@@ -16017,20 +16035,37 @@ window.tpLoadJornada=async function(){
       +'</div>';
   }
   window.tpCreatorOpen=function(handle){ if(handle) location.hash='#user='+encodeURIComponent(handle); };
+  window.__CR_LIVEONLY=false; window.__CR_LIVECOUNT=0;
+  function crUpdateLiveUI(){
+    var grid=document.getElementById('cr-grid'), cnt=document.getElementById('cr-livecount'), le=document.getElementById('cr-live-empty'); if(!grid) return;
+    var n=grid.querySelectorAll('.cr-card.live').length; window.__CR_LIVECOUNT=n;
+    if(cnt) cnt.innerHTML = n?('<b>'+n+'</b> ao vivo agora'):'';
+    if(le){ if(window.__CR_LIVEONLY && n===0){ le.style.display=''; le.textContent='Ninguém da comunidade está ao vivo na Twitch agora. Volte mais tarde! 🎥'; } else le.style.display='none'; }
+  }
+  window.tpCreatorsFilter=function(f,btn){
+    window.__CR_LIVEONLY=(f==='live');
+    var bar=document.getElementById('cr-filterbar'); if(bar) bar.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on',b===btn); });
+    var grid=document.getElementById('cr-grid'); if(grid) grid.classList.toggle('liveonly',window.__CR_LIVEONLY);
+    crUpdateLiveUI();
+  };
   window.tpCreatorsLoad=function(){
     var grid=document.getElementById('cr-grid'), empty=document.getElementById('cr-empty'); if(!grid) return;
     grid.innerHTML='<div class="cr-loading">Carregando criadores…</div>'; if(empty) empty.style.display='none';
+    var le=document.getElementById('cr-live-empty'); if(le) le.style.display='none';
     af()(SB()+'/rest/v1/rpc/tp_creators',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:'{}'})
       .then(function(r){ return r.json(); }).then(function(list){
         list=Array.isArray(list)?list:[];
         if(!list.length){ grid.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent='Ainda não há criadores cadastrados. Adicione seu Twitch/YouTube no perfil e ative a visibilidade!'; } return; }
         grid.innerHTML=list.map(crCard).join('');
+        grid.classList.toggle('liveonly',window.__CR_LIVEONLY);
+        crUpdateLiveUI();
         // status ao vivo (Twitch) via DecAPI — sem credenciais
         list.forEach(function(c){
           var login=twitchLogin(c.twitch||''); if(!login) return;
           fetch('https://decapi.me/twitch/uptime/'+encodeURIComponent(login)).then(function(r){ return r.text(); }).then(function(t){
             if(t && !/offline|unable|error|not\s|does not|invalid/i.test(t)){
               var el=document.getElementById('crlive-'+login); if(el){ el.classList.add('on'); var card=el.closest('.cr-card'); if(card) card.classList.add('live'); }
+              crUpdateLiveUI();
             }
           }).catch(function(){});
         });
@@ -16070,7 +16105,7 @@ window.tpLoadJornada=async function(){
       +'</div>';
     return '<div class="ag-card'+(focus?' ag-focus':'')+'" id="agc-'+ev.id+'">'
       +'<div class="ag-when"><div class="d">'+w.dd+'</div><div class="mo">'+esc(w.mo)+'</div><div class="hr">'+w.hr+'</div></div>'
-      +'<div class="ag-main">'+(focus?'<span class="ag-shared-tag">🔗 Compartilhado com você</span>':'')
+      +'<div class="ag-main">'+(focus?'<span class="ag-shared-tag">🔗 '+(ev.is_mine?'Seu evento (via link)':'Compartilhado com você')+'</span>':'')
       +'<div class="ag-ttl">'+t[0]+' '+esc(ev.title)+' <span class="ag-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span> <span class="ag-vis">'+(VISLBL[ev.visibility]||ev.visibility)+'</span></div>'
       +'<div class="ag-meta">'+meta.join('&nbsp;&nbsp;')+'</div>'
       +(ev.description?'<div class="ag-desc">'+esc(ev.description)+'</div>':'')
@@ -16088,7 +16123,7 @@ window.tpLoadJornada=async function(){
     var host=document.getElementById('ag-list'), empty=document.getElementById('ag-empty'); if(!host) return;
     host.innerHTML='<div class="ag-loading">Carregando eventos…</div>'; if(empty) empty.style.display='none';
     var cal=document.getElementById('ag-calview'); if(cal) cal.style.display='none';
-    var fb=document.getElementById('ag-focus'); if(fb) fb.innerHTML='';
+    var fb=document.getElementById('ag-focus'); if(fb) fb.innerHTML=''; window.__AG_FOCUS=null;
     var scope=window.__AG_SCOPE||'all';
     if(auth()&&auth().user) tpAgendaSyncGuilds();
     af()(SB()+'/rest/v1/rpc/tp_events_feed',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_world:world(),p_scope:scope})})
@@ -16116,9 +16151,12 @@ window.tpLoadJornada=async function(){
       return;
     }
     if(cal) cal.style.display='none';
-    if(!list.length){ host.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent=(scope==='mine')?'Você ainda não criou eventos. Clique em "Criar evento".':(scope==='guild'?'Nenhum evento de guild por aqui. Só líderes e vice-líderes criam eventos de guild.':'Nenhum evento por aqui ainda. Que tal marcar o primeiro?'); } return; }
+    var fid=(window.__AG_FOCUS&&window.__AG_FOCUS.id)||null;
+    var vlist=fid?list.filter(function(ev){ return ev.id!==fid; }):list;
+    var hasFocus=!!(fid && document.getElementById('ag-focus') && document.getElementById('ag-focus').innerHTML.trim());
+    if(!vlist.length && !hasFocus){ host.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent=(scope==='mine')?'Você ainda não criou eventos. Clique em "Criar evento".':(scope==='guild'?'Nenhum evento de guild por aqui. Só líderes e vice-líderes criam eventos de guild.':'Nenhum evento por aqui ainda. Que tal marcar o primeiro?'); } return; }
     if(empty) empty.style.display='none';
-    host.innerHTML=list.map(function(ev){ return agCard(ev); }).join('');
+    host.innerHTML=vlist.map(function(ev){ return agCard(ev); }).join('');
   }
   // ── Vista Calendário (grade mensal) ──
   var MONTHS=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
@@ -16161,6 +16199,15 @@ window.tpLoadJornada=async function(){
     }
     host.innerHTML=head+'<div class="ag-grid">'+dows+grid+'</div>'+detail;
   }
+  // ── Compartilhar: no celular usa o menu nativo; no PC copia o link (sem abrir janela chata) ──
+  window.tpShareOrCopy=function(o){
+    o=o||{}; var url=o.url||'';
+    var mobile=/Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile|BlackBerry/i.test(navigator.userAgent||'');
+    var copyText=o.copyText||((o.text?o.text+'\n':'')+url);
+    if(mobile && navigator.share){ navigator.share({ title:o.title, text:o.text, url:url }).catch(function(){}); return; }
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(copyText).then(function(){ if(window.tpToast) tpToast(o.okMsg||'Link copiado! 🔗','success'); }).catch(function(){ window.prompt('Copie o link:', copyText); }); }
+    else { window.prompt('Copie o link:', copyText); }
+  };
   // ── Compartilhar evento (link + texto pra WhatsApp/Discord) ──
   window.tpAgendaShare=function(id){
     var ev=(window.__AG_EVENTS||[]).filter(function(e){return e.id===id;})[0]
@@ -16171,24 +16218,22 @@ window.tpLoadJornada=async function(){
     var lines=[]; if(ev){ lines.push((t?t[0]+' ':'')+ev.title); lines.push('🗓 '+when+(ev.world?' · '+ev.world:'')); if(ev.location) lines.push('📍 '+ev.location); lines.push('👉 Confirma presença na Tibia Panda:'); }
     else lines.push('Evento na Tibia Panda:');
     var text=lines.join('\n');
-    if(navigator.share){ navigator.share({ title:(ev?ev.title:'Evento')+' — Tibia Panda', text:text, url:url }).catch(function(){}); return; }
-    var full=text+'\n'+url;
-    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(full).then(function(){ toast('Link do evento copiado! Cole no WhatsApp/Discord 🔗','success'); }).catch(function(){ window.prompt('Copie e compartilhe:', full); }); }
-    else { window.prompt('Copie e compartilhe:', full); }
+    window.tpShareOrCopy({ title:(ev?ev.title:'Evento')+' — Tibia Panda', text:text, url:url, copyText:text+'\n'+url, okMsg:'Link do evento copiado! Cole no WhatsApp/Discord 🔗' });
   };
   // ── Deep-link #event=<id> ──
   window.__AG_FOCUS=null;
-  function normalizeEvent(o){ // tp_event_get devolve going/maybe como arrays; a lista usa contagens
-    if(!o) return o; if(Array.isArray(o.going)) o.going=o.going.length; if(Array.isArray(o.maybe)) o.maybe=o.maybe.length; return o;
-  }
   window.tpAgendaFocus=function(id){
     var box=document.getElementById('ag-focus'); if(!box) return;
     box.innerHTML='<div class="ag-loading" style="padding:1rem 0">Abrindo evento compartilhado…</div>';
     af()(SB()+'/rest/v1/rpc/tp_event_get',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_id:id})})
       .then(function(r){ return r.json(); }).then(function(d){
         if(!d||!d.ok||!d.event){ box.innerHTML='<div class="ag-card" style="padding:1.1rem"><div class="ag-main"><div class="ag-ttl">🔒 Evento indisponível</div><div class="ag-meta">Esse evento não existe, foi apagado, ou é privado e você não tem acesso.</div></div></div>'; return; }
-        var ev=normalizeEvent(d.event); window.__AG_FOCUS=ev;
+        var ev=d.event;   // tp_event_get devolve going/maybe como arrays, irmãos de "event"
+        ev.going=Array.isArray(d.going)?d.going.length:(typeof ev.going==='number'?ev.going:0);
+        ev.maybe=Array.isArray(d.maybe)?d.maybe.length:(typeof ev.maybe==='number'?ev.maybe:0);
+        window.__AG_FOCUS=ev;
         box.innerHTML=agCard(ev,true);
+        renderAgenda();   // re-renderiza a lista já sem o duplicado
         box.scrollIntoView({behavior:'smooth',block:'center'});
       }).catch(function(){ box.innerHTML=''; });
   };
