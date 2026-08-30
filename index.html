@@ -2513,6 +2513,30 @@ async function tibiaFetch(path) {
     </div>
   </div>
 
+  <!-- Modal: avaliar karma de um participante -->
+  <style>
+    #kmodal .kr-seg{display:flex;gap:.5rem;margin:.2rem 0 .8rem}
+    #kmodal .kr-seg button{flex:1;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);color:var(--muted);border-radius:9px;padding:.55rem;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit}
+    #kmodal .kr-seg button.on.pos{background:#173a26;border-color:#3ecf8e;color:#5fdd9e}
+    #kmodal .kr-seg button.on.neg{background:#2f1a1a;border-color:#e05a5a;color:#f08a8a}
+    #kmodal .kr-int{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--muted);margin-bottom:.8rem}
+    #kmodal .kr-int button{width:32px;height:32px;border-radius:8px;border:1px solid var(--border,#2b2938);background:var(--bg-2,#1b1a25);color:var(--ink-3,#b9b6c9);font-weight:700;cursor:pointer;font-family:inherit}
+    #kmodal .kr-int button.on{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6);color:#fff}
+    #kmodal .kr-delta{margin-left:auto;font-weight:800;font-size:.82rem}
+    #kmodal .kr-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.7rem}
+    #kmodal .kr-tags button{font-size:.72rem;font-weight:600;border:1px solid var(--border,#2b2938);background:var(--bg-2,#1b1a25);color:var(--ink-3,#b9b6c9);border-radius:999px;padding:4px 10px;cursor:pointer;font-family:inherit}
+    #kmodal .kr-tags button.on{background:var(--bamboo-dim,#211a3d);border-color:var(--bamboo,#8b5cf6);color:var(--bamboo-light,#a78bfa)}
+    #kmodal #kr-note{width:100%;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);color:var(--ink,#eae8f2);border-radius:8px;padding:.5rem .6rem;font-size:.82rem;font-family:inherit;resize:vertical;min-height:52px}
+    #kmodal .kr-note-hint{font-size:.7rem;color:var(--muted);margin-top:.5rem;line-height:1.4}
+  </style>
+  <div id="kmodal" class="agm-modal" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="agm-card" style="max-width:440px">
+      <button class="agm-x" onclick="document.getElementById('kmodal').classList.remove('open')">✕</button>
+      <div class="hs-sec-t" style="font-size:1rem;color:var(--ink)" id="kmodal-hd">⚖️ Avaliar</div>
+      <div id="kmodal-body" style="margin-top:.6rem"></div>
+    </div>
+  </div>
+
   <!-- ─── PÁGINA DEDICADA DO EVENTO ─── -->
   <section class="page-section" id="eventpage">
     <style>
@@ -2540,6 +2564,10 @@ async function tibiaFetch(path) {
       #eventpage .evp-vhd{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
       #eventpage .evp-p{display:flex;align-items:center;gap:.45rem;font-size:.8rem;color:var(--ink-2,#cfc9e6);padding:3px 0}
       #eventpage .evp-p .lv{margin-left:auto;font-size:.72rem;color:var(--muted);font-weight:700}
+      #eventpage .evp-karma{font-size:.6rem;font-weight:800;border:1px solid;border-radius:999px;padding:1px 6px;white-space:nowrap}
+      #eventpage .evp-krate{background:var(--bg-3,#23212f);border:1px solid var(--border,#2b2938);color:var(--muted);border-radius:6px;font-size:.66rem;padding:1px 6px;cursor:pointer;font-family:inherit}
+      #eventpage .evp-krate:hover{border-color:var(--bamboo,#8b5cf6);color:var(--bamboo-light,#a78bfa)}
+      #eventpage .evp-diff{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:2px 8px;border-radius:999px;background:#2f1a1a;color:#f08a8a}
       #eventpage .evp-p .mb{font-size:.6rem;color:var(--gold-light,#e0c060)}
       /* Kanban */
       #eventpage .kb-wrap{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1.1rem}
@@ -3612,8 +3640,6 @@ PlayerName (Leader)
           <div class="pf-field" style="flex:1;min-width:180px"><label>🟣 Twitch</label><input id="pf-in-twitch" placeholder="twitch.tv/seucanal ou seucanal"></div>
           <div class="pf-field" style="flex:1;min-width:180px"><label>🔴 YouTube</label><input id="pf-in-youtube" placeholder="youtube.com/@seucanal ou @seucanal"></div>
         </div>
-        <div class="pf-field"><label>💬 Discord</label><input id="pf-in-discord" placeholder="seu_usuario"></div>
-
         <button class="calc-btn" style="margin-top:.4rem" onclick="tpSavePersonal()" id="pf-save-personal">Salvar dados</button>
       </div>
 
@@ -4292,7 +4318,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13dc</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13dd</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7436,7 +7462,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13dc';
+window.TP_BUILD = '2026-08-13dd';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -13386,7 +13412,6 @@ function ewEnsureTcInput() {
     if(g('pf-in-country')) g('pf-in-country').value=prof.country||'';
     if(g('pf-in-twitch')) g('pf-in-twitch').value=prof.twitch||'';
     if(g('pf-in-youtube')) g('pf-in-youtube').value=prof.youtube||'';
-    if(g('pf-in-discord')) g('pf-in-discord').value=prof.discord||'';
     if(g('pf-in-email')) g('pf-in-email').value=AUTH.user.email||'';
     if(g('pf-in-email2')) g('pf-in-email2').value=AUTH.user.email||'';
     var pv=prof.privacy||{};
@@ -13454,7 +13479,7 @@ function ewEnsureTcInput() {
   window.tpSavePersonal=async function(){
     if(!AUTH) return;
     var gv=function(id){ var el=g(id); return el?((el.value||'').trim())||null:null; };
-    var patch={ full_name:gv('pf-in-fullname'), phone:gv('pf-in-phone'), bio:gv('pf-in-bio'), country:gv('pf-in-country'), twitch:gv('pf-in-twitch'), youtube:gv('pf-in-youtube'), discord:gv('pf-in-discord'), updated_at:new Date().toISOString() };
+    var patch={ full_name:gv('pf-in-fullname'), phone:gv('pf-in-phone'), bio:gv('pf-in-bio'), country:gv('pf-in-country'), twitch:gv('pf-in-twitch'), youtube:gv('pf-in-youtube'), updated_at:new Date().toISOString() };
     patch.privacy={ profile:(window.__pfVis==='friends')?'friends':'public' };
     var btn=g('pf-save-personal'); if(btn){btn.disabled=true;btn.textContent='Salvando...';}
     try{
@@ -14247,7 +14272,6 @@ window.tpToast=function(msg,type){
     var items=[], S='display:inline-flex;align-items:center;gap:5px;font-size:.74rem;font-weight:700;text-decoration:none;padding:5px 11px;border-radius:999px;border:1px solid var(--border,#2b2938)';
     var tw=profSocialUrl('twitch',p.twitch); if(tw) items.push('<a href="'+window.esc(tw)+'" target="_blank" rel="noopener" style="'+S+';color:#c9b6ff;background:#2a2140">🟣 Twitch</a>');
     var yt=profSocialUrl('youtube',p.youtube); if(yt) items.push('<a href="'+window.esc(yt)+'" target="_blank" rel="noopener" style="'+S+';color:#f0a0a0;background:#2f1a1a">🔴 YouTube</a>');
-    if(p.discord) items.push('<span title="Discord" style="'+S+';color:#a9b6ff;background:#1c2038;cursor:default">💬 '+window.esc(p.discord)+'</span>');
     return items.length ? '<div class="tp-prof-social" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem">'+items.join('')+'</div>' : '';
   }
   window.tpProfShare=function(handle){
@@ -16218,7 +16242,23 @@ window.tpLoadJornada=async function(){
     }
     var mine=list.filter(function(e){return e.is_mine;});
     var conf=list.filter(function(e){return !e.is_mine && (e.my_response==='going'||e.my_response==='maybe');});
-    var html=group('👑 Criados por você', mine)+group('✅ Presença confirmada', conf);
+    // resumo de karma
+    var kcard='';
+    try{
+      var kr=await af()(SBURL()+'/rest/v1/rpc/tp_karma_get',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_user:A.user.id})});
+      var karma=await kr.json();
+      if(karma&&karma.ok){
+        var k=karma.karma, c=(k>=7?'#3ecf8e':(k<=3?'#e05a5a':'#c9a840'));
+        var status=karma.admin_block?'🚫 Bloqueado para acessos até um moderador liberar':((karma.blocked_until&&new Date(karma.blocked_until)>new Date())?'⛔ Bloqueado para acessos até '+new Date(karma.blocked_until).toLocaleDateString('pt-BR'):'✓ Liberado para participar de acessos');
+        kcard='<div class="hs-card" style="display:flex;align-items:center;gap:1.1rem;margin-bottom:1.1rem">'
+          +'<div style="flex:none;text-align:center;width:56px"><div style="font-size:1.9rem;font-weight:800;color:'+c+';line-height:1;font-family:\'Cinzel\',serif">'+k+'</div><div style="font-size:.56rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">Karma /10</div></div>'
+          +'<div style="flex:1;min-width:0"><div style="font-weight:800;color:var(--ink,#eae8f2)">Seu karma na comunidade</div>'
+          +'<div style="font-size:.76rem;color:'+(karma.blocked?'#f08a8a':'var(--muted)')+';font-weight:'+(karma.blocked?'700':'400')+'">'+status+'</div>'
+          +'<div style="font-size:.72rem;color:var(--muted);margin-top:2px">👍 +'+(karma.pos_total||0)+' acumulado · 👎 −'+(karma.neg_total||0)+' acumulado</div>'
+          +'<div style="font-size:.68rem;color:var(--muted);margin-top:4px;line-height:1.4">Ganhe karma participando bem dos acessos (ouvir call, ajudar, cumprir requisitos). Karma baixo limita acessos difíceis.</div></div></div>';
+      }
+    }catch(e){}
+    var html=kcard+group('👑 Criados por você', mine)+group('✅ Presença confirmada', conf);
     host.innerHTML=html || '<div class="hs-map-none">Nada por aqui ainda.</div>';
   };
 })();
@@ -16489,7 +16529,10 @@ window.tpLoadJornada=async function(){
       var fid=window.__AG_FOCUS&&window.__AG_FOCUS.id; tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents(); if(fid&&window.tpAgendaFocus) setTimeout(function(){ tpAgendaFocus(fid); },300); return true;
     }
     var em=(res.body&&res.body.message)||''; var m='Não consegui confirmar presença.';
-    if(/wrong_world/.test(em)) m='Esse personagem não é do mundo do evento. Só dá pra confirmar com um boneco do mesmo servidor.';
+    if(/karma_admin_block/.test(em)) m='🚫 Sua conta está bloqueada para acessos até um moderador liberar (karma).';
+    else if(/karma_blocked/.test(em)) m='⛔ Sua conta está temporariamente bloqueada para acessos por causa do karma. Tente mais tarde.';
+    else if(/karma_low/.test(em)) m='🔴 Esse é um acesso difícil e exige karma mais alto. Melhore seu karma participando bem dos eventos.';
+    else if(/wrong_world/.test(em)) m='Esse personagem não é do mundo do evento. Só dá pra confirmar com um boneco do mesmo servidor.';
     else if(/need_verified_char/.test(em)) m='Esse personagem não está verificado na sua conta. Verifique um boneco na aba Personagem.';
     else if(/need_char/.test(em)) m='Escolha o personagem que vai.';
     else if(/full/.test(em)) m='As vagas desse evento acabaram. 😕';
@@ -16534,7 +16577,7 @@ window.tpLoadJornada=async function(){
     var typeOpts=Object.keys(ETYPES).map(function(k){ return '<option value="'+k+'"'+(k===ev.type?' selected':'')+'>'+ETYPES[k][0]+' '+ETYPES[k][1]+'</option>'; }).join('');
     body.innerHTML=''
       +'<div style="margin-bottom:.7rem"><label>Título</label><input id="agm-title" maxlength="120" value="'+esc(ev.title||'')+'"></div>'
-      +'<div class="row"><div><label>Tipo</label><select id="agm-type">'+typeOpts+'</select></div><div><label>Vagas (opcional)</label><input type="number" id="agm-cap" min="1" value="'+(ev.capacity||'')+'"></div></div>'
+      +'<div class="row"><div><label>Tipo</label><select id="agm-type">'+typeOpts+'</select></div><div><label>Vagas (opcional)</label><input type="number" id="agm-cap" min="1" value="'+(ev.capacity||'')+'"></div><div><label>Dificuldade</label><select id="agm-diff"><option value="normal"'+(ev.difficulty!=='hard'?' selected':'')+'>🟢 Normal</option><option value="hard"'+(ev.difficulty==='hard'?' selected':'')+'>🔴 Difícil (exige karma)</option></select></div></div>'
       +'<div class="row"><div><label>Início</label><input type="datetime-local" id="agm-start" value="'+toLocalInput(ev.starts_at)+'"></div><div><label>Fim (opcional)</label><input type="datetime-local" id="agm-end" value="'+toLocalInput(ev.ends_at)+'"></div></div>'
       +'<div style="margin-bottom:.7rem"><label>Local (opcional)</label><input id="agm-loc" maxlength="80" value="'+esc(ev.location||'')+'"></div>'
       +'<div style="margin-bottom:.7rem"><label>Descrição (opcional)</label><textarea id="agm-desc" maxlength="2000">'+esc(ev.description||'')+'</textarea></div>'
@@ -16548,7 +16591,7 @@ window.tpLoadJornada=async function(){
     var gv=function(x){ var e=document.getElementById(x); return e?(e.value||'').trim():''; };
     var title=gv('agm-title'); if(!title){ toast('Dê um título ao evento.','info'); return; }
     var startLocal=gv('agm-start'); if(!startLocal){ toast('Escolha a data e a hora.','info'); return; }
-    var patch={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc')||null, starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null, requirements:gv('agm-req')||null, quests_access:gv('agm-quests')||null, updated_at:new Date().toISOString() };
+    var patch={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc')||null, starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null, requirements:gv('agm-req')||null, quests_access:gv('agm-quests')||null, difficulty:gv('agm-diff')||'normal', updated_at:new Date().toISOString() };
     var btn=document.getElementById('agm-submit'); if(btn){ btn.disabled=true; btn.textContent='Salvando…'; }
     try{
       var r=await af()(SB()+'/rest/v1/events?id=eq.'+id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(patch)});
@@ -16572,7 +16615,7 @@ window.tpLoadJornada=async function(){
         +'<div class="row"><div><label>Tipo</label><select id="agm-type">'+typeOpts+'</select></div><div><label>Visibilidade</label><select id="agm-vis" onchange="tpAgendaVisHint()"><option value="public">🌎 Público (servidor)</option><option value="friends">👥 Amigos</option><option value="guild">🛡️ Guild (líderes)</option><option value="private">🔒 Privado (por link)</option></select></div></div>'
         +'<div id="agm-vishint" style="font-size:.72rem;color:var(--muted);margin:-.3rem 0 .7rem"></div>'
         +'<div class="row"><div><label>Início</label><input type="datetime-local" id="agm-start" value="'+dv+'"></div><div><label>Fim (opcional)</label><input type="datetime-local" id="agm-end"></div></div>'
-        +'<div class="row"><div><label>Local (opcional)</label><input id="agm-loc" maxlength="80" placeholder="Ex.: Soul War, Thais depot…"></div><div><label>Vagas (opcional)</label><input type="number" id="agm-cap" min="1" placeholder="ex.: 4"></div></div>'
+        +'<div class="row"><div><label>Local (opcional)</label><input id="agm-loc" maxlength="80" placeholder="Ex.: Soul War, Thais depot…"></div><div><label>Vagas (opcional)</label><input type="number" id="agm-cap" min="1" placeholder="ex.: 4"></div><div><label>Dificuldade</label><select id="agm-diff"><option value="normal">🟢 Normal</option><option value="hard">🔴 Difícil (exige karma)</option></select></div></div>'
         +(chars.length?'<div style="margin-bottom:.7rem"><label>Seu personagem</label><select id="agm-char">'+charOpts+'</select></div>':'<div id="agm-char-warn" style="font-size:.74rem;color:var(--gold-light,#e0c060);margin-bottom:.7rem">⚠️ Você não tem boneco verificado em '+esc(world())+' — só dá pra criar eventos de amigos/privados neste servidor. Verifique um personagem de '+esc(world())+' na aba Personagem pra criar públicos/guild.</div>')
         +'<div style="margin-bottom:.7rem"><label>Descrição (opcional)</label><textarea id="agm-desc" maxlength="2000" placeholder="Detalhes: o que levar, ponto de encontro…"></textarea></div>'
         +'<div style="margin-bottom:.7rem"><label>Requisitos (opcional)</label><textarea id="agm-req" maxlength="2000" placeholder="Ex.: Level mínimo 250, vocação promovida, set completo…"></textarea></div>'
@@ -16593,7 +16636,7 @@ window.tpLoadJornada=async function(){
     var title=gv('agm-title'); if(!title){ toast('Dê um título ao evento.','info'); return; }
     var startLocal=gv('agm-start'); if(!startLocal){ toast('Escolha a data e a hora.','info'); return; }
     var vis=gv('agm-vis');
-    var payload={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc'), visibility:vis, world:world(), creator_char:gv('agm-char'), starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null, requirements:gv('agm-req')||null, quests_access:gv('agm-quests')||null };
+    var payload={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc'), visibility:vis, world:world(), creator_char:gv('agm-char'), starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null, requirements:gv('agm-req')||null, quests_access:gv('agm-quests')||null, difficulty:gv('agm-diff')||'normal' };
     var btn=document.getElementById('agm-submit'); if(btn){ btn.disabled=true; btn.textContent='Criando…'; }
     var restore=function(){ if(btn){ btn.disabled=false; btn.textContent='Criar evento'; } };
     try{
@@ -16780,7 +16823,7 @@ window.tpLoadJornada=async function(){
     var maybe=parts.filter(function(p){return p.response==='maybe';});
     var dfull=new Date(ev.starts_at).toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'});
     var head='<div class="evp-head"><div class="evp-ttl">'+t[0]+' '+esc(ev.title)+'</div>'
-      +'<div class="evp-badges"><span class="evp-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span><span class="evp-badge" style="background:var(--bg-3,#23212f);color:var(--muted)">'+(VISLBL[ev.visibility]||ev.visibility)+'</span></div>'
+      +'<div class="evp-badges"><span class="evp-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span><span class="evp-badge" style="background:var(--bg-3,#23212f);color:var(--muted)">'+(VISLBL[ev.visibility]||ev.visibility)+'</span>'+(ev.difficulty==='hard'?'<span class="evp-diff">🔴 Acesso difícil · exige karma</span>':'')+'</div>'
       +'<div class="evp-meta"><span>🗓 <b>'+esc(dfull)+'</b></span><span>🌎 <b>'+esc(ev.world||'')+'</b></span>'+(ev.location?'<span>📍 <b>'+esc(ev.location)+'</b></span>':'')+(ev.creator_char?'<span>👑 Host: <b>'+esc(ev.creator_char)+'</b></span>':'')+(ev.capacity?'<span>👥 <b>'+going.length+'/'+ev.capacity+'</b> vagas</span>':'<span>👥 <b>'+going.length+'</b> confirmados</span>')+'</div>'
       +(ev.description?'<div class="evp-text" style="margin-top:.8rem">'+esc(ev.description)+'</div>':'')
       +'<div class="evp-actions">'
@@ -16802,8 +16845,8 @@ window.tpLoadJornada=async function(){
         var list=going.filter(function(p){ return vocInfo(p.vocation).k===V.k; });
         var mb=maybe.filter(function(p){ return vocInfo(p.vocation).k===V.k; });
         return '<div class="evp-vcol"><div class="evp-vhd" style="color:'+V.color+'">'+V.ico+' '+V.label+'<span>'+list.length+'</span></div>'
-          +((list.length+mb.length)?list.map(function(p){ return '<div class="evp-p">'+esc(p.character||'—')+'<span class="lv">'+(p.level?'Lv '+p.level:'')+'</span></div>'; }).join('')
-             + mb.map(function(p){ return '<div class="evp-p" style="opacity:.6">'+esc(p.character||'—')+' <span class="mb">talvez</span><span class="lv">'+(p.level?'Lv '+p.level:'')+'</span></div>'; }).join('')
+          +((list.length+mb.length)?list.map(function(p){ return '<div class="evp-p">'+esc(p.character||'—')+' '+karmaBadge(p.karma,p.blocked)+'<span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+(can&&p.user_id?'<button class="evp-krate" title="Avaliar karma" onclick="tpKarmaOpen(\''+p.user_id+'\')">⚖️</button>':'')+'</div>'; }).join('')
+             + mb.map(function(p){ return '<div class="evp-p" style="opacity:.6">'+esc(p.character||'—')+' '+karmaBadge(p.karma,p.blocked)+' <span class="mb">talvez</span><span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+(can&&p.user_id?'<button class="evp-krate" onclick="tpKarmaOpen(\''+p.user_id+'\')">⚖️</button>':'')+'</div>'; }).join('')
             :'<div class="evp-empty" style="font-size:.74rem">—</div>')
           +'</div>';
       }).join('')
@@ -16867,6 +16910,55 @@ window.tpLoadJornada=async function(){
       colEl.addEventListener('drop',function(e){ e.preventDefault(); colEl.classList.remove('drop'); var pid=dragId||(e.dataTransfer&&e.dataTransfer.getData('text/plain')); var team=+colEl.getAttribute('data-team'); if(pid) tpEvpSetTeam(pid,team); });
     });
   }
+
+  // ═══════ KARMA — avaliação dos participantes (host/mod) ═══════
+  function karmaColor(k){ k=(k==null?5:k); return k>=7?'#3ecf8e':(k<=3?'#e05a5a':'#c9a840'); }
+  window.karmaBadge=function(k, blocked){ k=(k==null?5:k); var c=karmaColor(k); return '<span class="evp-karma" title="Karma '+k+'/10'+(blocked?' · conta bloqueada':'')+'" style="color:'+c+';border-color:'+c+'66;background:'+c+'1f">'+(blocked?'🚫 ':'★ ')+k+'</span>'; };
+  var KPOS=['Ajudou o time','Orientou bem','Seguiu a call','Foi paciente','Veio preparado','Pontual'];
+  var KNEG=['Não ouviu a call','Precisou de ajuda demais','Atrapalhou o andamento','Fez o pessoal esperar','Se atrasou','Faltou requisito'];
+  window.__KR={subj:null,sign:1,intensity:1,tags:{},note:''};
+  window.tpKarmaOpen=function(userId){
+    var d=window.__EVP.data; var pt=(d&&d.participants||[]).filter(function(x){return x.user_id===userId;})[0];
+    window.__KR={subj:userId,sign:1,intensity:1,tags:{},note:''};
+    var hd=document.getElementById('kmodal-hd'); if(hd) hd.innerHTML='⚖️ Avaliar '+esc((pt&&pt.character)||'jogador')+(pt?' '+karmaBadge(pt.karma,pt.blocked):'');
+    renderKarmaModal(); document.getElementById('kmodal').classList.add('open');
+  };
+  function renderKarmaModal(){
+    var b=document.getElementById('kmodal-body'); if(!b) return; var KR=window.__KR;
+    var tags=(KR.sign>0?KPOS:KNEG);
+    b.innerHTML=''
+      +'<div class="kr-seg"><button class="'+(KR.sign>0?'on pos':'')+'" onclick="tpKarmaSign(1)">👍 Positivo</button><button class="'+(KR.sign<0?'on neg':'')+'" onclick="tpKarmaSign(-1)">👎 Negativo</button></div>'
+      +'<div class="kr-int"><span>Intensidade:</span>'+[1,2,3].map(function(n){return '<button class="'+(KR.intensity===n?'on':'')+'" onclick="tpKarmaInt('+n+')">'+n+'</button>';}).join('')+'<span class="kr-delta" style="color:'+(KR.sign>0?'#3ecf8e':'#e05a5a')+'">'+(KR.sign>0?'+':'−')+KR.intensity+' karma</span></div>'
+      +'<div class="kr-tags">'+tags.map(function(t){ var on=!!KR.tags[t]; return '<button class="'+(on?'on':'')+'" onclick="tpKarmaTag(this,'+JSON.stringify(t).replace(/"/g,'&quot;')+')">'+esc(t)+'</button>'; }).join('')+'</div>'
+      +'<textarea id="kr-note" maxlength="300" placeholder="Observação (opcional)">'+esc(KR.note||'')+'</textarea>'
+      +'<button class="tp-btn-primary" style="margin-top:.6rem" onclick="tpKarmaSubmit()">Salvar avaliação</button>'
+      +'<div class="kr-note-hint">Máximo de ±3 por acesso. O karma é <b>por conta</b> (global) e vale pra todos os eventos.</div>'
+      +(window.TP_IS_MOD?'<div style="border-top:1px solid var(--rule,#2b2938);margin-top:.9rem;padding-top:.7rem"><div style="font-size:.68rem;color:var(--muted);font-weight:800;letter-spacing:.03em;margin-bottom:.45rem">🛡️ MODERAÇÃO — bloqueios (por conta)</div><div class="kr-tags"><button onclick="tpKarmaBlock(\'week\')">Bloquear 1 semana</button><button onclick="tpKarmaBlock(\'month\')">Bloquear 1 mês</button><button onclick="tpKarmaBlock(\'admin\')">Bloquear até ADM</button><button onclick="tpKarmaBlock(\'clear\')" style="border-color:#3ecf8e;color:#5fdd9e">✓ Desbloquear</button></div></div>':'');
+  }
+  function krSaveNote(){ var n=document.getElementById('kr-note'); if(n) window.__KR.note=n.value; }
+  window.tpKarmaSign=function(s){ krSaveNote(); window.__KR.sign=s; window.__KR.tags={}; renderKarmaModal(); };
+  window.tpKarmaInt=function(n){ krSaveNote(); window.__KR.intensity=n; renderKarmaModal(); };
+  window.tpKarmaTag=function(el,t){ if(window.__KR.tags[t]) delete window.__KR.tags[t]; else window.__KR.tags[t]=1; el.classList.toggle('on'); };
+  window.tpKarmaSubmit=async function(){
+    var KR=window.__KR; if(!KR.subj) return; krSaveNote();
+    var delta=KR.sign*KR.intensity, eid=window.__EVP.id, tags=Object.keys(KR.tags);
+    try{
+      var r=await af()(SB()+'/rest/v1/rpc/tp_karma_rate',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p:{event_id:eid,subject_user:KR.subj,delta:delta,tags:tags,note:KR.note||''}})});
+      var j=await r.json().catch(function(){return null;});
+      if(!r.ok||!j||!j.ok){ var em=(j&&j.message)||''; toast(/not_host/.test(em)?'Só o anfitrião ou um moderador pode avaliar.':(/not_participant/.test(em)?'Esse jogador não está no evento.':(/self_rate/.test(em)?'Você não pode avaliar a si mesmo.':'Não consegui salvar a avaliação.')),'error'); return; }
+      toast('Karma atualizado! ⚖️','success'); document.getElementById('kmodal').classList.remove('open'); tpEventPageOpen(eid,true);
+    }catch(e){ toast('Erro ao avaliar.','error'); }
+  };
+  window.tpKarmaBlock=async function(mode){
+    var KR=window.__KR; if(!KR.subj) return;
+    var reason=(mode==='clear')?'':((window.prompt('Motivo (opcional):')||''));
+    try{
+      var r=await af()(SB()+'/rest/v1/rpc/tp_karma_block',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p:{subject_user:KR.subj,mode:mode,reason:reason}})});
+      var j=await r.json().catch(function(){return null;});
+      if(!r.ok||!j||!j.ok){ toast(/not_admin/.test((j&&j.message)||'')?'Só moderadores podem bloquear.':'Não consegui aplicar o bloqueio.','error'); return; }
+      toast(mode==='clear'?'Conta desbloqueada. ✓':'Bloqueio aplicado. 🚫','success'); document.getElementById('kmodal').classList.remove('open'); tpEventPageOpen(window.__EVP.id,true);
+    }catch(e){ toast('Erro ao aplicar bloqueio.','error'); }
+  };
 })();
 </script>
 
