@@ -3980,8 +3980,8 @@ PlayerName (Leader)
 
   </section>
 
-  <!-- ─── ABOUT ─── -->
-  <section class="page-section" id="about">
+  <!-- ─── ABOUT (guild — legado, sem link no menu; ver #about atual) ─── -->
+  <section class="page-section" id="about-guild">
     <div class="about-grid">
       <div>
         <h2 class="about-headline">Quem são os<br><em>Pandas do Bambuzal?</em></h2>
@@ -4213,7 +4213,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cw</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cx</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7357,7 +7357,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cw';
+window.TP_BUILD = '2026-08-13cx';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -8929,7 +8929,36 @@ function showPage(id, btn) {
       if (window.tpVisaoHome) window.tpVisaoHome();
     }
   }
+  // ─── URL da página: sincroniza o #hash pra que cada página tenha link compartilhável ───
+  try{
+    var _cur=(location.hash||'').replace(/^#/,'');
+    var _deep={house:'houses',event:'agenda',user:'profile'};   // deep-links têm hash próprio (#house=, #event=, #user=)
+    var _m=_cur.match(/^([a-z]+)=/);
+    var _keep=_m && _deep[_m[1]]===id;   // entrando na MESMA página do deep-link → preserva o link rico
+    if(!_keep && _cur!==id){ window.__tpSupHash=true; location.hash='#'+id; }
+  }catch(_e){}
 }
+
+// ─── Roteador por hash: abre a página certa a partir do link (#bestiary, #agenda, …) ───
+window.__tpPageIds=null;
+function tpPageIds(){ if(!window.__tpPageIds){ window.__tpPageIds={}; [].forEach.call(document.querySelectorAll('.page-section[id]'), function(s){ window.__tpPageIds[s.id]=1; }); } return window.__tpPageIds; }
+var TP_PAGE_LOADERS={ agenda:'tpAgendaLoad', houses:'tpHousesInit', creators:'tpCreatorsLoad' };
+function tpRouteFromHash(){
+  var h=(location.hash||'').replace(/^#/,'')||'home';
+  if(/=/.test(h)) return;             // deep-links (#event=, #house=, #user=) têm handlers próprios
+  if(!tpPageIds()[h]) return;         // slug desconhecido → não faz nada
+  var sec=document.getElementById(h); if(sec && sec.classList.contains('active')) return;
+  var btn=document.querySelector('[onclick*="showPage(\''+h+'\'"]');
+  if(btn){ btn.click(); return; }     // roda o onclick completo (showPage + loader daquela página)
+  showPage(h);
+  var ln=TP_PAGE_LOADERS[h]; if(ln && typeof window[ln]==='function'){ try{ window[ln](); }catch(e){} }
+}
+window.tpRouteFromHash=tpRouteFromHash;
+window.addEventListener('hashchange', function(){
+  if(window.__tpSupHash){ window.__tpSupHash=false; return; }   // mudança que nós mesmos fizemos → ignora
+  tpRouteFromHash();
+});
+window.addEventListener('load', function(){ setTimeout(tpRouteFromHash, 450); });
 
 function triggerReveal() {
   const els = document.querySelectorAll('.reveal');
@@ -16175,7 +16204,7 @@ window.tpLoadJornada=async function(){
       +'<button class="ag-rbtn maybe'+(ev.my_response==='maybe'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'maybe\')">? Talvez</button>'
       +'<button class="ag-rbtn no'+(ev.my_response==='no'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'no\')">✕ Não</button>'
       +'<span class="ag-count"><b>'+ev.going+'</b> vão'+(ev.maybe?' · '+ev.maybe+' talvez':'')+'</span>'
-      +'<span class="ag-cal"><button onclick="tpAgendaChat(\''+ev.id+'\')">💬 Chat</button><button class="ag-share" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button><a href="'+gcalUrl(ev)+'" target="_blank" rel="noopener">📅 Add ao Google Agenda</a>'+((ev.is_mine||window.TP_IS_MOD)?'<button title="'+(ev.is_mine?'Excluir seu evento':'Excluir (moderador)')+'" onclick="tpAgendaDelete(\''+ev.id+'\')" style="color:var(--red,#e87070);border-color:var(--red,#e87070);background:transparent">🗑</button>':'')+'</span>'
+      +'<span class="ag-cal"><button onclick="tpAgendaChat(\''+ev.id+'\')">💬 Chat</button><button class="ag-share" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button><a href="'+gcalUrl(ev)+'" target="_blank" rel="noopener">📅 Add ao Google Agenda</a>'+((ev.is_mine||window.TP_IS_MOD)?'<button title="Editar evento" onclick="tpAgendaEdit(\''+ev.id+'\')">✏️ Editar</button><button title="'+(ev.is_mine?'Excluir seu evento':'Excluir (moderador)')+'" onclick="tpAgendaDelete(\''+ev.id+'\')" style="color:var(--red,#e87070);border-color:var(--red,#e87070);background:transparent">🗑</button>':'')+'</span>'
       +'</div>';
     return '<div class="ag-card'+(focus?' ag-focus':'')+'" id="agc-'+ev.id+'">'
       +'<div class="ag-when"><div class="d">'+w.dd+'</div><div class="mo">'+esc(w.mo)+'</div><div class="hr">'+w.hr+'</div></div>'
@@ -16381,7 +16410,39 @@ window.tpLoadJornada=async function(){
     try{ var r=await af()(SB()+'/rest/v1/events?id=eq.'+id,{method:'DELETE',headers:{Prefer:'return=minimal'}}); if(!r.ok) throw new Error('del'); toast('Evento apagado.','info'); tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents(); }
     catch(e){ toast('Não consegui apagar.','error'); }
   };
+  // ── Editar evento (dono ou moderador) ──
+  function agmTitle(txt){ var m=document.getElementById('agm-modal'); var h=m&&m.querySelector('.hs-sec-t'); if(h) h.textContent=txt; }
+  function toLocalInput(iso){ if(!iso) return ''; var d=new Date(iso); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes()); }
+  window.tpAgendaEdit=function(id){
+    var ev=(window.__AG_EVENTS||[]).filter(function(x){return x.id===id;})[0] || (window.__AG_FOCUS&&window.__AG_FOCUS.id===id?window.__AG_FOCUS:null);
+    var body=document.getElementById('agm-body'), modal=document.getElementById('agm-modal'); if(!ev||!body||!modal) return;
+    agmTitle('✏️ Editar evento');
+    var typeOpts=Object.keys(ETYPES).map(function(k){ return '<option value="'+k+'"'+(k===ev.type?' selected':'')+'>'+ETYPES[k][0]+' '+ETYPES[k][1]+'</option>'; }).join('');
+    body.innerHTML=''
+      +'<div style="margin-bottom:.7rem"><label>Título</label><input id="agm-title" maxlength="120" value="'+esc(ev.title||'')+'"></div>'
+      +'<div class="row"><div><label>Tipo</label><select id="agm-type">'+typeOpts+'</select></div><div><label>Vagas (opcional)</label><input type="number" id="agm-cap" min="1" value="'+(ev.capacity||'')+'"></div></div>'
+      +'<div class="row"><div><label>Início</label><input type="datetime-local" id="agm-start" value="'+toLocalInput(ev.starts_at)+'"></div><div><label>Fim (opcional)</label><input type="datetime-local" id="agm-end" value="'+toLocalInput(ev.ends_at)+'"></div></div>'
+      +'<div style="margin-bottom:.7rem"><label>Local (opcional)</label><input id="agm-loc" maxlength="80" value="'+esc(ev.location||'')+'"></div>'
+      +'<div style="margin-bottom:.7rem"><label>Descrição (opcional)</label><textarea id="agm-desc" maxlength="2000">'+esc(ev.description||'')+'</textarea></div>'
+      +'<div style="font-size:.72rem;color:var(--muted);margin-bottom:.7rem">Visibilidade ('+(VISLBL[ev.visibility]||ev.visibility)+') e servidor ('+esc(ev.world||'')+') não mudam por aqui.</div>'
+      +'<button class="tp-btn-primary" id="agm-submit" onclick="tpAgendaUpdate(\''+id+'\')">Salvar alterações</button>';
+    modal.classList.add('open');
+  };
+  window.tpAgendaUpdate=async function(id){
+    var gv=function(x){ var e=document.getElementById(x); return e?(e.value||'').trim():''; };
+    var title=gv('agm-title'); if(!title){ toast('Dê um título ao evento.','info'); return; }
+    var startLocal=gv('agm-start'); if(!startLocal){ toast('Escolha a data e a hora.','info'); return; }
+    var patch={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc')||null, starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null, updated_at:new Date().toISOString() };
+    var btn=document.getElementById('agm-submit'); if(btn){ btn.disabled=true; btn.textContent='Salvando…'; }
+    try{
+      var r=await af()(SB()+'/rest/v1/events?id=eq.'+id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(patch)});
+      if(!r.ok) throw new Error('patch');
+      toast('Evento atualizado! ✅','success'); document.getElementById('agm-modal').classList.remove('open'); tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents();
+      if(window.__AG_FOCUS&&window.__AG_FOCUS.id===id&&window.tpAgendaFocus) setTimeout(function(){ tpAgendaFocus(id); },300);
+    }catch(e){ toast('Não consegui salvar as alterações.','error'); if(btn){ btn.disabled=false; btn.textContent='Salvar alterações'; } }
+  };
   window.tpAgendaNew=function(){
+    agmTitle('📅 Criar evento');
     var A=auth(), body=document.getElementById('agm-body'), modal=document.getElementById('agm-modal'); if(!body||!modal) return;
     if(!A||!A.user){ body.innerHTML='<div class="agm-gate">Entre na sua conta para criar eventos. <a href="#" onclick="document.getElementById(\'agm-modal\').classList.remove(\'open\');if(window.tpOpenAuth)tpOpenAuth(\'login\');return false" style="color:var(--bamboo-light)">Entrar</a></div>'; modal.classList.add('open'); return; }
     body.innerHTML='<div class="ag-loading">Carregando…</div>'; modal.classList.add('open');
