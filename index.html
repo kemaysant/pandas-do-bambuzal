@@ -1515,13 +1515,13 @@ async function tibiaFetch(path) {
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>
           <span class="nav-label">Store</span>
         </button>
+        <button class="nav-btn" id="nav-moderation" style="display:none" onclick="showPage('moderation',this);if(window.tpModPanelLoad)tpModPanelLoad()">
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1.5l6.5 2.5v5c0 4-2.8 7.5-6.5 9-3.7-1.5-6.5-5-6.5-9v-5L10 1.5zm-1 11l4.5-4.5-1.4-1.4L9 9.7 7.9 8.6 6.5 10 9 12.5z" clip-rule="evenodd"/></svg>
+          <span class="nav-label">Moderação <span id="nav-mod-badge" style="display:none;background:var(--red,#e87070);color:#1b1a25;border-radius:999px;padding:0 6px;font-size:.66rem;font-weight:900;margin-left:4px">0</span></span>
+        </button>
         <button class="nav-btn" onclick="if(window.tpAccountPage)tpAccountPage('dados',this)">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
-          <span class="nav-label">Dados &amp; Privacidade</span>
-        </button>
-        <button class="nav-btn" onclick="if(window.tpAccountPage)tpAccountPage('seg',this)">
-          <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-          <span class="nav-label">Senha e Segurança</span>
+          <span class="nav-label">Dados, privacidade &amp; segurança</span>
         </button>
       </div>
 
@@ -2276,6 +2276,19 @@ async function tibiaFetch(path) {
       </div>
     </div>
   </div>
+
+  <!-- ─── PAINEL DE MODERAÇÃO ─── -->
+  <section class="page-section" id="moderation">
+    <h2 class="sec-title">🛡️ Painel de Moderação</h2>
+    <p class="sec-sub">Aprove ou recuse as fotos de houses enviadas pela comunidade. Aprove apenas prints do jogo Tibia relacionados à casa; recuse conteúdo fora do tema, ofensivo, spam ou de baixa qualidade.</p>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+        <div class="tool-title" style="font-size:1.05rem">📸 Fotos de houses pendentes <span id="mod-panel-count" style="color:var(--muted);font-weight:400"></span></div>
+        <button class="hs-like" onclick="if(window.tpModPanelLoad)tpModPanelLoad()">↻ Atualizar</button>
+      </div>
+      <div id="mod-panel-body"><div class="api-loading"><div class="spinner"></div> Carregando…</div></div>
+    </div>
+  </section>
 
   <!-- ─── QUEST GUIDE ─── -->
   <section class="page-section" id="quests">
@@ -3264,13 +3277,31 @@ PlayerName (Leader)
           <div class="pf-lblrow"><label>Bio</label><label class="pf-switch"><input type="checkbox" id="pf-pub-bio" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-bio">Oculto</span></label></div>
           <textarea id="pf-in-bio" placeholder="Fale um pouco sobre você e sua jogatina..."></textarea>
         </div>
-        <button class="calc-btn" style="margin-top:.2rem" onclick="tpSavePersonal()" id="pf-save-personal">Salvar dados</button>
-      </div>
-    </div>
 
-    <div class="pf-panel" data-panel="seg" style="display:none">
-      <div class="card">
-        <div class="tool-title" style="font-size:1rem;margin-bottom:.8rem">Segurança</div>
+        <div style="border-top:1px solid var(--rule);margin:1.1rem 0 .9rem;padding-top:.9rem">
+          <div style="font-size:.85rem;font-weight:700;color:var(--ink,#eae8f2);margin-bottom:.2rem">🔗 Redes &amp; streaming</div>
+          <div style="font-size:.72rem;color:var(--muted);margin-bottom:.7rem">Divulgue seus canais no seu perfil público. Ative o interruptor <span style="color:var(--bamboo-light,#a78bfa);font-weight:700">roxo</span> pra exibir.</div>
+        </div>
+        <div style="display:flex;gap:.8rem;flex-wrap:wrap">
+          <div class="pf-field" style="flex:1;min-width:180px">
+            <div class="pf-lblrow"><label>🟣 Twitch</label><label class="pf-switch"><input type="checkbox" id="pf-pub-twitch" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-twitch">Oculto</span></label></div>
+            <input id="pf-in-twitch" placeholder="twitch.tv/seucanal ou seucanal">
+          </div>
+          <div class="pf-field" style="flex:1;min-width:180px">
+            <div class="pf-lblrow"><label>🔴 YouTube</label><label class="pf-switch"><input type="checkbox" id="pf-pub-youtube" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-youtube">Oculto</span></label></div>
+            <input id="pf-in-youtube" placeholder="youtube.com/@seucanal ou @seucanal">
+          </div>
+        </div>
+        <div class="pf-field">
+          <div class="pf-lblrow"><label>💬 Discord</label><label class="pf-switch"><input type="checkbox" id="pf-pub-discord" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-discord">Oculto</span></label></div>
+          <input id="pf-in-discord" placeholder="seu_usuario">
+        </div>
+
+        <button class="calc-btn" style="margin-top:.4rem" onclick="tpSavePersonal()" id="pf-save-personal">Salvar dados</button>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <div class="tool-title" style="font-size:1rem;margin-bottom:.8rem">🔒 Senha e segurança</div>
         <div class="pf-field"><label>E-mail da conta</label><input id="pf-in-email" disabled style="opacity:.7"></div>
         <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.4rem">
           <button class="filter-btn" onclick="tpSendReset()" id="pf-reset-btn">✉️ Enviar e-mail de redefinição de senha</button>
@@ -3280,6 +3311,8 @@ PlayerName (Leader)
         <div style="font-size:.75rem;color:var(--muted);margin-top:.9rem;line-height:1.5">🔐 Lembrete: nunca use o mesmo e-mail/senha da sua conta global do Tibia aqui.</div>
       </div>
     </div>
+
+    <div class="pf-panel" data-panel="seg" style="display:none"></div>
   </section>
 
   <style>
@@ -3938,7 +3971,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13ck</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cm</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7082,7 +7115,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13ck';
+window.TP_BUILD = '2026-08-13cm';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -12264,6 +12297,7 @@ function ewEnsureTcInput() {
   function updateUI(){
     const acct=g('nav-account'); if(acct) acct.style.display=(AUTH&&AUTH.user)?'block':'none';
     const tn=g('tp-topnotif'); if(tn) tn.style.display=(AUTH&&AUTH.user)?'block':'none';
+    try{ if(window.tpCheckModerator) window.tpCheckModerator(); }catch(e){}
     const area=g('tp-auth-area'); if(!area) return;
     if(AUTH&&AUTH.user){
       const nm=(AUTH.profile&&AUTH.profile.display_name)||(AUTH.user.email||'').split('@')[0];
@@ -12452,6 +12486,7 @@ function ewEnsureTcInput() {
   };
   // Página de conta no menu lateral (Dados / Segurança) — mostra o painel sem aba destacada
   window.tpAccountPage=function(name, btn){
+    if(name==='seg') name='dados'; // segurança agora vive dentro de Dados & Privacidade
     if(typeof showPage==='function') showPage('profile', btn);
     document.querySelectorAll('#profile .pf-tab').forEach(function(b){ b.classList.remove('on'); });
     document.querySelectorAll('#profile .pf-panel').forEach(function(p){ p.style.display=(p.dataset.panel===name)?'':'none'; });
@@ -12472,7 +12507,7 @@ function ewEnsureTcInput() {
     if(window.tpRenderMiniFriends) tpRenderMiniFriends();
   };
   window.tpSyncPrivLabels=function(){
-    ['full_name','phone','country','bio'].forEach(function(k){
+    ['full_name','phone','country','bio','twitch','youtube','discord'].forEach(function(k){
       var cb=g('pf-pub-'+k), l=g('pf-publbl-'+k); if(!l) return;
       var on=cb&&cb.checked; l.textContent=on?'Público':'Oculto'; l.style.color=on?'var(--bamboo-light,#a78bfa)':'var(--muted)';
     });
@@ -13008,10 +13043,13 @@ function ewEnsureTcInput() {
     if(g('pf-in-phone')) g('pf-in-phone').value=prof.phone||'';
     if(g('pf-in-bio')) g('pf-in-bio').value=prof.bio||'';
     if(g('pf-in-country')) g('pf-in-country').value=prof.country||'';
+    if(g('pf-in-twitch')) g('pf-in-twitch').value=prof.twitch||'';
+    if(g('pf-in-youtube')) g('pf-in-youtube').value=prof.youtube||'';
+    if(g('pf-in-discord')) g('pf-in-discord').value=prof.discord||'';
     if(g('pf-in-email')) g('pf-in-email').value=AUTH.user.email||'';
     if(g('pf-in-email2')) g('pf-in-email2').value=AUTH.user.email||'';
     var pv=prof.privacy||{};
-    ['full_name','phone','country','bio'].forEach(function(k){ var cb=g('pf-pub-'+k); if(cb) cb.checked=!!pv[k]; });
+    ['full_name','phone','country','bio','twitch','youtube','discord'].forEach(function(k){ var cb=g('pf-pub-'+k); if(cb) cb.checked=!!pv[k]; });
     if(window.tpSyncPrivLabels) tpSyncPrivLabels();
     tpLoadChars();
   };
@@ -13071,8 +13109,10 @@ function ewEnsureTcInput() {
   };
   window.tpSavePersonal=async function(){
     if(!AUTH) return;
-    var patch={ full_name:((g('pf-in-fullname').value||'').trim())||null, phone:((g('pf-in-phone').value||'').trim())||null, bio:((g('pf-in-bio').value||'').trim())||null, country:((g('pf-in-country').value||'').trim())||null, updated_at:new Date().toISOString() };
-    patch.privacy={ full_name:!!(g('pf-pub-full_name')&&g('pf-pub-full_name').checked), phone:!!(g('pf-pub-phone')&&g('pf-pub-phone').checked), country:!!(g('pf-pub-country')&&g('pf-pub-country').checked), bio:!!(g('pf-pub-bio')&&g('pf-pub-bio').checked) };
+    var gv=function(id){ var el=g(id); return el?((el.value||'').trim())||null:null; };
+    var patch={ full_name:gv('pf-in-fullname'), phone:gv('pf-in-phone'), bio:gv('pf-in-bio'), country:gv('pf-in-country'), twitch:gv('pf-in-twitch'), youtube:gv('pf-in-youtube'), discord:gv('pf-in-discord'), updated_at:new Date().toISOString() };
+    var pubOf=function(k){ var cb=g('pf-pub-'+k); return !!(cb&&cb.checked); };
+    patch.privacy={ full_name:pubOf('full_name'), phone:pubOf('phone'), country:pubOf('country'), bio:pubOf('bio'), twitch:pubOf('twitch'), youtube:pubOf('youtube'), discord:pubOf('discord') };
     var btn=g('pf-save-personal'); if(btn){btn.disabled=true;btn.textContent='Salvando...';}
     try{
       var res=await tpAuthFetch(SB+'/rest/v1/profiles?id=eq.'+AUTH.user.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(patch)});
@@ -13850,6 +13890,20 @@ window.tpToast=function(msg,type){
   var PROF_RANKS=[[1,'Novato 🐼'],[5,'Aventureiro 🎋'],[10,'Caçador 🏹'],[20,'Veterano ⚔️'],[35,'Mestre 🛡️'],[50,'Lenda 👑']];
   function profRankOf(l){ var rr=PROF_RANKS[0][1]; PROF_RANKS.forEach(function(x){ if(l>=x[0]) rr=x[1]; }); return rr; }
   function profChip(ic,txt,title){ return '<span class="tp-chip"'+(title?(' title="'+title+'"'):'')+'><b>'+ic+'</b> '+window.esc(txt)+'</span>'; }
+  function profSocialUrl(kind,val){
+    val=String(val||'').trim(); if(!val) return null;
+    if(/^https?:\/\//i.test(val)) return val;
+    if(kind==='twitch'){ var t=val.replace(/^.*twitch\.tv\//i,'').replace(/^@|^\//,''); return t?('https://twitch.tv/'+t):null; }
+    if(kind==='youtube'){ var y=val.replace(/^.*youtube\.com\//i,'').replace(/^\//,''); return y?('https://youtube.com/'+y):null; }
+    return null;
+  }
+  function profSocialRow(p){
+    var items=[], S='display:inline-flex;align-items:center;gap:5px;font-size:.74rem;font-weight:700;text-decoration:none;padding:5px 11px;border-radius:999px;border:1px solid var(--border,#2b2938)';
+    var tw=profSocialUrl('twitch',p.twitch); if(tw) items.push('<a href="'+window.esc(tw)+'" target="_blank" rel="noopener" style="'+S+';color:#c9b6ff;background:#2a2140">🟣 Twitch</a>');
+    var yt=profSocialUrl('youtube',p.youtube); if(yt) items.push('<a href="'+window.esc(yt)+'" target="_blank" rel="noopener" style="'+S+';color:#f0a0a0;background:#2f1a1a">🔴 YouTube</a>');
+    if(p.discord) items.push('<span title="Discord" style="'+S+';color:#a9b6ff;background:#1c2038;cursor:default">💬 '+window.esc(p.discord)+'</span>');
+    return items.length ? '<div class="tp-prof-social" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem">'+items.join('')+'</div>' : '';
+  }
   function profMin(m){ m=+m||0; if(m<60) return m+'min'; var h=Math.floor(m/60), mm=m%60; return h+'h'+(mm?(' '+mm+'m'):''); }
   var PROF_EMO=['😀','😂','😎','😍','🥳','😢','😡','👍','👏','🙏','🔥','💪','⚔️','🛡️','🏆','🐼','🎉','❤️','💜','✨','😱','🤝','👀','💀'];
   window.tpProfEmojiToggle=function(ev){ if(ev) ev.stopPropagation(); var pop=document.getElementById('tp-prof-emoji'); if(!pop) return;
@@ -13901,6 +13955,7 @@ window.tpToast=function(msg,type){
           +profChip('⏱️',profMin(d.weekly_minutes)+' na semana','Tempo jogado (últimos 7 dias, do analyser)')
           +(p.country?profChip('🌎',p.country,'País'):'')
         +'</div>'
+        +profSocialRow(p)
       +'</div></div>';
     var titles=PROF_RANKS.filter(function(x){return clvl>=x[0];}).map(function(x){ return '<span class="tp-title'+(x[1]===rank?' cur':'')+'" title="Liberado no nível '+x[0]+' da comunidade">'+x[1]+' <small>nv '+x[0]+'</small></span>'; }).join('');
     var depoCompose=(!d.is_self)?'<div class="tp-prof-depoc"><div class="tp-depo-wrap"><textarea id="tp-prof-depo-in" maxlength="500" placeholder="Deixe um comentário…"></textarea>'
@@ -15519,9 +15574,29 @@ window.tpLoadJornada=async function(){
     return af()(SBURL()+'/rest/v1/user_roles?select=role&role=eq.moderator&user_id=eq.'+A.user.id,{headers:{Accept:'application/json'}})
       .then(function(r){ return r.json(); }).then(function(rows){ IS_MOD=Array.isArray(rows)&&rows.length>0; return IS_MOD; }).catch(function(){ IS_MOD=false; return false; });
   }
+  // Detecção de moderador a nível de app (mostra o item no menu lateral)
+  window.tpCheckModerator=function(){
+    var item=document.getElementById('nav-moderation'), A=auth();
+    if(!A||!A.user){ IS_MOD=false; if(item) item.style.display='none'; window.TP_IS_MOD=false; return; }
+    af()(SBURL()+'/rest/v1/user_roles?select=role&role=eq.moderator&user_id=eq.'+A.user.id,{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.json(); }).then(function(rows){
+        IS_MOD=Array.isArray(rows)&&rows.length>0; window.TP_IS_MOD=IS_MOD;
+        if(item) item.style.display=IS_MOD?'':'none';
+        var b=document.getElementById('hs-mod-btn'); if(b) b.style.display=IS_MOD?'':'none';
+        if(IS_MOD) refreshModBadge();
+      }).catch(function(){});
+  };
   function refreshModBadge(){
     af()(SBURL()+'/rest/v1/house_photos?select=id&status=eq.pending',{headers:{Accept:'application/json',Prefer:'count=exact',Range:'0-0'}})
-      .then(function(r){ var cr=r.headers.get('content-range'), total=cr?parseInt(cr.split('/')[1],10):0; var b=document.getElementById('hs-mod-badge'); if(b){ if(total>0){ b.textContent=total; b.style.display=''; } else b.style.display='none'; } }).catch(function(){});
+      .then(function(r){ var cr=r.headers.get('content-range'), total=cr?parseInt(cr.split('/')[1],10):0;
+        ['hs-mod-badge','nav-mod-badge'].forEach(function(bid){ var b=document.getElementById(bid); if(b){ if(total>0){ b.textContent=total; b.style.display=''; } else b.style.display='none'; } });
+      }).catch(function(){});
+  }
+  function modRow(p){
+    var img=SBURL()+'/storage/v1/object/public/house-photos/'+p.image_path;
+    return '<div class="hs-mq-row" id="mq-'+p.id+'"><img src="'+esc(img)+'" onclick="tpHouseLightbox(this.src)" alt="">'
+      +'<div class="hs-mq-info"><div class="h">'+esc(p.house_name)+'</div><div class="m">'+esc(p.character)+(p.level?' · Lvl '+p.level:'')+' · '+esc(p.world)+(p.town?' · '+esc(p.town):'')+'</div>'+(p.titles?'<div class="m" style="color:var(--bamboo-light)">'+esc(p.titles)+'</div>':'')+(p.comment?'<div class="m">"'+esc(p.comment)+'"</div>':'')+'</div>'
+      +'<div class="hs-mq-actions"><button class="hs-approve" onclick="tpHouseModAct(\''+p.id+'\',\'approved\')">✓ Aprovar</button><button class="hs-reject" onclick="tpHouseModAct(\''+p.id+'\',\'rejected\')">Recusar</button></div></div>';
   }
   window.tpHouseModQueue=function(){
     var modal=document.getElementById('hs-modq'), body=document.getElementById('hs-modq-body');
@@ -15531,13 +15606,20 @@ window.tpLoadJornada=async function(){
       .then(function(r){ return r.json(); }).then(function(rows){
         rows=Array.isArray(rows)?rows:[];
         if(!rows.length){ body.innerHTML='<div class="hs-map-none">Nenhuma foto pendente. Tudo em dia! ✨</div>'; return; }
-        body.innerHTML=rows.map(function(p){
-          var img=SBURL()+'/storage/v1/object/public/house-photos/'+p.image_path;
-          return '<div class="hs-mq-row" id="mq-'+p.id+'"><img src="'+esc(img)+'" onclick="tpHouseLightbox(this.src)" alt="">'
-            +'<div class="hs-mq-info"><div class="h">'+esc(p.house_name)+'</div><div class="m">'+esc(p.character)+(p.level?' · Lvl '+p.level:'')+' · '+esc(p.world)+(p.town?' · '+esc(p.town):'')+'</div>'+(p.titles?'<div class="m" style="color:var(--bamboo-light)">'+esc(p.titles)+'</div>':'')+(p.comment?'<div class="m">"'+esc(p.comment)+'"</div>':'')+'</div>'
-            +'<div class="hs-mq-actions"><button class="hs-approve" onclick="tpHouseModAct(\''+p.id+'\',\'approved\')">✓ Aprovar</button><button class="hs-reject" onclick="tpHouseModAct(\''+p.id+'\',\'rejected\')">Recusar</button></div></div>';
-        }).join('');
+        body.innerHTML=rows.map(modRow).join('');
       }).catch(function(){ body.innerHTML='<div class="hs-map-none">Não consegui carregar a fila.</div>'; });
+  };
+  window.tpModPanelLoad=function(){
+    var A=auth(), host=document.getElementById('mod-panel-body'), cnt=document.getElementById('mod-panel-count'); if(!host) return;
+    if(!A||!A.user){ host.innerHTML='<div class="hs-map-none">Entre na sua conta.</div>'; return; }
+    host.innerHTML='<div class="hs-loading">Carregando…</div>';
+    af()(SBURL()+'/rest/v1/house_photos?select=*&status=eq.pending&order=created_at.asc',{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.json(); }).then(function(rows){
+        rows=Array.isArray(rows)?rows:[];
+        if(cnt) cnt.textContent='('+rows.length+')';
+        if(!rows.length){ host.innerHTML='<div class="hs-map-none">Nenhuma foto pendente. Tudo em dia! ✨</div>'; return; }
+        host.innerHTML=rows.map(modRow).join('');
+      }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar a fila. (Você precisa ser moderador.)</div>'; });
   };
   window.tpHouseModAct=async function(id,action){
     var A=auth(); if(!A||!A.user) return;
@@ -15548,6 +15630,8 @@ window.tpLoadJornada=async function(){
       toast(action==='approved'?'Foto aprovada! ✓':'Foto recusada.',action==='approved'?'success':'info');
       refreshModBadge(); loadPhotoCounts();
       var body=document.getElementById('hs-modq-body'); if(body && !body.querySelector('.hs-mq-row')) body.innerHTML='<div class="hs-map-none">Nenhuma foto pendente. Tudo em dia! ✨</div>';
+      var pb=document.getElementById('mod-panel-body'), pc=document.getElementById('mod-panel-count');
+      if(pb){ var left=pb.querySelectorAll('.hs-mq-row').length; if(pc) pc.textContent='('+left+')'; if(!left) pb.innerHTML='<div class="hs-map-none">Nenhuma foto pendente. Tudo em dia! ✨</div>'; }
     }catch(e){ toast('Não consegui atualizar.','error'); }
   };
 
