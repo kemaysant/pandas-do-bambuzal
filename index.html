@@ -2530,8 +2530,7 @@ async function tibiaFetch(path) {
       #eventpage .evp-rbtn.maybe.on{background:#2a2410;border-color:#c9a840;color:#e6c964}
       #eventpage .evp-rbtn.no.on{background:#2f1a1a;border-color:#e05a5a;color:#f08a8a}
       #eventpage .evp-abtn{font-size:.76rem;font-weight:700;text-decoration:none;color:var(--bamboo-light,#a78bfa);background:var(--bamboo-dim,#211a3d);border:1px solid var(--bamboo,#8b5cf6);border-radius:999px;padding:6px 12px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
-      #eventpage .evp-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-bottom:1.1rem}
-      @media(max-width:720px){ #eventpage .evp-grid{grid-template-columns:1fr} }
+      #eventpage .evp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.1rem;margin-bottom:1.1rem}
       #eventpage .evp-card{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1.1rem 1.2rem}
       #eventpage .evp-card h3{font-size:.95rem;font-weight:800;color:var(--ink,#eae8f2);margin:0 0 .5rem;display:flex;align-items:center;gap:.45rem}
       #eventpage .evp-text{font-size:.86rem;color:var(--ink-3,#b9b6c9);line-height:1.5;white-space:pre-wrap;word-break:break-word}
@@ -2545,8 +2544,11 @@ async function tibiaFetch(path) {
       /* Kanban */
       #eventpage .kb-wrap{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1.1rem}
       #eventpage .kb-hint{font-size:.78rem;color:var(--muted);margin:.1rem 0 .9rem;line-height:1.45}
-      #eventpage .kb-board{display:flex;gap:.8rem;overflow-x:auto;padding-bottom:.4rem}
-      #eventpage .kb-col{flex:0 0 200px;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:12px;padding:.6rem;min-height:90px;transition:.14s}
+      #eventpage .kb-board{display:flex;gap:.7rem;overflow-x:auto;padding-bottom:.7rem;scrollbar-width:thin;scrollbar-color:var(--bamboo,#8b5cf6) transparent}
+      #eventpage .kb-board::-webkit-scrollbar{height:8px}
+      #eventpage .kb-board::-webkit-scrollbar-thumb{background:var(--border,#2b2938);border-radius:8px}
+      #eventpage .kb-board::-webkit-scrollbar-thumb:hover{background:var(--bamboo,#8b5cf6)}
+      #eventpage .kb-col{flex:0 0 190px;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:12px;padding:.6rem;min-height:90px;transition:.14s}
       #eventpage .kb-col.drop{border-color:var(--bamboo,#8b5cf6);background:var(--bamboo-dim,#211a3d)}
       #eventpage .kb-col.pool{flex-basis:220px}
       #eventpage .kb-chd{display:flex;align-items:center;justify-content:space-between;gap:.4rem;margin-bottom:.5rem}
@@ -2567,13 +2569,13 @@ async function tibiaFetch(path) {
       #eventpage .kb-addcol{flex:0 0 46px;display:flex;align-items:center;justify-content:center;background:none;border:1px dashed var(--border,#2b2938);border-radius:12px;color:var(--muted);font-size:1.4rem;cursor:pointer;font-family:inherit}
       #eventpage .kb-addcol:hover{border-color:var(--bamboo,#8b5cf6);color:var(--bamboo-light,#a78bfa)}
       /* layout com chat fixo na lateral */
-      #eventpage .evp-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:1.1rem;align-items:start}
-      @media(max-width:900px){ #eventpage .evp-layout{grid-template-columns:1fr} }
+      #eventpage .evp-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:1.1rem;align-items:start}
+      @media(max-width:1199px){ #eventpage .evp-layout{grid-template-columns:1fr} }
       #eventpage #evp-main{min-width:0}
-      #eventpage .evp-chatpane{position:sticky;top:1rem;background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;display:flex;flex-direction:column;max-height:calc(100vh - 2rem);overflow:hidden}
-      @media(max-width:900px){ #eventpage .evp-chatpane{position:static;max-height:72vh} }
+      #eventpage .evp-chatpane{position:sticky;top:64px;height:calc(100vh - 80px);background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;display:flex;flex-direction:column;overflow:hidden}
+      @media(max-width:1199px){ #eventpage .evp-chatpane{position:static;height:auto;max-height:70vh} }
       #eventpage .evp-chat-hd{font-family:'Cinzel',serif;font-size:.92rem;font-weight:700;color:var(--ink,#eae8f2);padding:.85rem 1rem;border-bottom:1px solid var(--rule,#2b2938);display:flex;align-items:center;gap:.4rem;flex:none}
-      #eventpage .evp-chat-scroll{flex:1;overflow-y:auto;min-height:180px;display:flex;flex-direction:column;gap:.55rem;padding:.8rem}
+      #eventpage .evp-chat-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:.55rem;padding:.8rem}
       #eventpage #evp-chat-foot{padding:.7rem;border-top:1px solid var(--rule,#2b2938);flex:none}
       #eventpage #evp-chat-foot .agchat-gate{margin-top:0}
     </style>
@@ -4281,7 +4283,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cz</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13da</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7425,7 +7427,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cz';
+window.TP_BUILD = '2026-08-13da';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
