@@ -3404,6 +3404,7 @@ PlayerName (Leader)
       <button class="pf-tab" data-tab="jornada" onclick="tpProfTab('jornada',this)">🗺 Jornada</button>
       <button class="pf-tab" data-tab="rankings" onclick="tpProfTab('rankings',this)">🏆 Rankings</button>
       <button class="pf-tab" data-tab="houses" onclick="tpProfTab('houses',this)">🏠 Houses</button>
+      <button class="pf-tab" data-tab="eventos" onclick="tpProfTab('eventos',this)">📅 Eventos</button>
     </div>
 
     <!-- JORNADA DE QUESTS -->
@@ -3563,6 +3564,14 @@ PlayerName (Leader)
         <div class="tool-title" style="font-size:1.05rem;margin-bottom:.2rem">🏠 Minhas Houses</div>
         <div style="font-size:.78rem;color:var(--muted);margin-bottom:.9rem">Casas dos seus personagens verificados e as fotos que você enviou pra galeria da comunidade.</div>
         <div id="pf-houses-body"><div class="api-loading"><div class="spinner"></div> Carregando...</div></div>
+      </div>
+    </div>
+
+    <div class="pf-panel" data-panel="eventos" style="display:none">
+      <div class="card">
+        <div class="tool-title" style="font-size:1.05rem;margin-bottom:.2rem">📅 Meus eventos</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:.9rem">Eventos que você criou e aqueles em que confirmou presença na Agenda da Comunidade.</div>
+        <div id="pf-eventos-body"><div class="api-loading"><div class="spinner"></div> Carregando...</div></div>
       </div>
     </div>
 
@@ -4283,7 +4292,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13da</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13db</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7427,7 +7436,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13da';
+window.TP_BUILD = '2026-08-13db';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -12814,6 +12823,7 @@ function ewEnsureTcInput() {
     }
     if(name==='jornada' && window.tpLoadJornada) tpLoadJornada();
     if(name==='houses' && window.tpProfHouses) tpProfHouses();
+    if(name==='eventos' && window.tpProfEvents) tpProfEvents();
   };
   // Página de conta no menu lateral (Dados / Segurança) — mostra o painel sem aba destacada
   window.tpAccountPage=function(name, btn){
@@ -16178,6 +16188,38 @@ window.tpLoadJornada=async function(){
     } else if(!friendIds.length){ html+='<div class="hs-map-none">Adicione amigos (aba Amigos) pra ver as houses deles aqui.</div>'; }
     else { html+='<div class="hs-map-none">Seus amigos ainda não compartilharam fotos de houses.</div>'; }
     host.innerHTML=html;
+  };
+
+  // Aba "Eventos" do perfil: eventos criados por você + os que você confirmou
+  window.tpProfEvents=async function(){
+    var host=document.getElementById('pf-eventos-body'); if(!host) return;
+    var A=auth(); if(!A||!A.user){ host.innerHTML='<div class="hs-gate">Entre na sua conta para ver seus eventos.</div>'; return; }
+    host.innerHTML='<div class="hs-loading">Carregando seus eventos…</div>';
+    var list=[];
+    try{ var r=await af()(SBURL()+'/rest/v1/rpc/tp_my_events',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:'{}'}); var j=await r.json(); list=Array.isArray(j)?j:[]; }
+    catch(e){ host.innerHTML='<div class="hs-map-none">Não consegui carregar seus eventos agora.</div>'; return; }
+    if(!list.length){ host.innerHTML='<div class="hs-map-none">Você ainda não criou nem confirmou presença em nenhum evento. Dá uma passada na <a href="#agenda" style="color:var(--bamboo-light,#a78bfa)">Agenda da Comunidade</a> 📅</div>'; return; }
+    var TICO={hunt:'⚔️',team_hunt:'🛡️',boss:'💀',quest:'📜',guild_war:'🚩',social:'🎉',stream:'🎥',other:'📌'};
+    var VIS={public:'🌎',friends:'👥',guild:'🛡️',private:'🔒'};
+    function card(ev){
+      var d=new Date(ev.starts_at), dd=d.getDate(), mo=d.toLocaleDateString('pt-BR',{month:'short'}).replace('.',''), hr=d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      var resp=ev.is_mine?'<span style="color:var(--gold-light,#e0c060);font-weight:700">👑 Host</span>':(ev.my_response==='going'?'<span style="color:#5fdd9e;font-weight:700">✓ Vou</span>':(ev.my_response==='maybe'?'<span style="color:#e6c964;font-weight:700">? Talvez</span>':''));
+      return '<div class="hs-card" style="display:flex;gap:.8rem;align-items:center;cursor:pointer;padding:.7rem .9rem'+(ev.past?';opacity:.55':'')+'" onclick="location.hash=\'#event='+ev.id+'\'">'
+        +'<div style="flex:none;text-align:center;width:44px"><div style="font-size:1.2rem;font-weight:800;color:var(--ink,#eae8f2);line-height:1;font-family:\'Cinzel\',serif">'+dd+'</div><div style="font-size:.56rem;text-transform:uppercase;color:var(--gold-light,#e0c060);font-weight:700">'+esc(mo)+'</div></div>'
+        +'<div style="flex:1;min-width:0"><div style="font-weight:700;color:var(--ink,#eae8f2);font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(TICO[ev.type]||'📌')+' '+esc(ev.title)+'</div>'
+        +'<div style="font-size:.72rem;color:var(--muted)">'+hr+' · '+(VIS[ev.visibility]||'')+' '+esc(ev.world||'')+(ev.location?' · '+esc(ev.location):'')+' · <b style="color:#3ecf8e">'+(ev.going||0)+'</b> vão'+(ev.past?' · <i>já aconteceu</i>':'')+'</div></div>'
+        +'<div style="flex:none;font-size:.74rem">'+resp+'</div></div>';
+    }
+    function group(title, arr){
+      if(!arr.length) return '';
+      var up=arr.filter(function(e){return !e.past;}), pa=arr.filter(function(e){return e.past;});
+      return '<div class="hs-sec-t" style="margin-top:1.1rem">'+title+' <span style="color:var(--muted);font-weight:400;font-size:.8rem">('+arr.length+')</span></div>'
+        +'<div style="display:flex;flex-direction:column;gap:.6rem">'+up.map(card).join('')+pa.map(card).join('')+'</div>';
+    }
+    var mine=list.filter(function(e){return e.is_mine;});
+    var conf=list.filter(function(e){return !e.is_mine && (e.my_response==='going'||e.my_response==='maybe');});
+    var html=group('👑 Criados por você', mine)+group('✅ Presença confirmada', conf);
+    host.innerHTML=html || '<div class="hs-map-none">Nada por aqui ainda.</div>';
   };
 })();
 </script>
