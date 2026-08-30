@@ -2256,6 +2256,27 @@ async function tibiaFetch(path) {
   <!-- Lightbox -->
   <div id="hs-lightbox" class="hs-lightbox" onclick="this.classList.remove('open')"><img src="" alt=""></div>
 
+  <!-- Crop / pré-editar -->
+  <div id="hs-crop" class="hs-modal" style="z-index:1560">
+    <div class="hs-modal-card" style="max-width:660px">
+      <button class="hs-x" onclick="if(window.tpHouseCropCancel)tpHouseCropCancel()">✕</button>
+      <div class="hs-sec-t" style="font-size:1rem;color:var(--ink)">✂️ Recortar a foto</div>
+      <div style="font-size:.74rem;color:var(--muted);margin:-.3rem 0 .8rem">Arraste pra focar na sua house — dá pra tirar a interface do jogo e deixar só o cenário. Pode usar a imagem inteira também.</div>
+      <div style="max-height:56vh;overflow:hidden;background:#0d0d10;border-radius:10px"><img id="hs-crop-img" style="max-width:100%;display:block"></div>
+      <div style="display:flex;gap:.5rem;margin-top:1rem;flex-wrap:wrap;align-items:center">
+        <button class="hs-like" onclick="tpHouseCropAspect(NaN)">Livre</button>
+        <button class="hs-like" onclick="tpHouseCropAspect(1.7777)">16:9</button>
+        <button class="hs-like" onclick="tpHouseCropAspect(1.3333)">4:3</button>
+        <button class="hs-like" onclick="tpHouseCropAspect(1)">Quadrado</button>
+        <button class="hs-like" onclick="tpHouseCropReset()">↺ Reset</button>
+        <div style="margin-left:auto;display:flex;gap:.5rem">
+          <button class="hs-like" onclick="tpHouseCropCancel()">Cancelar</button>
+          <button class="tp-btn-primary" onclick="tpHouseCropConfirm()" style="padding:.5rem .9rem">Cortar e usar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ─── QUEST GUIDE ─── -->
   <section class="page-section" id="quests">
     <h2 class="sec-title">Guia de Quests</h2>
@@ -3917,7 +3938,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cj</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13ck</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7061,7 +7082,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cj';
+window.TP_BUILD = '2026-08-13ck';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -15364,6 +15385,7 @@ window.tpLoadJornada=async function(){
 
   function setupForm(h){
     var wrap=document.getElementById('hs-formwrap'); if(!wrap) return;
+    state.croppedFile=null; state.fileValid=false;
     var A=auth();
     if(!A||!A.user){ wrap.innerHTML='<div class="hs-gate">Entre na sua conta e verifique um boneco para enviar fotos da sua house. <a href="#" onclick="if(window.tpHouseClose)tpHouseClose();if(window.tpOpenAuth)tpOpenAuth(\'login\');return false" style="color:var(--bamboo-light)">Entrar</a></div>'; return; }
     wrap.innerHTML='<div class="hs-loading" style="padding:.6rem">Carregando seus bonecos…</div>';
@@ -15417,15 +15439,51 @@ window.tpLoadJornada=async function(){
     try{ var dim=await hsDecode(file); if(dim.w<400||dim.h<200) return {ok:false,msg:'Imagem pequena demais — envie um print do jogo (mín. 400px de largura).'}; if(dim.w>8000||dim.h>8000) return {ok:false,msg:'Imagem com dimensões absurdas.'}; return {ok:true,w:dim.w,h:dim.h}; }
     catch(e){ return {ok:false,msg:'Arquivo corrompido ou não é uma imagem de verdade.'}; }
   }
+  function hsResetDrop(){ var d=document.getElementById('hs-f-drop'); if(d){ d.classList.remove('has'); d.textContent='📷 Clique para escolher a foto da house'; } }
+  function hsMarkDrop(txt){ var d=document.getElementById('hs-f-drop'); if(d){ d.classList.add('has'); d.textContent=txt; } }
+  var _cropper=null, _cropUrl=null, _cropType='image/jpeg';
+  function loadCropper(){
+    if(window.Cropper) return Promise.resolve();
+    return new Promise(function(resolve,reject){
+      if(!document.getElementById('cropper-css')){ var css=document.createElement('link'); css.id='cropper-css'; css.rel='stylesheet'; css.href='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css'; document.head.appendChild(css); }
+      var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js'; s.onload=resolve; s.onerror=function(){ reject(new Error('cropper')); }; document.head.appendChild(s);
+    });
+  }
+  function closeCrop(){ var m=document.getElementById('hs-crop'); if(m) m.classList.remove('open'); if(_cropper){ try{ _cropper.destroy(); }catch(e){} _cropper=null; } if(_cropUrl){ URL.revokeObjectURL(_cropUrl); _cropUrl=null; } }
+  function openCropper(file){
+    var modal=document.getElementById('hs-crop'), img=document.getElementById('hs-crop-img'); if(!modal||!img) return;
+    if(_cropper){ try{ _cropper.destroy(); }catch(e){} _cropper=null; }
+    if(_cropUrl){ URL.revokeObjectURL(_cropUrl); }
+    _cropUrl=URL.createObjectURL(file); _cropType=(file.type==='image/png'?'image/png':'image/jpeg'); state._origName=file.name;
+    img.onload=function(){ _cropper=new Cropper(img,{ viewMode:1, autoCropArea:1, background:false, movable:true, zoomable:true, responsive:true, checkOrientation:false }); };
+    img.src=_cropUrl; modal.classList.add('open');
+  }
+  window.tpHouseCropAspect=function(a){ if(_cropper) _cropper.setAspectRatio(a); };
+  window.tpHouseCropReset=function(){ if(_cropper) _cropper.reset(); };
+  window.tpHouseCropCancel=function(){ var inp=document.getElementById('hs-f-file'); if(inp) inp.value=''; state.croppedFile=null; state.fileValid=false; hsResetDrop(); closeCrop(); };
+  window.tpHouseCropConfirm=function(){
+    if(!_cropper){ closeCrop(); return; }
+    var canvas=_cropper.getCroppedCanvas({ maxWidth:2400, maxHeight:2400, imageSmoothingQuality:'high' });
+    if(!canvas){ toast('Não consegui recortar. Tenta de novo.','error'); return; }
+    var done=function(blob){
+      if(!blob){ toast('Falha ao gerar a imagem.','error'); return; }
+      if(blob.size>3*1024*1024){ toast('Depois do corte ainda passou de 3MB. Corte um pouco menos.','error'); return; }
+      var ext=_cropType==='image/png'?'png':'jpg';
+      var name=(state._origName||'house').replace(/\.[^.]+$/,'')+'-crop.'+ext;
+      state.croppedFile=new File([blob],name,{type:_cropType}); state.fileValid=true;
+      hsMarkDrop('✓ Foto recortada pronta ('+canvas.width+'×'+canvas.height+')'); closeCrop();
+    };
+    if(_cropType==='image/jpeg'){ canvas.toBlob(function(b){ if(b&&b.size>3*1024*1024){ canvas.toBlob(done,'image/jpeg',0.75); } else done(b); }, 'image/jpeg', 0.9); }
+    else { canvas.toBlob(function(b){ if(b&&b.size>3*1024*1024){ _cropType='image/jpeg'; canvas.toBlob(done,'image/jpeg',0.85); } else done(b); }, 'image/png'); }
+  };
   window.tpHouseFilePick=async function(inp){
-    var d=document.getElementById('hs-f-drop'), f=inp.files&&inp.files[0];
-    state.fileValid=false;
-    if(!f){ if(d){ d.classList.remove('has'); d.textContent='📷 Clique para escolher a foto da house'; } return; }
-    if(d){ d.classList.remove('has'); d.textContent='🔍 Verificando a imagem…'; }
+    var f=inp.files&&inp.files[0]; state.fileValid=false; state.croppedFile=null;
+    if(!f){ hsResetDrop(); return; }
+    hsMarkDrop('🔍 Verificando a imagem…'); document.getElementById('hs-f-drop').classList.remove('has');
     var v=await hsValidateImage(f);
-    if(!v.ok){ toast(v.msg,'error'); inp.value=''; if(d){ d.classList.remove('has'); d.textContent='📷 Clique para escolher a foto da house'; } return; }
-    state.fileValid=true;
-    if(d){ d.classList.add('has'); d.textContent='✓ '+f.name+' ('+v.w+'×'+v.h+')'; }
+    if(!v.ok){ toast(v.msg,'error'); inp.value=''; hsResetDrop(); return; }
+    try{ await loadCropper(); openCropper(f); }
+    catch(e){ state.fileValid=true; state.croppedFile=f; hsMarkDrop('✓ '+f.name+' ('+v.w+'×'+v.h+')'); }
   };
 
   window.tpHouseSubmitPhoto=async function(){
@@ -15436,7 +15494,7 @@ window.tpLoadJornada=async function(){
     var level=(fc.name===char?fc.level:null)||null;
     var titles=(fc.name===char?fc.title:'')||null;
     var comment=((document.getElementById('hs-f-desc')||{}).value||'').trim();
-    var fileInp=document.getElementById('hs-f-file'), file=fileInp&&fileInp.files&&fileInp.files[0];
+    var fileInp=document.getElementById('hs-f-file'), file=state.croppedFile||(fileInp&&fileInp.files&&fileInp.files[0]);
     if(!char){ toast('Escolha um boneco.','info'); return; }
     if(!file){ toast('Escolha uma foto da house.','info'); return; }
     var _v=await hsValidateImage(file); if(!_v.ok){ toast(_v.msg,'error'); return; }
