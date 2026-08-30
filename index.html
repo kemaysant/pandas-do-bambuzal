@@ -2310,13 +2310,20 @@ async function tibiaFetch(path) {
   <!-- ─── PAINEL DE MODERAÇÃO ─── -->
   <section class="page-section" id="moderation">
     <h2 class="sec-title">🛡️ Painel de Moderação</h2>
-    <p class="sec-sub">Aprove ou recuse as fotos de houses enviadas pela comunidade. Aprove apenas prints do jogo Tibia relacionados à casa; recuse conteúdo fora do tema, ofensivo, spam ou de baixa qualidade.</p>
-    <div class="card">
+    <p class="sec-sub">Aprove ou recuse o conteúdo enviado pela comunidade. Aprove só o que é do tema Tibia; recuse conteúdo fora do tema, ofensivo, spam ou de baixa qualidade.</p>
+    <div class="card" style="margin-bottom:1rem">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
         <div class="tool-title" style="font-size:1.05rem">📸 Fotos de houses pendentes <span id="mod-panel-count" style="color:var(--muted);font-weight:400"></span></div>
         <button class="hs-like" onclick="if(window.tpModPanelLoad)tpModPanelLoad()">↻ Atualizar</button>
       </div>
       <div id="mod-panel-body"><div class="api-loading"><div class="spinner"></div> Carregando…</div></div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+        <div class="tool-title" style="font-size:1.05rem">💬 Comentários de hunt pendentes <span id="mod-cmt-count" style="color:var(--muted);font-weight:400"></span></div>
+        <button class="hs-like" onclick="if(window.tpModCommentsLoad)tpModCommentsLoad()">↻ Atualizar</button>
+      </div>
+      <div id="mod-cmt-body"><div class="api-loading"><div class="spinner"></div> Carregando…</div></div>
     </div>
   </section>
 
@@ -4001,7 +4008,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13co</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cp</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7145,7 +7152,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13co';
+window.TP_BUILD = '2026-08-13cp';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -7223,7 +7230,7 @@ async function _renderCompose(huntName) {
 async function _fetchComments(huntName) {
   if (!PANDA_SB_URL || !PANDA_SB_ANON) return [];
   try {
-    const url = `${PANDA_SB_URL}/rest/v1/comentarios_hunt?hunt_name=eq.${encodeURIComponent(huntName)}&order=data.desc&limit=50`;
+    const url = `${PANDA_SB_URL}/rest/v1/comentarios_hunt?hunt_name=eq.${encodeURIComponent(huntName)}&status=eq.approved&order=data.desc&limit=50`;
     const r = await fetch(url, { headers: _pandaHeaders() });
     if (!r.ok) return [];
     return await r.json();
@@ -7247,23 +7254,10 @@ async function hfSubmitComment(huntName) {
       body: JSON.stringify({ p_hunt: huntName, p_text: text })
     });
     if (r.ok) {
-      const row = await r.json().catch(() => null);
-      const nome = (row && row.autor_nome) || (_hfVerifiedChar && _hfVerifiedChar.name) || 'você';
+      await r.json().catch(() => null);
       if (ta) ta.value = '';
-      const listEl = document.getElementById('hf-comment-list');
-      if (listEl) {
-        const it = document.createElement('div');
-        it.className = 'hf-comment-item';
-        it.innerHTML = `
-          <div class="hf-comment-meta">
-            <span class="hf-comment-author">${_escHtml(nome)}</span>
-            <span class="hf-comment-date">agora</span>
-          </div>
-          <div class="hf-comment-text">${_escHtml(text)}</div>`;
-        const emptyEl = listEl.querySelector('.hf-comment-empty');
-        if (emptyEl) emptyEl.remove();
-        listEl.prepend(it);
-      }
+      if (errEl) { errEl.textContent = '✓ Comentário enviado! Ele aparece após a aprovação de um moderador.'; errEl.style.color = 'var(--bamboo-light,#a78bfa)'; errEl.style.display = 'block'; }
+      if (window.tpToast) tpToast('Comentário enviado para aprovação. 📝','success');
     } else {
       let msg = 'Não foi possível publicar.';
       const e = await r.json().catch(() => null);
@@ -7272,7 +7266,7 @@ async function hfSubmitComment(huntName) {
         else if (/authenticated/i.test(e.message)) msg = 'Sessão expirada — entre novamente.';
         else msg = e.message;
       }
-      if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+      if (errEl) { errEl.textContent = msg; errEl.style.color = ''; errEl.style.display = 'block'; }
     }
   } catch (e) {
     if (errEl) { errEl.textContent = 'Erro de conexão ao publicar.'; errEl.style.display = 'block'; }
@@ -15322,6 +15316,7 @@ window.tpLoadJornada=async function(){
     var sel=document.getElementById('hs-town');
     if(sel && !townPop){ sel.innerHTML=TOWNS.map(function(t){ return '<option value="'+esc(t)+'"'+(t===state.town?' selected':'')+'>'+esc(t)+'</option>'; }).join(''); townPop=true; }
     checkMod().then(function(){ var b=document.getElementById('hs-mod-btn'); if(b) b.style.display=IS_MOD?'':'none'; if(IS_MOD) refreshModBadge(); });
+    loadMyChars();
     loadPhotoCounts();
     loadTown();
   };
@@ -15380,6 +15375,7 @@ window.tpLoadJornada=async function(){
   window.tpHouseOpen=function(id){
     var modal=document.getElementById('hs-modal'), body=document.getElementById('hs-modal-body');
     if(!modal||!body) return;
+    if(!state.myChars) loadMyChars();
     body.innerHTML='<div class="hs-loading">Carregando…</div>'; modal.classList.add('open');
     tdFetch('/v4/house/'+encodeURIComponent(state.world)+'/'+id).then(function(d){
       var h=d&&d.house; if(!h){ body.innerHTML='<div class="hs-map-none">Casa não encontrada.</div>'; return; }
@@ -15465,6 +15461,15 @@ window.tpLoadJornada=async function(){
           }).catch(function(){ renderPhotos(host,rows,{},{}); });
       }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar as fotos.</div>'; });
   }
+  function canDeletePhoto(p){
+    var A=auth(); if(!A||!A.user) return false;
+    if(p.user_id && p.user_id===A.user.id) return true;
+    if(IS_MOD) return true;
+    var owner=state.current&&state.current.status&&state.current.status.rental&&state.current.status.rental.owner;
+    if(owner && state.myChars && state.myChars[String(owner).toLowerCase()]) return true;
+    return false;
+  }
+  function delBtn(p){ return canDeletePhoto(p) ? '<button class="hs-like" title="Apagar foto" onclick="tpHousePhotoDelete(\''+p.id+'\',\''+encodeURIComponent(p.image_path)+'\')" style="color:var(--red,#e87070)">🗑</button>' : ''; }
   function renderPhotos(host,rows,cnt,mine){
     host.innerHTML='<div class="hs-gallery">'+rows.map(function(p){
       var img=SBURL()+'/storage/v1/object/public/house-photos/'+p.image_path;
@@ -15473,10 +15478,31 @@ window.tpLoadJornada=async function(){
         +'<div class="hs-ph-cap"><div class="who">'+esc(p.character)+(p.level?' <small>Lvl '+p.level+'</small>':'')+'</div>'
         +(p.titles?'<div class="titles">'+esc(p.titles)+'</div>':'')
         +(p.comment?'<div class="cmt">'+esc(p.comment)+'</div>':'')
+        +'<div style="display:flex;gap:6px;align-items:center;margin-top:7px;flex-wrap:wrap">'
         +'<button class="hs-like'+(liked?' on':'')+'" data-pid="'+p.id+'" onclick="tpHouseLike(this)"><span class="hl-i">'+(liked?'❤':'🤍')+'</span> <span class="hl-c">'+c+'</span></button>'
+        +delBtn(p)
+        +'</div>'
         +'</div></div>';
     }).join('')+'</div>';
   }
+  function loadMyChars(){
+    var A=auth(); if(!A||!A.user){ state.myChars={}; return; }
+    af()(SBURL()+'/rest/v1/characters?select=name&verified=is.true',{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.json(); }).then(function(rows){ var m={}; (Array.isArray(rows)?rows:[]).forEach(function(c){ if(c&&c.name) m[String(c.name).toLowerCase()]=1; }); state.myChars=m; }).catch(function(){});
+  }
+  window.tpHousePhotoDelete=async function(id,imgPathEnc){
+    if(!window.confirm('Apagar esta foto da galeria? Não dá pra desfazer.')) return;
+    var A=auth(); if(!A||!A.user){ toast('Entre na sua conta.','info'); return; }
+    try{
+      var r=await af()(SBURL()+'/rest/v1/house_photos?id=eq.'+id,{method:'DELETE',headers:{Prefer:'return=minimal'}});
+      if(!r.ok) throw new Error('del '+r.status);
+      if(imgPathEnc){ try{ await af()(SBURL()+'/storage/v1/object/house-photos/'+decodeURIComponent(imgPathEnc),{method:'DELETE'}); }catch(e){} }
+      toast('Foto apagada.','info');
+      if(state.current && document.getElementById('hs-photos')) loadPhotos(state.current);
+      if(document.getElementById('pf-houses-body') && window.tpProfHouses) tpProfHouses();
+      loadPhotoCounts();
+    }catch(e){ toast('Não consegui apagar essa foto (sem permissão?).','error'); }
+  };
   window.tpHouseLike=async function(btn){
     var A=auth();
     if(!A||!A.user){ if(window.tpHouseClose) tpHouseClose(); if(window.tpOpenAuth) tpOpenAuth('login'); return; }
@@ -15612,7 +15638,7 @@ window.tpLoadJornada=async function(){
       var path=A.user.id+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
       var up=await af()(SBURL()+'/storage/v1/object/house-photos/'+path,{ method:'POST', headers:{'Content-Type':file.type||'application/octet-stream','x-upsert':'true'}, body:file });
       if(!up.ok) throw new Error('upload '+up.status);
-      var row={ user_id:A.user.id, world:h.world, house_id:h.houseid, house_name:h.name, town:h.town, character:char, level:level, titles:titles||null, comment:comment||null, image_path:path, status:'pending' };
+      var row={ user_id:A.user.id, world:h.world, house_id:h.houseid, house_name:h.name, town:h.town, character:char, level:level, titles:titles||null, comment:comment||null, image_path:path, status:'pending', house_owner:(h.status&&h.status.rental&&h.status.rental.owner)||null };
       var ins=await af()(SBURL()+'/rest/v1/house_photos',{ method:'POST', headers:{'Content-Type':'application/json',Prefer:'return=minimal'}, body:JSON.stringify(row) });
       if(!ins.ok) throw new Error('insert '+ins.status);
       toast('Foto enviada! Vai aparecer após aprovação de um moderador. 📸','success');
@@ -15638,11 +15664,13 @@ window.tpLoadJornada=async function(){
         if(IS_MOD) refreshModBadge();
       }).catch(function(){});
   };
+  var _modCounts={p:0,c:0};
+  function paintModBadge(){ var total=_modCounts.p+_modCounts.c; ['hs-mod-badge','nav-mod-badge'].forEach(function(bid){ var b=document.getElementById(bid); if(b){ if(total>0){ b.textContent=total; b.style.display=''; } else b.style.display='none'; } }); }
   function refreshModBadge(){
     af()(SBURL()+'/rest/v1/house_photos?select=id&status=eq.pending',{headers:{Accept:'application/json',Prefer:'count=exact',Range:'0-0'}})
-      .then(function(r){ var cr=r.headers.get('content-range'), total=cr?parseInt(cr.split('/')[1],10):0;
-        ['hs-mod-badge','nav-mod-badge'].forEach(function(bid){ var b=document.getElementById(bid); if(b){ if(total>0){ b.textContent=total; b.style.display=''; } else b.style.display='none'; } });
-      }).catch(function(){});
+      .then(function(r){ var cr=r.headers.get('content-range'); _modCounts.p=cr?parseInt(cr.split('/')[1],10):0; paintModBadge(); }).catch(function(){});
+    af()(SBURL()+'/rest/v1/comentarios_hunt?select=id&status=eq.pending',{headers:{Accept:'application/json',Prefer:'count=exact',Range:'0-0'}})
+      .then(function(r){ var cr=r.headers.get('content-range'); _modCounts.c=cr?parseInt(cr.split('/')[1],10):0; paintModBadge(); }).catch(function(){});
   }
   function modRow(p){
     var img=SBURL()+'/storage/v1/object/public/house-photos/'+p.image_path;
@@ -15664,6 +15692,7 @@ window.tpLoadJornada=async function(){
   window.tpModPanelLoad=function(){
     var A=auth(), host=document.getElementById('mod-panel-body'), cnt=document.getElementById('mod-panel-count'); if(!host) return;
     if(!A||!A.user){ host.innerHTML='<div class="hs-map-none">Entre na sua conta.</div>'; return; }
+    if(window.tpModCommentsLoad) tpModCommentsLoad();
     host.innerHTML='<div class="hs-loading">Carregando…</div>';
     af()(SBURL()+'/rest/v1/house_photos?select=*&status=eq.pending&order=created_at.asc',{headers:{Accept:'application/json'}})
       .then(function(r){ return r.json(); }).then(function(rows){
@@ -15672,6 +15701,36 @@ window.tpLoadJornada=async function(){
         if(!rows.length){ host.innerHTML='<div class="hs-map-none">Nenhuma foto pendente. Tudo em dia! ✨</div>'; return; }
         host.innerHTML=rows.map(modRow).join('');
       }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar a fila. (Você precisa ser moderador.)</div>'; });
+  };
+  function cmtRow(c){
+    return '<div class="hs-mq-row" id="mc-'+c.id+'" style="align-items:flex-start">'
+      +'<div style="width:36px;height:36px;border-radius:50%;background:var(--bamboo-dim,#211a3d);color:var(--bamboo-light,#a78bfa);display:flex;align-items:center;justify-content:center;font-weight:800;flex:none">💬</div>'
+      +'<div class="hs-mq-info"><div class="h">'+esc(c.autor_nome||'Jogador')+'</div><div class="m">na hunt: '+esc(c.hunt_name||'—')+'</div><div class="m" style="color:var(--ink,#eae8f2);margin-top:3px">"'+esc(c.texto||'')+'"</div></div>'
+      +'<div class="hs-mq-actions"><button class="hs-approve" onclick="tpModCommentAct(\''+c.id+'\',\'approved\')">✓ Aprovar</button><button class="hs-reject" onclick="tpModCommentAct(\''+c.id+'\',\'rejected\')">Recusar</button></div></div>';
+  }
+  window.tpModCommentsLoad=function(){
+    var A=auth(), host=document.getElementById('mod-cmt-body'), cnt=document.getElementById('mod-cmt-count'); if(!host) return;
+    if(!A||!A.user){ host.innerHTML='<div class="hs-map-none">Entre na sua conta.</div>'; return; }
+    host.innerHTML='<div class="hs-loading">Carregando…</div>';
+    af()(SBURL()+'/rest/v1/comentarios_hunt?select=*&status=eq.pending&order=data.asc',{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.json(); }).then(function(rows){
+        rows=Array.isArray(rows)?rows:[];
+        if(cnt) cnt.textContent='('+rows.length+')';
+        if(!rows.length){ host.innerHTML='<div class="hs-map-none">Nenhum comentário pendente. Tudo em dia! ✨</div>'; return; }
+        host.innerHTML=rows.map(cmtRow).join('');
+      }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar os comentários. (Você precisa ser moderador.)</div>'; });
+  };
+  window.tpModCommentAct=async function(id,action){
+    var A=auth(); if(!A||!A.user) return;
+    try{
+      var r=await af()(SBURL()+'/rest/v1/comentarios_hunt?id=eq.'+id,{ method:'PATCH', headers:{'Content-Type':'application/json',Prefer:'return=minimal'}, body:JSON.stringify({ status:action, reviewed_by:A.user.id, reviewed_at:new Date().toISOString() }) });
+      if(!r.ok) throw new Error('patch '+r.status);
+      var row=document.getElementById('mc-'+id); if(row) row.remove();
+      toast(action==='approved'?'Comentário aprovado! ✓':'Comentário recusado.',action==='approved'?'success':'info');
+      refreshModBadge();
+      var pb=document.getElementById('mod-cmt-body'), pc=document.getElementById('mod-cmt-count');
+      if(pb){ var left=pb.querySelectorAll('.hs-mq-row').length; if(pc) pc.textContent='('+left+')'; if(!left) pb.innerHTML='<div class="hs-map-none">Nenhum comentário pendente. Tudo em dia! ✨</div>'; }
+    }catch(e){ toast('Não consegui atualizar.','error'); }
   };
   window.tpHouseModAct=async function(id,action){
     var A=auth(); if(!A||!A.user) return;
@@ -15783,7 +15842,7 @@ window.tpLoadJornada=async function(){
         var img=SBURL()+'/storage/v1/object/public/house-photos/'+p.image_path;
         var stc=p.status==='approved'?'free':(p.status==='rejected'?'rented':'auction');
         var stt=p.status==='approved'?'Aprovada':(p.status==='rejected'?'Recusada':'Pendente');
-        return '<div class="hs-ph"><img src="'+esc(img)+'" onclick="tpHouseLightbox(this.src)" alt=""><div class="hs-ph-cap"><div class="who">'+esc(p.house_name)+'</div><div class="titles">'+esc(p.character)+'</div><span class="hs-st '+stc+'" style="margin-top:6px"><span class="dot"></span>'+stt+'</span></div></div>';
+        return '<div class="hs-ph"><img src="'+esc(img)+'" onclick="tpHouseLightbox(this.src)" alt=""><div class="hs-ph-cap"><div class="who">'+esc(p.house_name)+'</div><div class="titles">'+esc(p.character)+'</div><div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap"><span class="hs-st '+stc+'"><span class="dot"></span>'+stt+'</span>'+delBtn(p)+'</div></div></div>';
       }).join('')+'</div>';
     } else { html+='<div class="hs-map-none">Você ainda não enviou fotos. Abra uma casa na aba <b>Houses</b> e envie!</div>'; }
     // Casas dos amigos (baseado nas fotos aprovadas dos amigos)
