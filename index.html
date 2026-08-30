@@ -2566,6 +2566,16 @@ async function tibiaFetch(path) {
       #eventpage .kb-move button.on{background:var(--bamboo,#8b5cf6);color:#fff;border-color:var(--bamboo,#8b5cf6)}
       #eventpage .kb-addcol{flex:0 0 46px;display:flex;align-items:center;justify-content:center;background:none;border:1px dashed var(--border,#2b2938);border-radius:12px;color:var(--muted);font-size:1.4rem;cursor:pointer;font-family:inherit}
       #eventpage .kb-addcol:hover{border-color:var(--bamboo,#8b5cf6);color:var(--bamboo-light,#a78bfa)}
+      /* layout com chat fixo na lateral */
+      #eventpage .evp-layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:1.1rem;align-items:start}
+      @media(max-width:900px){ #eventpage .evp-layout{grid-template-columns:1fr} }
+      #eventpage #evp-main{min-width:0}
+      #eventpage .evp-chatpane{position:sticky;top:1rem;background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;display:flex;flex-direction:column;max-height:calc(100vh - 2rem);overflow:hidden}
+      @media(max-width:900px){ #eventpage .evp-chatpane{position:static;max-height:72vh} }
+      #eventpage .evp-chat-hd{font-family:'Cinzel',serif;font-size:.92rem;font-weight:700;color:var(--ink,#eae8f2);padding:.85rem 1rem;border-bottom:1px solid var(--rule,#2b2938);display:flex;align-items:center;gap:.4rem;flex:none}
+      #eventpage .evp-chat-scroll{flex:1;overflow-y:auto;min-height:180px;display:flex;flex-direction:column;gap:.55rem;padding:.8rem}
+      #eventpage #evp-chat-foot{padding:.7rem;border-top:1px solid var(--rule,#2b2938);flex:none}
+      #eventpage #evp-chat-foot .agchat-gate{margin-top:0}
     </style>
     <button class="evp-back" onclick="location.hash='#agenda'">← Voltar pra Agenda</button>
     <div id="evp-body"><div class="ag-loading" style="padding:2rem 0;text-align:center;color:var(--muted)">Carregando evento…</div></div>
@@ -4271,7 +4281,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cy</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cz</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7415,7 +7425,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cy';
+window.TP_BUILD = '2026-08-13cz';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -16660,17 +16670,66 @@ window.tpLoadJornada=async function(){
     window.__EVP.id=id; if(!silent) window.__EVP.wantTeams=1;
     if(typeof showPage==='function'){ var s=document.getElementById('eventpage'); if(s && !s.classList.contains('active')) showPage('eventpage'); }
     var body=document.getElementById('evp-body'); if(!body) return;
-    if(!silent) body.innerHTML='<div class="ag-loading" style="padding:2rem 0;text-align:center;color:var(--muted)">Carregando evento…</div>';
+    if(!silent || !document.getElementById('evp-main')){
+      body.innerHTML='<div class="evp-layout"><div id="evp-main"><div class="ag-loading" style="padding:2rem 0;text-align:center;color:var(--muted)">Carregando evento…</div></div>'
+        +'<aside class="evp-chatpane" id="evp-chatpane"><div class="evp-chat-hd">💬 Chat do evento</div><div class="evp-chat-scroll" id="evp-chat-scroll"><div class="agchat-empty">Carregando…</div></div><div id="evp-chat-foot"></div></aside></div>';
+    }
     af()(SB()+'/rest/v1/rpc/tp_event_page',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_id:id})})
       .then(function(r){ return r.json(); }).then(function(d){
         if(window.__EVP.id!==id) return;
-        if(!d||!d.ok){ var reason=d&&d.reason||''; var msg=(reason==='auth_required')?'Entre na sua conta para ver este evento.':(reason==='no_access'?'Este evento é de amigos/guild e você não faz parte.':'Esse evento não existe ou foi apagado.');
+        if(!d||!d.ok){ if(window.__EVP.chatTimer){ clearInterval(window.__EVP.chatTimer); window.__EVP.chatTimer=null; }
+          var reason=d&&d.reason||''; var msg=(reason==='auth_required')?'Entre na sua conta para ver este evento.':(reason==='no_access'?'Este evento é de amigos/guild e você não faz parte.':'Esse evento não existe ou foi apagado.');
           body.innerHTML='<div class="evp-card"><h3>🔒 Evento indisponível</h3><div class="evp-text">'+msg+'</div>'+(reason==='auth_required'?'<div style="margin-top:.8rem"><button class="tp-btn-primary" onclick="if(window.tpOpenAuth)tpOpenAuth(\'login\')">Entrar / Criar conta</button></div>':'')+'</div>'; return; }
         window.__EVP.data=d; renderEventPage();
+        if(!silent) initEvpChat(id);
       }).catch(function(){ body.innerHTML='<div class="evp-card"><div class="evp-text">Não consegui carregar o evento.</div></div>'; });
   };
+  // ── Chat embutido na lateral da página do evento ──
+  function initEvpChat(id){
+    if(window.__EVP.chatTimer){ clearInterval(window.__EVP.chatTimer); window.__EVP.chatTimer=null; }
+    var foot=document.getElementById('evp-chat-foot'), A=auth();
+    if(foot){
+      if(A&&A.user) foot.innerHTML='<div class="agchat-input"><input id="evp-chat-text" maxlength="500" placeholder="Escreva uma mensagem…" onkeydown="if(event.key===\'Enter\'){event.preventDefault();tpEvpChatSend();}"><button onclick="tpEvpChatSend()">Enviar</button></div>';
+      else foot.innerHTML='<div class="agchat-gate">Entre pra participar do chat. <a href="#" onclick="if(window.tpOpenAuth)tpOpenAuth(\'login\');return false" style="color:var(--bamboo-light)">Entrar</a></div>';
+    }
+    evpChatLoad(true);
+    window.__EVP.chatTimer=setInterval(function(){
+      var sec=document.getElementById('eventpage');
+      if(!sec||!sec.classList.contains('active')||window.__EVP.id!==id){ clearInterval(window.__EVP.chatTimer); window.__EVP.chatTimer=null; return; }
+      evpChatLoad(false);
+    }, 9000);
+  }
+  function evpChatLoad(full){
+    var id=window.__EVP.id, scroll=document.getElementById('evp-chat-scroll'); if(!id||!scroll) return;
+    af()(SB()+'/rest/v1/rpc/tp_event_chat_get',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_event:id})})
+      .then(function(r){ return r.json(); }).then(function(d){
+        if(window.__EVP.id!==id) return;
+        if(!d||!d.ok){ scroll.innerHTML='<div class="agchat-empty">🔒 Sem acesso ao chat.</div>'; return; }
+        var msgs=Array.isArray(d.messages)?d.messages:[];
+        if(!msgs.length){ scroll.innerHTML='<div class="agchat-empty">Sem mensagens ainda. Comece a conversa! 👋</div>'; return; }
+        var atBottom=(scroll.scrollHeight-scroll.scrollTop-scroll.clientHeight)<40;
+        scroll.innerHTML=msgs.map(function(m){ return '<div class="agchat-msg'+(m.mine?' mine':'')+'"><div class="agchat-mh"><span class="who">'+esc(m.character||'Jogador')+'</span><span class="when">'+chatWhen(m.created_at)+'</span>'+(m.can_delete?'<button class="del" title="Apagar" onclick="tpEvpChatDelete(\''+m.id+'\')">🗑</button>':'')+'</div><div class="agchat-body">'+esc(m.body)+'</div></div>'; }).join('');
+        if(full||atBottom) scroll.scrollTop=scroll.scrollHeight;
+      }).catch(function(){});
+  }
+  window.tpEvpChatSend=async function(){
+    var A=auth(); if(!A||!A.user){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
+    var id=window.__EVP.id, inp=document.getElementById('evp-chat-text'); if(!id||!inp) return;
+    var body=(inp.value||'').trim(); if(!body) return;
+    try{
+      var r=await af()(SB()+'/rest/v1/rpc/tp_event_chat_post',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p:{event_id:id,body:body}})});
+      var j=await r.json().catch(function(){return null;});
+      if(!r.ok||!j||!j.ok){ var em=(j&&j.message)||''; toast(/slow_down/.test(em)?'Calma, espere um segundinho ⏳':(/no_access/.test(em)?'Você não pode escrever neste chat.':'Não consegui enviar.'),'error'); return; }
+      inp.value=''; evpChatLoad(true);
+    }catch(e){ toast('Erro ao enviar.','error'); }
+  };
+  window.tpEvpChatDelete=async function(mid){
+    if(!window.confirm('Apagar esta mensagem?')) return;
+    try{ var r=await af()(SB()+'/rest/v1/event_messages?id=eq.'+mid,{method:'DELETE',headers:{Prefer:'return=minimal'}}); if(!r.ok) throw new Error('del'); evpChatLoad(false); }
+    catch(e){ toast('Não consegui apagar.','error'); }
+  };
   function renderEventPage(){
-    var body=document.getElementById('evp-body'), d=window.__EVP.data; if(!body||!d||!d.event) return;
+    var body=document.getElementById('evp-main')||document.getElementById('evp-body'), d=window.__EVP.data; if(!body||!d||!d.event) return;
     var ev=d.event, t=ETYPES[ev.type]||ETYPES.other, can=!!d.can_manage;
     var parts=d.participants||[];
     var going=parts.filter(function(p){return p.response==='going';});
@@ -16686,7 +16745,6 @@ window.tpLoadJornada=async function(){
         +'<button class="evp-rbtn no'+(ev.my_response==='no'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'no\')">✕ Não</button>'
         +(ev.my_response==='going'&&ev.my_character?'<span style="font-size:.74rem;color:#5fdd9e;font-weight:700;align-self:center">com '+esc(ev.my_character)+'</span>':'')
         +'<span style="flex:1"></span>'
-        +'<button class="evp-abtn" onclick="tpAgendaChat(\''+ev.id+'\')">💬 Chat</button>'
         +'<button class="evp-abtn" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button>'
         +(can?'<button class="evp-abtn" onclick="tpAgendaEdit(\''+ev.id+'\')">✏️ Editar</button>':'')
         +(can?'<button class="evp-abtn" style="color:var(--red,#e87070);border-color:var(--red,#e87070);background:transparent" onclick="tpAgendaDelete(\''+ev.id+'\')">🗑 Excluir</button>':'')
