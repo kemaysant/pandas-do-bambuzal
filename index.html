@@ -2407,6 +2407,14 @@ async function tibiaFetch(path) {
       .agm-card .row{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:.7rem}
       .agm-card .row>div{flex:1;min-width:150px}
       .agm-gate{text-align:center;padding:1.3rem;background:var(--bg-2,#1b1a25);border-radius:12px;color:var(--muted,#8a879c);font-size:.86rem}
+      #agenda .ag-goingwith{font-size:.73rem;color:#5fdd9e;font-weight:700;display:inline-flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+      #agenda .ag-goingwith .chg{color:var(--bamboo-light,#a78bfa);background:none;border:none;font-size:.7rem;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:underline;padding:0}
+      .agpick-list{display:flex;flex-direction:column;gap:.5rem;margin-top:.9rem}
+      .agpick-btn{display:flex;align-items:center;justify-content:space-between;gap:.6rem;width:100%;text-align:left;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);color:var(--ink,#eae8f2);border-radius:10px;padding:.7rem .85rem;font-size:.88rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.14s}
+      .agpick-btn:hover{border-color:var(--bamboo,#8b5cf6);transform:translateY(-1px)}
+      .agpick-btn .sub{font-size:.7rem;color:var(--muted);font-weight:600}
+      .agpick-btn .star{color:var(--gold-light,#e0c060);font-size:.66rem;font-weight:800}
+      .agpick-note{font-size:.78rem;color:var(--muted,#8a879c);margin-top:.2rem;line-height:1.4}
     </style>
     <h2 class="sec-title">📅 Agenda da Comunidade</h2>
     <p class="sec-sub">Hunts, bosses, quests e eventos marcados pela comunidade. Confirme presença e adicione ao seu calendário. Crie os seus — públicos (do servidor), pra amigos, guild ou privados.</p>
@@ -2436,6 +2444,15 @@ async function tibiaFetch(path) {
       <button class="agm-x" onclick="document.getElementById('agm-modal').classList.remove('open')">✕</button>
       <div class="hs-sec-t" style="font-size:1rem;color:var(--ink)">📅 Criar evento</div>
       <div id="agm-body" style="margin-top:.8rem"></div>
+    </div>
+  </div>
+
+  <!-- Modal: escolher personagem que vai ao evento -->
+  <div id="agrsvp-modal" class="agm-modal" onclick="if(event.target===this){this.classList.remove('open')}">
+    <div class="agm-card" style="max-width:420px">
+      <button class="agm-x" onclick="document.getElementById('agrsvp-modal').classList.remove('open')">✕</button>
+      <div class="hs-sec-t" style="font-size:1rem;color:var(--ink)">⚔️ Qual personagem vai?</div>
+      <div id="agrsvp-body" style="margin-top:.4rem"></div>
     </div>
   </div>
 
@@ -4139,7 +4156,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cs</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cu</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7283,7 +7300,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cs';
+window.TP_BUILD = '2026-08-13cu';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -16109,7 +16126,9 @@ window.tpLoadJornada=async function(){
       +'<div class="ag-ttl">'+t[0]+' '+esc(ev.title)+' <span class="ag-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span> <span class="ag-vis">'+(VISLBL[ev.visibility]||ev.visibility)+'</span></div>'
       +'<div class="ag-meta">'+meta.join('&nbsp;&nbsp;')+'</div>'
       +(ev.description?'<div class="ag-desc">'+esc(ev.description)+'</div>':'')
-      +rsvp+'</div></div>';
+      +rsvp
+      +(ev.my_response==='going'&&ev.my_character?'<div class="ag-goingwith" style="margin-top:.5rem">✓ Você vai com <b>'+esc(ev.my_character)+'</b> <button class="chg" onclick="tpAgendaPickChar(\''+ev.id+'\')">trocar personagem</button></div>':'')
+      +'</div></div>';
   }
   window.__AG_SCOPE='all';
   window.__AG_VIEW='list';
@@ -16227,7 +16246,12 @@ window.tpLoadJornada=async function(){
     box.innerHTML='<div class="ag-loading" style="padding:1rem 0">Abrindo evento compartilhado…</div>';
     af()(SB()+'/rest/v1/rpc/tp_event_get',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_id:id})})
       .then(function(r){ return r.json(); }).then(function(d){
-        if(!d||!d.ok||!d.event){ box.innerHTML='<div class="ag-card" style="padding:1.1rem"><div class="ag-main"><div class="ag-ttl">🔒 Evento indisponível</div><div class="ag-meta">Esse evento não existe, foi apagado, ou é privado e você não tem acesso.</div></div></div>'; return; }
+        if(!d||!d.ok||!d.event){
+          var reason=d&&d.reason||'', ttl='🔒 Evento indisponível', msg='Esse evento não existe ou foi apagado.', cta='';
+          if(reason==='auth_required'){ ttl='🔒 Entre para ver este evento'; msg='Este evento é para amigos ou guild. Entre na sua conta para ver.'; cta='<div style="margin-top:.7rem"><button class="tp-btn-primary" onclick="if(window.tpOpenAuth)tpOpenAuth(\'login\')">Entrar / Criar conta</button></div>'; }
+          else if(reason==='no_access'){ ttl='🔒 Sem acesso'; msg='Este evento é de amigos/guild de quem criou e você não faz parte.'; }
+          box.innerHTML='<div class="ag-card" style="padding:1.1rem"><div class="ag-main"><div class="ag-ttl">'+ttl+'</div><div class="ag-meta">'+msg+'</div>'+cta+'</div></div>'; return;
+        }
         var ev=d.event;   // tp_event_get devolve going/maybe como arrays, irmãos de "event"
         ev.going=Array.isArray(d.going)?d.going.length:(typeof ev.going==='number'?ev.going:0);
         ev.maybe=Array.isArray(d.maybe)?d.maybe.length:(typeof ev.maybe==='number'?ev.maybe:0);
@@ -16246,10 +16270,49 @@ window.tpLoadJornada=async function(){
   }
   window.addEventListener('hashchange', handleEventHash);
   if(/^#event=/.test(location.hash||'')){ if(document.readyState!=='loading') setTimeout(handleEventHash,750); else document.addEventListener('DOMContentLoaded',function(){ setTimeout(handleEventHash,750); }); }
-  window.tpAgendaRSVP=async function(eid,resp){
+  // personagens verificados do usuário (cache) — pra confirmar presença
+  window.__AG_MYCHARS=null;
+  function myMain(){ try{ return (auth()&&auth().profile&&auth().profile.main_char)||null; }catch(e){ return null; } }
+  window.tpAgendaMyChars=function(force){
+    if(window.__AG_MYCHARS && !force) return Promise.resolve(window.__AG_MYCHARS);
+    return af()(SB()+'/rest/v1/characters?select=name,level,vocation&verified=is.true&order=level.desc.nullslast',{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.json(); }).then(function(list){
+        window.__AG_MYCHARS=(Array.isArray(list)?list:[]).filter(function(c){return c&&c.name;}); return window.__AG_MYCHARS;
+      }).catch(function(){ return []; });
+  };
+  function rsvpSend(eid,resp,ch){
+    return af()(SB()+'/rest/v1/rpc/tp_event_rsvp',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p:{event_id:eid,response:resp,character:ch||null}})})
+      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,body:j}; }).catch(function(){ return {ok:r.ok,body:null}; }); });
+  }
+  function rsvpDone(res){
+    if(res.ok){ var fid=window.__AG_FOCUS&&window.__AG_FOCUS.id; tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents(); if(fid&&window.tpAgendaFocus) setTimeout(function(){ tpAgendaFocus(fid); },300); return true; }
+    var em=(res.body&&res.body.message)||''; var m='Não consegui confirmar presença.';
+    if(/need_verified_char/.test(em)) m='Esse personagem não está verificado na sua conta. Verifique um boneco na aba Personagem.';
+    else if(/need_char/.test(em)) m='Escolha o personagem que vai.';
+    else if(/full/.test(em)) m='As vagas desse evento acabaram. 😕';
+    toast(m,'error'); return false;
+  }
+  window.tpAgendaRSVP=async function(eid,resp,ch){
     var A=auth(); if(!A||!A.user){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
-    try{ var r=await af()(SB()+'/rest/v1/event_rsvps',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({event_id:eid,user_id:A.user.id,response:resp})}); if(!r.ok) throw new Error('rsvp'); tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents(); }
-    catch(e){ toast('Não consegui confirmar presença.','error'); }
+    if(resp!=='going'){ var res=await rsvpSend(eid,resp,null); rsvpDone(res); return; }
+    // "Vou": precisa de um personagem verificado
+    if(ch){ var r2=await rsvpSend(eid,'going',ch); rsvpDone(r2); return; }
+    var chars=await window.tpAgendaMyChars();
+    if(!chars.length){ toast('Pra confirmar presença você precisa de um personagem verificado. Verifique um na aba Personagem. ⚔️','info'); return; }
+    if(chars.length===1){ var r1=await rsvpSend(eid,'going',chars[0].name); rsvpDone(r1); return; }
+    tpAgendaPickChar(eid); // vários bonecos → deixa escolher
+  };
+  window.tpAgendaPickChar=async function(eid){
+    var modal=document.getElementById('agrsvp-modal'), body=document.getElementById('agrsvp-body'); if(!modal||!body) return;
+    body.innerHTML='<div class="ag-loading" style="padding:1rem 0">Carregando seus personagens…</div>'; modal.classList.add('open');
+    var chars=await window.tpAgendaMyChars(); var main=myMain();
+    if(!chars.length){ body.innerHTML='<div class="agpick-note">Você não tem personagem verificado. Verifique um na aba Personagem pra poder confirmar presença.</div>'; return; }
+    var main_lc=main?String(main).toLowerCase():null;
+    chars=chars.slice().sort(function(a,b){ var am=(main_lc&&a.name.toLowerCase()===main_lc)?1:0, bm=(main_lc&&b.name.toLowerCase()===main_lc)?1:0; return bm-am; });
+    body.innerHTML='<div class="agpick-note">Escolha com qual personagem verificado você vai:</div><div class="agpick-list">'
+      +chars.map(function(c){ var isMain=main_lc&&c.name.toLowerCase()===main_lc;
+        return '<button class="agpick-btn" onclick="document.getElementById(\'agrsvp-modal\').classList.remove(\'open\');tpAgendaRSVP(\''+eid+'\',\'going\',\''+esc(c.name).replace(/\x27/g,"\\\x27")+'\')"><span>'+esc(c.name)+(isMain?' <span class="star">★ principal</span>':'')+'</span><span class="sub">'+esc([c.vocation,(c.level?('Lvl '+c.level):null)].filter(Boolean).join(' · '))+'</span></button>';
+      }).join('')+'</div>';
   };
   window.tpAgendaDelete=async function(id){
     if(!window.confirm('Apagar este evento? Não dá pra desfazer.')) return;
