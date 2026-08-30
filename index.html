@@ -1462,6 +1462,10 @@ async function tibiaFetch(path) {
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h0a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
         <span class="nav-label">Houses</span>
       </button>
+      <button class="nav-btn" onclick="showPage('creators',this);if(window.tpCreatorsLoad)tpCreatorsLoad()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12.553 1.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/></svg>
+        <span class="nav-label">Criadores</span>
+      </button>
       <button class="nav-btn" onclick="showPage('character',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Personagem</span>
@@ -2277,6 +2281,32 @@ async function tibiaFetch(path) {
     </div>
   </div>
 
+  <!-- ─── CRIADORES / STREAMERS ─── -->
+  <section class="page-section" id="creators">
+    <style>
+      #creators .cr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.9rem}
+      #creators .cr-card{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1rem;position:relative;transition:.16s}
+      #creators .cr-card.live{border-color:#e0397a;box-shadow:0 0 0 1px rgba(224,57,122,.35),0 12px 32px -16px rgba(224,57,122,.6)}
+      #creators .cr-live{position:absolute;top:.7rem;right:.7rem;background:#e0397a;color:#fff;font-size:.6rem;font-weight:900;letter-spacing:.05em;padding:3px 9px;border-radius:999px;display:none;align-items:center;gap:5px}
+      #creators .cr-live.on{display:inline-flex}
+      #creators .cr-live .dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:crpulse 1.2s infinite}
+      @keyframes crpulse{50%{opacity:.25}}
+      #creators .cr-nm{font-size:1rem;font-weight:800;color:var(--ink,#eae8f2);display:flex;align-items:center;gap:.4rem;line-height:1.2}
+      #creators .cr-nm .odot{width:8px;height:8px;border-radius:50%;background:#3ecf8e;box-shadow:0 0 6px #3ecf8e;flex:none}
+      #creators .cr-sub{font-size:.72rem;color:var(--muted,#63607a);margin:.2rem 0 .85rem}
+      #creators .cr-links{display:flex;gap:.5rem;flex-wrap:wrap}
+      #creators .cr-lk{display:inline-flex;align-items:center;gap:5px;font-size:.73rem;font-weight:700;text-decoration:none;padding:5px 11px;border-radius:999px;border:1px solid var(--border,#2b2938);cursor:pointer;font-family:inherit}
+      #creators .cr-lk.tw{color:#c9b6ff;background:#2a2140}
+      #creators .cr-lk.yt{color:#f0a0a0;background:#2f1a1a}
+      #creators .cr-lk.pf{color:var(--bamboo-light,#a78bfa);background:var(--bamboo-dim,#211a3d);border-color:var(--bamboo,#8b5cf6)}
+      #creators .cr-empty,#creators .cr-loading{color:var(--muted,#63607a);padding:2rem 0;text-align:center;font-size:.9rem}
+    </style>
+    <h2 class="sec-title">🎥 Criadores &amp; Streamers</h2>
+    <p class="sec-sub">Jogadores da comunidade que criam conteúdo de Tibia. Quem está <b style="color:#e0397a">ao vivo na Twitch</b> aparece destacado. Cadastre seus canais no seu perfil (Dados, privacidade &amp; segurança) pra aparecer aqui.</p>
+    <div id="cr-grid" class="cr-grid"></div>
+    <div id="cr-empty" class="cr-empty" style="display:none"></div>
+  </section>
+
   <!-- ─── PAINEL DE MODERAÇÃO ─── -->
   <section class="page-section" id="moderation">
     <h2 class="sec-title">🛡️ Painel de Moderação</h2>
@@ -3078,7 +3108,7 @@ PlayerName (Leader)
         <div class="pf-prog-top"><span id="pf-prog-top-lbl">Perfil completo</span><span id="pf-prog-pct">0%</span></div>
         <div class="pf-prog-bar"><div class="pf-prog-fill" id="pf-prog-fill"></div></div>
         <div class="pf-prog-hint" id="pf-prog-hint"></div>
-        <div style="margin-top:.55rem"><button class="pf-disp-edit" onclick="tpOpenDisplay()">🎨 Editar display de personagem</button></div>
+        <div style="margin-top:.55rem;display:flex;gap:.5rem;flex-wrap:wrap"><button class="pf-disp-edit" onclick="tpOpenDisplay()">🎨 Editar display de personagem</button><button class="pf-disp-edit" onclick="if(window.tpProfShareMe)tpProfShareMe()">🔗 Compartilhar meu perfil</button></div>
       </div>
     </div>
 
@@ -3971,7 +4001,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cm</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13co</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7115,7 +7145,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cm';
+window.TP_BUILD = '2026-08-13co';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -13904,6 +13934,27 @@ window.tpToast=function(msg,type){
     if(p.discord) items.push('<span title="Discord" style="'+S+';color:#a9b6ff;background:#1c2038;cursor:default">💬 '+window.esc(p.discord)+'</span>');
     return items.length ? '<div class="tp-prof-social" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem">'+items.join('')+'</div>' : '';
   }
+  window.tpProfShare=function(handle){
+    handle=String(handle||'').replace(/^@/,'');
+    if(!handle){ if(window.tpToast) tpToast('Este jogador ainda não definiu um @apelido.','info'); return; }
+    var url=location.origin+location.pathname+'#user='+encodeURIComponent(handle);
+    if(navigator.share){ navigator.share({ title:'Perfil no Tibia Panda', text:'Olha esse perfil no Tibia Panda:', url:url }).catch(function(){}); return; }
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(function(){ if(window.tpToast) tpToast('Link do perfil copiado! 🔗','success'); }).catch(function(){ window.prompt('Copie o link do perfil:',url); }); }
+    else window.prompt('Copie o link do perfil:',url);
+  };
+  window.tpProfShareMe=function(){
+    var h=(window.TP_AUTH&&window.TP_AUTH.profile&&window.TP_AUTH.profile.handle)||'';
+    if(!h){ if(window.tpToast) tpToast('Defina um @apelido em "Dados, privacidade & segurança" pra ter link de perfil.','info'); return; }
+    window.tpProfShare(h);
+  };
+  function handleUserHash(){
+    var m=(location.hash||'').match(/^#user=(.+)$/); if(!m) return;
+    var h=decodeURIComponent(m[1]).replace(/^@/,''); if(!h) return;
+    af(SB+'/rest/v1/rpc/tp_resolve_handle',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({h:h})})
+      .then(function(r){ return r.json(); }).then(function(id){ if(id && typeof id==='string' && window.tpOpenProfile) window.tpOpenProfile(id); }).catch(function(){});
+  }
+  window.addEventListener('hashchange', handleUserHash);
+  if(/^#user=/.test(location.hash||'')){ if(document.readyState!=='loading') setTimeout(handleUserHash,700); else document.addEventListener('DOMContentLoaded',function(){ setTimeout(handleUserHash,700); }); }
   function profMin(m){ m=+m||0; if(m<60) return m+'min'; var h=Math.floor(m/60), mm=m%60; return h+'h'+(mm?(' '+mm+'m'):''); }
   var PROF_EMO=['😀','😂','😎','😍','🥳','😢','😡','👍','👏','🙏','🔥','💪','⚔️','🛡️','🏆','🐼','🎉','❤️','💜','✨','😱','🤝','👀','💀'];
   window.tpProfEmojiToggle=function(ev){ if(ev) ev.stopPropagation(); var pop=document.getElementById('tp-prof-emoji'); if(!pop) return;
@@ -13956,9 +14007,10 @@ window.tpToast=function(msg,type){
           +(p.country?profChip('🌎',p.country,'País'):'')
         +'</div>'
         +profSocialRow(p)
+        +(p.handle?'<div style="margin-top:.7rem"><button data-h="'+window.esc(p.handle)+'" onclick="tpProfShare(this.getAttribute(\'data-h\'))" style="display:inline-flex;align-items:center;gap:6px;font-size:.76rem;font-weight:700;cursor:pointer;padding:6px 12px;border-radius:999px;border:1px solid var(--bamboo,#8b5cf6);background:var(--bamboo-dim,#211a3d);color:var(--bamboo-light,#a78bfa)">🔗 Compartilhar perfil</button></div>':'')
       +'</div></div>';
     var titles=PROF_RANKS.filter(function(x){return clvl>=x[0];}).map(function(x){ return '<span class="tp-title'+(x[1]===rank?' cur':'')+'" title="Liberado no nível '+x[0]+' da comunidade">'+x[1]+' <small>nv '+x[0]+'</small></span>'; }).join('');
-    var depoCompose=(!d.is_self)?'<div class="tp-prof-depoc"><div class="tp-depo-wrap"><textarea id="tp-prof-depo-in" maxlength="500" placeholder="Deixe um comentário…"></textarea>'
+    var depoCompose=(!d.is_self && window.TP_AUTH && window.TP_AUTH.user)?'<div class="tp-prof-depoc"><div class="tp-depo-wrap"><textarea id="tp-prof-depo-in" maxlength="500" placeholder="Deixe um comentário…"></textarea>'
       +'<button type="button" class="tp-emoji-btn" onclick="tpProfEmojiToggle(event)">😊</button><div class="tp-emoji-pop" id="tp-prof-emoji"></div></div>'
       +'<button class="tp-btn-primary" onclick="tpProfSubmitDepo(\''+fid+'\')">Enviar comentário</button>'
       +'<div class="tp-prof-hint">Fica pendente até '+(p.handle?('@'+window.esc(p.handle)):'a pessoa')+' aprovar.</div></div>':'';
@@ -15754,6 +15806,53 @@ window.tpLoadJornada=async function(){
     } else if(!friendIds.length){ html+='<div class="hs-map-none">Adicione amigos (aba Amigos) pra ver as houses deles aqui.</div>'; }
     else { html+='<div class="hs-map-none">Seus amigos ainda não compartilharam fotos de houses.</div>'; }
     host.innerHTML=html;
+  };
+})();
+</script>
+
+<script>
+/* ─── CRIADORES / STREAMERS ─── diretório + status ao vivo (DecAPI, sem credenciais) */
+(function(){
+  function SB(){ return (typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:''; }
+  function af(){ return window.tpAuthFetch||fetch; }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function twitchLogin(v){ v=String(v||'').trim(); if(!v) return ''; return v.replace(/^https?:\/\//i,'').replace(/^www\./i,'').replace(/^twitch\.tv\//i,'').replace(/^@/,'').replace(/[\/?#].*$/,'').toLowerCase(); }
+  function twitchUrl(v){ var l=twitchLogin(v); return l?('https://twitch.tv/'+l):null; }
+  function ytUrl(v){ v=String(v||'').trim(); if(!v) return null; if(/^https?:\/\//i.test(v)) return v; var h=v.replace(/^.*youtube\.com\//i,'').replace(/^\//,''); return h?('https://youtube.com/'+h):null; }
+  function crCard(c){
+    var name=c.main_char||c.display_name||(c.handle?('@'+c.handle):'Jogador');
+    var sub=[c.vocation,(c.level?('Lvl '+c.level):null),c.world].filter(Boolean).join(' · ');
+    var tw=twitchUrl(c.twitch), login=twitchLogin(c.twitch||''), yt=ytUrl(c.youtube);
+    var links='';
+    if(tw) links+='<a class="cr-lk tw" href="'+esc(tw)+'" target="_blank" rel="noopener">🟣 Twitch</a>';
+    if(yt) links+='<a class="cr-lk yt" href="'+esc(yt)+'" target="_blank" rel="noopener">🔴 YouTube</a>';
+    if(c.handle) links+='<button class="cr-lk pf" onclick="tpCreatorOpen(\''+esc(c.handle)+'\')">🪪 Ver perfil</button>';
+    return '<div class="cr-card">'
+      +(login?'<span class="cr-live" id="crlive-'+esc(login)+'"><span class="dot"></span>AO VIVO</span>':'')
+      +'<div class="cr-nm">'+(c.online?'<span class="odot" title="Online no site"></span>':'')+esc(name)+'</div>'
+      +'<div class="cr-sub">'+esc(sub||'—')+'</div>'
+      +'<div class="cr-links">'+links+'</div>'
+      +'</div>';
+  }
+  window.tpCreatorOpen=function(handle){ if(handle) location.hash='#user='+encodeURIComponent(handle); };
+  window.tpCreatorsLoad=function(){
+    var grid=document.getElementById('cr-grid'), empty=document.getElementById('cr-empty'); if(!grid) return;
+    grid.innerHTML='<div class="cr-loading">Carregando criadores…</div>'; if(empty) empty.style.display='none';
+    af()(SB()+'/rest/v1/rpc/tp_creators',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:'{}'})
+      .then(function(r){ return r.json(); }).then(function(list){
+        list=Array.isArray(list)?list:[];
+        if(!list.length){ grid.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent='Ainda não há criadores cadastrados. Adicione seu Twitch/YouTube no perfil e ative a visibilidade!'; } return; }
+        grid.innerHTML=list.map(crCard).join('');
+        // status ao vivo (Twitch) via DecAPI — sem credenciais
+        list.forEach(function(c){
+          var login=twitchLogin(c.twitch||''); if(!login) return;
+          fetch('https://decapi.me/twitch/uptime/'+encodeURIComponent(login)).then(function(r){ return r.text(); }).then(function(t){
+            if(t && !/offline|unable|error|not\s|does not|invalid/i.test(t)){
+              var el=document.getElementById('crlive-'+login); if(el){ el.classList.add('on'); var card=el.closest('.cr-card'); if(card) card.classList.add('live'); }
+            }
+          }).catch(function(){});
+        });
+      }).catch(function(){ grid.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent='Não consegui carregar os criadores agora.'; } });
   };
 })();
 </script>
