@@ -2387,7 +2387,7 @@ async function tibiaFetch(path) {
       #agenda .ag-badge{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:999px}
       #agenda .ag-vis{font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--bg-3,#23212f);color:var(--muted)}
       #agenda .ag-meta{font-size:.76rem;color:var(--muted,#63607a);margin:.35rem 0 .1rem;display:flex;gap:.9rem;flex-wrap:wrap}
-      #agenda .ag-desc{font-size:.82rem;color:var(--ink-3,#b9b6c9);margin:.4rem 0 .2rem;line-height:1.4}
+      #agenda .ag-desc{font-size:.82rem;color:var(--ink-3,#b9b6c9);margin:.4rem 0 .2rem;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
       #agenda .ag-rsvp{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-top:.6rem}
       #agenda .ag-rbtn{border:1px solid var(--border,#2b2938);background:var(--bg-2,#1b1a25);color:var(--ink-3,#b9b6c9);border-radius:999px;padding:5px 12px;font-size:.74rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
       #agenda .ag-rbtn:hover{border-color:var(--bamboo,#8b5cf6)}
@@ -4292,7 +4292,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13db</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13dc</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7436,7 +7436,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13db';
+window.TP_BUILD = '2026-08-13dc';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -16316,7 +16316,7 @@ window.tpLoadJornada=async function(){
       +'<button class="ag-rbtn maybe'+(ev.my_response==='maybe'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'maybe\')">? Talvez</button>'
       +'<button class="ag-rbtn no'+(ev.my_response==='no'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'no\')">✕ Não</button>'
       +'<span class="ag-count"><b>'+ev.going+'</b> vão'+(ev.maybe?' · '+ev.maybe+' talvez':'')+'</span>'
-      +'<span class="ag-cal"><button class="ag-share" onclick="location.hash=\'#event='+ev.id+'\'">📄 Abrir evento</button><button onclick="tpAgendaChat(\''+ev.id+'\')">💬 Chat</button><button class="ag-share" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button><a href="'+gcalUrl(ev)+'" target="_blank" rel="noopener">📅 Add ao Google Agenda</a>'+((ev.is_mine||window.TP_IS_MOD)?'<button title="Editar evento" onclick="tpAgendaEdit(\''+ev.id+'\')">✏️ Editar</button><button title="'+(ev.is_mine?'Excluir seu evento':'Excluir (moderador)')+'" onclick="tpAgendaDelete(\''+ev.id+'\')" style="color:var(--red,#e87070);border-color:var(--red,#e87070);background:transparent">🗑</button>':'')+'</span>'
+      +'<span class="ag-cal"><button onclick="location.hash=\'#event='+ev.id+'\'">📄 Abrir evento</button><button class="ag-share" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button><a href="'+gcalUrl(ev)+'" target="_blank" rel="noopener">📅 Google Agenda</a></span>'
       +'</div>';
     return '<div class="ag-card'+(focus?' ag-focus':'')+'" id="agc-'+ev.id+'">'
       +'<div class="ag-when"><div class="d">'+w.dd+'</div><div class="mo">'+esc(w.mo)+'</div><div class="hr">'+w.hr+'</div></div>'
