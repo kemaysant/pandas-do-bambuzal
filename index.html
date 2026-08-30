@@ -1466,6 +1466,10 @@ async function tibiaFetch(path) {
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12.553 1.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/></svg>
         <span class="nav-label">Criadores</span>
       </button>
+      <button class="nav-btn" onclick="showPage('agenda',this);if(window.tpAgendaLoad)tpAgendaLoad()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Agenda</span>
+      </button>
       <button class="nav-btn" onclick="showPage('character',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Personagem</span>
@@ -1525,7 +1529,7 @@ async function tibiaFetch(path) {
         </button>
         <button class="nav-btn" onclick="if(window.tpAccountPage)tpAccountPage('dados',this)">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
-          <span class="nav-label">Dados, privacidade &amp; segurança</span>
+          <span class="nav-label">Dados Pessoais</span>
         </button>
       </div>
 
@@ -1685,6 +1689,15 @@ async function tibiaFetch(path) {
         · <span class="world-players" id="wb-players">—</span> jogadores online
       </div>
       <span class="world-record" id="wb-record"></span>
+    </div>
+
+    <!-- PRÓXIMOS EVENTOS DA COMUNIDADE -->
+    <div id="home-events" class="reveal" style="display:none;margin-bottom:1.6rem">
+      <div class="tp-cat" style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
+        <span>📅 Próximos eventos no servidor</span>
+        <button class="nav-btn" style="padding:4px 10px;font-size:.68rem;border:1px solid var(--rule);border-radius:4px;color:var(--muted)" onclick="showPage('agenda',document.querySelector('[onclick*=agenda]'));if(window.tpAgendaLoad)tpAgendaLoad()">Ver agenda →</button>
+      </div>
+      <div id="home-events-body" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.7rem"></div>
     </div>
 
     <!-- GRID DE FERRAMENTAS -->
@@ -2306,6 +2319,71 @@ async function tibiaFetch(path) {
     <div id="cr-grid" class="cr-grid"></div>
     <div id="cr-empty" class="cr-empty" style="display:none"></div>
   </section>
+
+  <!-- ─── AGENDA DA COMUNIDADE ─── -->
+  <section class="page-section" id="agenda">
+    <style>
+      #agenda .ag-top{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;margin-bottom:1.1rem}
+      #agenda .ag-seg{display:inline-flex;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:8px;padding:3px;gap:2px}
+      #agenda .ag-seg button{background:none;border:none;color:var(--muted,#63607a);font-size:.76rem;font-weight:600;padding:.4rem .8rem;border-radius:6px;cursor:pointer;font-family:inherit}
+      #agenda .ag-seg button.on{background:linear-gradient(135deg,#7c4fe0,#9265f0);color:#fff}
+      #agenda .ag-new{margin-left:auto;background:linear-gradient(135deg,#7c4fe0,#9265f0);border:none;color:#fff;border-radius:9px;padding:.6rem 1.1rem;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit}
+      #agenda .ag-list{display:flex;flex-direction:column;gap:.75rem}
+      #agenda .ag-card{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1rem 1.1rem;display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap}
+      #agenda .ag-when{flex:none;width:64px;text-align:center;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:10px;padding:.5rem .3rem}
+      #agenda .ag-when .d{font-size:1.4rem;font-weight:800;color:var(--ink,#eae8f2);line-height:1}
+      #agenda .ag-when .mo{font-size:.62rem;text-transform:uppercase;color:var(--muted);letter-spacing:.05em;margin-top:2px}
+      #agenda .ag-when .hr{font-size:.68rem;color:var(--bamboo-light,#a78bfa);font-weight:700;margin-top:4px}
+      #agenda .ag-main{flex:1;min-width:180px}
+      #agenda .ag-ttl{font-size:1.02rem;font-weight:800;color:var(--ink,#eae8f2);display:flex;align-items:center;gap:.45rem;flex-wrap:wrap}
+      #agenda .ag-badge{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:999px}
+      #agenda .ag-vis{font-size:.6rem;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--bg-3,#23212f);color:var(--muted)}
+      #agenda .ag-meta{font-size:.76rem;color:var(--muted,#63607a);margin:.35rem 0 .1rem;display:flex;gap:.9rem;flex-wrap:wrap}
+      #agenda .ag-desc{font-size:.82rem;color:var(--ink-3,#b9b6c9);margin:.4rem 0 .2rem;line-height:1.4}
+      #agenda .ag-rsvp{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-top:.6rem}
+      #agenda .ag-rbtn{border:1px solid var(--border,#2b2938);background:var(--bg-2,#1b1a25);color:var(--ink-3,#b9b6c9);border-radius:999px;padding:5px 12px;font-size:.74rem;font-weight:700;cursor:pointer;font-family:inherit}
+      #agenda .ag-rbtn.going.on{background:#173a26;border-color:#3ecf8e;color:#5fdd9e}
+      #agenda .ag-rbtn.maybe.on{background:#2a2410;border-color:#c9a840;color:#e6c964}
+      #agenda .ag-rbtn.no.on{background:#2f1a1a;border-color:#e05a5a;color:#f08a8a}
+      #agenda .ag-cal{margin-left:auto;display:flex;gap:.4rem;flex-wrap:wrap}
+      #agenda .ag-cal a,#agenda .ag-cal button{font-size:.72rem;font-weight:700;text-decoration:none;color:var(--bamboo-light,#a78bfa);background:var(--bamboo-dim,#211a3d);border:1px solid var(--bamboo,#8b5cf6);border-radius:999px;padding:5px 11px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
+      #agenda .ag-empty,#agenda .ag-loading{color:var(--muted,#63607a);padding:2rem 0;text-align:center}
+      #agenda .ag-count{font-size:.72rem;color:var(--muted)}
+      #agenda .ag-count b{color:#3ecf8e}
+      .agm-modal{display:none;position:fixed;inset:0;z-index:1400;background:rgba(8,7,12,.74);backdrop-filter:blur(4px);align-items:flex-start;justify-content:center;padding:5vh 16px;overflow:auto}
+      .agm-modal.open{display:flex}
+      .agm-card{position:relative;width:100%;max-width:560px;background:var(--bg-1,#14131c);border:1px solid var(--border,#2b2938);border-radius:16px;padding:1.5rem}
+      .agm-x{position:absolute;top:.9rem;right:1rem;background:none;border:none;color:var(--muted,#63607a);font-size:1.15rem;cursor:pointer}
+      .agm-card label{font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted,#63607a);font-weight:700;display:block;margin-bottom:.25rem}
+      .agm-card input,.agm-card select,.agm-card textarea{width:100%;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);color:var(--ink,#eae8f2);border-radius:8px;padding:.55rem .65rem;font-size:.85rem;font-family:inherit}
+      .agm-card textarea{resize:vertical;min-height:64px}
+      .agm-card .row{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:.7rem}
+      .agm-card .row>div{flex:1;min-width:150px}
+      .agm-gate{text-align:center;padding:1.3rem;background:var(--bg-2,#1b1a25);border-radius:12px;color:var(--muted,#8a879c);font-size:.86rem}
+    </style>
+    <h2 class="sec-title">📅 Agenda da Comunidade</h2>
+    <p class="sec-sub">Hunts, bosses, quests e eventos marcados pela comunidade. Confirme presença e adicione ao seu calendário. Crie os seus — públicos (do servidor), pra amigos, guild ou privados.</p>
+    <div class="ag-top">
+      <div class="ag-seg" id="ag-scopebar">
+        <button class="on" data-s="all" onclick="if(window.tpAgendaScope)tpAgendaScope('all',this)">Tudo</button>
+        <button data-s="public" onclick="if(window.tpAgendaScope)tpAgendaScope('public',this)">Públicos</button>
+        <button data-s="friends" onclick="if(window.tpAgendaScope)tpAgendaScope('friends',this)">Amigos</button>
+        <button data-s="mine" onclick="if(window.tpAgendaScope)tpAgendaScope('mine',this)">Meus</button>
+      </div>
+      <button class="ag-new" onclick="if(window.tpAgendaNew)tpAgendaNew()">＋ Criar evento</button>
+    </div>
+    <div id="ag-list" class="ag-list"></div>
+    <div id="ag-empty" class="ag-empty" style="display:none"></div>
+  </section>
+
+  <!-- Modal criar evento -->
+  <div id="agm-modal" class="agm-modal" onclick="if(event.target===this){this.classList.remove('open')}">
+    <div class="agm-card">
+      <button class="agm-x" onclick="document.getElementById('agm-modal').classList.remove('open')">✕</button>
+      <div class="hs-sec-t" style="font-size:1rem;color:var(--ink)">📅 Criar evento</div>
+      <div id="agm-body" style="margin-top:.8rem"></div>
+    </div>
+  </div>
 
   <!-- ─── PAINEL DE MODERAÇÃO ─── -->
   <section class="page-section" id="moderation">
@@ -3291,48 +3369,43 @@ PlayerName (Leader)
     </div>
 
     <div class="pf-panel" data-panel="dados" style="display:none">
+      <style>
+        #profile .pf-vis-seg{display:flex;gap:.5rem;flex-wrap:wrap}
+        #profile .pf-vis-btn{flex:1;min-width:150px;background:var(--bg-2,#1b1a25);border:1.5px solid var(--rule);color:var(--ink-3,#b9b6c9);border-radius:10px;padding:.6rem .8rem;cursor:pointer;font-family:inherit;font-weight:700;font-size:.86rem;text-align:left;transition:.15s}
+        #profile .pf-vis-btn small{display:block;font-weight:400;font-size:.68rem;color:var(--muted);margin-top:2px}
+        #profile .pf-vis-btn.on{border-color:var(--bamboo,#8b5cf6);background:var(--bamboo-pale,#17122b);color:var(--bamboo-light,#a78bfa)}
+        #profile .pf-vis-btn.on small{color:var(--bamboo-light,#a78bfa);opacity:.8}
+      </style>
       <div class="card">
         <div class="tool-title" style="font-size:1.05rem;margin-bottom:.3rem">Dados pessoais</div>
-        <div style="font-size:.78rem;color:var(--muted);margin-bottom:.4rem;line-height:1.55">Seu nome de exibição no site é sempre o seu <b>personagem principal</b>. Use os interruptores <span style="color:var(--bamboo-light,#a78bfa);font-weight:700">roxos</span> pra escolher o que fica <b>visível no seu perfil público</b> — o resto fica só pra você.</div>
-        <div style="font-size:.74rem;color:var(--muted);background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:8px;padding:.5rem .7rem;margin-bottom:1.1rem">🔒 Seu <b>e-mail</b> nunca é exibido publicamente.</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:.9rem;line-height:1.55">Seu nome de exibição no site é sempre o seu <b>personagem principal</b>.</div>
+
         <div class="pf-field">
-          <div class="pf-lblrow"><label>Nome completo</label><label class="pf-switch"><input type="checkbox" id="pf-pub-full_name" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-full_name">Oculto</span></label></div>
-          <input id="pf-in-fullname" placeholder="Seu nome completo">
+          <label>Visibilidade do seu perfil</label>
+          <div class="pf-vis-seg" id="pf-vis-seg">
+            <button type="button" class="pf-vis-btn on" data-v="public" onclick="tpSetProfileVis('public',this)">🌎 Público <small>Qualquer pessoa vê seu perfil</small></button>
+            <button type="button" class="pf-vis-btn" data-v="friends" onclick="tpSetProfileVis('friends',this)">🔒 Privado <small>Só seus amigos veem</small></button>
+          </div>
         </div>
-        <div class="pf-field"><label>E-mail</label><input id="pf-in-email2" disabled></div>
+        <div style="font-size:.74rem;color:var(--muted);background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:8px;padding:.55rem .7rem;margin:.7rem 0 1.1rem;line-height:1.5">🔒 <b>E-mail, telefone e nome completo nunca aparecem no seu perfil.</b> No perfil público mostramos seu <b>nome de usuário, bio, país e redes sociais</b>.</div>
+
+        <div class="pf-field"><label>Nome completo <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">· privado</span></label><input id="pf-in-fullname" placeholder="Seu nome completo"></div>
+        <div class="pf-field"><label>E-mail <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">· privado</span></label><input id="pf-in-email2" disabled></div>
         <div style="display:flex;gap:.8rem;flex-wrap:wrap">
-          <div class="pf-field" style="flex:1;min-width:170px">
-            <div class="pf-lblrow"><label>Telefone</label><label class="pf-switch"><input type="checkbox" id="pf-pub-phone" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-phone">Oculto</span></label></div>
-            <input id="pf-in-phone" placeholder="(11) 90000-0000">
-          </div>
-          <div class="pf-field" style="flex:1;min-width:170px">
-            <div class="pf-lblrow"><label>País</label><label class="pf-switch"><input type="checkbox" id="pf-pub-country" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-country">Oculto</span></label></div>
-            <input id="pf-in-country" placeholder="Brasil">
-          </div>
+          <div class="pf-field" style="flex:1;min-width:170px"><label>Telefone <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">· privado</span></label><input id="pf-in-phone" placeholder="(11) 90000-0000"></div>
+          <div class="pf-field" style="flex:1;min-width:170px"><label>País</label><input id="pf-in-country" placeholder="Brasil"></div>
         </div>
-        <div class="pf-field">
-          <div class="pf-lblrow"><label>Bio</label><label class="pf-switch"><input type="checkbox" id="pf-pub-bio" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-bio">Oculto</span></label></div>
-          <textarea id="pf-in-bio" placeholder="Fale um pouco sobre você e sua jogatina..."></textarea>
-        </div>
+        <div class="pf-field"><label>Bio</label><textarea id="pf-in-bio" placeholder="Fale um pouco sobre você e sua jogatina..."></textarea></div>
 
         <div style="border-top:1px solid var(--rule);margin:1.1rem 0 .9rem;padding-top:.9rem">
           <div style="font-size:.85rem;font-weight:700;color:var(--ink,#eae8f2);margin-bottom:.2rem">🔗 Redes &amp; streaming</div>
-          <div style="font-size:.72rem;color:var(--muted);margin-bottom:.7rem">Divulgue seus canais no seu perfil público. Ative o interruptor <span style="color:var(--bamboo-light,#a78bfa);font-weight:700">roxo</span> pra exibir.</div>
+          <div style="font-size:.72rem;color:var(--muted);margin-bottom:.7rem">Seus canais aparecem no perfil e no diretório de <b>Criadores</b>.</div>
         </div>
         <div style="display:flex;gap:.8rem;flex-wrap:wrap">
-          <div class="pf-field" style="flex:1;min-width:180px">
-            <div class="pf-lblrow"><label>🟣 Twitch</label><label class="pf-switch"><input type="checkbox" id="pf-pub-twitch" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-twitch">Oculto</span></label></div>
-            <input id="pf-in-twitch" placeholder="twitch.tv/seucanal ou seucanal">
-          </div>
-          <div class="pf-field" style="flex:1;min-width:180px">
-            <div class="pf-lblrow"><label>🔴 YouTube</label><label class="pf-switch"><input type="checkbox" id="pf-pub-youtube" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-youtube">Oculto</span></label></div>
-            <input id="pf-in-youtube" placeholder="youtube.com/@seucanal ou @seucanal">
-          </div>
+          <div class="pf-field" style="flex:1;min-width:180px"><label>🟣 Twitch</label><input id="pf-in-twitch" placeholder="twitch.tv/seucanal ou seucanal"></div>
+          <div class="pf-field" style="flex:1;min-width:180px"><label>🔴 YouTube</label><input id="pf-in-youtube" placeholder="youtube.com/@seucanal ou @seucanal"></div>
         </div>
-        <div class="pf-field">
-          <div class="pf-lblrow"><label>💬 Discord</label><label class="pf-switch"><input type="checkbox" id="pf-pub-discord" onchange="tpSyncPrivLabels()"><span class="track"></span><span id="pf-publbl-discord">Oculto</span></label></div>
-          <input id="pf-in-discord" placeholder="seu_usuario">
-        </div>
+        <div class="pf-field"><label>💬 Discord</label><input id="pf-in-discord" placeholder="seu_usuario"></div>
 
         <button class="calc-btn" style="margin-top:.4rem" onclick="tpSavePersonal()" id="pf-save-personal">Salvar dados</button>
       </div>
@@ -3340,10 +3413,14 @@ PlayerName (Leader)
       <div class="card" style="margin-top:1rem">
         <div class="tool-title" style="font-size:1rem;margin-bottom:.8rem">🔒 Senha e segurança</div>
         <div class="pf-field"><label>E-mail da conta</label><input id="pf-in-email" disabled style="opacity:.7"></div>
-        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.4rem">
-          <button class="filter-btn" onclick="tpSendReset()" id="pf-reset-btn">✉️ Enviar e-mail de redefinição de senha</button>
-          <button class="filter-btn" onclick="tpLogout()" style="color:#f8746a">Sair da conta</button>
+        <div style="margin-top:.6rem">
+          <label style="font-size:.72rem;color:var(--muted);font-weight:600">Pra evitar acidentes, digite <b style="color:var(--ink,#eae8f2)">redefinir</b> e confirme:</label>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.4rem;align-items:center">
+            <input id="pf-reset-confirm" placeholder="digite: redefinir" autocomplete="off" style="flex:1;min-width:150px;max-width:220px;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);color:var(--ink,#eae8f2);border-radius:8px;padding:.5rem .65rem;font-size:.85rem" oninput="tpResetConfirmSync()">
+            <button class="filter-btn" onclick="tpSendReset()" id="pf-reset-btn" disabled style="opacity:.5">✉️ Enviar redefinição de senha</button>
+          </div>
         </div>
+        <div style="margin-top:.7rem"><button class="filter-btn" onclick="tpLogout()" style="color:#f8746a">Sair da conta</button></div>
         <div id="pf-seg-status" style="font-size:.8rem;color:var(--muted);margin-top:.7rem;min-height:1em"></div>
         <div style="font-size:.75rem;color:var(--muted);margin-top:.9rem;line-height:1.5">🔐 Lembrete: nunca use o mesmo e-mail/senha da sua conta global do Tibia aqui.</div>
       </div>
@@ -4008,7 +4085,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cp</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cq</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7152,7 +7229,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cp';
+window.TP_BUILD = '2026-08-13cq';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -11987,6 +12064,8 @@ function ewEnsureTcInput() {
     const bp=g('bosses'); if(bp && bp.classList.contains('active') && typeof loadBossSpawn==='function'){ try{ loadBossSpawn(); }catch(e){} }
     const pfp=g('partyfinder'); if(pfp && pfp.classList.contains('active') && typeof loadPartyFinder==='function'){ try{ loadPartyFinder(); }catch(e){} }
     const hsp=g('houses'); if(hsp && hsp.classList.contains('active') && window.tpHousesInit){ try{ window.tpHousesInit(); }catch(e){} }
+    try{ if(window.tpHomeEvents) window.tpHomeEvents(); }catch(e){}
+    const agp=g('agenda'); if(agp && agp.classList.contains('active') && window.tpAgendaLoad){ try{ window.tpAgendaLoad(); }catch(e){} }
     render('');
   };
   async function loadList(){
@@ -13073,8 +13152,9 @@ function ewEnsureTcInput() {
     if(g('pf-in-email')) g('pf-in-email').value=AUTH.user.email||'';
     if(g('pf-in-email2')) g('pf-in-email2').value=AUTH.user.email||'';
     var pv=prof.privacy||{};
-    ['full_name','phone','country','bio','twitch','youtube','discord'].forEach(function(k){ var cb=g('pf-pub-'+k); if(cb) cb.checked=!!pv[k]; });
-    if(window.tpSyncPrivLabels) tpSyncPrivLabels();
+    window.__pfVis=(pv.profile==='friends')?'friends':'public';
+    document.querySelectorAll('#pf-vis-seg .pf-vis-btn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v')===window.__pfVis); });
+    var rc=g('pf-reset-confirm'); if(rc) rc.value=''; if(window.tpResetConfirmSync) tpResetConfirmSync();
     tpLoadChars();
   };
   window.tpLoadChars=async function(){
@@ -13135,8 +13215,7 @@ function ewEnsureTcInput() {
     if(!AUTH) return;
     var gv=function(id){ var el=g(id); return el?((el.value||'').trim())||null:null; };
     var patch={ full_name:gv('pf-in-fullname'), phone:gv('pf-in-phone'), bio:gv('pf-in-bio'), country:gv('pf-in-country'), twitch:gv('pf-in-twitch'), youtube:gv('pf-in-youtube'), discord:gv('pf-in-discord'), updated_at:new Date().toISOString() };
-    var pubOf=function(k){ var cb=g('pf-pub-'+k); return !!(cb&&cb.checked); };
-    patch.privacy={ full_name:pubOf('full_name'), phone:pubOf('phone'), country:pubOf('country'), bio:pubOf('bio'), twitch:pubOf('twitch'), youtube:pubOf('youtube'), discord:pubOf('discord') };
+    patch.privacy={ profile:(window.__pfVis==='friends')?'friends':'public' };
     var btn=g('pf-save-personal'); if(btn){btn.disabled=true;btn.textContent='Salvando...';}
     try{
       var res=await tpAuthFetch(SB+'/rest/v1/profiles?id=eq.'+AUTH.user.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(patch)});
@@ -13147,8 +13226,11 @@ function ewEnsureTcInput() {
     }catch(e){ if(window.tpToast) tpToast('Erro ao salvar os dados.','error'); }
     finally{ if(btn){btn.disabled=false;btn.textContent='Salvar dados';} }
   };
+  window.tpSetProfileVis=function(v,btn){ window.__pfVis=(v==='friends')?'friends':'public'; document.querySelectorAll('#pf-vis-seg .pf-vis-btn').forEach(function(b){ b.classList.toggle('on',b===btn); }); };
+  window.tpResetConfirmSync=function(){ var i=g('pf-reset-confirm'), b=g('pf-reset-btn'); if(!b) return; var ok=i&&(i.value||'').trim().toLowerCase()==='redefinir'; b.disabled=!ok; b.style.opacity=ok?'1':'.5'; };
   window.tpSendReset=async function(){
     if(!AUTH) return; var st=g('pf-seg-status'); var set=function(t,c){if(st){st.textContent=t;st.style.color=c||'var(--muted)';}};
+    var conf=g('pf-reset-confirm'); if(!conf || (conf.value||'').trim().toLowerCase()!=='redefinir'){ set('Digite "redefinir" no campo pra confirmar.','#e0774a'); return; }
     set('Enviando...');
     try{
       var res=await fetch(SB+'/auth/v1/recover',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email:AUTH.user.email})});
@@ -13973,6 +14055,7 @@ window.tpToast=function(msg,type){
     host.innerHTML='<div class="tp-prof"><button class="tp-prof-x" onclick="tpProfClose()">✕</button><div class="api-loading"><div class="spinner"></div> Carregando perfil...</div></div>';
     var d=null; try{ var r=await af(SB+'/rest/v1/rpc/tp_public_profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pid:fid})}); if(r.ok) d=await r.json(); }catch(e){}
     if(!d||!d.ok){ host.querySelector('.tp-prof').innerHTML='<button class="tp-prof-x" onclick="tpProfClose()">✕</button><div class="vit-empty" style="padding:2rem">Não consegui carregar esse perfil.</div>'; return; }
+    if(d.private){ var pp=d.profile||{}; host.querySelector('.tp-prof').innerHTML='<button class="tp-prof-x" onclick="tpProfClose()">✕</button><div style="padding:2.6rem 1.5rem;text-align:center"><div style="font-size:2.2rem">🔒</div><div style="font-weight:800;color:var(--ink,#eae8f2);margin-top:.5rem;font-size:1.05rem">'+window.esc(pp.display_name||pp.main_char||(pp.handle?('@'+pp.handle):'Este jogador'))+'</div><div style="color:var(--muted);font-size:.85rem;margin-top:.45rem">Este perfil é privado — só amigos podem ver os detalhes.</div></div>'; return; }
     window.__PROF=d; var p=d.profile||{};
     var clvl=+d.community_level||1; var rank=profRankOf(clvl);
     var nm=p.display_name||p.main_char||(p.handle?('@'+p.handle):'Jogador');
@@ -15913,6 +15996,129 @@ window.tpLoadJornada=async function(){
         });
       }).catch(function(){ grid.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent='Não consegui carregar os criadores agora.'; } });
   };
+})();
+</script>
+
+<script>
+/* ─── AGENDA DA COMUNIDADE ─── eventos + RSVP + calendário */
+(function(){
+  function SB(){ return (typeof PANDA_SB_URL!=='undefined')?PANDA_SB_URL:''; }
+  function af(){ return window.tpAuthFetch||fetch; }
+  function auth(){ return window.TP_AUTH; }
+  function toast(m,t){ if(window.tpToast) tpToast(m,t||'info'); }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function world(){ try{ return (typeof CONFIG!=='undefined'&&CONFIG.world)||'Gentebra'; }catch(e){ return 'Gentebra'; } }
+  function segOn(barId,btn){ var bar=document.getElementById(barId); if(bar) bar.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on',b===btn); }); }
+  var ETYPES={hunt:['⚔️','Hunt','#8b5cf6'],team_hunt:['🛡️','Team Hunt','#4a7de0'],boss:['💀','Boss','#e05a5a'],quest:['📜','Quest','#c9a840'],guild_war:['🚩','Guild War','#e0774a'],social:['🎉','Social','#3ecf8e'],stream:['🎥','Stream','#e0397a'],other:['📌','Outro','#8a879c']};
+  var VISLBL={public:'🌎 Público',friends:'👥 Amigos',guild:'🛡️ Guild',private:'🔒 Privado'};
+  function whenBlock(iso){ var d=new Date(iso); return { dd:d.getDate(), mo:d.toLocaleDateString('pt-BR',{month:'short'}).replace('.',''), hr:d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) }; }
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function toGCal(iso){ var d=new Date(iso); return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+pad(d.getUTCHours())+pad(d.getUTCMinutes())+'00Z'; }
+  function endOf(ev){ return ev.ends_at?toGCal(ev.ends_at):toGCal(new Date(new Date(ev.starts_at).getTime()+2*3600*1000).toISOString()); }
+  function gcalUrl(ev){ return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(ev.title)+'&dates='+toGCal(ev.starts_at)+'/'+endOf(ev)+'&details='+encodeURIComponent((ev.description||'')+'\n\nTibia Panda · '+(ev.world||''))+'&location='+encodeURIComponent(ev.location||ev.world||''); }
+  function icsEsc(s){ return String(s||'').replace(/([,;\\])/g,'\\$1').replace(/\r?\n/g,'\\n'); }
+  function icsFor(ev){ var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//TibiaPanda//Agenda//PT','BEGIN:VEVENT','UID:'+ev.id+'@tibiapanda','DTSTAMP:'+toGCal(new Date().toISOString()),'DTSTART:'+toGCal(ev.starts_at),'DTEND:'+endOf(ev),'SUMMARY:'+icsEsc(ev.title),'DESCRIPTION:'+icsEsc((ev.description||'')+' — Tibia Panda'),'LOCATION:'+icsEsc(ev.location||ev.world||''),'BEGIN:VALARM','TRIGGER:-PT30M','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(ev.title),'END:VALARM','END:VEVENT','END:VCALENDAR']; return 'data:text/calendar;charset=utf-8,'+encodeURIComponent(L.join('\r\n')); }
+
+  function agCard(ev){
+    var t=ETYPES[ev.type]||ETYPES.other, w=whenBlock(ev.starts_at);
+    var meta=[]; if(ev.location) meta.push('📍 '+esc(ev.location)); meta.push('🌎 '+esc(ev.world)); if(ev.creator_char) meta.push('por '+esc(ev.creator_char)); if(ev.capacity) meta.push('👥 '+ev.going+'/'+ev.capacity+' vagas');
+    var full = ev.capacity && ev.going>=ev.capacity && ev.my_response!=='going';
+    var rsvp='<div class="ag-rsvp">'
+      +'<button class="ag-rbtn going'+(ev.my_response==='going'?' on':'')+'"'+(full?' disabled':'')+' onclick="tpAgendaRSVP(\''+ev.id+'\',\'going\')">✓ Vou</button>'
+      +'<button class="ag-rbtn maybe'+(ev.my_response==='maybe'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'maybe\')">? Talvez</button>'
+      +'<button class="ag-rbtn no'+(ev.my_response==='no'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'no\')">✕ Não</button>'
+      +'<span class="ag-count"><b>'+ev.going+'</b> vão'+(ev.maybe?' · '+ev.maybe+' talvez':'')+'</span>'
+      +'<span class="ag-cal"><a href="'+gcalUrl(ev)+'" target="_blank" rel="noopener">📅 Google</a><a href="'+icsFor(ev)+'" download="evento.ics">⬇ .ics</a>'+(ev.is_mine?'<button onclick="tpAgendaDelete(\''+ev.id+'\')" style="color:var(--red,#e87070);border-color:var(--red,#e87070);background:transparent">🗑</button>':'')+'</span>'
+      +'</div>';
+    return '<div class="ag-card">'
+      +'<div class="ag-when"><div class="d">'+w.dd+'</div><div class="mo">'+esc(w.mo)+'</div><div class="hr">'+w.hr+'</div></div>'
+      +'<div class="ag-main"><div class="ag-ttl">'+t[0]+' '+esc(ev.title)+' <span class="ag-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span> <span class="ag-vis">'+(VISLBL[ev.visibility]||ev.visibility)+'</span></div>'
+      +'<div class="ag-meta">'+meta.join('&nbsp;&nbsp;')+'</div>'
+      +(ev.description?'<div class="ag-desc">'+esc(ev.description)+'</div>':'')
+      +rsvp+'</div></div>';
+  }
+  window.__AG_SCOPE='all';
+  window.tpAgendaScope=function(s,btn){ window.__AG_SCOPE=s; segOn('ag-scopebar',btn); tpAgendaLoad(); };
+  window.tpAgendaLoad=function(){
+    var host=document.getElementById('ag-list'), empty=document.getElementById('ag-empty'); if(!host) return;
+    host.innerHTML='<div class="ag-loading">Carregando eventos…</div>'; if(empty) empty.style.display='none';
+    var scope=window.__AG_SCOPE||'all';
+    af()(SB()+'/rest/v1/rpc/tp_events_feed',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_world:world(),p_scope:scope})})
+      .then(function(r){ return r.json(); }).then(function(list){
+        list=Array.isArray(list)?list:[];
+        if(!list.length){ host.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent=(scope==='mine')?'Você ainda não criou eventos. Clique em "Criar evento".':'Nenhum evento por aqui ainda. Que tal marcar o primeiro?'; } return; }
+        host.innerHTML=list.map(agCard).join('');
+      }).catch(function(){ host.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent='Não consegui carregar a agenda.'; } });
+  };
+  window.tpAgendaRSVP=async function(eid,resp){
+    var A=auth(); if(!A||!A.user){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
+    try{ var r=await af()(SB()+'/rest/v1/event_rsvps',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({event_id:eid,user_id:A.user.id,response:resp})}); if(!r.ok) throw new Error('rsvp'); tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents(); }
+    catch(e){ toast('Não consegui confirmar presença.','error'); }
+  };
+  window.tpAgendaDelete=async function(id){
+    if(!window.confirm('Apagar este evento? Não dá pra desfazer.')) return;
+    try{ var r=await af()(SB()+'/rest/v1/events?id=eq.'+id,{method:'DELETE',headers:{Prefer:'return=minimal'}}); if(!r.ok) throw new Error('del'); toast('Evento apagado.','info'); tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents(); }
+    catch(e){ toast('Não consegui apagar.','error'); }
+  };
+  window.tpAgendaNew=function(){
+    var A=auth(), body=document.getElementById('agm-body'), modal=document.getElementById('agm-modal'); if(!body||!modal) return;
+    if(!A||!A.user){ body.innerHTML='<div class="agm-gate">Entre na sua conta para criar eventos. <a href="#" onclick="document.getElementById(\'agm-modal\').classList.remove(\'open\');if(window.tpOpenAuth)tpOpenAuth(\'login\');return false" style="color:var(--bamboo-light)">Entrar</a></div>'; modal.classList.add('open'); return; }
+    body.innerHTML='<div class="ag-loading">Carregando…</div>'; modal.classList.add('open');
+    af()(SB()+'/rest/v1/characters?select=name&verified=is.true',{headers:{Accept:'application/json'}}).then(function(r){ return r.json(); }).then(function(chars){
+      chars=Array.isArray(chars)?chars.filter(function(c){return c&&c.name;}):[];
+      var charOpts=chars.map(function(c){ return '<option>'+esc(c.name)+'</option>'; }).join('');
+      var typeOpts=Object.keys(ETYPES).map(function(k){ return '<option value="'+k+'">'+ETYPES[k][0]+' '+ETYPES[k][1]+'</option>'; }).join('');
+      var now=new Date(Date.now()+3600*1000); var dv=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+'T'+pad(now.getHours())+':00';
+      body.innerHTML=''
+        +'<div style="margin-bottom:.7rem"><label>Título</label><input id="agm-title" maxlength="120" placeholder="Ex.: Boss check Ferumbras, hunt em Soul War…"></div>'
+        +'<div class="row"><div><label>Tipo</label><select id="agm-type">'+typeOpts+'</select></div><div><label>Visibilidade</label><select id="agm-vis" onchange="tpAgendaVisHint()"><option value="public">🌎 Público (servidor)</option><option value="friends">👥 Amigos</option><option value="private">🔒 Privado (por link)</option><option value="guild" disabled>🛡️ Guild (em breve)</option></select></div></div>'
+        +'<div id="agm-vishint" style="font-size:.72rem;color:var(--muted);margin:-.3rem 0 .7rem"></div>'
+        +'<div class="row"><div><label>Início</label><input type="datetime-local" id="agm-start" value="'+dv+'"></div><div><label>Fim (opcional)</label><input type="datetime-local" id="agm-end"></div></div>'
+        +'<div class="row"><div><label>Local (opcional)</label><input id="agm-loc" maxlength="80" placeholder="Ex.: Soul War, Thais depot…"></div><div><label>Vagas (opcional)</label><input type="number" id="agm-cap" min="1" placeholder="ex.: 4"></div></div>'
+        +(chars.length?'<div style="margin-bottom:.7rem"><label>Seu personagem</label><select id="agm-char">'+charOpts+'</select></div>':'<div id="agm-char-warn" style="font-size:.74rem;color:var(--gold-light,#e0c060);margin-bottom:.7rem">⚠️ Você não tem boneco verificado — só dá pra criar eventos de amigos/privados. Verifique um na aba Personagem pra criar públicos.</div>')
+        +'<div style="margin-bottom:.7rem"><label>Descrição (opcional)</label><textarea id="agm-desc" maxlength="2000" placeholder="Detalhes: o que levar, ponto de encontro, requisitos…"></textarea></div>'
+        +'<button class="tp-btn-primary" id="agm-submit" onclick="tpAgendaSubmit()">Criar evento</button>';
+      tpAgendaVisHint();
+    }).catch(function(){ body.innerHTML='<div class="agm-gate">Não consegui carregar o formulário.</div>'; });
+  };
+  window.tpAgendaVisHint=function(){ var v=(document.getElementById('agm-vis')||{}).value, h=document.getElementById('agm-vishint'); if(!h) return;
+    h.textContent = v==='public'?'Aparece pra todo o servidor '+world()+' e na home. Exige um boneco verificado.'
+      : v==='friends'?'Só os seus amigos veem este evento.'
+      : v==='private'?'Só quem tiver o link vê. Bom pra combinar hunt fechada.' : '';
+  };
+  window.tpAgendaSubmit=async function(){
+    var A=auth(); if(!A||!A.user) return;
+    var gv=function(id){ var e=document.getElementById(id); return e?(e.value||'').trim():''; };
+    var title=gv('agm-title'); if(!title){ toast('Dê um título ao evento.','info'); return; }
+    var startLocal=gv('agm-start'); if(!startLocal){ toast('Escolha a data e a hora.','info'); return; }
+    var payload={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc'), visibility:gv('agm-vis'), world:world(), creator_char:gv('agm-char'), starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null };
+    var btn=document.getElementById('agm-submit'); if(btn){ btn.disabled=true; btn.textContent='Criando…'; }
+    try{
+      var r=await af()(SB()+'/rest/v1/rpc/tp_event_create',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p:payload})});
+      if(!r.ok){ var e=await r.json().catch(function(){return null;}); var msg='Não consegui criar o evento.';
+        if(e&&e.message){ if(/need_verified/.test(e.message)) msg='Eventos públicos exigem um personagem verificado. Verifique um boneco na aba Personagem (ou escolha Amigos/Privado).'; else if(/guild_soon/.test(e.message)) msg='Eventos de guild chegam em breve.'; else if(/titulo/.test(e.message)) msg='Título obrigatório.'; else if(/data/.test(e.message)) msg='Data/hora inválida.'; else msg=e.message; }
+        toast(msg,'error'); if(btn){ btn.disabled=false; btn.textContent='Criar evento'; } return;
+      }
+      toast('Evento criado! 📅','success'); document.getElementById('agm-modal').classList.remove('open'); tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents();
+    }catch(e){ toast('Erro ao criar o evento.','error'); if(btn){ btn.disabled=false; btn.textContent='Criar evento'; } }
+  };
+  // Widget da home: próximos eventos públicos do servidor
+  window.tpHomeEvents=function(){
+    var host=document.getElementById('home-events-body'); if(!host) return;
+    af()(SB()+'/rest/v1/rpc/tp_events_feed',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_world:world(),p_scope:'public'})})
+      .then(function(r){ return r.json(); }).then(function(list){
+        list=(Array.isArray(list)?list:[]).slice(0,4);
+        var wrap=document.getElementById('home-events');
+        if(!list.length){ if(wrap) wrap.style.display='none'; return; }
+        if(wrap) wrap.style.display='';
+        host.innerHTML=list.map(function(ev){ var t=ETYPES[ev.type]||ETYPES.other, w=whenBlock(ev.starts_at);
+          return '<div class="he-item" onclick="showPage(\'agenda\',document.querySelector(\'[onclick*=agenda]\'));if(window.tpAgendaLoad)tpAgendaLoad()" style="display:flex;gap:.7rem;align-items:center;padding:.6rem .7rem;border:1px solid var(--border,#2b2938);border-radius:10px;background:var(--bg-2,#1b1a25);cursor:pointer">'
+            +'<div style="text-align:center;flex:none;width:44px"><div style="font-size:1.1rem;font-weight:800;color:var(--ink,#eae8f2);line-height:1">'+w.dd+'</div><div style="font-size:.58rem;text-transform:uppercase;color:var(--muted)">'+esc(w.mo)+'</div></div>'
+            +'<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:.86rem;color:var(--ink,#eae8f2)">'+t[0]+' '+esc(ev.title)+'</div><div style="font-size:.72rem;color:var(--muted)">'+w.hr+(ev.location?' · '+esc(ev.location):'')+' · <b style="color:#3ecf8e">'+ev.going+'</b> vão</div></div></div>';
+        }).join('');
+      }).catch(function(){});
+  };
+  if(document.readyState!=='loading') setTimeout(function(){ if(window.tpHomeEvents) tpHomeEvents(); },1600); else document.addEventListener('DOMContentLoaded',function(){ setTimeout(function(){ if(window.tpHomeEvents) tpHomeEvents(); },1600); });
 })();
 </script>
 
