@@ -2617,6 +2617,19 @@ async function tibiaFetch(path) {
     <div id="evp-body"><div class="ag-loading" style="padding:2rem 0;text-align:center;color:var(--muted)">Carregando evento…</div></div>
   </section>
 
+  <!-- ─── PÁGINA DE PERFIL PÚBLICO (de outros jogadores) ─── -->
+  <section class="page-section" id="userprofile">
+    <style>
+      #userprofile .up-back{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;font-weight:700;color:var(--bamboo-light,#a78bfa);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;margin-bottom:1rem}
+      #userprofile .tp-prof{max-width:860px;margin:0 auto;background:transparent;border:none;box-shadow:none;padding:0}
+      #userprofile .tp-prof-hero2{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:16px;padding:1.3rem 1.4rem}
+      #userprofile .tp-prof-secs{margin-top:1.1rem}
+      #userprofile .tp-prof-sec{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1.1rem 1.2rem}
+    </style>
+    <button class="up-back" onclick="if(history.length>1){history.back()}else{location.hash='#home'}">← Voltar</button>
+    <div id="up-body"><div class="api-loading"><div class="spinner"></div> Carregando perfil…</div></div>
+  </section>
+
   <!-- ─── PAINEL DE MODERAÇÃO ─── -->
   <section class="page-section" id="moderation">
     <h2 class="sec-title">🛡️ Painel de Moderação</h2>
@@ -4324,7 +4337,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13df</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13dg</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7468,7 +7481,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13df';
+window.TP_BUILD = '2026-08-13dg';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -9043,7 +9056,7 @@ function showPage(id, btn) {
   // ─── URL da página: sincroniza o #hash pra que cada página tenha link compartilhável ───
   try{
     var _cur=(location.hash||'').replace(/^#/,'');
-    var _deep={house:'houses',event:'eventpage',user:'profile'};   // deep-links têm hash próprio (#house=, #event=, #user=)
+    var _deep={house:'houses',event:'eventpage',user:'userprofile'};   // deep-links têm hash próprio (#house=, #event=, #user=)
     var _m=_cur.match(/^([a-z]+)=/);
     var _keep=_m && _deep[_m[1]]===id;   // entrando na MESMA página do deep-link → preserva o link rico
     if(!_keep && _cur!==id){ window.__tpSupHash=true; location.hash='#'+id; }
@@ -14319,13 +14332,14 @@ window.tpToast=function(msg,type){
       if(window.tpLoadGamify) window.tpLoadGamify();
       return;
     }
-    var host=document.getElementById('tp-prof-modal');
-    if(!host){ host=document.createElement('div'); host.id='tp-prof-modal'; host.className='tp-prof-ov'; host.onclick=function(e){ if(e.target===host) window.tpProfClose(); }; document.body.appendChild(host); }
-    host.style.display='flex';
-    host.innerHTML='<div class="tp-prof"><button class="tp-prof-x" onclick="tpProfClose()">✕</button><div class="api-loading"><div class="spinner"></div> Carregando perfil...</div></div>';
+    // Abre a PÁGINA de perfil (não mais o card flutuante)
+    if(typeof showPage==='function'){ var s=document.getElementById('userprofile'); if(s && !s.classList.contains('active')) showPage('userprofile'); }
+    var host=document.getElementById('up-body'); if(!host) return;
+    host.innerHTML='<div class="tp-prof"><div class="api-loading"><div class="spinner"></div> Carregando perfil...</div></div>';
+    var wrap=function(inner){ host.innerHTML='<div class="tp-prof">'+inner+'</div>'; };
     var d=null; try{ var r=await af(SB+'/rest/v1/rpc/tp_public_profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pid:fid})}); if(r.ok) d=await r.json(); }catch(e){}
-    if(!d||!d.ok){ host.querySelector('.tp-prof').innerHTML='<button class="tp-prof-x" onclick="tpProfClose()">✕</button><div class="vit-empty" style="padding:2rem">Não consegui carregar esse perfil.</div>'; return; }
-    if(d.private){ var pp=d.profile||{}; host.querySelector('.tp-prof').innerHTML='<button class="tp-prof-x" onclick="tpProfClose()">✕</button><div style="padding:2.6rem 1.5rem;text-align:center"><div style="font-size:2.2rem">🔒</div><div style="font-weight:800;color:var(--ink,#eae8f2);margin-top:.5rem;font-size:1.05rem">'+window.esc(pp.display_name||pp.main_char||(pp.handle?('@'+pp.handle):'Este jogador'))+'</div><div style="color:var(--muted);font-size:.85rem;margin-top:.45rem">Este perfil é privado — só amigos podem ver os detalhes.</div></div>'; return; }
+    if(!d||!d.ok){ host.querySelector('.tp-prof').innerHTML='<div class="vit-empty" style="padding:2rem">Não consegui carregar esse perfil.</div>'; return; }
+    if(d.private){ var pp=d.profile||{}; host.querySelector('.tp-prof').innerHTML='<div style="padding:2.6rem 1.5rem;text-align:center"><div style="font-size:2.2rem">🔒</div><div style="font-weight:800;color:var(--ink,#eae8f2);margin-top:.5rem;font-size:1.05rem">'+window.esc(pp.display_name||pp.main_char||(pp.handle?('@'+pp.handle):'Este jogador'))+'</div><div style="color:var(--muted);font-size:.85rem;margin-top:.45rem">Este perfil é privado — só amigos podem ver os detalhes.</div></div>'; return; }
     window.__PROF=d; var p=d.profile||{};
     var clvl=+d.community_level||1; var rank=profRankOf(clvl);
     var nm=p.display_name||p.main_char||(p.handle?('@'+p.handle):'Jogador');
@@ -14350,6 +14364,7 @@ window.tpToast=function(msg,type){
         +bars
         +'<div class="tp-prof-chips" id="tp-prof-chips">'
           +profChip('🏅',rank,'Título na comunidade')
+          +(d.karma!=null?profChip('⚖️','Karma '+d.karma+'/10','Karma na comunidade (avaliação dos acessos)'):'')
           +profChip('⏱️',profMin(d.weekly_minutes)+' na semana','Tempo jogado (últimos 7 dias, do analyser)')
           +(p.country?profChip('🌎',p.country,'País'):'')
         +'</div>'
@@ -14366,7 +14381,7 @@ window.tpToast=function(msg,type){
       +'<div class="tp-prof-sec"><div class="tp-prof-h">🏆 Conquistas em destaque</div><div id="tp-prof-vit"><div class="soc-empty">Carregando…</div></div></div>'
       +'<div class="tp-prof-sec"><div class="tp-prof-h">💬 Comentários</div>'+depoCompose+'<div id="tp-prof-depo"></div></div>'
       +'</div>';
-    host.querySelector('.tp-prof').innerHTML='<button class="tp-prof-x" onclick="tpProfClose()">✕</button>'+head+body;
+    host.querySelector('.tp-prof').innerHTML=''+head+body;
     try{ var av0=document.getElementById('tp-prof-av'); if(av0 && typeof tpApplyFloor==='function' && typeof tpFloorById==='function') tpApplyFloor(av0, tpFloorById(p.profile_floor||'stone')); }catch(e){}
     if(p.outfit&&p.outfit.outfit_id!=null&&window.tpGetOutfitter){
       var o=p.outfit;
