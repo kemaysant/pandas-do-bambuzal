@@ -2323,17 +2323,24 @@ async function tibiaFetch(path) {
   <!-- ─── AGENDA DA COMUNIDADE ─── -->
   <section class="page-section" id="agenda">
     <style>
-      #agenda .ag-top{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center;margin-bottom:1.1rem}
-      #agenda .ag-seg{display:inline-flex;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:8px;padding:3px;gap:2px}
-      #agenda .ag-seg button{background:none;border:none;color:var(--muted,#63607a);font-size:.76rem;font-weight:600;padding:.4rem .8rem;border-radius:6px;cursor:pointer;font-family:inherit}
-      #agenda .ag-seg button.on{background:linear-gradient(135deg,#7c4fe0,#9265f0);color:#fff}
-      #agenda .ag-new{margin-left:auto;background:linear-gradient(135deg,#7c4fe0,#9265f0);border:none;color:#fff;border-radius:9px;padding:.6rem 1.1rem;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit}
-      #agenda .ag-list{display:flex;flex-direction:column;gap:.75rem}
-      #agenda .ag-card{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1rem 1.1rem;display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap}
-      #agenda .ag-when{flex:none;width:64px;text-align:center;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:10px;padding:.5rem .3rem}
-      #agenda .ag-when .d{font-size:1.4rem;font-weight:800;color:var(--ink,#eae8f2);line-height:1}
-      #agenda .ag-when .mo{font-size:.62rem;text-transform:uppercase;color:var(--muted);letter-spacing:.05em;margin-top:2px}
-      #agenda .ag-when .hr{font-size:.68rem;color:var(--bamboo-light,#a78bfa);font-weight:700;margin-top:4px}
+      #agenda .ag-top{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:1.25rem}
+      #agenda .ag-seg{display:inline-flex;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:9px;padding:3px;gap:2px}
+      #agenda .ag-seg button{background:none;border:none;color:var(--muted,#63607a);font-size:.76rem;font-weight:600;padding:.4rem .8rem;border-radius:6px;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap}
+      #agenda .ag-seg button.on{background:linear-gradient(135deg,#7c4fe0,#9265f0);color:#fff;box-shadow:0 4px 14px -7px rgba(139,92,246,.7)}
+      #agenda .ag-seg button:not(.on):hover{color:var(--ink,#eae8f2)}
+      #agenda .ag-new{margin-left:auto;background:linear-gradient(135deg,#7c4fe0,#9265f0);border:none;color:#fff;border-radius:9px;padding:.6rem 1.1rem;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 6px 20px -10px rgba(139,92,246,.55);transition:.18s}
+      #agenda .ag-new:hover{filter:brightness(1.08);transform:translateY(-1px)}
+      #agenda .ag-list{display:flex;flex-direction:column;gap:.8rem}
+      #agenda .ag-card{position:relative;background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1rem 1.15rem 1rem 1.3rem;display:flex;gap:1.1rem;align-items:flex-start;flex-wrap:wrap;overflow:hidden;transition:border-color .18s,transform .18s,box-shadow .18s}
+      #agenda .ag-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--bamboo,#8b5cf6),var(--bamboo-light,#a78bfa));opacity:.55}
+      #agenda .ag-card:hover{border-color:var(--bamboo,#8b5cf6);transform:translateY(-1px);box-shadow:0 12px 30px -18px rgba(139,92,246,.5)}
+      #agenda .ag-card.ag-focus{border-color:var(--gold,#c9a840);box-shadow:0 0 0 1px var(--gold,#c9a840) inset,0 14px 34px -18px rgba(201,168,64,.5)}
+      #agenda .ag-card.ag-focus::before{background:linear-gradient(var(--gold,#c9a840),var(--gold-light,#e0c060));opacity:.85}
+      #agenda .ag-shared-tag{display:inline-flex;align-items:center;gap:5px;font-size:.64rem;font-weight:700;color:var(--gold-light,#e0c060);background:rgba(201,168,64,.12);border:1px solid rgba(201,168,64,.4);border-radius:999px;padding:2px 9px;margin-bottom:.55rem}
+      #agenda .ag-when{flex:none;width:60px;text-align:center;background:linear-gradient(160deg,var(--bamboo-dim,#211a3d),var(--bg-2,#1b1a25));border:1px solid var(--border,#2b2938);border-radius:11px;padding:.5rem .3rem .55rem}
+      #agenda .ag-when .d{font-size:1.5rem;font-weight:800;color:var(--ink,#eae8f2);line-height:1;font-family:'Cinzel',serif}
+      #agenda .ag-when .mo{font-size:.6rem;text-transform:uppercase;color:var(--gold-light,#e0c060);letter-spacing:.08em;margin-top:3px;font-weight:700}
+      #agenda .ag-when .hr{font-size:.68rem;color:var(--bamboo-light,#a78bfa);font-weight:700;margin-top:5px}
       #agenda .ag-main{flex:1;min-width:180px}
       #agenda .ag-ttl{font-size:1.02rem;font-weight:800;color:var(--ink,#eae8f2);display:flex;align-items:center;gap:.45rem;flex-wrap:wrap}
       #agenda .ag-badge{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 8px;border-radius:999px}
@@ -2341,15 +2348,41 @@ async function tibiaFetch(path) {
       #agenda .ag-meta{font-size:.76rem;color:var(--muted,#63607a);margin:.35rem 0 .1rem;display:flex;gap:.9rem;flex-wrap:wrap}
       #agenda .ag-desc{font-size:.82rem;color:var(--ink-3,#b9b6c9);margin:.4rem 0 .2rem;line-height:1.4}
       #agenda .ag-rsvp{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-top:.6rem}
-      #agenda .ag-rbtn{border:1px solid var(--border,#2b2938);background:var(--bg-2,#1b1a25);color:var(--ink-3,#b9b6c9);border-radius:999px;padding:5px 12px;font-size:.74rem;font-weight:700;cursor:pointer;font-family:inherit}
+      #agenda .ag-rbtn{border:1px solid var(--border,#2b2938);background:var(--bg-2,#1b1a25);color:var(--ink-3,#b9b6c9);border-radius:999px;padding:5px 12px;font-size:.74rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+      #agenda .ag-rbtn:hover{border-color:var(--bamboo,#8b5cf6)}
       #agenda .ag-rbtn.going.on{background:#173a26;border-color:#3ecf8e;color:#5fdd9e}
       #agenda .ag-rbtn.maybe.on{background:#2a2410;border-color:#c9a840;color:#e6c964}
       #agenda .ag-rbtn.no.on{background:#2f1a1a;border-color:#e05a5a;color:#f08a8a}
       #agenda .ag-cal{margin-left:auto;display:flex;gap:.4rem;flex-wrap:wrap}
-      #agenda .ag-cal a,#agenda .ag-cal button{font-size:.72rem;font-weight:700;text-decoration:none;color:var(--bamboo-light,#a78bfa);background:var(--bamboo-dim,#211a3d);border:1px solid var(--bamboo,#8b5cf6);border-radius:999px;padding:5px 11px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
+      #agenda .ag-cal a,#agenda .ag-cal button{font-size:.72rem;font-weight:700;text-decoration:none;color:var(--bamboo-light,#a78bfa);background:var(--bamboo-dim,#211a3d);border:1px solid var(--bamboo,#8b5cf6);border-radius:999px;padding:5px 11px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:.15s}
+      #agenda .ag-cal a:hover,#agenda .ag-cal button:hover{filter:brightness(1.15)}
+      #agenda .ag-cal .ag-share{color:var(--gold-light,#e0c060);background:rgba(201,168,64,.12);border-color:rgba(201,168,64,.55)}
       #agenda .ag-empty,#agenda .ag-loading{color:var(--muted,#63607a);padding:2rem 0;text-align:center}
       #agenda .ag-count{font-size:.72rem;color:var(--muted)}
       #agenda .ag-count b{color:#3ecf8e}
+      /* ── vista calendário (grade mensal) ── */
+      #agenda .ag-calwrap{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:16px;padding:1rem 1.1rem 1.2rem}
+      #agenda .ag-cal-hd{display:flex;align-items:center;justify-content:center;gap:.7rem;margin-bottom:1.1rem;flex-wrap:wrap}
+      #agenda .ag-cal-hd .mtitle{font-family:'Cinzel',serif;font-size:1.15rem;font-weight:700;color:var(--ink,#eae8f2);min-width:180px;text-align:center;text-transform:capitalize}
+      #agenda .ag-cal-nav{background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);color:var(--ink-3,#b9b6c9);width:34px;height:34px;border-radius:9px;cursor:pointer;font-size:1rem;font-family:inherit;transition:.15s}
+      #agenda .ag-cal-nav:hover{border-color:var(--bamboo,#8b5cf6);color:var(--bamboo-light,#a78bfa)}
+      #agenda .ag-cal-today{font-size:.72rem;font-weight:700;background:var(--bamboo-dim,#211a3d);border:1px solid var(--bamboo,#8b5cf6);color:var(--bamboo-light,#a78bfa);border-radius:8px;padding:.42rem .8rem;cursor:pointer;font-family:inherit;transition:.15s}
+      #agenda .ag-cal-today:hover{filter:brightness(1.15)}
+      #agenda .ag-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+      #agenda .ag-dow{text-align:center;font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted,#63607a);font-weight:700;padding:.1rem 0 .4rem}
+      #agenda .ag-day{position:relative;min-height:76px;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:9px;padding:5px 5px 4px;transition:.13s;overflow:hidden}
+      #agenda .ag-day.other{opacity:.32}
+      #agenda .ag-day.has{cursor:pointer}
+      #agenda .ag-day.has:hover{border-color:var(--bamboo,#8b5cf6);transform:translateY(-1px)}
+      #agenda .ag-day.today{border-color:var(--gold,#c9a840)}
+      #agenda .ag-day.sel{border-color:var(--bamboo,#8b5cf6);box-shadow:0 0 0 1px var(--bamboo,#8b5cf6) inset}
+      #agenda .ag-day .dn{font-size:.72rem;font-weight:700;color:var(--ink-3,#8f8ba0);text-align:right;margin-bottom:3px;line-height:1}
+      #agenda .ag-day.today .dn{color:var(--gold-light,#e0c060)}
+      #agenda .ag-pill{display:block;font-size:.6rem;font-weight:700;color:#fff;border-radius:5px;padding:1px 5px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.55}
+      #agenda .ag-more{font-size:.58rem;color:var(--muted,#63607a);font-weight:700;padding-left:3px}
+      #agenda .ag-daydetail{margin-top:1.1rem;display:flex;flex-direction:column;gap:.8rem}
+      #agenda .ag-daydetail .dd-h{font-family:'Cinzel',serif;font-size:.95rem;color:var(--ink,#eae8f2);font-weight:700;text-transform:capitalize;border-top:1px solid var(--rule,#2b2938);padding-top:1rem}
+      @media(max-width:560px){ #agenda .ag-day{min-height:58px} #agenda .ag-pill{font-size:.54rem;padding:1px 3px} #agenda .ag-grid{gap:3px} }
       .agm-modal{display:none;position:fixed;inset:0;z-index:1400;background:rgba(8,7,12,.74);backdrop-filter:blur(4px);align-items:flex-start;justify-content:center;padding:5vh 16px;overflow:auto}
       .agm-modal.open{display:flex}
       .agm-card{position:relative;width:100%;max-width:560px;background:var(--bg-1,#14131c);border:1px solid var(--border,#2b2938);border-radius:16px;padding:1.5rem}
@@ -2368,11 +2401,18 @@ async function tibiaFetch(path) {
         <button class="on" data-s="all" onclick="if(window.tpAgendaScope)tpAgendaScope('all',this)">Tudo</button>
         <button data-s="public" onclick="if(window.tpAgendaScope)tpAgendaScope('public',this)">Públicos</button>
         <button data-s="friends" onclick="if(window.tpAgendaScope)tpAgendaScope('friends',this)">Amigos</button>
+        <button data-s="guild" onclick="if(window.tpAgendaScope)tpAgendaScope('guild',this)">Guild</button>
         <button data-s="mine" onclick="if(window.tpAgendaScope)tpAgendaScope('mine',this)">Meus</button>
+      </div>
+      <div class="ag-seg" id="ag-viewbar">
+        <button class="on" data-w="list" onclick="if(window.tpAgendaView)tpAgendaView('list',this)">☰ Lista</button>
+        <button data-w="cal" onclick="if(window.tpAgendaView)tpAgendaView('cal',this)">▦ Calendário</button>
       </div>
       <button class="ag-new" onclick="if(window.tpAgendaNew)tpAgendaNew()">＋ Criar evento</button>
     </div>
+    <div id="ag-focus"></div>
     <div id="ag-list" class="ag-list"></div>
+    <div id="ag-calview" class="ag-calwrap" style="display:none"></div>
     <div id="ag-empty" class="ag-empty" style="display:none"></div>
   </section>
 
@@ -4085,7 +4125,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cq</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cr</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7229,7 +7269,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cq';
+window.TP_BUILD = '2026-08-13cr';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -16016,10 +16056,8 @@ window.tpLoadJornada=async function(){
   function toGCal(iso){ var d=new Date(iso); return d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+pad(d.getUTCHours())+pad(d.getUTCMinutes())+'00Z'; }
   function endOf(ev){ return ev.ends_at?toGCal(ev.ends_at):toGCal(new Date(new Date(ev.starts_at).getTime()+2*3600*1000).toISOString()); }
   function gcalUrl(ev){ return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(ev.title)+'&dates='+toGCal(ev.starts_at)+'/'+endOf(ev)+'&details='+encodeURIComponent((ev.description||'')+'\n\nTibia Panda · '+(ev.world||''))+'&location='+encodeURIComponent(ev.location||ev.world||''); }
-  function icsEsc(s){ return String(s||'').replace(/([,;\\])/g,'\\$1').replace(/\r?\n/g,'\\n'); }
-  function icsFor(ev){ var L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//TibiaPanda//Agenda//PT','BEGIN:VEVENT','UID:'+ev.id+'@tibiapanda','DTSTAMP:'+toGCal(new Date().toISOString()),'DTSTART:'+toGCal(ev.starts_at),'DTEND:'+endOf(ev),'SUMMARY:'+icsEsc(ev.title),'DESCRIPTION:'+icsEsc((ev.description||'')+' — Tibia Panda'),'LOCATION:'+icsEsc(ev.location||ev.world||''),'BEGIN:VALARM','TRIGGER:-PT30M','ACTION:DISPLAY','DESCRIPTION:'+icsEsc(ev.title),'END:VALARM','END:VEVENT','END:VCALENDAR']; return 'data:text/calendar;charset=utf-8,'+encodeURIComponent(L.join('\r\n')); }
 
-  function agCard(ev){
+  function agCard(ev, focus){
     var t=ETYPES[ev.type]||ETYPES.other, w=whenBlock(ev.starts_at);
     var meta=[]; if(ev.location) meta.push('📍 '+esc(ev.location)); meta.push('🌎 '+esc(ev.world)); if(ev.creator_char) meta.push('por '+esc(ev.creator_char)); if(ev.capacity) meta.push('👥 '+ev.going+'/'+ev.capacity+' vagas');
     var full = ev.capacity && ev.going>=ev.capacity && ev.my_response!=='going';
@@ -16028,28 +16066,141 @@ window.tpLoadJornada=async function(){
       +'<button class="ag-rbtn maybe'+(ev.my_response==='maybe'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'maybe\')">? Talvez</button>'
       +'<button class="ag-rbtn no'+(ev.my_response==='no'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'no\')">✕ Não</button>'
       +'<span class="ag-count"><b>'+ev.going+'</b> vão'+(ev.maybe?' · '+ev.maybe+' talvez':'')+'</span>'
-      +'<span class="ag-cal"><a href="'+gcalUrl(ev)+'" target="_blank" rel="noopener">📅 Google</a><a href="'+icsFor(ev)+'" download="evento.ics">⬇ .ics</a>'+(ev.is_mine?'<button onclick="tpAgendaDelete(\''+ev.id+'\')" style="color:var(--red,#e87070);border-color:var(--red,#e87070);background:transparent">🗑</button>':'')+'</span>'
+      +'<span class="ag-cal"><button class="ag-share" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button><a href="'+gcalUrl(ev)+'" target="_blank" rel="noopener">📅 Add ao Google Agenda</a>'+((ev.is_mine||window.TP_IS_MOD)?'<button title="'+(ev.is_mine?'Excluir seu evento':'Excluir (moderador)')+'" onclick="tpAgendaDelete(\''+ev.id+'\')" style="color:var(--red,#e87070);border-color:var(--red,#e87070);background:transparent">🗑</button>':'')+'</span>'
       +'</div>';
-    return '<div class="ag-card">'
+    return '<div class="ag-card'+(focus?' ag-focus':'')+'" id="agc-'+ev.id+'">'
       +'<div class="ag-when"><div class="d">'+w.dd+'</div><div class="mo">'+esc(w.mo)+'</div><div class="hr">'+w.hr+'</div></div>'
-      +'<div class="ag-main"><div class="ag-ttl">'+t[0]+' '+esc(ev.title)+' <span class="ag-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span> <span class="ag-vis">'+(VISLBL[ev.visibility]||ev.visibility)+'</span></div>'
+      +'<div class="ag-main">'+(focus?'<span class="ag-shared-tag">🔗 Compartilhado com você</span>':'')
+      +'<div class="ag-ttl">'+t[0]+' '+esc(ev.title)+' <span class="ag-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span> <span class="ag-vis">'+(VISLBL[ev.visibility]||ev.visibility)+'</span></div>'
       +'<div class="ag-meta">'+meta.join('&nbsp;&nbsp;')+'</div>'
       +(ev.description?'<div class="ag-desc">'+esc(ev.description)+'</div>':'')
       +rsvp+'</div></div>';
   }
   window.__AG_SCOPE='all';
+  window.__AG_VIEW='list';
+  window.__AG_EVENTS=[];
+  window.__AG_MONTH=null;   // Date do 1º dia do mês exibido
+  window.__AG_SELDAY=null;  // 'yyyy-mm-dd' selecionado no calendário
+  function dayKey(iso){ var d=new Date(iso); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
   window.tpAgendaScope=function(s,btn){ window.__AG_SCOPE=s; segOn('ag-scopebar',btn); tpAgendaLoad(); };
+  window.tpAgendaView=function(v,btn){ window.__AG_VIEW=v; segOn('ag-viewbar',btn); renderAgenda(); };
   window.tpAgendaLoad=function(){
     var host=document.getElementById('ag-list'), empty=document.getElementById('ag-empty'); if(!host) return;
     host.innerHTML='<div class="ag-loading">Carregando eventos…</div>'; if(empty) empty.style.display='none';
+    var cal=document.getElementById('ag-calview'); if(cal) cal.style.display='none';
+    var fb=document.getElementById('ag-focus'); if(fb) fb.innerHTML='';
     var scope=window.__AG_SCOPE||'all';
+    if(auth()&&auth().user) tpAgendaSyncGuilds();
     af()(SB()+'/rest/v1/rpc/tp_events_feed',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_world:world(),p_scope:scope})})
       .then(function(r){ return r.json(); }).then(function(list){
-        list=Array.isArray(list)?list:[];
-        if(!list.length){ host.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent=(scope==='mine')?'Você ainda não criou eventos. Clique em "Criar evento".':'Nenhum evento por aqui ainda. Que tal marcar o primeiro?'; } return; }
-        host.innerHTML=list.map(agCard).join('');
-      }).catch(function(){ host.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent='Não consegui carregar a agenda.'; } });
+        window.__AG_EVENTS=Array.isArray(list)?list:[];
+        renderAgenda();
+      }).catch(function(){ window.__AG_EVENTS=[]; host.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent='Não consegui carregar a agenda.'; } });
   };
+  // Sincroniza a guild dos personagens verificados (1x por sessão) pra habilitar o feed de guild
+  window.__AG_GUILDS_SYNCED=false;
+  window.tpAgendaSyncGuilds=function(){
+    if(window.__AG_GUILDS_SYNCED) return; window.__AG_GUILDS_SYNCED=true;
+    af()(SB()+'/functions/v1/guild-events',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({action:'sync'})})
+      .then(function(r){ return r.json(); }).then(function(d){
+        if(d&&d.ok&&Array.isArray(d.guilds)&&d.guilds.length){ if((window.__AG_SCOPE==='guild'||window.__AG_SCOPE==='all')) { af()(SB()+'/rest/v1/rpc/tp_events_feed',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_world:world(),p_scope:(window.__AG_SCOPE||'all')})}).then(function(r){return r.json();}).then(function(list){ window.__AG_EVENTS=Array.isArray(list)?list:[]; renderAgenda(); }).catch(function(){}); } }
+      }).catch(function(){});
+  };
+  // Renderiza a vista atual (lista ou calendário) a partir do cache __AG_EVENTS
+  function renderAgenda(){
+    var host=document.getElementById('ag-list'), empty=document.getElementById('ag-empty'), cal=document.getElementById('ag-calview');
+    if(!host) return;
+    var list=window.__AG_EVENTS||[], scope=window.__AG_SCOPE||'all';
+    if(window.__AG_VIEW==='cal'){
+      host.innerHTML=''; if(empty) empty.style.display='none'; if(cal){ cal.style.display=''; renderCalendar(); }
+      return;
+    }
+    if(cal) cal.style.display='none';
+    if(!list.length){ host.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent=(scope==='mine')?'Você ainda não criou eventos. Clique em "Criar evento".':(scope==='guild'?'Nenhum evento de guild por aqui. Só líderes e vice-líderes criam eventos de guild.':'Nenhum evento por aqui ainda. Que tal marcar o primeiro?'); } return; }
+    if(empty) empty.style.display='none';
+    host.innerHTML=list.map(function(ev){ return agCard(ev); }).join('');
+  }
+  // ── Vista Calendário (grade mensal) ──
+  var MONTHS=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  var DOW=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  window.tpAgendaMonth=function(delta){ var m=window.__AG_MONTH||new Date(); window.__AG_MONTH=new Date(m.getFullYear(),m.getMonth()+delta,1); renderCalendar(); };
+  window.tpAgendaThisMonth=function(){ var n=new Date(); window.__AG_MONTH=new Date(n.getFullYear(),n.getMonth(),1); window.__AG_SELDAY=dayKey(n.toISOString()); renderCalendar(); };
+  window.tpAgendaDay=function(k){ window.__AG_SELDAY=k; renderCalendar(); var d=document.getElementById('ag-daydetail'); if(d) d.scrollIntoView({behavior:'smooth',block:'nearest'}); };
+  function renderCalendar(){
+    var host=document.getElementById('ag-calview'); if(!host) return;
+    var list=window.__AG_EVENTS||[];
+    if(!window.__AG_MONTH){ var seed=list.length?new Date(list[0].starts_at):new Date(); window.__AG_MONTH=new Date(seed.getFullYear(),seed.getMonth(),1); }
+    var m=window.__AG_MONTH, y=m.getFullYear(), mo=m.getMonth();
+    // agrupa eventos por dia
+    var byDay={}; list.forEach(function(ev){ var k=dayKey(ev.starts_at); (byDay[k]=byDay[k]||[]).push(ev); });
+    var today=dayKey(new Date().toISOString());
+    var first=new Date(y,mo,1), start=first.getDay(), dim=new Date(y,mo+1,0).getDate();
+    var cells=[]; for(var i=0;i<start;i++){ var pd=new Date(y,mo,1-(start-i)); cells.push({d:pd,other:true}); }
+    for(var dd=1;dd<=dim;dd++) cells.push({d:new Date(y,mo,dd),other:false});
+    while(cells.length%7!==0){ var nx=new Date(y,mo,dim+(cells.length%7===0?0:1)); var last=cells[cells.length-1].d; cells.push({d:new Date(last.getFullYear(),last.getMonth(),last.getDate()+1),other:true}); }
+    var head='<div class="ag-cal-hd"><button class="ag-cal-nav" onclick="tpAgendaMonth(-1)" aria-label="Mês anterior">‹</button>'
+      +'<div class="mtitle">'+MONTHS[mo]+' '+y+'</div>'
+      +'<button class="ag-cal-nav" onclick="tpAgendaMonth(1)" aria-label="Próximo mês">›</button>'
+      +'<button class="ag-cal-today" onclick="tpAgendaThisMonth()">Hoje</button></div>';
+    var dows=DOW.map(function(d){ return '<div class="ag-dow">'+d+'</div>'; }).join('');
+    var grid=cells.map(function(c){
+      var k=c.d.getFullYear()+'-'+pad(c.d.getMonth()+1)+'-'+pad(c.d.getDate());
+      var evs=byDay[k]||[], cls='ag-day'+(c.other?' other':'')+(evs.length?' has':'')+(k===today?' today':'')+(k===window.__AG_SELDAY?' sel':'');
+      var pills=evs.slice(0,3).map(function(ev){ var t=ETYPES[ev.type]||ETYPES.other; return '<span class="ag-pill" style="background:'+t[2]+'" title="'+esc(ev.title)+'">'+t[0]+' '+esc(ev.title)+'</span>'; }).join('');
+      if(evs.length>3) pills+='<span class="ag-more">+'+(evs.length-3)+'</span>';
+      var oc=evs.length?(' onclick="tpAgendaDay(\''+k+'\')"'):'';
+      return '<div class="'+cls+'"'+oc+'><div class="dn">'+c.d.getDate()+'</div>'+pills+'</div>';
+    }).join('');
+    // painel do dia selecionado
+    var sel=window.__AG_SELDAY, detail='';
+    if(sel && byDay[sel] && byDay[sel].length){
+      var dparts=sel.split('-'), dlabel=new Date(+dparts[0],+dparts[1]-1,+dparts[2]).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+      detail='<div class="ag-daydetail"><div class="dd-h">📌 '+esc(dlabel)+'</div>'+byDay[sel].map(function(ev){ return agCard(ev); }).join('')+'</div>';
+    } else {
+      detail='<div class="ag-daydetail"><div class="dd-h" style="color:var(--muted)">Clique num dia com eventos para ver os detalhes</div></div>';
+    }
+    host.innerHTML=head+'<div class="ag-grid">'+dows+grid+'</div>'+detail;
+  }
+  // ── Compartilhar evento (link + texto pra WhatsApp/Discord) ──
+  window.tpAgendaShare=function(id){
+    var ev=(window.__AG_EVENTS||[]).filter(function(e){return e.id===id;})[0]
+        || (window.__AG_FOCUS&&window.__AG_FOCUS.id===id?window.__AG_FOCUS:null);
+    var url=location.origin+location.pathname+'#event='+encodeURIComponent(id);
+    var when=ev?new Date(ev.starts_at).toLocaleString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
+    var t=ev?(ETYPES[ev.type]||ETYPES.other):null;
+    var lines=[]; if(ev){ lines.push((t?t[0]+' ':'')+ev.title); lines.push('🗓 '+when+(ev.world?' · '+ev.world:'')); if(ev.location) lines.push('📍 '+ev.location); lines.push('👉 Confirma presença na Tibia Panda:'); }
+    else lines.push('Evento na Tibia Panda:');
+    var text=lines.join('\n');
+    if(navigator.share){ navigator.share({ title:(ev?ev.title:'Evento')+' — Tibia Panda', text:text, url:url }).catch(function(){}); return; }
+    var full=text+'\n'+url;
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(full).then(function(){ toast('Link do evento copiado! Cole no WhatsApp/Discord 🔗','success'); }).catch(function(){ window.prompt('Copie e compartilhe:', full); }); }
+    else { window.prompt('Copie e compartilhe:', full); }
+  };
+  // ── Deep-link #event=<id> ──
+  window.__AG_FOCUS=null;
+  function normalizeEvent(o){ // tp_event_get devolve going/maybe como arrays; a lista usa contagens
+    if(!o) return o; if(Array.isArray(o.going)) o.going=o.going.length; if(Array.isArray(o.maybe)) o.maybe=o.maybe.length; return o;
+  }
+  window.tpAgendaFocus=function(id){
+    var box=document.getElementById('ag-focus'); if(!box) return;
+    box.innerHTML='<div class="ag-loading" style="padding:1rem 0">Abrindo evento compartilhado…</div>';
+    af()(SB()+'/rest/v1/rpc/tp_event_get',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_id:id})})
+      .then(function(r){ return r.json(); }).then(function(d){
+        if(!d||!d.ok||!d.event){ box.innerHTML='<div class="ag-card" style="padding:1.1rem"><div class="ag-main"><div class="ag-ttl">🔒 Evento indisponível</div><div class="ag-meta">Esse evento não existe, foi apagado, ou é privado e você não tem acesso.</div></div></div>'; return; }
+        var ev=normalizeEvent(d.event); window.__AG_FOCUS=ev;
+        box.innerHTML=agCard(ev,true);
+        box.scrollIntoView({behavior:'smooth',block:'center'});
+      }).catch(function(){ box.innerHTML=''; });
+  };
+  function handleEventHash(){
+    var m=(location.hash||'').match(/^#event=(.+)$/); if(!m) return;
+    var id=decodeURIComponent(m[1]);
+    if(typeof showPage==='function'){ var nav=document.querySelector('.nav-btn[onclick*="agenda"]'); showPage('agenda', nav); }
+    if(window.tpAgendaLoad) tpAgendaLoad();
+    setTimeout(function(){ if(window.tpAgendaFocus) tpAgendaFocus(id); }, 250);
+  }
+  window.addEventListener('hashchange', handleEventHash);
+  if(/^#event=/.test(location.hash||'')){ if(document.readyState!=='loading') setTimeout(handleEventHash,750); else document.addEventListener('DOMContentLoaded',function(){ setTimeout(handleEventHash,750); }); }
   window.tpAgendaRSVP=async function(eid,resp){
     var A=auth(); if(!A||!A.user){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
     try{ var r=await af()(SB()+'/rest/v1/event_rsvps',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({event_id:eid,user_id:A.user.id,response:resp})}); if(!r.ok) throw new Error('rsvp'); tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents(); }
@@ -16071,7 +16222,7 @@ window.tpLoadJornada=async function(){
       var now=new Date(Date.now()+3600*1000); var dv=now.getFullYear()+'-'+pad(now.getMonth()+1)+'-'+pad(now.getDate())+'T'+pad(now.getHours())+':00';
       body.innerHTML=''
         +'<div style="margin-bottom:.7rem"><label>Título</label><input id="agm-title" maxlength="120" placeholder="Ex.: Boss check Ferumbras, hunt em Soul War…"></div>'
-        +'<div class="row"><div><label>Tipo</label><select id="agm-type">'+typeOpts+'</select></div><div><label>Visibilidade</label><select id="agm-vis" onchange="tpAgendaVisHint()"><option value="public">🌎 Público (servidor)</option><option value="friends">👥 Amigos</option><option value="private">🔒 Privado (por link)</option><option value="guild" disabled>🛡️ Guild (em breve)</option></select></div></div>'
+        +'<div class="row"><div><label>Tipo</label><select id="agm-type">'+typeOpts+'</select></div><div><label>Visibilidade</label><select id="agm-vis" onchange="tpAgendaVisHint()"><option value="public">🌎 Público (servidor)</option><option value="friends">👥 Amigos</option><option value="guild">🛡️ Guild (líderes)</option><option value="private">🔒 Privado (por link)</option></select></div></div>'
         +'<div id="agm-vishint" style="font-size:.72rem;color:var(--muted);margin:-.3rem 0 .7rem"></div>'
         +'<div class="row"><div><label>Início</label><input type="datetime-local" id="agm-start" value="'+dv+'"></div><div><label>Fim (opcional)</label><input type="datetime-local" id="agm-end"></div></div>'
         +'<div class="row"><div><label>Local (opcional)</label><input id="agm-loc" maxlength="80" placeholder="Ex.: Soul War, Thais depot…"></div><div><label>Vagas (opcional)</label><input type="number" id="agm-cap" min="1" placeholder="ex.: 4"></div></div>'
@@ -16084,6 +16235,7 @@ window.tpLoadJornada=async function(){
   window.tpAgendaVisHint=function(){ var v=(document.getElementById('agm-vis')||{}).value, h=document.getElementById('agm-vishint'); if(!h) return;
     h.textContent = v==='public'?'Aparece pra todo o servidor '+world()+' e na home. Exige um boneco verificado.'
       : v==='friends'?'Só os seus amigos veem este evento.'
+      : v==='guild'?'Aparece pra todos da sua guild. Só líder e vice-líder podem criar (checamos o rank pela TibiaData).'
       : v==='private'?'Só quem tiver o link vê. Bom pra combinar hunt fechada.' : '';
   };
   window.tpAgendaSubmit=async function(){
@@ -16091,16 +16243,32 @@ window.tpLoadJornada=async function(){
     var gv=function(id){ var e=document.getElementById(id); return e?(e.value||'').trim():''; };
     var title=gv('agm-title'); if(!title){ toast('Dê um título ao evento.','info'); return; }
     var startLocal=gv('agm-start'); if(!startLocal){ toast('Escolha a data e a hora.','info'); return; }
-    var payload={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc'), visibility:gv('agm-vis'), world:world(), creator_char:gv('agm-char'), starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null };
+    var vis=gv('agm-vis');
+    var payload={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc'), visibility:vis, world:world(), creator_char:gv('agm-char'), starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null };
     var btn=document.getElementById('agm-submit'); if(btn){ btn.disabled=true; btn.textContent='Criando…'; }
+    var restore=function(){ if(btn){ btn.disabled=false; btn.textContent='Criar evento'; } };
     try{
+      if(vis==='guild'){
+        if(!payload.creator_char){ toast('Eventos de guild exigem um personagem verificado da guild. Verifique um boneco na aba Personagem.','error'); restore(); return; }
+        var gr=await af()(SB()+'/functions/v1/guild-events',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({action:'create',payload:payload})});
+        var gj=await gr.json().catch(function(){return null;});
+        if(!gr.ok||!gj||!gj.ok){ var em=gj&&gj.error||''; var m2='Não consegui criar o evento de guild.';
+          if(/not_leader/.test(em)) m2='Só o líder ou vice-líder da guild pode criar eventos de guild. Seu rank ('+((gj&&gj.rank)||'?')+') não é de liderança.';
+          else if(/no_guild/.test(em)) m2='Esse personagem não está em nenhuma guild no momento.';
+          else if(/need_verified/.test(em)) m2='Escolha um personagem verificado seu para criar o evento de guild.';
+          else if(/data/.test(em)) m2='Data/hora inválida.'; else if(/titulo/.test(em)) m2='Título obrigatório.';
+          toast(m2,'error'); restore(); return;
+        }
+        window.__AG_GUILDS_SYNCED=true;
+        toast('Evento de guild criado! 🛡️','success'); document.getElementById('agm-modal').classList.remove('open'); tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents(); return;
+      }
       var r=await af()(SB()+'/rest/v1/rpc/tp_event_create',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p:payload})});
       if(!r.ok){ var e=await r.json().catch(function(){return null;}); var msg='Não consegui criar o evento.';
-        if(e&&e.message){ if(/need_verified/.test(e.message)) msg='Eventos públicos exigem um personagem verificado. Verifique um boneco na aba Personagem (ou escolha Amigos/Privado).'; else if(/guild_soon/.test(e.message)) msg='Eventos de guild chegam em breve.'; else if(/titulo/.test(e.message)) msg='Título obrigatório.'; else if(/data/.test(e.message)) msg='Data/hora inválida.'; else msg=e.message; }
-        toast(msg,'error'); if(btn){ btn.disabled=false; btn.textContent='Criar evento'; } return;
+        if(e&&e.message){ if(/need_verified/.test(e.message)) msg='Eventos públicos exigem um personagem verificado. Verifique um boneco na aba Personagem (ou escolha Amigos/Privado).'; else if(/guild_soon/.test(e.message)) msg='Use a visibilidade Guild pra eventos de guild.'; else if(/titulo/.test(e.message)) msg='Título obrigatório.'; else if(/data/.test(e.message)) msg='Data/hora inválida.'; else msg=e.message; }
+        toast(msg,'error'); restore(); return;
       }
       toast('Evento criado! 📅','success'); document.getElementById('agm-modal').classList.remove('open'); tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents();
-    }catch(e){ toast('Erro ao criar o evento.','error'); if(btn){ btn.disabled=false; btn.textContent='Criar evento'; } }
+    }catch(e){ toast('Erro ao criar o evento.','error'); restore(); }
   };
   // Widget da home: próximos eventos públicos do servidor
   window.tpHomeEvents=function(){
