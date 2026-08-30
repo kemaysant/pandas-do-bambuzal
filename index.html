@@ -2513,6 +2513,64 @@ async function tibiaFetch(path) {
     </div>
   </div>
 
+  <!-- ─── PÁGINA DEDICADA DO EVENTO ─── -->
+  <section class="page-section" id="eventpage">
+    <style>
+      #eventpage .evp-back{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;font-weight:700;color:var(--bamboo-light,#a78bfa);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;margin-bottom:1rem}
+      #eventpage .evp-head{position:relative;background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:16px;padding:1.3rem 1.4rem;overflow:hidden;margin-bottom:1.1rem}
+      #eventpage .evp-head::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--bamboo,#8b5cf6),var(--bamboo-light,#a78bfa))}
+      #eventpage .evp-ttl{font-family:'Cinzel',serif;font-size:1.5rem;font-weight:700;color:var(--ink,#eae8f2);line-height:1.15;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+      #eventpage .evp-badges{display:flex;gap:.5rem;flex-wrap:wrap;margin:.6rem 0 .2rem}
+      #eventpage .evp-badge{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:3px 10px;border-radius:999px}
+      #eventpage .evp-meta{display:flex;gap:1.3rem;flex-wrap:wrap;font-size:.84rem;color:var(--ink-3,#b9b6c9);margin-top:.7rem}
+      #eventpage .evp-meta b{color:var(--ink,#eae8f2);font-weight:700}
+      #eventpage .evp-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;align-items:center}
+      #eventpage .evp-rbtn{border:1px solid var(--border,#2b2938);background:var(--bg-2,#1b1a25);color:var(--ink-3,#b9b6c9);border-radius:999px;padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+      #eventpage .evp-rbtn.going.on{background:#173a26;border-color:#3ecf8e;color:#5fdd9e}
+      #eventpage .evp-rbtn.maybe.on{background:#2a2410;border-color:#c9a840;color:#e6c964}
+      #eventpage .evp-rbtn.no.on{background:#2f1a1a;border-color:#e05a5a;color:#f08a8a}
+      #eventpage .evp-abtn{font-size:.76rem;font-weight:700;text-decoration:none;color:var(--bamboo-light,#a78bfa);background:var(--bamboo-dim,#211a3d);border:1px solid var(--bamboo,#8b5cf6);border-radius:999px;padding:6px 12px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
+      #eventpage .evp-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-bottom:1.1rem}
+      @media(max-width:720px){ #eventpage .evp-grid{grid-template-columns:1fr} }
+      #eventpage .evp-card{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1.1rem 1.2rem}
+      #eventpage .evp-card h3{font-size:.95rem;font-weight:800;color:var(--ink,#eae8f2);margin:0 0 .5rem;display:flex;align-items:center;gap:.45rem}
+      #eventpage .evp-text{font-size:.86rem;color:var(--ink-3,#b9b6c9);line-height:1.5;white-space:pre-wrap;word-break:break-word}
+      #eventpage .evp-empty{font-size:.82rem;color:var(--muted);font-style:italic}
+      #eventpage .evp-voc{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.4rem}
+      #eventpage .evp-vcol{flex:1;min-width:120px;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:10px;padding:.6rem .55rem}
+      #eventpage .evp-vhd{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
+      #eventpage .evp-p{display:flex;align-items:center;gap:.45rem;font-size:.8rem;color:var(--ink-2,#cfc9e6);padding:3px 0}
+      #eventpage .evp-p .lv{margin-left:auto;font-size:.72rem;color:var(--muted);font-weight:700}
+      #eventpage .evp-p .mb{font-size:.6rem;color:var(--gold-light,#e0c060)}
+      /* Kanban */
+      #eventpage .kb-wrap{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1.1rem}
+      #eventpage .kb-hint{font-size:.78rem;color:var(--muted);margin:.1rem 0 .9rem;line-height:1.45}
+      #eventpage .kb-board{display:flex;gap:.8rem;overflow-x:auto;padding-bottom:.4rem}
+      #eventpage .kb-col{flex:0 0 200px;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:12px;padding:.6rem;min-height:90px;transition:.14s}
+      #eventpage .kb-col.drop{border-color:var(--bamboo,#8b5cf6);background:var(--bamboo-dim,#211a3d)}
+      #eventpage .kb-col.pool{flex-basis:220px}
+      #eventpage .kb-chd{display:flex;align-items:center;justify-content:space-between;gap:.4rem;margin-bottom:.5rem}
+      #eventpage .kb-cname{font-size:.8rem;font-weight:800;color:var(--ink,#eae8f2)}
+      #eventpage .kb-count{font-size:.66rem;font-weight:700;color:var(--muted)}
+      #eventpage .kb-flags{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.5rem}
+      #eventpage .kb-flag{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--bg-3,#23212f);color:var(--muted)}
+      #eventpage .kb-flag.ok{background:#173a26;color:#5fdd9e}
+      #eventpage .kb-flag.warn{background:#2f1a1a;color:#f08a8a}
+      #eventpage .kb-card{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-left:3px solid var(--muted);border-radius:8px;padding:.45rem .55rem;margin-bottom:.45rem;cursor:grab;font-size:.8rem}
+      #eventpage .kb-card:active{cursor:grabbing}
+      #eventpage .kb-card.drag{opacity:.4}
+      #eventpage .kb-cn{font-weight:700;color:var(--ink,#eae8f2);display:flex;align-items:center;gap:.35rem}
+      #eventpage .kb-cs{font-size:.68rem;color:var(--muted);margin-top:1px;display:flex;align-items:center;gap:.4rem}
+      #eventpage .kb-move{margin-top:.35rem;display:flex;gap:.25rem;flex-wrap:wrap}
+      #eventpage .kb-move button{font-size:.62rem;font-weight:700;border:1px solid var(--border,#2b2938);background:var(--bg-2,#1b1a25);color:var(--ink-3,#b9b6c9);border-radius:6px;padding:1px 7px;cursor:pointer;font-family:inherit}
+      #eventpage .kb-move button.on{background:var(--bamboo,#8b5cf6);color:#fff;border-color:var(--bamboo,#8b5cf6)}
+      #eventpage .kb-addcol{flex:0 0 46px;display:flex;align-items:center;justify-content:center;background:none;border:1px dashed var(--border,#2b2938);border-radius:12px;color:var(--muted);font-size:1.4rem;cursor:pointer;font-family:inherit}
+      #eventpage .kb-addcol:hover{border-color:var(--bamboo,#8b5cf6);color:var(--bamboo-light,#a78bfa)}
+    </style>
+    <button class="evp-back" onclick="location.hash='#agenda'">← Voltar pra Agenda</button>
+    <div id="evp-body"><div class="ag-loading" style="padding:2rem 0;text-align:center;color:var(--muted)">Carregando evento…</div></div>
+  </section>
+
   <!-- ─── PAINEL DE MODERAÇÃO ─── -->
   <section class="page-section" id="moderation">
     <h2 class="sec-title">🛡️ Painel de Moderação</h2>
@@ -4213,7 +4271,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cx</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cy</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7357,7 +7415,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cx';
+window.TP_BUILD = '2026-08-13cy';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -8932,7 +8990,7 @@ function showPage(id, btn) {
   // ─── URL da página: sincroniza o #hash pra que cada página tenha link compartilhável ───
   try{
     var _cur=(location.hash||'').replace(/^#/,'');
-    var _deep={house:'houses',event:'agenda',user:'profile'};   // deep-links têm hash próprio (#house=, #event=, #user=)
+    var _deep={house:'houses',event:'eventpage',user:'profile'};   // deep-links têm hash próprio (#house=, #event=, #user=)
     var _m=_cur.match(/^([a-z]+)=/);
     var _keep=_m && _deep[_m[1]]===id;   // entrando na MESMA página do deep-link → preserva o link rico
     if(!_keep && _cur!==id){ window.__tpSupHash=true; location.hash='#'+id; }
@@ -16204,12 +16262,12 @@ window.tpLoadJornada=async function(){
       +'<button class="ag-rbtn maybe'+(ev.my_response==='maybe'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'maybe\')">? Talvez</button>'
       +'<button class="ag-rbtn no'+(ev.my_response==='no'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'no\')">✕ Não</button>'
       +'<span class="ag-count"><b>'+ev.going+'</b> vão'+(ev.maybe?' · '+ev.maybe+' talvez':'')+'</span>'
-      +'<span class="ag-cal"><button onclick="tpAgendaChat(\''+ev.id+'\')">💬 Chat</button><button class="ag-share" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button><a href="'+gcalUrl(ev)+'" target="_blank" rel="noopener">📅 Add ao Google Agenda</a>'+((ev.is_mine||window.TP_IS_MOD)?'<button title="Editar evento" onclick="tpAgendaEdit(\''+ev.id+'\')">✏️ Editar</button><button title="'+(ev.is_mine?'Excluir seu evento':'Excluir (moderador)')+'" onclick="tpAgendaDelete(\''+ev.id+'\')" style="color:var(--red,#e87070);border-color:var(--red,#e87070);background:transparent">🗑</button>':'')+'</span>'
+      +'<span class="ag-cal"><button class="ag-share" onclick="location.hash=\'#event='+ev.id+'\'">📄 Abrir evento</button><button onclick="tpAgendaChat(\''+ev.id+'\')">💬 Chat</button><button class="ag-share" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button><a href="'+gcalUrl(ev)+'" target="_blank" rel="noopener">📅 Add ao Google Agenda</a>'+((ev.is_mine||window.TP_IS_MOD)?'<button title="Editar evento" onclick="tpAgendaEdit(\''+ev.id+'\')">✏️ Editar</button><button title="'+(ev.is_mine?'Excluir seu evento':'Excluir (moderador)')+'" onclick="tpAgendaDelete(\''+ev.id+'\')" style="color:var(--red,#e87070);border-color:var(--red,#e87070);background:transparent">🗑</button>':'')+'</span>'
       +'</div>';
     return '<div class="ag-card'+(focus?' ag-focus':'')+'" id="agc-'+ev.id+'">'
       +'<div class="ag-when"><div class="d">'+w.dd+'</div><div class="mo">'+esc(w.mo)+'</div><div class="hr">'+w.hr+'</div></div>'
       +'<div class="ag-main">'+(focus?'<span class="ag-shared-tag">🔗 '+(ev.is_mine?'Seu evento (via link)':'Compartilhado com você')+'</span>':'')
-      +'<div class="ag-ttl">'+t[0]+' '+esc(ev.title)+' <span class="ag-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span> <span class="ag-vis">'+(VISLBL[ev.visibility]||ev.visibility)+'</span></div>'
+      +'<div class="ag-ttl"><span style="cursor:pointer" onclick="location.hash=\'#event='+ev.id+'\'" title="Abrir página do evento">'+t[0]+' '+esc(ev.title)+'</span> <span class="ag-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span> <span class="ag-vis">'+(VISLBL[ev.visibility]||ev.visibility)+'</span></div>'
       +'<div class="ag-meta">'+meta.join('&nbsp;&nbsp;')+'</div>'
       +(ev.description?'<div class="ag-desc">'+esc(ev.description)+'</div>':'')
       +rsvp
@@ -16350,9 +16408,7 @@ window.tpLoadJornada=async function(){
   function handleEventHash(){
     var m=(location.hash||'').match(/^#event=(.+)$/); if(!m) return;
     var id=decodeURIComponent(m[1]);
-    if(typeof showPage==='function'){ var nav=document.querySelector('.nav-btn[onclick*="agenda"]'); showPage('agenda', nav); }
-    if(window.tpAgendaLoad) tpAgendaLoad();
-    setTimeout(function(){ if(window.tpAgendaFocus) tpAgendaFocus(id); }, 250);
+    if(window.tpEventPageOpen) tpEventPageOpen(id);
   }
   window.addEventListener('hashchange', handleEventHash);
   if(/^#event=/.test(location.hash||'')){ if(document.readyState!=='loading') setTimeout(handleEventHash,750); else document.addEventListener('DOMContentLoaded',function(){ setTimeout(handleEventHash,750); }); }
@@ -16366,14 +16422,18 @@ window.tpLoadJornada=async function(){
         window.__AG_MYCHARS=(Array.isArray(list)?list:[]).filter(function(c){return c&&c.name;}); return window.__AG_MYCHARS;
       }).catch(function(){ return []; });
   };
-  function eventWorld(eid){ var e=(window.__AG_EVENTS||[]).filter(function(x){return x.id===eid;})[0] || (window.__AG_FOCUS&&window.__AG_FOCUS.id===eid?window.__AG_FOCUS:null); return e?e.world:null; }
+  function eventWorld(eid){ var e=(window.__AG_EVENTS||[]).filter(function(x){return x.id===eid;})[0] || (window.__AG_FOCUS&&window.__AG_FOCUS.id===eid?window.__AG_FOCUS:null) || (window.__EVP&&window.__EVP.data&&window.__EVP.data.event&&window.__EVP.data.event.id===eid?window.__EVP.data.event:null); return e?e.world:null; }
   function charsForWorld(chars, ew){ return ew?chars.filter(function(c){ return c.world && c.world.toLowerCase()===ew.toLowerCase(); }):chars; }
   function rsvpSend(eid,resp,ch){
     return af()(SB()+'/rest/v1/rpc/tp_event_rsvp',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p:{event_id:eid,response:resp,character:ch||null}})})
       .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,body:j}; }).catch(function(){ return {ok:r.ok,body:null}; }); });
   }
   function rsvpDone(res){
-    if(res.ok){ var fid=window.__AG_FOCUS&&window.__AG_FOCUS.id; tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents(); if(fid&&window.tpAgendaFocus) setTimeout(function(){ tpAgendaFocus(fid); },300); return true; }
+    if(res.ok){
+      var onEvp=window.__EVP&&window.__EVP.id&&document.getElementById('eventpage')&&document.getElementById('eventpage').classList.contains('active');
+      if(onEvp){ if(window.tpEventPageOpen) tpEventPageOpen(window.__EVP.id, true); if(window.tpHomeEvents) tpHomeEvents(); return true; }
+      var fid=window.__AG_FOCUS&&window.__AG_FOCUS.id; tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents(); if(fid&&window.tpAgendaFocus) setTimeout(function(){ tpAgendaFocus(fid); },300); return true;
+    }
     var em=(res.body&&res.body.message)||''; var m='Não consegui confirmar presença.';
     if(/wrong_world/.test(em)) m='Esse personagem não é do mundo do evento. Só dá pra confirmar com um boneco do mesmo servidor.';
     else if(/need_verified_char/.test(em)) m='Esse personagem não está verificado na sua conta. Verifique um boneco na aba Personagem.';
@@ -16424,6 +16484,8 @@ window.tpLoadJornada=async function(){
       +'<div class="row"><div><label>Início</label><input type="datetime-local" id="agm-start" value="'+toLocalInput(ev.starts_at)+'"></div><div><label>Fim (opcional)</label><input type="datetime-local" id="agm-end" value="'+toLocalInput(ev.ends_at)+'"></div></div>'
       +'<div style="margin-bottom:.7rem"><label>Local (opcional)</label><input id="agm-loc" maxlength="80" value="'+esc(ev.location||'')+'"></div>'
       +'<div style="margin-bottom:.7rem"><label>Descrição (opcional)</label><textarea id="agm-desc" maxlength="2000">'+esc(ev.description||'')+'</textarea></div>'
+      +'<div style="margin-bottom:.7rem"><label>Requisitos (opcional)</label><textarea id="agm-req" maxlength="2000" placeholder="Ex.: Level mínimo 250, vocação promovida…">'+esc(ev.requirements||'')+'</textarea></div>'
+      +'<div style="margin-bottom:.7rem"><label>Quests e acessos necessários (opcional)</label><textarea id="agm-quests" maxlength="2000" placeholder="Ex.: Missão 06, acesso a Soul War…">'+esc(ev.quests_access||'')+'</textarea></div>'
       +'<div style="font-size:.72rem;color:var(--muted);margin-bottom:.7rem">Visibilidade ('+(VISLBL[ev.visibility]||ev.visibility)+') e servidor ('+esc(ev.world||'')+') não mudam por aqui.</div>'
       +'<button class="tp-btn-primary" id="agm-submit" onclick="tpAgendaUpdate(\''+id+'\')">Salvar alterações</button>';
     modal.classList.add('open');
@@ -16432,7 +16494,7 @@ window.tpLoadJornada=async function(){
     var gv=function(x){ var e=document.getElementById(x); return e?(e.value||'').trim():''; };
     var title=gv('agm-title'); if(!title){ toast('Dê um título ao evento.','info'); return; }
     var startLocal=gv('agm-start'); if(!startLocal){ toast('Escolha a data e a hora.','info'); return; }
-    var patch={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc')||null, starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null, updated_at:new Date().toISOString() };
+    var patch={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc')||null, starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null, requirements:gv('agm-req')||null, quests_access:gv('agm-quests')||null, updated_at:new Date().toISOString() };
     var btn=document.getElementById('agm-submit'); if(btn){ btn.disabled=true; btn.textContent='Salvando…'; }
     try{
       var r=await af()(SB()+'/rest/v1/events?id=eq.'+id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(patch)});
@@ -16458,7 +16520,9 @@ window.tpLoadJornada=async function(){
         +'<div class="row"><div><label>Início</label><input type="datetime-local" id="agm-start" value="'+dv+'"></div><div><label>Fim (opcional)</label><input type="datetime-local" id="agm-end"></div></div>'
         +'<div class="row"><div><label>Local (opcional)</label><input id="agm-loc" maxlength="80" placeholder="Ex.: Soul War, Thais depot…"></div><div><label>Vagas (opcional)</label><input type="number" id="agm-cap" min="1" placeholder="ex.: 4"></div></div>'
         +(chars.length?'<div style="margin-bottom:.7rem"><label>Seu personagem</label><select id="agm-char">'+charOpts+'</select></div>':'<div id="agm-char-warn" style="font-size:.74rem;color:var(--gold-light,#e0c060);margin-bottom:.7rem">⚠️ Você não tem boneco verificado em '+esc(world())+' — só dá pra criar eventos de amigos/privados neste servidor. Verifique um personagem de '+esc(world())+' na aba Personagem pra criar públicos/guild.</div>')
-        +'<div style="margin-bottom:.7rem"><label>Descrição (opcional)</label><textarea id="agm-desc" maxlength="2000" placeholder="Detalhes: o que levar, ponto de encontro, requisitos…"></textarea></div>'
+        +'<div style="margin-bottom:.7rem"><label>Descrição (opcional)</label><textarea id="agm-desc" maxlength="2000" placeholder="Detalhes: o que levar, ponto de encontro…"></textarea></div>'
+        +'<div style="margin-bottom:.7rem"><label>Requisitos (opcional)</label><textarea id="agm-req" maxlength="2000" placeholder="Ex.: Level mínimo 250, vocação promovida, set completo…"></textarea></div>'
+        +'<div style="margin-bottom:.7rem"><label>Quests e acessos necessários (opcional)</label><textarea id="agm-quests" maxlength="2000" placeholder="Ex.: Missão 06 (The Demon Ungreez), acesso a Soul War, The Dream Courts…"></textarea></div>'
         +'<button class="tp-btn-primary" id="agm-submit" onclick="tpAgendaSubmit()">Criar evento</button>';
       tpAgendaVisHint();
     }).catch(function(){ body.innerHTML='<div class="agm-gate">Não consegui carregar o formulário.</div>'; });
@@ -16475,7 +16539,7 @@ window.tpLoadJornada=async function(){
     var title=gv('agm-title'); if(!title){ toast('Dê um título ao evento.','info'); return; }
     var startLocal=gv('agm-start'); if(!startLocal){ toast('Escolha a data e a hora.','info'); return; }
     var vis=gv('agm-vis');
-    var payload={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc'), visibility:vis, world:world(), creator_char:gv('agm-char'), starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null };
+    var payload={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc'), visibility:vis, world:world(), creator_char:gv('agm-char'), starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null, requirements:gv('agm-req')||null, quests_access:gv('agm-quests')||null };
     var btn=document.getElementById('agm-submit'); if(btn){ btn.disabled=true; btn.textContent='Criando…'; }
     var restore=function(){ if(btn){ btn.disabled=false; btn.textContent='Criar evento'; } };
     try{
@@ -16579,6 +16643,128 @@ window.tpLoadJornada=async function(){
       }).catch(function(){});
   };
   if(document.readyState!=='loading') setTimeout(function(){ if(window.tpHomeEvents) tpHomeEvents(); },1600); else document.addEventListener('DOMContentLoaded',function(){ setTimeout(function(){ if(window.tpHomeEvents) tpHomeEvents(); },1600); });
+
+  // ═══════ PÁGINA DEDICADA DO EVENTO — requisitos, participantes por vocação, montagem de pts ═══════
+  var VOCS=[
+    {k:'EK',match:'knight',label:'Knights',role:'tank',ico:'🛡️',color:'#e0774a'},
+    {k:'ED',match:'druid',label:'Druids',role:'healer',ico:'⚕️',color:'#3ecf8e'},
+    {k:'MS',match:'sorcerer',label:'Sorcerers',role:'dps',ico:'🔮',color:'#8b5cf6'},
+    {k:'RP',match:'paladin',label:'Paladins',role:'dps',ico:'🏹',color:'#c9a840'},
+    {k:'Monk',match:'monk',label:'Monks',role:'hybrid',ico:'👊',color:'#4a7de0'}
+  ];
+  function vocInfo(v){ v=(v||'').toLowerCase(); for(var i=0;i<VOCS.length;i++){ if(v.indexOf(VOCS[i].match)>=0) return VOCS[i]; } return {k:'?',label:'Sem vocação',role:'?',ico:'❔',color:'#8a879c'}; }
+  // XP compartilhada no Tibia: o menor level da pt precisa ser >= 2/3 do maior
+  function xpShare(members){ var lv=members.map(function(m){return +m.level||0;}).filter(function(x){return x>0;}); if(lv.length<2) return {ok:true,min:lv[0]||null,max:lv[0]||null}; var mn=Math.min.apply(null,lv),mx=Math.max.apply(null,lv); return {ok:(mn*3>=mx*2),min:mn,max:mx}; }
+  window.__EVP={id:null,data:null,wantTeams:1};
+  window.tpEventPageOpen=function(id, silent){
+    window.__EVP.id=id; if(!silent) window.__EVP.wantTeams=1;
+    if(typeof showPage==='function'){ var s=document.getElementById('eventpage'); if(s && !s.classList.contains('active')) showPage('eventpage'); }
+    var body=document.getElementById('evp-body'); if(!body) return;
+    if(!silent) body.innerHTML='<div class="ag-loading" style="padding:2rem 0;text-align:center;color:var(--muted)">Carregando evento…</div>';
+    af()(SB()+'/rest/v1/rpc/tp_event_page',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_id:id})})
+      .then(function(r){ return r.json(); }).then(function(d){
+        if(window.__EVP.id!==id) return;
+        if(!d||!d.ok){ var reason=d&&d.reason||''; var msg=(reason==='auth_required')?'Entre na sua conta para ver este evento.':(reason==='no_access'?'Este evento é de amigos/guild e você não faz parte.':'Esse evento não existe ou foi apagado.');
+          body.innerHTML='<div class="evp-card"><h3>🔒 Evento indisponível</h3><div class="evp-text">'+msg+'</div>'+(reason==='auth_required'?'<div style="margin-top:.8rem"><button class="tp-btn-primary" onclick="if(window.tpOpenAuth)tpOpenAuth(\'login\')">Entrar / Criar conta</button></div>':'')+'</div>'; return; }
+        window.__EVP.data=d; renderEventPage();
+      }).catch(function(){ body.innerHTML='<div class="evp-card"><div class="evp-text">Não consegui carregar o evento.</div></div>'; });
+  };
+  function renderEventPage(){
+    var body=document.getElementById('evp-body'), d=window.__EVP.data; if(!body||!d||!d.event) return;
+    var ev=d.event, t=ETYPES[ev.type]||ETYPES.other, can=!!d.can_manage;
+    var parts=d.participants||[];
+    var going=parts.filter(function(p){return p.response==='going';});
+    var maybe=parts.filter(function(p){return p.response==='maybe';});
+    var dfull=new Date(ev.starts_at).toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'});
+    var head='<div class="evp-head"><div class="evp-ttl">'+t[0]+' '+esc(ev.title)+'</div>'
+      +'<div class="evp-badges"><span class="evp-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span><span class="evp-badge" style="background:var(--bg-3,#23212f);color:var(--muted)">'+(VISLBL[ev.visibility]||ev.visibility)+'</span></div>'
+      +'<div class="evp-meta"><span>🗓 <b>'+esc(dfull)+'</b></span><span>🌎 <b>'+esc(ev.world||'')+'</b></span>'+(ev.location?'<span>📍 <b>'+esc(ev.location)+'</b></span>':'')+(ev.creator_char?'<span>👑 Host: <b>'+esc(ev.creator_char)+'</b></span>':'')+(ev.capacity?'<span>👥 <b>'+going.length+'/'+ev.capacity+'</b> vagas</span>':'<span>👥 <b>'+going.length+'</b> confirmados</span>')+'</div>'
+      +(ev.description?'<div class="evp-text" style="margin-top:.8rem">'+esc(ev.description)+'</div>':'')
+      +'<div class="evp-actions">'
+        +'<button class="evp-rbtn going'+(ev.my_response==='going'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'going\')">✓ Vou</button>'
+        +'<button class="evp-rbtn maybe'+(ev.my_response==='maybe'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'maybe\')">? Talvez</button>'
+        +'<button class="evp-rbtn no'+(ev.my_response==='no'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'no\')">✕ Não</button>'
+        +(ev.my_response==='going'&&ev.my_character?'<span style="font-size:.74rem;color:#5fdd9e;font-weight:700;align-self:center">com '+esc(ev.my_character)+'</span>':'')
+        +'<span style="flex:1"></span>'
+        +'<button class="evp-abtn" onclick="tpAgendaChat(\''+ev.id+'\')">💬 Chat</button>'
+        +'<button class="evp-abtn" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button>'
+        +(can?'<button class="evp-abtn" onclick="tpAgendaEdit(\''+ev.id+'\')">✏️ Editar</button>':'')
+        +(can?'<button class="evp-abtn" style="color:var(--red,#e87070);border-color:var(--red,#e87070);background:transparent" onclick="tpAgendaDelete(\''+ev.id+'\')">🗑 Excluir</button>':'')
+      +'</div></div>';
+    var info='<div class="evp-grid">'
+      +'<div class="evp-card"><h3>📋 Requisitos</h3>'+(ev.requirements?'<div class="evp-text">'+esc(ev.requirements)+'</div>':'<div class="evp-empty">'+(can?'Ainda não informado — clique em ✏️ Editar pra adicionar.':'Não informado.')+'</div>')+'</div>'
+      +'<div class="evp-card"><h3>🗝️ Quests e acessos</h3>'+(ev.quests_access?'<div class="evp-text">'+esc(ev.quests_access)+'</div>':'<div class="evp-empty">'+(can?'Ainda não informado — clique em ✏️ Editar pra adicionar.':'Não informado.')+'</div>')+'</div>'
+      +'</div>';
+    var voc='<div class="evp-card" style="margin-bottom:1.1rem"><h3>🧑‍🤝‍🧑 Participantes por vocação <span style="font-weight:600;color:var(--muted);font-size:.8rem">('+going.length+' confirmados'+(maybe.length?' · '+maybe.length+' talvez':'')+')</span></h3><div class="evp-voc">'
+      +VOCS.map(function(V){
+        var list=going.filter(function(p){ return vocInfo(p.vocation).k===V.k; });
+        var mb=maybe.filter(function(p){ return vocInfo(p.vocation).k===V.k; });
+        return '<div class="evp-vcol"><div class="evp-vhd" style="color:'+V.color+'">'+V.ico+' '+V.label+'<span>'+list.length+'</span></div>'
+          +((list.length+mb.length)?list.map(function(p){ return '<div class="evp-p">'+esc(p.character||'—')+'<span class="lv">'+(p.level?'Lv '+p.level:'')+'</span></div>'; }).join('')
+             + mb.map(function(p){ return '<div class="evp-p" style="opacity:.6">'+esc(p.character||'—')+' <span class="mb">talvez</span><span class="lv">'+(p.level?'Lv '+p.level:'')+'</span></div>'; }).join('')
+            :'<div class="evp-empty" style="font-size:.74rem">—</div>')
+          +'</div>';
+      }).join('')
+      +'</div></div>';
+    body.innerHTML=head+info+voc+renderKanban(going, ev, can);
+    if(can) wireKanbanDnD();
+  }
+  function maxTeamNo(going){ var mx=0; going.forEach(function(p){ if(p.team_no) mx=Math.max(mx,p.team_no); }); return mx; }
+  function renderKanban(going, ev, can){
+    var maxT=maxTeamNo(going); var ncols=Math.max(maxT, window.__EVP.wantTeams||1);
+    function col(teamNo){
+      var isPool=teamNo===0;
+      var members=going.filter(function(p){ return isPool?(!p.team_no):(p.team_no===teamNo); });
+      var ek=members.filter(function(p){return vocInfo(p.vocation).role==='tank';}).length;
+      var ed=members.filter(function(p){return vocInfo(p.vocation).role==='healer';}).length;
+      var xs=xpShare(members), flags='';
+      if(!isPool){
+        flags+='<span class="kb-flag'+(members.length>5?' warn':(members.length===5?' ok':''))+'">'+members.length+'/5</span>';
+        flags+='<span class="kb-flag">🛡️ '+ek+' · ⚕️ '+ed+'</span>';
+        if(ek>0&&ed===0) flags+='<span class="kb-flag warn">sem healer</span>';
+        if(members.length>=2) flags+='<span class="kb-flag '+(xs.ok?'ok':'warn')+'" title="XP compartilhada: menor level ≥ 2/3 do maior">'+(xs.ok?'XP ✓':'XP ✗ '+xs.min+'–'+xs.max)+'</span>';
+      }
+      var cards=members.map(function(p){ return kbCard(p, teamNo, maxT, can); }).join('') || '<div class="evp-empty" style="font-size:.72rem;padding:.3rem .1rem">'+(isPool?'todos já têm time':'vazio')+'</div>';
+      return '<div class="kb-col'+(isPool?' pool':'')+'" data-team="'+teamNo+'"><div class="kb-chd"><span class="kb-cname">'+(isPool?'🎒 Sem time':'⚔️ Time '+teamNo)+'</span><span class="kb-count">'+members.length+(isPool?'':'/5')+'</span></div>'+(flags?'<div class="kb-flags">'+flags+'</div>':'')+cards+'</div>';
+    }
+    var cols=col(0); for(var i=1;i<=ncols;i++) cols+=col(i);
+    var addBtn=can?'<button class="kb-addcol" title="Novo time" onclick="tpEvpAddTeam()">＋</button>':'';
+    var hint=can?'Arraste os confirmados entre os times (ou use os números no card). Ideal: times de 5, com pelo menos 1 healer (druid) por knight, e todos no range de XP compartilhada — o menor level ≥ 2/3 do maior.':'Times montados pelo anfitrião do evento.';
+    return '<div class="kb-wrap"><h3 style="margin:0 0 .1rem;font-size:.95rem;font-weight:800;color:var(--ink,#eae8f2)">🧩 Montagem das parties</h3><div class="kb-hint">'+hint+'</div><div class="kb-board">'+cols+addBtn+'</div></div>';
+  }
+  function kbCard(p, teamNo, maxT, can){
+    var V=vocInfo(p.vocation), moves='';
+    if(can){
+      var n=Math.max(maxT, teamNo);
+      moves='<div class="kb-move"><button'+(teamNo===0?' class="on"':'')+' onclick="tpEvpSetTeam(\''+p.user_id+'\',0)">—</button>';
+      for(var i=1;i<=n;i++) moves+='<button'+(teamNo===i?' class="on"':'')+' onclick="tpEvpSetTeam(\''+p.user_id+'\','+i+')">'+i+'</button>';
+      moves+='<button onclick="tpEvpSetTeam(\''+p.user_id+'\','+(n+1)+')">+</button></div>';
+    }
+    return '<div class="kb-card" draggable="'+(can?'true':'false')+'" data-pid="'+p.user_id+'" style="border-left-color:'+V.color+'">'
+      +'<div class="kb-cn">'+V.ico+' '+esc(p.character||'—')+'</div>'
+      +'<div class="kb-cs">'+V.label+(p.level?' · Lv '+p.level:'')+'</div>'+moves+'</div>';
+  }
+  window.tpEvpAddTeam=function(){ var d=window.__EVP.data; var mx=maxTeamNo((d&&d.participants||[]).filter(function(p){return p.response==='going';})); window.__EVP.wantTeams=Math.max(window.__EVP.wantTeams||1, mx)+1; renderEventPage(); };
+  window.tpEvpSetTeam=function(userId, teamNo){
+    var id=window.__EVP.id, d=window.__EVP.data; if(!id||!d) return;
+    if(d.participants){ d.participants.forEach(function(p){ if(p.user_id===userId) p.team_no=teamNo||null; }); if(teamNo>(window.__EVP.wantTeams||1)) window.__EVP.wantTeams=teamNo; renderEventPage(); }
+    af()(SB()+'/rest/v1/rpc/tp_event_set_team',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p:{event_id:id,user_id:userId,team_no:teamNo}})})
+      .then(function(r){ if(!r.ok){ toast('Não consegui salvar o time.','error'); tpEventPageOpen(id,true); } })
+      .catch(function(){ toast('Erro ao salvar o time.','error'); tpEventPageOpen(id,true); });
+  };
+  function wireKanbanDnD(){
+    var board=document.querySelector('#eventpage .kb-board'); if(!board) return;
+    var dragId=null;
+    board.querySelectorAll('.kb-card[draggable="true"]').forEach(function(card){
+      card.addEventListener('dragstart',function(e){ dragId=card.getAttribute('data-pid'); card.classList.add('drag'); try{ e.dataTransfer.setData('text/plain',dragId); e.dataTransfer.effectAllowed='move'; }catch(_){} });
+      card.addEventListener('dragend',function(){ card.classList.remove('drag'); board.querySelectorAll('.kb-col.drop').forEach(function(c){c.classList.remove('drop');}); });
+    });
+    board.querySelectorAll('.kb-col').forEach(function(colEl){
+      colEl.addEventListener('dragover',function(e){ e.preventDefault(); colEl.classList.add('drop'); try{ e.dataTransfer.dropEffect='move'; }catch(_){} });
+      colEl.addEventListener('dragleave',function(){ colEl.classList.remove('drop'); });
+      colEl.addEventListener('drop',function(e){ e.preventDefault(); colEl.classList.remove('drop'); var pid=dragId||(e.dataTransfer&&e.dataTransfer.getData('text/plain')); var team=+colEl.getAttribute('data-team'); if(pid) tpEvpSetTeam(pid,team); });
+    });
+  }
 })();
 </script>
 
