@@ -2415,6 +2415,25 @@ async function tibiaFetch(path) {
       .agpick-btn .sub{font-size:.7rem;color:var(--muted);font-weight:600}
       .agpick-btn .star{color:var(--gold-light,#e0c060);font-size:.66rem;font-weight:800}
       .agpick-note{font-size:.78rem;color:var(--muted,#8a879c);margin-top:.2rem;line-height:1.4}
+      /* chat do evento */
+      #agchat-modal .agm-card{max-width:520px;display:flex;flex-direction:column;max-height:88vh}
+      .agchat-head{font-family:'Cinzel',serif;font-size:1rem;color:var(--ink,#eae8f2);font-weight:700;padding-right:1.5rem;line-height:1.25}
+      .agchat-sub{font-size:.72rem;color:var(--muted);margin:.15rem 0 .6rem}
+      .agchat-scroll{flex:1;overflow-y:auto;min-height:180px;max-height:52vh;display:flex;flex-direction:column;gap:.55rem;padding:.4rem .1rem;border-top:1px solid var(--rule,#2b2938);border-bottom:1px solid var(--rule,#2b2938)}
+      .agchat-msg{display:flex;flex-direction:column;gap:2px;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:10px;padding:.5rem .65rem}
+      .agchat-msg.mine{border-color:var(--bamboo,#8b5cf6);background:var(--bamboo-dim,#211a3d)}
+      .agchat-mh{display:flex;align-items:center;gap:.5rem;font-size:.7rem}
+      .agchat-mh .who{font-weight:800;color:var(--bamboo-light,#a78bfa)}
+      .agchat-mh .when{color:var(--muted)}
+      .agchat-mh .del{margin-left:auto;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.72rem;font-family:inherit}
+      .agchat-mh .del:hover{color:var(--red,#e87070)}
+      .agchat-body{font-size:.85rem;color:var(--ink,#eae8f2);white-space:pre-wrap;word-break:break-word;line-height:1.35}
+      .agchat-empty{color:var(--muted);text-align:center;font-size:.82rem;padding:1.4rem 0}
+      .agchat-input{display:flex;gap:.5rem;margin-top:.7rem}
+      .agchat-input input{flex:1;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);color:var(--ink,#eae8f2);border-radius:9px;padding:.6rem .7rem;font-size:.86rem;font-family:inherit}
+      .agchat-input button{background:linear-gradient(135deg,#7c4fe0,#9265f0);border:none;color:#fff;border-radius:9px;padding:.6rem 1rem;font-weight:700;cursor:pointer;font-family:inherit}
+      .agchat-input button:disabled{opacity:.5;cursor:not-allowed}
+      .agchat-gate{text-align:center;padding:.9rem;background:var(--bg-2,#1b1a25);border-radius:10px;color:var(--muted);font-size:.82rem;margin-top:.7rem}
     </style>
     <h2 class="sec-title">📅 Agenda da Comunidade</h2>
     <p class="sec-sub">Hunts, bosses, quests e eventos marcados pela comunidade. Confirme presença e adicione ao seu calendário. Crie os seus — públicos (do servidor), pra amigos, guild ou privados.</p>
@@ -2453,6 +2472,17 @@ async function tibiaFetch(path) {
       <button class="agm-x" onclick="document.getElementById('agrsvp-modal').classList.remove('open')">✕</button>
       <div class="hs-sec-t" style="font-size:1rem;color:var(--ink)">⚔️ Qual personagem vai?</div>
       <div id="agrsvp-body" style="margin-top:.4rem"></div>
+    </div>
+  </div>
+
+  <!-- Modal: chat do evento -->
+  <div id="agchat-modal" class="agm-modal" onclick="if(event.target===this){if(window.tpAgendaChatClose)tpAgendaChatClose();}">
+    <div class="agm-card">
+      <button class="agm-x" onclick="if(window.tpAgendaChatClose)tpAgendaChatClose()">✕</button>
+      <div class="agchat-head" id="agchat-title">💬 Chat do evento</div>
+      <div class="agchat-sub" id="agchat-sub"></div>
+      <div class="agchat-scroll" id="agchat-scroll"></div>
+      <div id="agchat-foot"></div>
     </div>
   </div>
 
@@ -4156,7 +4186,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cu</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13cv</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7300,7 +7330,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13cu';
+window.TP_BUILD = '2026-08-13cv';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -16118,7 +16148,7 @@ window.tpLoadJornada=async function(){
       +'<button class="ag-rbtn maybe'+(ev.my_response==='maybe'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'maybe\')">? Talvez</button>'
       +'<button class="ag-rbtn no'+(ev.my_response==='no'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'no\')">✕ Não</button>'
       +'<span class="ag-count"><b>'+ev.going+'</b> vão'+(ev.maybe?' · '+ev.maybe+' talvez':'')+'</span>'
-      +'<span class="ag-cal"><button class="ag-share" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button><a href="'+gcalUrl(ev)+'" target="_blank" rel="noopener">📅 Add ao Google Agenda</a>'+((ev.is_mine||window.TP_IS_MOD)?'<button title="'+(ev.is_mine?'Excluir seu evento':'Excluir (moderador)')+'" onclick="tpAgendaDelete(\''+ev.id+'\')" style="color:var(--red,#e87070);border-color:var(--red,#e87070);background:transparent">🗑</button>':'')+'</span>'
+      +'<span class="ag-cal"><button onclick="tpAgendaChat(\''+ev.id+'\')">💬 Chat</button><button class="ag-share" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button><a href="'+gcalUrl(ev)+'" target="_blank" rel="noopener">📅 Add ao Google Agenda</a>'+((ev.is_mine||window.TP_IS_MOD)?'<button title="'+(ev.is_mine?'Excluir seu evento':'Excluir (moderador)')+'" onclick="tpAgendaDelete(\''+ev.id+'\')" style="color:var(--red,#e87070);border-color:var(--red,#e87070);background:transparent">🗑</button>':'')+'</span>'
       +'</div>';
     return '<div class="ag-card'+(focus?' ag-focus':'')+'" id="agc-'+ev.id+'">'
       +'<div class="ag-when"><div class="d">'+w.dd+'</div><div class="mo">'+esc(w.mo)+'</div><div class="hr">'+w.hr+'</div></div>'
@@ -16275,11 +16305,13 @@ window.tpLoadJornada=async function(){
   function myMain(){ try{ return (auth()&&auth().profile&&auth().profile.main_char)||null; }catch(e){ return null; } }
   window.tpAgendaMyChars=function(force){
     if(window.__AG_MYCHARS && !force) return Promise.resolve(window.__AG_MYCHARS);
-    return af()(SB()+'/rest/v1/characters?select=name,level,vocation&verified=is.true&order=level.desc.nullslast',{headers:{Accept:'application/json'}})
+    return af()(SB()+'/rest/v1/characters?select=name,level,vocation,world&verified=is.true&order=level.desc.nullslast',{headers:{Accept:'application/json'}})
       .then(function(r){ return r.json(); }).then(function(list){
         window.__AG_MYCHARS=(Array.isArray(list)?list:[]).filter(function(c){return c&&c.name;}); return window.__AG_MYCHARS;
       }).catch(function(){ return []; });
   };
+  function eventWorld(eid){ var e=(window.__AG_EVENTS||[]).filter(function(x){return x.id===eid;})[0] || (window.__AG_FOCUS&&window.__AG_FOCUS.id===eid?window.__AG_FOCUS:null); return e?e.world:null; }
+  function charsForWorld(chars, ew){ return ew?chars.filter(function(c){ return c.world && c.world.toLowerCase()===ew.toLowerCase(); }):chars; }
   function rsvpSend(eid,resp,ch){
     return af()(SB()+'/rest/v1/rpc/tp_event_rsvp',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p:{event_id:eid,response:resp,character:ch||null}})})
       .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,body:j}; }).catch(function(){ return {ok:r.ok,body:null}; }); });
@@ -16287,7 +16319,8 @@ window.tpLoadJornada=async function(){
   function rsvpDone(res){
     if(res.ok){ var fid=window.__AG_FOCUS&&window.__AG_FOCUS.id; tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents(); if(fid&&window.tpAgendaFocus) setTimeout(function(){ tpAgendaFocus(fid); },300); return true; }
     var em=(res.body&&res.body.message)||''; var m='Não consegui confirmar presença.';
-    if(/need_verified_char/.test(em)) m='Esse personagem não está verificado na sua conta. Verifique um boneco na aba Personagem.';
+    if(/wrong_world/.test(em)) m='Esse personagem não é do mundo do evento. Só dá pra confirmar com um boneco do mesmo servidor.';
+    else if(/need_verified_char/.test(em)) m='Esse personagem não está verificado na sua conta. Verifique um boneco na aba Personagem.';
     else if(/need_char/.test(em)) m='Escolha o personagem que vai.';
     else if(/full/.test(em)) m='As vagas desse evento acabaram. 😕';
     toast(m,'error'); return false;
@@ -16295,18 +16328,20 @@ window.tpLoadJornada=async function(){
   window.tpAgendaRSVP=async function(eid,resp,ch){
     var A=auth(); if(!A||!A.user){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
     if(resp!=='going'){ var res=await rsvpSend(eid,resp,null); rsvpDone(res); return; }
-    // "Vou": precisa de um personagem verificado
+    // "Vou": precisa de um personagem verificado DO MUNDO do evento
     if(ch){ var r2=await rsvpSend(eid,'going',ch); rsvpDone(r2); return; }
-    var chars=await window.tpAgendaMyChars();
-    if(!chars.length){ toast('Pra confirmar presença você precisa de um personagem verificado. Verifique um na aba Personagem. ⚔️','info'); return; }
+    var ew=eventWorld(eid);
+    var chars=charsForWorld(await window.tpAgendaMyChars(), ew);
+    if(!chars.length){ toast('Esse evento é do mundo '+(ew||'?')+'. Você precisa de um personagem verificado em '+(ew||'?')+' pra confirmar. ⚔️','info'); return; }
     if(chars.length===1){ var r1=await rsvpSend(eid,'going',chars[0].name); rsvpDone(r1); return; }
     tpAgendaPickChar(eid); // vários bonecos → deixa escolher
   };
   window.tpAgendaPickChar=async function(eid){
     var modal=document.getElementById('agrsvp-modal'), body=document.getElementById('agrsvp-body'); if(!modal||!body) return;
     body.innerHTML='<div class="ag-loading" style="padding:1rem 0">Carregando seus personagens…</div>'; modal.classList.add('open');
-    var chars=await window.tpAgendaMyChars(); var main=myMain();
-    if(!chars.length){ body.innerHTML='<div class="agpick-note">Você não tem personagem verificado. Verifique um na aba Personagem pra poder confirmar presença.</div>'; return; }
+    var ew=eventWorld(eid);
+    var chars=charsForWorld(await window.tpAgendaMyChars(), ew); var main=myMain();
+    if(!chars.length){ body.innerHTML='<div class="agpick-note">Você não tem personagem verificado no mundo <b>'+esc(ew||'?')+'</b>. Só dá pra confirmar presença com um boneco do mesmo servidor do evento.</div>'; return; }
     var main_lc=main?String(main).toLowerCase():null;
     chars=chars.slice().sort(function(a,b){ var am=(main_lc&&a.name.toLowerCase()===main_lc)?1:0, bm=(main_lc&&b.name.toLowerCase()===main_lc)?1:0; return bm-am; });
     body.innerHTML='<div class="agpick-note">Escolha com qual personagem verificado você vai:</div><div class="agpick-list">'
@@ -16323,7 +16358,7 @@ window.tpLoadJornada=async function(){
     var A=auth(), body=document.getElementById('agm-body'), modal=document.getElementById('agm-modal'); if(!body||!modal) return;
     if(!A||!A.user){ body.innerHTML='<div class="agm-gate">Entre na sua conta para criar eventos. <a href="#" onclick="document.getElementById(\'agm-modal\').classList.remove(\'open\');if(window.tpOpenAuth)tpOpenAuth(\'login\');return false" style="color:var(--bamboo-light)">Entrar</a></div>'; modal.classList.add('open'); return; }
     body.innerHTML='<div class="ag-loading">Carregando…</div>'; modal.classList.add('open');
-    af()(SB()+'/rest/v1/characters?select=name&verified=is.true',{headers:{Accept:'application/json'}}).then(function(r){ return r.json(); }).then(function(chars){
+    af()(SB()+'/rest/v1/characters?select=name,world&verified=is.true&world=eq.'+encodeURIComponent(world()),{headers:{Accept:'application/json'}}).then(function(r){ return r.json(); }).then(function(chars){
       chars=Array.isArray(chars)?chars.filter(function(c){return c&&c.name;}):[];
       var charOpts=chars.map(function(c){ return '<option>'+esc(c.name)+'</option>'; }).join('');
       var typeOpts=Object.keys(ETYPES).map(function(k){ return '<option value="'+k+'">'+ETYPES[k][0]+' '+ETYPES[k][1]+'</option>'; }).join('');
@@ -16334,7 +16369,7 @@ window.tpLoadJornada=async function(){
         +'<div id="agm-vishint" style="font-size:.72rem;color:var(--muted);margin:-.3rem 0 .7rem"></div>'
         +'<div class="row"><div><label>Início</label><input type="datetime-local" id="agm-start" value="'+dv+'"></div><div><label>Fim (opcional)</label><input type="datetime-local" id="agm-end"></div></div>'
         +'<div class="row"><div><label>Local (opcional)</label><input id="agm-loc" maxlength="80" placeholder="Ex.: Soul War, Thais depot…"></div><div><label>Vagas (opcional)</label><input type="number" id="agm-cap" min="1" placeholder="ex.: 4"></div></div>'
-        +(chars.length?'<div style="margin-bottom:.7rem"><label>Seu personagem</label><select id="agm-char">'+charOpts+'</select></div>':'<div id="agm-char-warn" style="font-size:.74rem;color:var(--gold-light,#e0c060);margin-bottom:.7rem">⚠️ Você não tem boneco verificado — só dá pra criar eventos de amigos/privados. Verifique um na aba Personagem pra criar públicos.</div>')
+        +(chars.length?'<div style="margin-bottom:.7rem"><label>Seu personagem</label><select id="agm-char">'+charOpts+'</select></div>':'<div id="agm-char-warn" style="font-size:.74rem;color:var(--gold-light,#e0c060);margin-bottom:.7rem">⚠️ Você não tem boneco verificado em '+esc(world())+' — só dá pra criar eventos de amigos/privados neste servidor. Verifique um personagem de '+esc(world())+' na aba Personagem pra criar públicos/guild.</div>')
         +'<div style="margin-bottom:.7rem"><label>Descrição (opcional)</label><textarea id="agm-desc" maxlength="2000" placeholder="Detalhes: o que levar, ponto de encontro, requisitos…"></textarea></div>'
         +'<button class="tp-btn-primary" id="agm-submit" onclick="tpAgendaSubmit()">Criar evento</button>';
       tpAgendaVisHint();
@@ -16377,6 +16412,67 @@ window.tpLoadJornada=async function(){
       }
       toast('Evento criado! 📅','success'); document.getElementById('agm-modal').classList.remove('open'); tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents();
     }catch(e){ toast('Erro ao criar o evento.','error'); restore(); }
+  };
+  // ── Chat do evento (mural de mensagens, atualiza sozinho enquanto aberto) ──
+  window.__AG_CHAT={eid:null,timer:null};
+  window.tpAgendaChat=function(eid){
+    var ev=(window.__AG_EVENTS||[]).filter(function(x){return x.id===eid;})[0] || (window.__AG_FOCUS&&window.__AG_FOCUS.id===eid?window.__AG_FOCUS:null);
+    var modal=document.getElementById('agchat-modal'); if(!modal) return;
+    window.__AG_CHAT.eid=eid;
+    var t=document.getElementById('agchat-title'), sub=document.getElementById('agchat-sub'), scroll=document.getElementById('agchat-scroll'), foot=document.getElementById('agchat-foot');
+    var et=ev?(ETYPES[ev.type]||ETYPES.other):null;
+    if(t) t.innerHTML='💬 '+(et?et[0]+' ':'')+esc(ev?ev.title:'Chat do evento');
+    if(sub) sub.textContent=ev?((ev.world||'')+(ev.starts_at?' · '+new Date(ev.starts_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'')):'';
+    if(scroll) scroll.innerHTML='<div class="agchat-empty">Carregando…</div>';
+    var A=auth();
+    if(foot){
+      if(A&&A.user){ foot.innerHTML='<div class="agchat-input"><input id="agchat-text" maxlength="500" placeholder="Escreva uma mensagem…" onkeydown="if(event.key===\'Enter\'){event.preventDefault();tpAgendaChatSend();}"><button id="agchat-send" onclick="tpAgendaChatSend()">Enviar</button></div>'; }
+      else { foot.innerHTML='<div class="agchat-gate">Entre na sua conta para participar do chat. <a href="#" onclick="if(window.tpOpenAuth)tpOpenAuth(\'login\');return false" style="color:var(--bamboo-light)">Entrar</a></div>'; }
+    }
+    modal.classList.add('open');
+    tpAgendaChatLoad(true);
+    if(window.__AG_CHAT.timer) clearInterval(window.__AG_CHAT.timer);
+    window.__AG_CHAT.timer=setInterval(function(){ tpAgendaChatLoad(false); }, 9000);
+  };
+  window.tpAgendaChatClose=function(){
+    var modal=document.getElementById('agchat-modal'); if(modal) modal.classList.remove('open');
+    if(window.__AG_CHAT.timer){ clearInterval(window.__AG_CHAT.timer); window.__AG_CHAT.timer=null; }
+    window.__AG_CHAT.eid=null;
+  };
+  function chatWhen(iso){ var d=new Date(iso), n=new Date(); var same=d.toDateString()===n.toDateString(); return same?d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+  window.tpAgendaChatLoad=function(full){
+    var eid=window.__AG_CHAT.eid; if(!eid) return;
+    var scroll=document.getElementById('agchat-scroll'); if(!scroll) return;
+    af()(SB()+'/rest/v1/rpc/tp_event_chat_get',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_event:eid})})
+      .then(function(r){ return r.json(); }).then(function(d){
+        if(window.__AG_CHAT.eid!==eid) return;
+        if(!d||!d.ok){ scroll.innerHTML='<div class="agchat-empty">🔒 Você não tem acesso a este chat.</div>'; return; }
+        var msgs=Array.isArray(d.messages)?d.messages:[];
+        if(!msgs.length){ scroll.innerHTML='<div class="agchat-empty">Ainda não há mensagens. Seja o primeiro a falar! 👋</div>'; return; }
+        var atBottom=(scroll.scrollHeight-scroll.scrollTop-scroll.clientHeight)<40;
+        scroll.innerHTML=msgs.map(function(m){
+          return '<div class="agchat-msg'+(m.mine?' mine':'')+'"><div class="agchat-mh"><span class="who">'+esc(m.character||'Jogador')+'</span><span class="when">'+chatWhen(m.created_at)+'</span>'+(m.can_delete?'<button class="del" title="Apagar" onclick="tpAgendaChatDelete(\''+m.id+'\')">🗑</button>':'')+'</div><div class="agchat-body">'+esc(m.body)+'</div></div>';
+        }).join('');
+        if(full||atBottom) scroll.scrollTop=scroll.scrollHeight;
+      }).catch(function(){});
+  };
+  window.tpAgendaChatSend=async function(){
+    var A=auth(); if(!A||!A.user){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
+    var eid=window.__AG_CHAT.eid, inp=document.getElementById('agchat-text'), btn=document.getElementById('agchat-send'); if(!eid||!inp) return;
+    var body=(inp.value||'').trim(); if(!body) return;
+    if(btn) btn.disabled=true;
+    try{
+      var r=await af()(SB()+'/rest/v1/rpc/tp_event_chat_post',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p:{event_id:eid,body:body}})});
+      var j=await r.json().catch(function(){return null;});
+      if(!r.ok||!j||!j.ok){ var em=(j&&j.message)||''; toast(/slow_down/.test(em)?'Calma, espere um segundinho pra mandar de novo. ⏳':(/no_access/.test(em)?'Você não pode escrever neste chat.':'Não consegui enviar.'),'error'); if(btn) btn.disabled=false; return; }
+      inp.value=''; tpAgendaChatLoad(true);
+    }catch(e){ toast('Erro ao enviar.','error'); }
+    if(btn) btn.disabled=false;
+  };
+  window.tpAgendaChatDelete=async function(id){
+    if(!window.confirm('Apagar esta mensagem?')) return;
+    try{ var r=await af()(SB()+'/rest/v1/event_messages?id=eq.'+id,{method:'DELETE',headers:{Prefer:'return=minimal'}}); if(!r.ok) throw new Error('del'); tpAgendaChatLoad(false); }
+    catch(e){ toast('Não consegui apagar.','error'); }
   };
   // Widget da home: próximos eventos públicos do servidor
   window.tpHomeEvents=function(){
