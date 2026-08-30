@@ -2567,6 +2567,10 @@ async function tibiaFetch(path) {
       #eventpage .evp-karma{font-size:.6rem;font-weight:800;border:1px solid;border-radius:999px;padding:1px 6px;white-space:nowrap}
       #eventpage .evp-krate{background:var(--bg-3,#23212f);border:1px solid var(--border,#2b2938);color:var(--muted);border-radius:6px;font-size:.66rem;padding:1px 6px;cursor:pointer;font-family:inherit}
       #eventpage .evp-krate:hover{border-color:var(--bamboo,#8b5cf6);color:var(--bamboo-light,#a78bfa)}
+      #eventpage .evp-vote{background:var(--bg-3,#23212f);border:1px solid var(--border,#2b2938);border-radius:6px;font-size:.72rem;padding:0 5px;cursor:pointer;font-family:inherit;line-height:1.6}
+      #eventpage .evp-vote.up.on{background:#173a26;border-color:#3ecf8e}
+      #eventpage .evp-vote.dn.on{background:#2f1a1a;border-color:#e05a5a}
+      #eventpage .evp-vote:hover{filter:brightness(1.2)}
       #eventpage .evp-diff{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;padding:2px 8px;border-radius:999px}
       #eventpage .evp-diff.hard{background:#2f1a1a;color:#f08a8a}
       #eventpage .evp-diff.med{background:#2a2410;color:#e6c964}
@@ -4320,7 +4324,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13de</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-13df</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7464,7 +7468,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-13de';
+window.TP_BUILD = '2026-08-13df';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -16822,6 +16826,12 @@ window.tpLoadJornada=async function(){
   function renderEventPage(){
     var body=document.getElementById('evp-main')||document.getElementById('evp-body'), d=window.__EVP.data; if(!body||!d||!d.event) return;
     var ev=d.event, t=ETYPES[ev.type]||ETYPES.other, can=!!d.can_manage;
+    var meId=(auth()&&auth().user&&auth().user.id)||null;
+    var iPart=(ev.my_response==='going'||ev.my_response==='maybe');
+    function pkc(p){ if(!p.user_id||p.user_id===meId) return '';
+      if(can) return '<button class="evp-krate" title="Avaliar karma (anfitrião · peso cheio)" onclick="tpKarmaOpen(\''+p.user_id+'\')">⚖️</button>';
+      if(iPart && p.user_id!==meId) return '<button class="evp-vote up'+(p.my_vote>0?' on':'')+'" title="👍 participou bem" onclick="tpKarmaVote(\''+p.user_id+'\',1)">👍</button><button class="evp-vote dn'+(p.my_vote<0?' on':'')+'" title="👎 atrapalhou" onclick="tpKarmaVote(\''+p.user_id+'\',-1)">👎</button>';
+      return ''; }
     var parts=d.participants||[];
     var going=parts.filter(function(p){return p.response==='going';});
     var maybe=parts.filter(function(p){return p.response==='maybe';});
@@ -16844,13 +16854,15 @@ window.tpLoadJornada=async function(){
       +'<div class="evp-card"><h3>📋 Requisitos</h3>'+(ev.requirements?'<div class="evp-text">'+esc(ev.requirements)+'</div>':'<div class="evp-empty">'+(can?'Ainda não informado — clique em ✏️ Editar pra adicionar.':'Não informado.')+'</div>')+'</div>'
       +'<div class="evp-card"><h3>🗝️ Quests e acessos</h3>'+(ev.quests_access?'<div class="evp-text">'+esc(ev.quests_access)+'</div>':'<div class="evp-empty">'+(can?'Ainda não informado — clique em ✏️ Editar pra adicionar.':'Não informado.')+'</div>')+'</div>'
       +'</div>';
-    var voc='<div class="evp-card" style="margin-bottom:1.1rem"><h3>🧑‍🤝‍🧑 Participantes por vocação <span style="font-weight:600;color:var(--muted);font-size:.8rem">('+going.length+' confirmados'+(maybe.length?' · '+maybe.length+' talvez':'')+')</span></h3><div class="evp-voc">'
+    var voc='<div class="evp-card" style="margin-bottom:1.1rem"><h3>🧑‍🤝‍🧑 Participantes por vocação <span style="font-weight:600;color:var(--muted);font-size:.8rem">('+going.length+' confirmados'+(maybe.length?' · '+maybe.length+' talvez':'')+')</span></h3>'
+      +'<div style="font-size:.72rem;color:var(--muted);margin:-.2rem 0 .5rem;line-height:1.4">'+(can?'Você é o anfitrião: sua avaliação (⚖️) tem <b>peso cheio (±3)</b>. ':(iPart?'Como participou, você pode votar 👍/👎 nos outros (<b>peso menor</b> que o do anfitrião). ':''))+'O karma junta a nota do anfitrião com os votos da comunidade.</div>'
+      +'<div class="evp-voc">'
       +VOCS.map(function(V){
         var list=going.filter(function(p){ return vocInfo(p.vocation).k===V.k; });
         var mb=maybe.filter(function(p){ return vocInfo(p.vocation).k===V.k; });
         return '<div class="evp-vcol"><div class="evp-vhd" style="color:'+V.color+'">'+V.ico+' '+V.label+'<span>'+list.length+'</span></div>'
-          +((list.length+mb.length)?list.map(function(p){ return '<div class="evp-p">'+esc(p.character||'—')+' '+karmaBadge(p.karma,p.blocked)+'<span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+(can&&p.user_id?'<button class="evp-krate" title="Avaliar karma" onclick="tpKarmaOpen(\''+p.user_id+'\')">⚖️</button>':'')+'</div>'; }).join('')
-             + mb.map(function(p){ return '<div class="evp-p" style="opacity:.6">'+esc(p.character||'—')+' '+karmaBadge(p.karma,p.blocked)+' <span class="mb">talvez</span><span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+(can&&p.user_id?'<button class="evp-krate" onclick="tpKarmaOpen(\''+p.user_id+'\')">⚖️</button>':'')+'</div>'; }).join('')
+          +((list.length+mb.length)?list.map(function(p){ return '<div class="evp-p">'+esc(p.character||'—')+' '+karmaBadge(p.karma,p.blocked)+'<span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+pkc(p)+'</div>'; }).join('')
+             + mb.map(function(p){ return '<div class="evp-p" style="opacity:.6">'+esc(p.character||'—')+' '+karmaBadge(p.karma,p.blocked)+' <span class="mb">talvez</span><span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+pkc(p)+'</div>'; }).join('')
             :'<div class="evp-empty" style="font-size:.74rem">—</div>')
           +'</div>';
       }).join('')
@@ -16962,6 +16974,17 @@ window.tpLoadJornada=async function(){
       if(!r.ok||!j||!j.ok){ toast(/not_admin/.test((j&&j.message)||'')?'Só moderadores podem bloquear.':'Não consegui aplicar o bloqueio.','error'); return; }
       toast(mode==='clear'?'Conta desbloqueada. ✓':'Bloqueio aplicado. 🚫','success'); document.getElementById('kmodal').classList.remove('open'); tpEventPageOpen(window.__EVP.id,true);
     }catch(e){ toast('Erro ao aplicar bloqueio.','error'); }
+  };
+  // Voto de participante (peso menor que o do anfitrião). Clicar no mesmo voto remove.
+  window.tpKarmaVote=function(userId, dir){
+    var d=window.__EVP.data; var pt=(d&&d.participants||[]).filter(function(x){return x.user_id===userId;})[0];
+    var cur=pt?(pt.my_vote||0):0; var delta=(cur===dir)?0:dir;
+    if(pt) pt.my_vote=delta; renderEventPage();  // otimista
+    af()(SB()+'/rest/v1/rpc/tp_karma_vote',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p:{event_id:window.__EVP.id,subject_user:userId,delta:delta}})})
+      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); }).then(function(res){
+        if(!res.ok||!res.j||!res.j.ok){ var em=(res.j&&res.j.message)||''; toast(/not_participant_voter/.test(em)?'Só quem participou pode votar.':(/host_uses_rate/.test(em)?'Como anfitrião, use o ⚖️ para avaliar.':'Não consegui registrar o voto.'),'error'); }
+        tpEventPageOpen(window.__EVP.id,true);
+      }).catch(function(){ toast('Erro ao votar.','error'); tpEventPageOpen(window.__EVP.id,true); });
   };
 })();
 </script>
