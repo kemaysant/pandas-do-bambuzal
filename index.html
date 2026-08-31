@@ -4337,7 +4337,7 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-31dl</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-31dm</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -7478,7 +7478,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-31dl';
+window.TP_BUILD = '2026-08-31dm';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -7681,7 +7681,7 @@ const HUNTS = [
   { name:'Sea Serpents', xphNum:1050, minLvl:80, maxLvl:200,
     vocs:['all'], modes:['solo','duo'], xph:'600k–1.3kk', profit:'150k–400k', tipo:'profit', dif:'medio', task:true,
     req:'Hunt for the Sea Serpent Quest',
-    coords:{x:32700,y:31200,z:7},
+    coords:{x:31938,y:31046,z:8},
     imbuements:['Vampirism Strong','Strike Earth','Chilling Strike'],
     charms:[{creature:'Sea Serpent',charm:'Freeze'},{creature:'Young Sea Serpent',charm:'Wound'}],
     equipment:['Dragon Scale Mail ou melhor','Serpent Sword para EK baixo nível','Shield com bom def'],
@@ -7727,6 +7727,7 @@ const HUNTS = [
     desc:"Warzone 1 — Gnomegate Fungus Dungeon. Profit diário consistente. Requer Bigfoot's Burden Quest.", wiki:'https://www.tibiawiki.com.br/wiki/Gnomegate_Fungus_Dungeon' },
 
   { name:'Warzone 2', xphNum:1500, minLvl:550, maxLvl:999,
+    coords:{x:33023,y:31933,z:11},
     vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'150k–450k', tipo:'profit', dif:'medio', task:false,
     req:"Bigfoot's Burden Quest",
     tibiaroute:'Warzone-2',
@@ -7735,6 +7736,7 @@ const HUNTS = [
     desc:"Warzone 2 — criaturas de fogo e construção. Profit diário. Requer Bigfoot's Burden Quest.", wiki:'https://www.tibiawiki.com.br/wiki/Warzone_2' },
 
   { name:'Warzone 3', xphNum:1600, minLvl:700, maxLvl:999,
+    coords:{x:33010,y:31948,z:12},
     vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–500k', tipo:'profit', dif:'medio', task:false,
     req:"Bigfoot's Burden Quest",
     tibiaroute:'Warzone-3',
@@ -7788,6 +7790,7 @@ const HUNTS = [
     desc:"Warzone 5 — itens Gnome. Continuação da Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_5' },
 
   { name:'Warzone 6', xphNum:1700, minLvl:400, maxLvl:999,
+    coords:{x:33318,y:32310,z:15},
     vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–600k', tipo:'profit', dif:'medio', task:false,
     req:"Bigfoot's Burden Quest",
     tibiaroute:'Warzone-6',
@@ -7805,6 +7808,7 @@ const HUNTS = [
 
   // Dawnfire Asura: 2500xp, Midnight: 3000xp, Frost Flower: 2000xp — médio, range real 150-280
   { name:'Asura Palace', xphNum:1350, minLvl:400, maxLvl:999,
+    coords:{x:32959,y:32676,z:6},
     vocs:['ed','ms'], modes:['solo','duo'], xph:'1.1kk–1.5kk', profit:'0 a 25k', tipo:'xp', dif:'medio', task:true,
     req:'A Piece of Cake Quest',
     creatures:[{n:'Dawnfire Asura'},{n:'Midnight Asura'},{n:'Frost Flower Asura'}],
@@ -7841,6 +7845,7 @@ const HUNTS = [
   // ── END GAME (250+) ───────────────────────────────
   // Cobra Vizier: 4800xp, Assassin: 3500xp — difícil, range 250-450
   { name:'Cobra Bastion', xphNum:3500, minLvl:550, maxLvl:999,
+    coords:{x:33380,y:32707,z:8},
     vocs:['ek','rp'], modes:['solo','duo'], xph:'2kk–4kk', profit:'300k–700k', tipo:'xp', dif:'dificil', task:true,
     req:'Order of the Cobra Quest',
     creatures:[{n:'Cobra Vizier'},{n:'Cobra Assassin'},{n:'Cobra Scout'}],
@@ -7863,6 +7868,7 @@ const HUNTS = [
     desc:'Gazer Spectre + Thanatursus. Nível recomendado 300+. Acesso via The Dream Courts Quest, norte de Tiquanda.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Temple)' },
 
   { name:'Haunted Nexus (Cellar)', xphNum:2550, minLvl:400, maxLvl:999,
+    coords:{x:32718,y:32241,z:10},
     vocs:['all'], modes:['duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit', dif:'medio', task:false,
     req:'The Dream Courts Quest (Haunted House)',
     area:'Venore', location:'Noroeste de Plains of Havoc',
@@ -7972,6 +7978,7 @@ const HUNTS = [
 
   // Freakish Lost Soul: 3900xp — difícil, MS solo pede 500+
   { name:'Netherworld (Lost Souls)', xphNum:2600, minLvl:550, maxLvl:999,
+    coords:{x:33594,y:31442,z:8},
     vocs:['ms'], modes:['solo'], xph:'2.3kk–2.8kk', profit:'-10k a 10k', tipo:'xp', dif:'dificil', task:true,
     req:'',
     creatures:[{n:'Flimsy Lost Soul'},{n:'Mean Lost Soul'},{n:'Freakish Lost Soul'}],
@@ -7982,7 +7989,7 @@ const HUNTS = [
     vocs:['ek','rp'], modes:['solo','duo'], xph:'3.5kk–6kk', profit:'600k–900k', tipo:'xp', dif:'dificil', task:true,
     req:'A Piece of Cake Quest',
     tibiaroute:'Asura-Mirror',
-    coords:{x:32869,y:31284,z:1},
+    coords:{x:32815,y:32752,z:9},
     imbuements:['Strike Holy Powerful','Vampirism Powerful','Chilling Strike Powerful'],
     charms:[{creature:'Dawnfire Asura',charm:'Holy Flash'},{creature:'Midnight Asura',charm:'Freeze'},{creature:'Frost Flower Asura',charm:'Wound'}],
     equipment:['Falcon Axe ou Cobra Axe','Falcon Plate ou Falcon Shield','Helmet of the Deep'],
@@ -7995,7 +8002,7 @@ const HUNTS = [
     vocs:['ek'], modes:['solo'], xph:'3kk–4kk', profit:'1kk–1.5kk', tipo:'profit', dif:'medio', task:true,
     req:'Threatened Dreams Quest',
     tibiaroute:'Carnisylvans-EK',
-    coords:{x:32612,y:32158,z:7},
+    coords:{x:32521,y:32428,z:13},
     imbuements:['Strike Earth Powerful','Vampirism Powerful','Epiphany'],
     charms:[{creature:'Carnisylvan Sapling',charm:'Wound'},{creature:'Dark Carnisylvan',charm:'Poison'},{creature:'Hulking Carnisylvan',charm:'Dodge'}],
     equipment:['Falcon Axe','Falcon Plate / Cobra Armor','Gnome Shield ou Tower Shield'],
@@ -8004,6 +8011,7 @@ const HUNTS = [
     desc:'Hunt de carnisylvans para EK. Profit e bestiary consistentes. Threatened Dreams Quest.', wiki:'https://tibia.fandom.com/wiki/Carnisylvan' },
 
   { name:'DT Seal INQ', xphNum:3000, minLvl:550, maxLvl:999,
+    coords:{x:33368,y:31610,z:14},
     vocs:['ek'], modes:['solo'], xph:'3.5kk–4.5kk', profit:'800k–1.3kk', tipo:'xp', dif:'dificil', task:true,
     req:'Pits of Inferno + Inquisition Quest',
     tibiaroute:'DT-Seal-INQ-EK',
@@ -8012,6 +8020,7 @@ const HUNTS = [
     tips:'Dark Torturer é fraco para holy. Escudo essencial.' },
 
   { name:'Warzone 2 (EK Solo)', xphNum:2500, minLvl:550, maxLvl:700,
+    coords:{x:33023,y:31933,z:11},
     vocs:['ek'], modes:['solo'], xph:'2.5kk–4.3kk', profit:'700k–1kk', tipo:'profit', dif:'medio', task:false,
     req:"Bigfoot's Burden Quest",
     tibiaroute:'Warzone-2',
@@ -8019,6 +8028,7 @@ const HUNTS = [
     desc:"Warzone 2 solo EK alto nível. Profit consistente diário. Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_2' },
 
   { name:'Summer Court', xphNum:2800, minLvl:400, maxLvl:600,
+    coords:{x:33686,y:32196,z:7},
     vocs:['ek','rp'], modes:['solo','duo'], xph:'2.5kk–4.5kk', profit:'200k–400k', tipo:'xp', dif:'dificil', task:true,
     req:'The Dream Courts Quest',
     tibiaroute:'Summer-Court',
@@ -8026,6 +8036,7 @@ const HUNTS = [
     desc:'Summer Court do Dream Courts. Bom XP e bestiary. Requer The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Dream_Courts' },
 
   { name:'Warzone 6 (EK Solo)', xphNum:2200, minLvl:400, maxLvl:600,
+    coords:{x:33318,y:32310,z:15},
     vocs:['ek'], modes:['solo','duo'], xph:'2.5kk–3.5kk', profit:'700k–1kk', tipo:'profit', dif:'dificil', task:false,
     req:'Too Hot to Handle Quest',
     tibiaroute:'Warzone-6',
@@ -8033,6 +8044,7 @@ const HUNTS = [
     desc:'Warzone 6 solo EK alto nível. Profit excelente. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_6' },
 
   { name:'Burster Spectres', xphNum:2500, minLvl:400, maxLvl:600,
+    coords:{x:33082,y:32374,z:8},
     vocs:['ek','rp'], modes:['solo'], xph:'2.5kk–4.5kk', profit:'300k–500k', tipo:'xp', dif:'dificil', task:true,
     req:'Grave Danger Quest',
     tibiaroute:'Burster-Spectres',
@@ -8043,12 +8055,13 @@ const HUNTS = [
   { name:'Buried Cathedral', xphNum:4500, minLvl:450, maxLvl:999,
     vocs:['ek','ed'], modes:['pt','duo'], xph:'3kk–5kk', profit:'100k–300k', tipo:'xp', dif:'dificil', task:true,
     req:'The Dream Courts Quest',
-    coords:{x:33528,y:32612,z:15},
+    coords:{x:33558,y:32531,z:15},
     tibiaroute:'Buried-Cathedral-EDMS',
     creatures:[{n:'Arachnophobica'},{n:'Burster Spectre'},{n:'Gazer Spectre'},{n:'Ripper Spectre'}],
     desc:'Catedral submersa em Roshamuul. 4 criaturas com 50 charm pts cada. Requer The Dream Courts Quest.', wiki:'https://tibia.fandom.com/wiki/Buried_Cathedral' },
 
   { name:'Flimsy Lost Souls Venore', xphNum:3000, minLvl:550, maxLvl:999,
+    coords:{x:31924,y:32342,z:8},
     vocs:['ek'], modes:['solo'], xph:'3.5kk–5kk', profit:'700k–1.1kk', tipo:'xp', dif:'dificil', task:true,
     req:'',
     tibiaroute:'Flimsy-Lost-Souls-Venore',
@@ -8056,6 +8069,7 @@ const HUNTS = [
     desc:'Lost Souls + Grim Reapers em Venore. Excelente para EK alto nível.', wiki:'https://tibia.fandom.com/wiki/Netherworld' },
 
   { name:'Temple of the Sun and Sea', xphNum:3200, minLvl:600, maxLvl:999,
+    coords:{x:33863,y:31522,z:9},
     vocs:['ek','rp'], modes:['solo','duo'], xph:'3kk–5.2kk', profit:'400k–600k', tipo:'xp', dif:'dificil', task:true,
     req:'The Kilmaresh Quest',
     tibiaroute:'Temple-of-the-Sun-and-Sea',
@@ -8063,6 +8077,7 @@ const HUNTS = [
     desc:'Templo de Kilmaresh. Criaturas exclusivas com bom loot. Kilmaresh Quest.', wiki:'https://tibia.fandom.com/wiki/Kilmaresh' },
 
   { name:'Roshamuul Bones', xphNum:4000, minLvl:600, maxLvl:999,
+    coords:{x:33657,y:32474,z:7},
     vocs:['ek'], modes:['solo','duo'], xph:'3.5kk–5kk', profit:'600k–1kk', tipo:'xp', dif:'dificil', task:true,
     req:'',
     tibiaroute:'Roshamuul-Bones',
@@ -8070,6 +8085,7 @@ const HUNTS = [
     desc:'Andares inferiores de Roshamuul. Alta densidade e excelente XP.', wiki:'https://tibia.fandom.com/wiki/Roshamuul' },
 
   { name:'Upper Roshamuul', xphNum:5500, minLvl:700, maxLvl:999,
+    coords:{x:33575,y:32359,z:7},
     vocs:['all'], modes:['solo','duo'], xph:'4kk–6kk', profit:'800k–1.5kk', tipo:'xp', dif:'dificil', task:false,
     req:'Feaster of Souls Quest',
     tibiaroute:'Upper-Roshamuul',
@@ -8077,6 +8093,7 @@ const HUNTS = [
     desc:'Upper Roshamuul — endgame. Feaster of Souls Quest. Level real 700+.', wiki:'https://tibia.fandom.com/wiki/Roshamuul' },
 
   { name:'Warzone 8', xphNum:3500, minLvl:700, maxLvl:999,
+    coords:{x:32141,y:31457,z:15},
     vocs:['ek'], modes:['solo'], xph:'3kk–4.5kk', profit:'1.5kk–2kk', tipo:'profit', dif:'dificil', task:false,
     req:'Too Hot to Handle Quest',
     tibiaroute:'Warzone-8-EK',
@@ -8084,6 +8101,7 @@ const HUNTS = [
     desc:'Warzone 8 solo EK. Excelente profit. Too Hot to Handle Quest.', wiki:'https://tibia.fandom.com/wiki/Warzone_7' },
 
   { name:'Warzone 3 (EK Solo)', xphNum:3800, minLvl:700, maxLvl:999,
+    coords:{x:33010,y:31948,z:12},
     vocs:['ek'], modes:['solo'], xph:'3kk–5.5kk', profit:'1.2kk–1.8kk', tipo:'profit', dif:'dificil', task:false,
     req:"Bigfoot's Burden Quest",
     tibiaroute:'Warzone-3-EK',
@@ -8091,6 +8109,7 @@ const HUNTS = [
     desc:"Warzone 3 EK solo alto nível. Alta XP e profit. Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_3' },
 
   { name:'Feru Way', xphNum:3800, minLvl:550, maxLvl:999,
+    coords:{x:33311,y:32339,z:13},
     vocs:['ek'], modes:['solo','duo'], xph:'3kk–4.5kk', profit:'1kk–1.5kk', tipo:'profit', dif:'dificil', task:false,
     req:'Heart of Destruction Quest',
     tibiaroute:'Feru-Way',
@@ -8098,6 +8117,7 @@ const HUNTS = [
     desc:'Área de HoD com Demons. Profit muito alto. Heart of Destruction Quest.', wiki:'https://tibia.fandom.com/wiki/Heart_of_Destruction' },
 
   { name:'Bashmu', xphNum:3500, minLvl:600, maxLvl:999,
+    coords:{x:33972,y:31656,z:8},
     vocs:['ek','rp'], modes:['solo','duo'], xph:'2.5kk–4kk', profit:'400k–700k', tipo:'xp', dif:'dificil', task:true,
     req:'',
     tibiaroute:'Bashmu',
@@ -8142,7 +8162,7 @@ const HUNTS = [
   { name:'Exotic Cave', xphNum:1200, minLvl:130, maxLvl:260,
     vocs:['ek'], modes:['solo'], xph:'900k–1.4kk', profit:'75k–185k', tipo:'profit', dif:'medio', task:true,
     req:'',
-    coords:{x:33053,y:31784,z:9},
+    coords:{x:33910,y:31434,z:8},
     imbuements:['Strike Earth Powerful','Vampirism Powerful'],
     charms:[{creature:'Exotic Bat',charm:'Poison'},{creature:'Exotic Cave Spider',charm:'Wound'}],
     equipment:['Full EK set nível 130+','Blessed Shield','Knight Legs ou melhor'],
@@ -8168,6 +8188,7 @@ const HUNTS = [
 
   // Yielothax Dimension: Yielothax, minLvl 90
   { name:'Yielothax Dimension', xphNum:800, minLvl:90, maxLvl:200,
+    coords:{x:32946,y:31617,z:9},
     vocs:['ek'], modes:['solo'], xph:'500k–800k', profit:'50k–150k', tipo:'xp', dif:'medio', task:true,
     req:'',
     creatures:[{n:'Yielothax'}],
@@ -8219,6 +8240,7 @@ const HUNTS = [
 
   // Sea Serpent North Area: minLvl 90
   { name:'Sea Serpent North Area', xphNum:420, minLvl:90, maxLvl:180,
+    coords:{x:31938,y:31046,z:8},
     vocs:['ek'], modes:['solo'], xph:'250k–400k', profit:'5k–25k', tipo:'xp', dif:'medio', task:true,
     req:'Hunt for the Sea Serpent Quest',
     creatures:[{n:'Sea Serpent'},{n:'Young Sea Serpent'}],
@@ -8242,6 +8264,7 @@ const HUNTS = [
 
   // Venore Dragon Lair: minLvl 35
   { name:'Venore Dragon Lair', xphNum:160, minLvl:35, maxLvl:100,
+    coords:{x:32823,y:32164,z:7},
     vocs:['ek'], modes:['solo'], xph:'100k–130k', profit:'-1k a 1k', tipo:'xp', dif:'medio', task:true,
     req:'',
     creatures:[{n:'Dragon'},{n:'Dragon Hatchling'}],
@@ -8279,6 +8302,7 @@ const HUNTS = [
 
   // Mistrock: Cyclops, minLvl 8
   { name:'Mistrock', xphNum:75, minLvl:8, maxLvl:60,
+    coords:{x:32626,y:31410,z:3},
     vocs:['ek'], modes:['solo'], xph:'50k–80k', profit:'-9k a -4k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Cyclops'},{n:'Cyclops Drone'},{n:'Cyclops Smith'}],
