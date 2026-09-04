@@ -1523,6 +1523,11 @@ async function tibiaFetch(path) {
         <span class="nav-label">Exercise Weapons</span>
       </button>
 
+      <button class="nav-btn" onclick="showPage('dmgcalc',this);if(window.tpDmgInit)tpDmgInit()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2h6v2H7V4zm0 4h2v2H7V8zm0 4h2v2H7v-2zm4-4h2v6h-2V8z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Calculadora de Dano</span>
+      </button>
+
       <button class="nav-btn" onclick="showPage('about',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Sobre nós</span>
@@ -1747,7 +1752,7 @@ async function tibiaFetch(path) {
       <div class="tp-toolgrid">
         <button class="tp-tool" onclick="showPage('imbuements',document.querySelector('[onclick*=imbuements]'))"><div class="ti">🔮</div><div><div class="tn">Imbuements</div><div class="td">Custo e materiais de cada imbue, por tier.</div></div></button>
         <button class="tp-tool" onclick="showPage('exercisecalc',document.querySelector('[onclick*=exercisecalc]'))"><div class="ti">🏋️</div><div><div class="tn">Exercise Weapons</div><div class="td">Quantas dummies e o custo pra subir skill.</div></div></button>
-        <div class="tp-tool soon"><div class="ti">⚔️</div><div><div class="tn">Calculadora de Dano <span class="tp-tag soon">Em breve</span></div><div class="td">DPS por vocação, skill, crítico e wheel.</div></div></div>
+        <button class="tp-tool" onclick="showPage(&#39;dmgcalc&#39;,document.querySelector(&#39;.nav-btn[onclick*=dmgcalc]&#39;));if(window.tpDmgInit)tpDmgInit()"><div class="ti">⚔️</div><div><div class="tn">Calculadora de Dano <span class="tp-tag new">Novo</span></div><div class="td">Dano por vocação, skill, crítico, wheel e comparador A/B. 🔒 requer login.</div></div></button>
         <button class="tp-tool" onclick="showPage('quests',document.querySelector('[onclick*=quests]'))"><div class="ti">📜</div><div><div class="tn">Guia de Quests</div><div class="td">Quests essenciais por faixa de nível.</div></div></button>
       </div>
 
@@ -4335,9 +4340,44 @@ PlayerName (Leader)
     </div><!-- /ew-layout -->
   </section>
 
+  <!-- ─── CALCULADORA DE DANO ─── -->
+  <section class="page-section" id="dmgcalc">
+    <style>
+      #dmgcalc #dc-gate{display:none}
+      #dmgcalc.gated > #dc-content{display:none}
+      #dmgcalc.gated > #dc-gate{display:block}
+      #dmgcalc .dc-framewrap{border:1px solid var(--rule,#2c281c);border-radius:16px;overflow:hidden;background:#131210}
+      #dmgcalc #dc-frame{width:100%;border:0;display:block;background:#131210;min-height:1500px}
+      #dmgcalc .dc-conf{font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:4px;text-transform:uppercase;background:var(--gold-dim,#d4af4f18);color:var(--gold,#d4af4f);margin-left:.4rem}
+    </style>
+    <h2 class="sec-title">⚔️ Calculadora de Dano</h2>
+    <p class="sec-sub">Estime o dano das suas magias e ataques contra qualquer criatura — todas as vocações, com equipamento, wheel, rotação e comparador A/B. <span class="dc-conf">beta · fórmulas da comunidade validadas 1:1</span></p>
+
+    <!-- Gate de login (mesma mecânica de Rankings/Histórico) -->
+    <div id="dc-gate">
+      <div class="card pth-gate-card">
+        <div class="pth-gate-icon">⚔️</div>
+        <h3 class="pth-gate-title">Entre pra usar a Calculadora de Dano</h3>
+        <p class="pth-gate-desc">Essa ferramenta é exclusiva pra quem tem conta no Tibia Panda. Crie a sua (grátis) e calcule o dano de todas as vocações. 🐼</p>
+        <div class="pth-gate-actions">
+          <button class="tp-btn-primary" onclick="tpOpenAuth('signup')">🐼 Criar conta grátis</button>
+          <button class="tp-btn-ghost" onclick="tpOpenAuth('login')">Entrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conteúdo: ferramenta completa em /calculadora-dano.html, carregada só quando logado -->
+    <div id="dc-content">
+      <div class="dc-framewrap">
+        <iframe id="dc-frame" title="Calculadora de Dano" scrolling="no"></iframe>
+      </div>
+      <p class="sec-sub" style="margin-top:.8rem;font-size:.76rem;opacity:.7">Fórmulas derivadas da comunidade (não oficiais da CipSoft), validadas 1:1 contra as ferramentas de referência.</p>
+    </div>
+  </section>
+
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-31dm</span>
+    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-31dp</span>
   </footer>
 </div><!-- /.page-wrapper -->
 
@@ -6687,6 +6727,7 @@ const CREATURE_STATS = {
   'zulazza the corruptor':{hp:78,xp:56,spd:0,HP:46500,XP:10000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,100,80,30,0,80,70,100],loc:'Zzaion (Zao) most southern tower, top floor.',loot:['Platinum Coin','Viper Star','Soul Orb','Gold Ingot','Giant Shimmering Pearl']},
   'zushuka':{hp:70,xp:55,spd:0,HP:15000,XP:9000,armor:0,mit:0.0,charm:0,bclass:'',blvl:'',res:[100,50,0,50,110,70,110,100],loc:'Ice Witch Temple (bottom floor)',loot:['Silver Raid Token','Shard','Crystal Sword','Great Spirit Potion','Bullseye Potion']},
 };
+try{ window.CREATURE_STATS = CREATURE_STATS; }catch(e){}
 
 // ── HUNT SUPPLIES POR VOCAÇÃO ─────────────────────────────────────────────────
 const VOC_SUPPLIES = {
@@ -7478,7 +7519,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-08-31dm';
+window.TP_BUILD = '2026-08-31dp';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -7617,7 +7658,7 @@ const HUNTS = [
     vocs:['all'], modes:['solo'], xph:'200k–500k', profit:'50k–150k', tipo:'xp', dif:'facil', task:true,
     req:'',
     access:'Edron, escada subterrânea (leste)',
-    coords:{x:32537,y:32380,z:9},
+    coords:{x:33144,y:32405,z:9},
     supplies:[{name:'Strong Health Potion'},{name:'Blank Rune'}],
     lootIds:[3031,3047,3040],lootNames:['Gold Coin','Platinum Coin','Club Ring'],
     loots:[{name:'Gold Coin'},{name:'Platinum Coin'},{name:'Club Ring'}],
@@ -7629,6 +7670,7 @@ const HUNTS = [
 
   // Nomad: 60xp — nível 8 é possível mas range real começa em 15
   { name:'Nomad Cave', xphNum:280, minLvl:8, maxLvl:20,
+    coords:{x:33206,y:32519,z:8},
     vocs:['all'], modes:['solo'], xph:'150k–400k', profit:'-50k a 0', tipo:'xp', dif:'facil', task:false,
     req:'Aristos Task Quest',
     creatures:[{n:'Nomad'}],
@@ -7636,6 +7678,7 @@ const HUNTS = [
 
   // Cyclops: 150xp, Cyclops Smith: 265xp — fácil, melhor range 50-130
   { name:'Cyclops / Cyclopolis', xphNum:700, minLvl:50, maxLvl:130,
+    coords:{x:32626,y:31410,z:3},
     vocs:['ek','rp'], modes:['solo','duo'], xph:'400k–900k', profit:'0 a 150k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Cyclops'},{n:'Cyclops Smith'},{n:'Cyclops Drone'}],
@@ -7650,6 +7693,7 @@ const HUNTS = [
 
   // Orc Warlord: 668xp, Orc Berserker: 195xp — fácil, range 50-120
   { name:'Orc Fortress', xphNum:780, minLvl:50, maxLvl:120,
+    coords:{x:33281,y:31589,z:9},
     vocs:['ek','rp'], modes:['solo','duo'], xph:'500k–1kk', profit:'50k–200k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Orc Warlord'},{n:'Orc Berserker'}],
@@ -7657,6 +7701,7 @@ const HUNTS = [
 
   // Frost Dragon: 2100xp — médio, mas o conteúdo de svargrond é realmente para 80+
   { name:'Frost Dragons', xphNum:900, minLvl:80, maxLvl:180,
+    coords:{x:33181,y:31207,z:9},
     vocs:['ek','rp'], modes:['solo','duo'], xph:'500k–1.2kk', profit:'100k–300k', tipo:'xp', dif:'medio', task:true,
     req:'Barbarian Test Quest',
     creatures:[{n:'Frost Dragon'},{n:'Frost Dragon Hatchling'}],
@@ -7671,6 +7716,7 @@ const HUNTS = [
 
   // Demon Skeleton: 145xp, Hellhound: 2200xp — médio por causa do Hellhound, range real 80-200
   { name:'Edron Hellhole', xphNum:900, minLvl:950, maxLvl:999,
+    coords:{x:32031,y:31352,z:11},
     vocs:['all'], modes:['solo','duo'], xph:'600k–1.2kk', profit:'100k–300k', tipo:'xp', dif:'medio', task:false,
     req:'',
     creatures:[{n:'Demon Skeleton'},{n:'Diabolic Imp'},{n:'Hellhound'}],
@@ -7705,6 +7751,7 @@ const HUNTS = [
 
   // Serpent Spawn: 3050xp, Medusa: 4000xp — andares profundos de Banuta
   { name:'Banuta', xphNum:1500, minLvl:100, maxLvl:220,
+    coords:{x:32813,y:32549,z:12},
     vocs:['ek','ms'], modes:['solo','duo'], xph:'800k–2kk', profit:'50k–200k', tipo:'xp', dif:'medio', task:true,
     req:'Ape City Quest',
     creatures:[{n:'Serpent Spawn'},{n:'Medusa'},{n:'Kongra'}],
@@ -7712,6 +7759,7 @@ const HUNTS = [
 
   // Draken Warmaster: 3200xp — médio, content realmente pede 130+ de verdade
   { name:'Draken Walls / Zao', xphNum:2000, minLvl:130, maxLvl:280,
+    coords:{x:33032,y:31163,z:2},
     vocs:['all'], modes:['solo','duo'], xph:'1kk–2.5kk', profit:'100k–400k', tipo:'xp', dif:'medio', task:true,
     req:'New Frontier + Children of the Revolution',
     creatures:[{n:'Draken Warmaster'},{n:'Draken Spellweaver'},{n:'Draken Elite'}],
@@ -7746,6 +7794,7 @@ const HUNTS = [
 
   // Cave Devourer: 4100xp — difícil, conteúdo pede 200+ real
   { name:'Gnome Deep Hub', xphNum:2000, minLvl:250, maxLvl:400,
+    coords:{x:33911,y:32144,z:14},
     vocs:['ek','ed','ms'], modes:['solo','duo'], xph:'1.6kk–2.4kk', profit:'-70k a -50k', tipo:'xp', dif:'dificil', task:false,
     req:'',
     creatures:[{n:'Ravenous Lava Lurker'},{n:'Cave Devourer'}],
@@ -7753,6 +7802,7 @@ const HUNTS = [
 
   // Naga Archer: 4640xp, Naga Warrior: 5480xp — médio, range real 400+
   { name:'Nykri Delta (Nagas)', xphNum:1500, minLvl:400, maxLvl:600,
+    coords:{x:33654,y:32771,z:8},
     vocs:['ed','ms'], modes:['solo','duo'], xph:'1kk–1.8kk', profit:'-70k a 20k', tipo:'xp', dif:'medio', task:true,
     req:'',
     creatures:[{n:'Naga Archer'},{n:'Naga Warrior'}],
@@ -7760,6 +7810,7 @@ const HUNTS = [
 
   // Glooth Blob: 700xp, Rot Elemental: 750xp, Blood Beast: 1000xp, Devourer: 1755xp — fácil, range real 100-220
   { name:'Oramond Western Plains', xphNum:1350, minLvl:100, maxLvl:220,
+    coords:{x:33551,y:31924,z:7},
     vocs:['ed','ms'], modes:['solo','duo'], xph:'900k–1.7kk', profit:'-150k a -70k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Glooth Blob'},{n:'Rot Elemental'},{n:'Blood Beast'},{n:'Devourer'}],
@@ -7769,13 +7820,14 @@ const HUNTS = [
   { name:'Forbidden Temple (Carlin)', xphNum:1200, minLvl:100, maxLvl:200,
     vocs:['all'], modes:['solo','duo'], xph:'800k–1.5kk', profit:'50k–200k', tipo:'xp', dif:'medio', task:true,
     req:'Cults of Tibia Quest',
-    coords:{x:32375,y:31811,z:8},
+    coords:{x:33324,y:32686,z:8},
     creatures:[{n:'Cult Believer'},{n:'Vicious Squire'},{n:'Renegade Knight'},{n:'Vile Grandmaster'}],
     desc:'Áreas exclusivas com loot único. Requer Cults of Tibia Quest.', wiki:'https://www.tibiawiki.com.br/wiki/Cults_of_Tibia_(The_Humans)' },
 
   // ── HIGH LEVEL (150-400) ──────────────────────────
   // Warzone 4-6 é claramente endgame das warzones, range 150-280
   { name:'Warzone 4', xphNum:1500, minLvl:150, maxLvl:280,
+    coords:{x:33533,y:32187,z:15},
     vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–500k', tipo:'profit', dif:'medio', task:false,
     req:"Bigfoot's Burden Quest",
     tibiaroute:'Warzone-4',
@@ -7783,6 +7835,7 @@ const HUNTS = [
     desc:"Warzone 4 — itens Gnome. Continuação da Bigfoot's Burden Quest.", wiki:'https://tibia.fandom.com/wiki/Warzone_4' },
 
   { name:'Warzone 5', xphNum:1600, minLvl:150, maxLvl:280,
+    coords:{x:33242,y:32113,z:15},
     vocs:['all'], modes:['time'], xph:'1kk–2kk', profit:'200k–500k', tipo:'profit', dif:'medio', task:false,
     req:"Bigfoot's Burden Quest",
     tibiaroute:'Warzone-5',
@@ -7816,6 +7869,7 @@ const HUNTS = [
 
   // Werehyaena: 2700xp, Shaman: 2800xp — fácil para alto nível, range real 130-260
   { name:'Hyaena Lairs', xphNum:1550, minLvl:200, maxLvl:320,
+    coords:{x:33194,y:32398,z:11},
     vocs:['ek'], modes:['solo'], xph:'1kk–2kk', profit:'350k–1kk', tipo:'profit', dif:'medio', task:true,
     req:'',
     creatures:[{n:'Werehyaena'},{n:'Werehyaena Shaman'},{n:'Lich'}],
@@ -7823,6 +7877,7 @@ const HUNTS = [
 
   // Merlkin: 1900xp + Kongra — difícil, MS pede 180+ real
   { name:'Deeper Banuta', xphNum:2050, minLvl:150, maxLvl:320,
+    coords:{x:32847,y:32570,z:8},
     vocs:['ms'], modes:['solo','duo'], xph:'1.6kk–2.2kk', profit:'30k–100k', tipo:'xp', dif:'dificil', task:true,
     req:'Ape City Quest',
     creatures:[{n:'Kongra'},{n:'Sibang'},{n:'Merlkin'}],
@@ -7837,6 +7892,7 @@ const HUNTS = [
 
   // Plaguesmith: 5000xp, Putrid Mummy: 1050xp — médio, range real 180-320
   { name:'Rotten Wasteland', xphNum:2200, minLvl:450, maxLvl:999,
+    coords:{x:33294,y:32268,z:12},
     vocs:['ek','rp'], modes:['solo','duo'], xph:'1.5kk–2.5kk', profit:'100k–300k', tipo:'xp', dif:'dificil', task:true,
     req:'Feaster of Souls Quest',
     creatures:[{n:'Plaguesmith'},{n:'Putrid Mummy'}],
@@ -7853,6 +7909,7 @@ const HUNTS = [
 
   // Choking Fear: 6000xp, Retching Horror: 6000xp, Silencer: 8700xp — difícil, range 280-500
   { name:'Dream Courts', xphNum:3100, minLvl:700, maxLvl:999,
+    coords:{x:33575,y:32359,z:7},
     vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–4kk', profit:'200k–500k', tipo:'xp', dif:'dificil', task:true,
     req:'The Dream Courts Quest',
     creatures:[{n:'Choking Fear'},{n:'Retching Horror'},{n:'Silencer'}],
@@ -7863,7 +7920,7 @@ const HUNTS = [
     vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit', dif:'medio', task:false,
     req:'The Dream Courts Quest (Haunted House)',
     area:'Venore', location:'Norte de Tiquanda',
-    coords:{x:32663,y:32669,z:7},
+    coords:{x:32718,y:32241,z:10},
     creatures:[{n:'Gazer Spectre'},{n:'Thanatursus'}],
     desc:'Gazer Spectre + Thanatursus. Nível recomendado 300+. Acesso via The Dream Courts Quest, norte de Tiquanda.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Temple)' },
 
@@ -7879,12 +7936,13 @@ const HUNTS = [
     vocs:['all'], modes:['solo','duo','time'], xph:'1kk–3kk', profit:'500k–2kk', tipo:'profit', dif:'medio', task:false,
     req:'The Dream Courts Quest (Haunted House)',
     area:'Venore', location:'Oeste de Darashia',
-    coords:{x:33075,y:32448,z:8},
+    coords:{x:33082,y:32374,z:8},
     creatures:[{n:'Burster Spectre'}],
     desc:'Burster Spectre. Nível recomendado 300+. Acesso via The Dream Courts Quest, oeste de Darashia.', wiki:'https://www.tibiawiki.com.br/wiki/Haunted_Nexus_(Tomb)' },
 
   // Grimeleech: 6800xp, Vexclaw: 5500xp, Hellflayer: 6500xp — difícil, range 280-500
   { name:'Heart of Destruction', xphNum:3600, minLvl:550, maxLvl:999,
+    coords:{x:33311,y:32339,z:13},
     vocs:['all'], modes:['solo','duo','time'], xph:'2kk–5kk', profit:'500k–1.5kk', tipo:'profit', dif:'dificil', task:false,
     req:'Heart of Destruction Quest',
     creatures:[{n:'Grimeleech'},{n:'Vexclaw'},{n:'Hellflayer'}],
@@ -7892,6 +7950,7 @@ const HUNTS = [
 
   // Falcon Knight: 6900xp, Falcon Paladin: 5900xp — difícil, range 300-550
   { name:'Falcon Bastion', xphNum:4100, minLvl:300, maxLvl:550,
+    coords:{x:33380,y:32707,z:8},
     vocs:['ek'], modes:['solo','duo'], xph:'2kk–5kk', profit:'300k–800k', tipo:'xp', dif:'dificil', task:false,
     req:'Order of the Falcon Quest',
     creatures:[{n:'Falcon Knight'},{n:'Falcon Paladin'}],
@@ -7956,7 +8015,7 @@ const HUNTS = [
   { name:'Roshamuul Prison', xphNum:5500, minLvl:450, maxLvl:550,
     vocs:['all'], modes:['solo','duo','time'], xph:'3kk–6kk', profit:'500k–1.5kk', tipo:'xp', dif:'media', task:false,
     req:'',
-    coords:{x:33538,y:32473,z:7},
+    coords:{x:33596,y:32394,z:9},
     tibiaroute:'Roshamuul-Prison',
     creatures:[{n:'Betrayed Wraith'},{n:'Blightwalker'},{n:'Dark Torturer'},{n:'Demon Outcast'},{n:'Hellhound'},{n:'Juggernaut'},{n:'Lost Soul'},{n:'Nightmare'},{n:'Plaguesmith'}],
     charms:[{creature:'Blightwalker',charm:'Enflame'},{creature:'Dark Torturer',charm:'Freeze'},{creature:'Demon Outcast',charm:'Zap'},{creature:'Hellhound',charm:'Freeze'},{creature:'Juggernaut',charm:'Wound'},{creature:'Nightmare',charm:'Poison'},{creature:'Plaguesmith',charm:'Freeze'}],
@@ -7964,6 +8023,7 @@ const HUNTS = [
 
   // Inferniarch: 8000xp+ — difícil, conteúdo requer 500+
   { name:'No Rest for the Wicked', xphNum:0, minLvl:700, maxLvl:999,
+    coords:{x:33820,y:32375,z:5},
     vocs:['all'], modes:['time'], xph:'2kk–5kk', profit:'1kk–3kk', tipo:'quest', dif:'dificil', task:false,
     req:'No Rest for the Wicked Quest',
     creatures:[{n:'Broodrider Inferniarch'},{n:'Gorger Inferniarch'}],
@@ -7971,6 +8031,7 @@ const HUNTS = [
 
   // Crazed Winter: 4900xp — difícil, content para 500+
   { name:'Court of Winter', xphNum:3100, minLvl:500, maxLvl:999,
+    coords:{x:33698,y:32125,z:7},
     vocs:['ed','ms'], modes:['solo','duo'], xph:'2kk–4kk', profit:'0 a 500k', tipo:'xp', dif:'dificil', task:true,
     req:'The Dream Courts Quest',
     creatures:[{n:'Crazed Winter Rearguard'},{n:'Crazed Winter Vanguard'}],
@@ -8128,6 +8189,7 @@ const HUNTS = [
 
   // The Barkless: criaturas do mundo Gnome, minLvl 150
   { name:'The Barkless', xphNum:2100, minLvl:150, maxLvl:320,
+    coords:{x:32721,y:31480,z:8},
     vocs:['ek'], modes:['solo'], xph:'1kk–3kk', profit:'-200k a -50k', tipo:'xp', dif:'dificil', task:false,
     req:'Cults of Tibia Quest',
     reqItems:['Machete','Rope','Shovel','Pick'],
@@ -8150,6 +8212,7 @@ const HUNTS = [
 
   // Drefia Wyrm Lair: Wyrm, minLvl 180
   { name:'Drefia Wyrm Lair', xphNum:1400, minLvl:180, maxLvl:320,
+    coords:{x:33075,y:32409,z:14},
     vocs:['ek'], modes:['solo'], xph:'1kk–1.6kk', profit:'150k–250k', tipo:'profit', dif:'medio', task:true,
     req:'',
     access:'Drefia, sul de Darashia',
@@ -8196,6 +8259,7 @@ const HUNTS = [
 
   // Krailos Ruins: Ogre/Mutated Tiger, minLvl 80
   { name:'Krailos Ruins', xphNum:750, minLvl:80, maxLvl:180,
+    coords:{x:32661,y:31076,z:8},
     vocs:['ek'], modes:['solo'], xph:'700k–800k', profit:'10k–100k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Ogre Rowdy'},{n:'Mutated Tiger'},{n:'Hyaena'}],
@@ -8203,6 +8267,7 @@ const HUNTS = [
 
   // Factory Quarter: Warped creatures, minLvl 180
   { name:'Factory Quarter', xphNum:900, minLvl:180, maxLvl:320,
+    coords:{x:32922,y:31153,z:13},
     vocs:['ek'], modes:['solo'], xph:'600k–800k', profit:'250k–400k', tipo:'profit', dif:'medio', task:true,
     req:'',
     creatures:[{n:'Warped Siren'},{n:'Warped Cow'},{n:'Warped Duelist'}],
@@ -8210,6 +8275,7 @@ const HUNTS = [
 
   // Carlin Forbidden Temple: Vampires/Warlocks, minLvl 80
   { name:'Carlin Forbidden Temple', xphNum:700, minLvl:80, maxLvl:180,
+    coords:{x:33324,y:32686,z:8},
     vocs:['ek'], modes:['solo'], xph:'450k–700k', profit:'-70k a 50k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Vampire'},{n:'Warlock'}],
@@ -8219,6 +8285,7 @@ const HUNTS = [
 
   // Old Fortress: Dwarf/Goblin Scavengers, minLvl 130
   { name:'Old Fortress', xphNum:550, minLvl:700, maxLvl:999,
+    coords:{x:33281,y:31589,z:9},
     vocs:['ek'], modes:['solo'], xph:'400k–650k', profit:'0 a 20k', tipo:'xp', dif:'medio', task:true,
     req:'',
     creatures:[{n:'Silencer'},{n:'Midnight Warrior'},{n:'Dream Scar'}],
@@ -8250,6 +8317,7 @@ const HUNTS = [
 
   // Krailos Spider Lair: minLvl 100
   { name:'Krailos Spider Lair', xphNum:230, minLvl:100, maxLvl:200,
+    coords:{x:33686,y:31747,z:8},
     vocs:['ek'], modes:['solo'], xph:'150k–250k', profit:'0 a 20k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Mutated Rat'},{n:'Killer Caiman'},{n:'Giant Spider'}],
@@ -8257,6 +8325,7 @@ const HUNTS = [
 
   // Drillworm Cave: minLvl 100
   { name:'Drillworm Cave', xphNum:250, minLvl:400, maxLvl:999,
+    coords:{x:32575,y:32043,z:15},
     vocs:['ek'], modes:['solo'], xph:'180k–250k', profit:'20k–60k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Drillworm'},{n:'Gorzindel'}],
@@ -8272,6 +8341,7 @@ const HUNTS = [
 
   // Krimhorn Barbarian Camp: minLvl 20
   { name:'Krimhorn Barbarian Camp', xphNum:110, minLvl:20, maxLvl:80,
+    coords:{x:32023,y:31375,z:7},
     vocs:['ek'], modes:['solo'], xph:'85k–115k', profit:'0 a 6k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Barbarian Bloodwalker'},{n:'Barbarian Headsplitter'},{n:'Barbarian Skullhunter'}],
@@ -8281,6 +8351,7 @@ const HUNTS = [
 
   // Corym Black Market: minLvl 35
   { name:'Corym Black Market', xphNum:110, minLvl:35, maxLvl:100,
+    coords:{x:32604,y:32805,z:8},
     vocs:['ek'], modes:['solo'], xph:'90k–110k', profit:'-10k a 5k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Corym Charlatan'},{n:'Corym Skirmisher'},{n:'Corym Vanguard'}],
@@ -8288,6 +8359,7 @@ const HUNTS = [
 
   // Forest Fury Camp: minLvl 25
   { name:'Forest Fury Camp', xphNum:90, minLvl:25, maxLvl:80,
+    coords:{x:32470,y:31714,z:6},
     vocs:['ek'], modes:['solo'], xph:'65k–90k', profit:'15k–50k', tipo:'profit', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Forest Fury'},{n:'Mutated Tiger'}],
@@ -8312,6 +8384,7 @@ const HUNTS = [
 
   // Magician Quarter: Red/Green Dragon, minLvl 60
   { name:'Magician Quarter', xphNum:70, minLvl:60, maxLvl:140,
+    coords:{x:33181,y:31207,z:9},
     vocs:['ek'], modes:['solo'], xph:'50k–70k', profit:'15k–30k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Lizard Chosen'},{n:'Lizard Dragon Priest'},{n:'Lizard Zaogun'}],
@@ -8319,6 +8392,7 @@ const HUNTS = [
 
   // Orc Fortress: minLvl 45
   { name:'Orc Fortress (iniciante)', xphNum:55, minLvl:45, maxLvl:100,
+    coords:{x:33281,y:31589,z:9},
     vocs:['ek'], modes:['solo'], xph:'25k–60k', profit:'-5k a 10k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Orc Leader'},{n:'Orc Warlord'},{n:'Orc Rider'}],
@@ -8326,6 +8400,7 @@ const HUNTS = [
 
   // Fenrock: minLvl 13
   { name:'Fenrock', xphNum:35, minLvl:13, maxLvl:60,
+    coords:{x:32600,y:31388,z:15},
     vocs:['ek'], modes:['solo'], xph:'15k–45k', profit:'5k–100k', tipo:'profit', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Lizard Sentinel'},{n:'Lizard Snakecharmer'},{n:'Dragon Lord'}],
@@ -8333,6 +8408,7 @@ const HUNTS = [
 
   // Venore Salamander Cave: minLvl 20
   { name:'Venore Salamander Cave', xphNum:40, minLvl:20, maxLvl:80,
+    coords:{x:31924,y:32342,z:8},
     vocs:['ek'], modes:['solo'], xph:'25k–45k', profit:'30k–60k', tipo:'profit', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Fire Salamander'},{n:'Fire Devil'}],
@@ -8340,6 +8416,7 @@ const HUNTS = [
 
   // East Larva Cave: minLvl 15
   { name:'East Larva Cave', xphNum:25, minLvl:15, maxLvl:60,
+    coords:{x:33153,y:32685,z:8},
     vocs:['ek'], modes:['solo'], xph:'15k–35k', profit:'1k–4k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Larva'},{n:'Carrion Worm'},{n:'Stone Golem'}],
@@ -8349,6 +8426,7 @@ const HUNTS = [
 
   // Tiquanda Crustacean Caves: minLvl 15
   { name:'Tiquanda Crustacean Caves', xphNum:18, minLvl:15, maxLvl:60,
+    coords:{x:32896,y:32573,z:9},
     vocs:['ek'], modes:['solo'], xph:'10k–23k', profit:'5k–10k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Crab'},{n:'Scorpion'},{n:'Water Elemental'}],
@@ -8356,6 +8434,7 @@ const HUNTS = [
 
   // Venore Rotworm Cave: minLvl 8
   { name:'Venore Rotworm Cave', xphNum:12, minLvl:8, maxLvl:40,
+    coords:{x:33144,y:32405,z:9},
     vocs:['ek'], modes:['solo'], xph:'8k–12k', profit:'1k–1.5k', tipo:'xp', dif:'facil', task:true,
     req:'',
     creatures:[{n:'Rotworm'},{n:'Carrion Worm'}],
@@ -8371,6 +8450,7 @@ const HUNTS = [
 
   // Guzzlemaw Valley — Frazzlemaw (spot clássico de XP alto)
   { name:'Guzzlemaw Valley', xphNum:1700, minLvl:600, maxLvl:999,
+    coords:{x:33657,y:32474,z:7},
     vocs:['all'], modes:['solo','duo'], xph:'1.5kk–3kk', profit:'0 a 300k', tipo:'xp', dif:'dificil', task:true,
     req:'Forgotten Knowledge Quest',
     creatures:[{n:'Frazzlemaw'}],
@@ -8378,6 +8458,7 @@ const HUNTS = [
 
   // Rotten Wasteland — acesso via Soul War (spot meta de alto nível)
   { name:'Rotten Wasteland', xphNum:2100, minLvl:450, maxLvl:999,
+    coords:{x:33294,y:32268,z:12},
     vocs:['all'], modes:['solo','duo','time'], xph:'2kk–4kk', profit:'300k–1kk', tipo:'xp', dif:'dificil', task:false,
     req:'Rotten Blood / Soul War Quest',
     creatures:[{n:'Cloak Of Terror'},{n:'Many Faces'},{n:'Courage Leech'},{n:'Branchy Crawler'},{n:'Rotten Golem'}],
@@ -12728,6 +12809,7 @@ function ewEnsureTcInput() {
       window.__TP_OWNED_OUTFITS={}; window.__TP_OWNED_MOUNTS={};
       area.innerHTML='<button class="tp-btn-ghost" onclick="tpOpenAuth(\'login\')">Entrar</button><button class="tp-btn-primary" onclick="tpOpenAuth(\'signup\')">Criar conta</button>';
     }
+    try{ var _dc=document.getElementById('dmgcalc'); if(_dc && _dc.classList.contains('active') && window.tpDmgInit) window.tpDmgInit(); }catch(e){}
   }
 
   window.tpUserMenu=function(e){ if(e){ e.stopPropagation(); } const w=document.getElementById('tp-userwrap'); if(w) w.classList.toggle('open'); };
@@ -17021,6 +17103,43 @@ window.tpLoadJornada=async function(){
         if(!res.ok||!res.j||!res.j.ok){ var em=(res.j&&res.j.message)||''; toast(/not_participant_voter/.test(em)?'Só quem participou pode votar.':(/host_uses_rate/.test(em)?'Como anfitrião, use o ⚖️ para avaliar.':'Não consegui registrar o voto.'),'error'); }
         tpEventPageOpen(window.__EVP.id,true);
       }).catch(function(){ toast('Erro ao votar.','error'); tpEventPageOpen(window.__EVP.id,true); });
+  };
+})();
+</script>
+
+<!-- ═══ CALCULADORA DE DANO — ferramenta completa em /calculadora-dano.html, embutida + login obrigatório ═══ -->
+<script>
+(function(){
+  var loaded=false, timer=null;
+  function frame(){ return document.getElementById('dc-frame'); }
+  function fit(){
+    var f=frame(); if(!f) return;
+    try{ var d=f.contentWindow.document; var h=Math.max(d.documentElement.scrollHeight||0, d.body?d.body.scrollHeight:0);
+      if(h>300) f.style.height=h+'px';
+    }catch(e){}
+  }
+  function loadFrame(){
+    var f=frame(); if(!f||loaded) return; loaded=true;
+    f.addEventListener('load', function(){
+      fit(); [150,500,1000,2000,3500].forEach(function(t){ setTimeout(fit,t); });
+      try{ var w=f.contentWindow;
+        w.addEventListener('click', function(){ setTimeout(fit,80); });
+        w.addEventListener('input', function(){ setTimeout(fit,80); });
+        if(w.ResizeObserver && w.document.body){ new w.ResizeObserver(fit).observe(w.document.body); }
+      }catch(e){}
+    });
+    f.src='/calculadora-dano.html';
+    if(timer) clearInterval(timer);
+    timer=setInterval(function(){ var sec=document.getElementById('dmgcalc'); if(sec&&sec.classList.contains('active')) fit(); }, 1200);
+  }
+  window.addEventListener('resize', fit);
+  window.tpDmgInit=function(){
+    var sec=document.getElementById('dmgcalc'); if(!sec) return;
+    var authed=!!(window.TP_AUTH && window.TP_AUTH.user);
+    if(!authed){ sec.classList.add('gated'); return; }
+    sec.classList.remove('gated');
+    loadFrame();
+    setTimeout(fit,120);
   };
 })();
 </script>
