@@ -11,7 +11,7 @@
 }
 *{box-sizing:border-box}
 body{background-color:var(--bg);background-image:radial-gradient(1000px circle at 88% -8%,rgba(139,92,246,.10),transparent 55%),radial-gradient(760px circle at -5% 108%,rgba(201,168,64,.05),transparent 55%);background-attachment:fixed;color:var(--ink);margin:0;font-family:'Inter',system-ui,sans-serif;font-weight:300;line-height:1.55;font-size:15px}
-.wrap{max-width:1160px;margin:0 auto;padding:2rem 1.3rem 5rem}
+.wrap{max-width:1160px;margin:0 auto;padding:.4rem 1.1rem 2.5rem}
 header{border-bottom:2px solid var(--line);padding-bottom:1.2rem;margin-bottom:1.6rem}
 .brandrow{display:flex;align-items:center;gap:.7rem;margin-bottom:1rem}
 .brand-logo{width:44px;height:44px;background:var(--bamboo);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 4px 14px rgba(139,92,246,.35);flex:none}
@@ -290,19 +290,6 @@ tbody tr.inrot{background:#20241455}
 .whgem-lock{flex:1;font-size:.7rem;color:var(--faint);font-style:italic}
 </style>
 <div class="wrap">
-<header>
-  <div class="brandrow">
-    <div class="brand-logo">🐼</div>
-    <div class="brand-txt">
-      <div class="brand-name">Tibia<span>Panda</span></div>
-      <div class="brand-sub">Ferramentas · Tibia</div>
-    </div>
-  </div>
-  <p class="kicker">Calculadora de Dano · Comparador</p>
-  <h1>Calculadora de <span>Dano</span> <span class="badge">motor validado</span></h1>
-  <p class="sub">Monte o boneco por vocação — stats, alvos &amp; charms, arma, equipamento e rotação — e veja o dano por turno com a fórmula do jogo. Números <b style="color:var(--ink-2)">Raw</b> e <b style="color:var(--ink-2)">Efetivo</b> batendo 1:1 com a referência da comunidade.</p>
-</header>
-
 <div class="resbar">
   <div class="rb-main"><span class="rb-k">Dano por turno</span><span class="rb-v" id="h-turn">—</span></div>
   <div class="rb-side">
@@ -1580,8 +1567,6 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
 })();
 </script>
 <script>
-/* Guarda: ferramenta do Tibia Panda — só deve ser usada logado, embutida no site.
-   Aberta direto (fora do iframe do site), mostra aviso pra abrir pelo tibiapanda.com.br. */
 (function(){
   try{ if(window.self===window.top){
     var o=document.createElement('div');
