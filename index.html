@@ -1626,8 +1626,8 @@ async function tibiaFetch(path) {
         </div>
         <div id="tp-handle-hint" style="font-size:.72rem;color:var(--muted);margin-top:.25rem">Fixo e único — é como seus amigos vão te adicionar. 3–20 caracteres (a–z, 0–9, _).</div>
       </div>
-      <div style="margin-bottom:.7rem"><label class="input-label">E-mail</label><input id="tp-email" type="email" class="tool-input" placeholder="voce@email.com" style="width:100%"></div>
-      <div style="margin-bottom:.5rem"><label class="input-label">Senha</label><input id="tp-pass" type="password" class="tool-input" placeholder="********" style="width:100%" oninput="tpPassStrength()" onkeydown="if(event.key==='Enter')tpSubmitAuth()"></div>
+      <div id="tp-email-row" style="margin-bottom:.7rem"><label class="input-label">E-mail</label><input id="tp-email" type="email" class="tool-input" placeholder="voce@email.com" style="width:100%" onkeydown="if(event.key==='Enter')tpSubmitAuth()"></div>
+      <div id="tp-pass-row" style="margin-bottom:.5rem"><label class="input-label" id="tp-pass-label">Senha</label><input id="tp-pass" type="password" class="tool-input" placeholder="********" style="width:100%" oninput="tpPassStrength()" onkeydown="if(event.key==='Enter')tpSubmitAuth()"></div>
       <div id="tp-str-wrap" style="display:none;margin-bottom:.7rem">
         <div style="height:5px;background:var(--bg-3);border-radius:3px;overflow:hidden"><div id="tp-str-bar" style="height:100%;width:0;background:#f8746a;transition:width .2s,background .2s"></div></div>
         <div id="tp-str-label" style="font-size:.72rem;color:var(--muted);margin-top:.25rem"></div>
@@ -1635,6 +1635,7 @@ async function tibiaFetch(path) {
       <div id="tp-pass2-row" style="display:none;margin-bottom:.7rem"><label class="input-label">Confirmar senha</label><input id="tp-pass2" type="password" class="tool-input" placeholder="********" style="width:100%" onkeydown="if(event.key==='Enter')tpSubmitAuth()"></div>
       <div id="tp-security-note" style="display:none;font-size:.72rem;color:var(--ink-2);background:var(--bamboo-pale);border:1px solid var(--border-2);border-radius:8px;padding:.55rem .7rem;margin-bottom:.8rem;line-height:1.5">🔒 Por segurança, <strong>não use o mesmo e-mail e senha da sua conta do Tibia</strong>. O Tibia Panda é independente e <strong>nunca</strong> pede a senha do jogo — a gente preza pela sua segurança.</div>
       <button id="tp-auth-submit" class="calc-btn" style="width:100%;margin-top:0" onclick="tpSubmitAuth()">Entrar</button>
+      <div id="tp-forgot" style="text-align:right;margin-top:.5rem"><a onclick="tpSetMode('recover')" style="font-size:.78rem;color:var(--muted);cursor:pointer;text-decoration:underline">Esqueci minha senha</a></div>
       <div id="tp-auth-msg" style="font-size:.8rem;margin-top:.6rem;min-height:1em"></div>
       <div id="tp-auth-toggle" class="tp-auth-toggle" style="font-size:.8rem;color:var(--muted);margin-top:.5rem"></div>
     </div>
@@ -12822,13 +12823,21 @@ function ewEnsureTcInput() {
   window.tpOpenAuth=function(mode){ const m=g('tp-modal'); if(!m) return; m.classList.add('open'); tpSetMode(mode||'login'); const msg=g('tp-auth-msg'); if(msg) msg.textContent=''; };
   window.tpCloseAuth=function(){ const m=g('tp-modal'); if(m) m.classList.remove('open'); };
   window.tpSetMode=function(mode){ const m=g('tp-modal'); if(!m) return; m.dataset.mode=mode;
-    g('tp-auth-title').textContent=mode==='signup'?'Criar conta':'Entrar';
-    g('tp-name-row').style.display=mode==='signup'?'block':'none';
-    g('tp-auth-submit').textContent=mode==='signup'?'Criar conta':'Entrar';
-    g('tp-auth-toggle').innerHTML=mode==='signup'?'Já tem conta? <a onclick="tpSetMode(\'login\')">Entrar</a>':'Novo por aqui? <a onclick="tpSetMode(\'signup\')">Criar conta</a>';
-    g('tp-handle-row').style.display=mode==='signup'?'block':'none';
-    var _sig=mode==='signup';
-    ['tp-pass2-row','tp-security-note','tp-str-wrap'].forEach(function(id){ var e=g(id); if(e) e.style.display=_sig?'block':'none'; });
+    var isSignup=(mode==='signup'), isRecover=(mode==='recover'), isReset=(mode==='reset');
+    g('tp-auth-title').textContent=isRecover?'Recuperar senha':isReset?'Definir nova senha':isSignup?'Criar conta':'Entrar';
+    g('tp-name-row').style.display=isSignup?'block':'none';
+    g('tp-handle-row').style.display=isSignup?'block':'none';
+    // e-mail: aparece em tudo menos na tela de nova senha; senha: aparece em tudo menos na de recuperar
+    var er=g('tp-email-row'); if(er) er.style.display=isReset?'none':'block';
+    var pr=g('tp-pass-row'); if(pr) pr.style.display=isRecover?'none':'block';
+    var pl=g('tp-pass-label'); if(pl) pl.textContent=isReset?'Nova senha':'Senha';
+    g('tp-auth-submit').textContent=isRecover?'Enviar link de recuperação':isReset?'Salvar nova senha':isSignup?'Criar conta':'Entrar';
+    g('tp-auth-toggle').innerHTML=isRecover?'Lembrou a senha? <a onclick="tpSetMode(\'login\')">Entrar</a>':isReset?'':isSignup?'Já tem conta? <a onclick="tpSetMode(\'login\')">Entrar</a>':'Novo por aqui? <a onclick="tpSetMode(\'signup\')">Criar conta</a>';
+    var fg=g('tp-forgot'); if(fg) fg.style.display=(mode==='login')?'block':'none';
+    var showPass2=isSignup||isReset, showStr=isSignup||isReset;
+    var _n=g('tp-security-note'); if(_n) _n.style.display=isSignup?'block':'none';
+    var _p2r=g('tp-pass2-row'); if(_p2r) _p2r.style.display=showPass2?'block':'none';
+    var _sw=g('tp-str-wrap'); if(_sw) _sw.style.display=showStr?'block':'none';
     var _p2=g('tp-pass2'); if(_p2) _p2.value='';
     tpPassStrength();
   };
@@ -12867,6 +12876,34 @@ function ewEnsureTcInput() {
     const mode=g('tp-modal').dataset.mode;
     const email=g('tp-email').value.trim(), pass=g('tp-pass').value, name=g('tp-name').value.trim();
     const msg=g('tp-auth-msg'); const set=(t,c)=>{msg.textContent=t;msg.style.color=c||'var(--muted)';};
+    // 1) Recuperar senha: envia link por e-mail (Supabase /recover)
+    if(mode==='recover'){
+      if(!email){ set('Digite seu e-mail.','#f8746a'); return; }
+      set('Enviando...');
+      try{
+        await fetch(SB+'/auth/v1/recover?redirect_to='+encodeURIComponent(location.origin+'/'),{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email:email})});
+        set('Se existir uma conta com '+email+', enviei um link pra redefinir a senha. Veja a caixa de entrada e o spam. 🐼','var(--bamboo)');
+      }catch(e){ set('Não consegui enviar agora — tente em instantes.','#f8746a'); }
+      return;
+    }
+    // 2) Definir nova senha (depois de clicar no link do e-mail)
+    if(mode==='reset'){
+      const pass2r=(g('tp-pass2')||{value:''}).value||'';
+      if((pass||'').length<6){ set('A nova senha precisa de ao menos 6 caracteres.','#f8746a'); return; }
+      if(pass!==pass2r){ set('As senhas não conferem.','#f8746a'); return; }
+      const tok=window.__tpRecoveryToken;
+      if(!tok){ set('Link de recuperação expirado ou inválido. Peça um novo em "Esqueci minha senha".','#f8746a'); return; }
+      set('Salvando...');
+      try{
+        const res=await fetch(SB+'/auth/v1/user',{method:'PUT',headers:{apikey:KEY,Authorization:'Bearer '+tok,'Content-Type':'application/json'},body:JSON.stringify({password:pass})});
+        const d=await res.json().catch(()=>({}));
+        if(!res.ok) throw new Error(d.msg||d.error_description||d.error||('HTTP '+res.status));
+        window.__tpRecoveryToken=null;
+        set('Senha alterada! Agora é só entrar com a nova senha. 🐼','var(--bamboo)');
+        setTimeout(function(){ tpSetMode('login'); },1600);
+      }catch(e){ set(e.message||'Não consegui alterar a senha.','#f8746a'); }
+      return;
+    }
     if(!email||!pass){ set('Preencha e-mail e senha.','#f8746a'); return; }
     if(pass.length<6){ set('A senha precisa de ao menos 6 caracteres.','#f8746a'); return; }
     set('Aguarde...');
@@ -12902,6 +12939,23 @@ function ewEnsureTcInput() {
       msg.style.color='var(--bamboo)'; msg.textContent='Reenviei a confirmação para '+em+'. Confira a caixa de entrada e o spam. 🐼';
     }catch(e){ msg.style.color='#f8746a'; msg.textContent='Não consegui reenviar agora — tente em instantes.'; }
   };
+
+  // Ao voltar do link de recuperação (Supabase manda #access_token=...&type=recovery):
+  // guarda o token, limpa o hash (pra não vazar) e abre a tela de nova senha.
+  (function tpHandleRecovery(){
+    try{
+      var h=location.hash||'';
+      if(h.indexOf('type=recovery')>=0 && h.indexOf('access_token=')>=0){
+        var pr=new URLSearchParams(h.replace(/^#/,''));
+        var tok=pr.get('access_token');
+        if(tok){
+          window.__tpRecoveryToken=tok;
+          try{ history.replaceState(null,'',location.pathname+location.search); }catch(_e){}
+          if(window.tpOpenAuth){ tpOpenAuth('reset'); var mm=g('tp-auth-msg'); if(mm){ mm.style.color='var(--muted)'; mm.textContent='Defina sua nova senha abaixo. 🐼'; } }
+        }
+      }
+    }catch(e){}
+  })();
 
   async function afterLogin(d){
     const a={access_token:d.access_token,refresh_token:d.refresh_token,user:d.user,profile:null};
