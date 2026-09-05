@@ -336,7 +336,7 @@ tbody tr.inrot{background:#20241455}
       <div class="row" id="skillrow"><span class="lbl" id="sklbl">Skill</span><input class="in" id="skill" type="number" value="120" min="0"><div class="fhint" id="skhint"><b>base</b> (sem equip/arma) — bônus de skill da arma/equip somam sozinhos</div></div>
       <div class="row"><span class="lbl">Crit chance %</span><input class="in" id="critc" type="number" value="10" min="0"></div>
       <div class="row"><span class="lbl">Crit extra %</span><input class="in" id="critd" type="number" value="90" min="0"></div>
-      <div class="row"><span class="lbl">Wheel damage</span><input class="in" id="wheel" type="number" value="0" min="0"></div>
+      <div class="row" id="wheelrow"><span class="lbl">Wheel damage</span><input class="in" id="wheel" type="number" value="0" min="0"><div class="fhint" id="wheelauto">preenchido pela roda quando você aloca pontos (revelação + gemas)</div></div>
     </div>
     <details class="adv">
       <summary>Avançado — fatal · transcendence · shielding</summary>
@@ -722,14 +722,40 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
     return p.join(' · ');
   }
 
+  // ===== Wheel "Flat Damage and Healing" auto-derivado da roda interativa (VALIDADO 1:1 no jogo) =====
+  // Jogo (Cyclopedia > Offence): "Flat Damage and Healing" = base por level (flatOf) + contribuição da Wheel of Destiny.
+  // A contribuição da roda = Revelation D&H (por estágio, universal: St1/2/3 = +4/+9/+20) + Vessels/Gems D&H.
+  // pontos efetivos de domínio (base + gemas de Revelation Mastery +225) — mesma lógica das 5 vocações
+  function wheelEffDomPts(){
+    if(state.voc==='sorcerer') return wheelDomPtsEff();
+    var base=dwDomPts(), u=gemRevPts();
+    return base.map(function(v,k){return v+(u[k]||0);});
+  }
+  // Revelation Damage&Healing: soma de [0,4,9,20] pelo estágio de cada um dos 4 domínios (corners de revelação)
+  function wheelRevFlat(){
+    var W=(state.voc==='sorcerer')?WHEEL:DWHEEL;
+    var R=(W&&W.revDmgPerStage)||[0,4,9,20];
+    var pts=wheelEffDomPts(), stageFn=(state.voc==='sorcerer')?wheelStage:dwStage, f=0;
+    for(var k=0;k<4;k++) f+=R[stageFn(pts[k])]||0;
+    return f;
+  }
+  // Vessels/Gems Damage&Healing: +2 por gema greater ativa (VR III radiant casa com greater → +1 base +1 greater)
+  function gemVesselFlat(){ var n=0; [0,1,2,3].forEach(function(dom){ if(gemFor(dom)) n+=2; }); return n; }
+  // total que a roda soma no flat (aparece no jogo como "X from Wheel of Destiny")
+  function wheelAutoFlat(){ return wheelRevFlat()+gemVesselFlat(); }
+
   function ctxNow(){
-    var lvl=+g('level').value||0, wheel=+g('wheel').value||0;
-    if(state.voc==='druid'||isGenericVoc()) wheel += druidWheelFlat();   // flat de revelação por estágio (+4/9/20), ED + EK/Monk/RP
+    var lvl=+g('level').value||0;
+    // Wheel Damage: se a roda interativa tem pontos/gemas, usa o valor auto-derivado (validado no jogo);
+    // senão, cai no campo manual (pra quem não monta a roda). Evita duplo-count.
+    var wheelAuto=wheelAutoFlat(), wheelManual=+g('wheel').value||0;
+    var wheel = wheelAuto>0 ? wheelAuto : wheelManual;
     var wpnAtk=(+g('atkman').value||0) || ((state.weapon&&state.weapon.attack||0)+(state.ammo&&state.ammo.attack||0)+weaponProfAttack());
     var skillIn=+g('skill').value||0;
     if(isGenericVoc()) skillIn += officialWheelSkill();   // +1 skill por fatia "* Skill Boost" completa (análogo ao Magic Skill Boost do MS)
     skillIn += gearSkill();   // skill de luta vindo do equipamento (fonte TibiaWiki), só do tipo da arma ativa
     return {flat:flatOf(lvl,wheel), level:lvl, ml:+g('ml').value||0, skill:skillIn, wpn:wpnAtk,
+      wheelAuto:wheelAuto, wheelUsed:wheel,   // p/ exibir o "X from Wheel of Destiny" na UI
       hitMod:(state.weapon&&state.weapon.hitMod)||0,   // bônus de acerto da arma de distância (soma no auto)
       shielding:+g('shielding').value||0, shieldDef:0, defenseMod:(state.weapon&&state.weapon.defenseMod)||0,
       crit:(+g('critc').value||0)/100, critd:(+g('critd').value||0)/100,
@@ -840,6 +866,15 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
   }
   // ao trocar de aba A/B, os selects/displays de build precisam refletir a build ativa
   function syncBuildInputs(){
+    // Wheel Damage auto: quando a roda tem pontos/gemas, o campo mostra o valor derivado (validado 1:1 no jogo)
+    var wa=wheelAutoFlat(), wf=g('wheel'), wn=g('wheelauto');
+    if(wf){
+      if(wa>0){ if(document.activeElement!==wf) wf.value=wa; wf.readOnly=true; wf.title='Auto-derivado da Wheel of Destiny (revelação + gemas). Monte a roda pra alterar.'; }
+      else { wf.readOnly=false; wf.title=''; }
+    }
+    if(wn){ var rev=wheelRevFlat(), gv=gemVesselFlat();
+      wn.innerHTML = wa>0 ? ('roda: <b>+'+wa+'</b> auto — revelação +'+rev+(gv?' · gemas +'+gv:'')+' <span style="opacity:.7">(= o “X from Wheel of Destiny” do jogo)</span>')
+                          : 'sem pontos na roda — digite manual se quiser'; }
     var s=g('stance'); if(s)s.value=state.stance;
     var os=g('onslaught'); if(os)os.value=String(state.onslaught||0);
     var ts=g('transc'); if(ts)ts.value=String(state.transcendence||0);
