@@ -116,6 +116,15 @@ tbody tr.inrot{background:#20241455}
 .cmpline-nm{color:var(--ink-2)}
 .cmpline-tag{color:var(--faint);font-family:'JetBrains Mono',monospace;font-size:.7rem}
 .cmpline-val{margin-left:auto;font-family:'JetBrains Mono',monospace;color:var(--ink);font-weight:500}
+.cmpcard-delta{font-size:.66rem;font-weight:800;padding:.1rem .4rem;border-radius:5px;margin-left:.5rem;vertical-align:middle}
+.cmpcard-delta.up{color:#5fd08a;background:rgba(95,208,138,.12)}
+.cmpcard-delta.dn{color:#e0675a;background:rgba(224,103,90,.12)}
+.cmpstats{display:grid;grid-template-columns:1fr 1fr;gap:.25rem .8rem;margin:.5rem 0 .2rem;padding:.55rem 0;border-top:1px dashed var(--rule)}
+.cmpstat{display:flex;justify-content:space-between;gap:.5rem;font-size:.74rem}
+.cmpstat-k{color:var(--muted);white-space:nowrap}
+.cmpstat-v{color:var(--ink-2);font-weight:600;font-family:'JetBrains Mono',monospace;text-align:right}
+.cmphit{font-size:.78rem;color:var(--muted);margin:-.35rem 0 .1rem}
+.cmphit b{color:var(--ink-2);font-family:'JetBrains Mono',monospace}
 .cmpline.charm .cmpline-nm{color:var(--gold)}
 .cmpempty{color:var(--muted);font-size:.82rem;padding:.6rem 0}
 @media(max-width:720px){.cmpgrid{grid-template-columns:1fr}}
@@ -480,7 +489,7 @@ tbody tr.inrot{background:#20241455}
 </section>
 
 <section class="sec">
-  <div class="sec-h"><span class="sn">04</span><span class="st">Comparação</span><span class="sd">dano por turno · pós rotação e charms</span></div>
+  <div class="sec-h"><span class="sn">04</span><span class="st">Comparação lado a lado</span><span class="sd">Build A vs B · composição, dano por turno e por hit</span></div>
   <div class="cmpgrid" id="cmpgrid"></div>
 </section>
 
@@ -503,14 +512,28 @@ tbody tr.inrot{background:#20241455}
 .bsave{background:var(--gold-dim);border:1px solid var(--gold);border-radius:8px;color:var(--gold);cursor:pointer;font-weight:700;font-size:.8rem;padding:.4rem .9rem;margin-left:auto}
 </style>
 <section class="sec">
-  <div class="sec-h"><span class="sn">05</span><span class="st">Minhas Builds</span><span class="sd">salve, compartilhe e recarregue suas builds</span>
+  <div class="sec-h"><span class="sn">05</span><span class="st">Builds</span><span class="sd">salve, compartilhe, publique e explore builds da comunidade</span>
     <button class="bsave" id="savebuild">+ salvar build atual</button></div>
   <div class="card">
-    <div style="display:flex;gap:.5rem;margin-bottom:.7rem;flex-wrap:wrap">
-      <input class="in" id="importcode" type="text" placeholder="Cole um código de build aqui pra importar…" autocomplete="off" style="flex:1;min-width:200px">
-      <button class="bbtn" id="importbtn" style="flex:0 0 auto;padding:.35rem .9rem">importar</button>
+    <div class="btabs" style="display:flex;gap:.4rem;margin-bottom:.8rem">
+      <button class="btab on" data-gtab="minhas">Minhas Builds</button>
+      <button class="btab" data-gtab="comunidade">🌎 Comunidade</button>
     </div>
-    <div id="buildgallery"></div>
+    <div id="gtab-minhas">
+      <div style="display:flex;gap:.5rem;margin-bottom:.7rem;flex-wrap:wrap">
+        <input class="in" id="importcode" type="text" placeholder="Cole um código de build aqui pra importar…" autocomplete="off" style="flex:1;min-width:200px">
+        <button class="bbtn" id="importbtn" style="flex:0 0 auto;padding:.35rem .9rem">importar</button>
+      </div>
+      <div id="buildgallery"></div>
+    </div>
+    <div id="gtab-comunidade" hidden>
+      <div style="display:flex;gap:.4rem;align-items:center;margin-bottom:.7rem;flex-wrap:wrap">
+        <select class="in" id="commvoc" style="width:auto"><option value="">Todas vocações</option><option value="sorcerer">🔮 MS</option><option value="druid">🌿 ED</option><option value="knight">🛡️ EK</option><option value="paladin">🏹 RP</option><option value="monk">🥋 Monk</option></select>
+        <select class="in" id="commsort" style="width:auto"><option value="likes">Mais curtidas</option><option value="dano">Maior dano</option><option value="created_at">Recentes</option></select>
+        <button class="bbtn" id="commrefresh" style="flex:0 0 auto;padding:.35rem .9rem">↻ atualizar</button>
+      </div>
+      <div id="commgallery"><div class="empty">Carregando builds da comunidade…</div></div>
+    </div>
   </div>
 </section>
 </div>
@@ -541,11 +564,11 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
   // e nos inputs do DOM). Os campos de BUILD (arma, equip, stance, prof, roda, rotação) vivem em
   // builds.A / builds.B; state.<campo> é um proxy pra build ativa (cur), então as ~90 referências a
   // state.weapon/rotation/wheelPts/... continuam funcionando sem alteração — só trocamos "cur".
-  var state={voc:'sorcerer', targets:[], useTargets:false, expose:false, shapes:[]};
-  function mkBuild(){ return {weapon:null, ammo:null, rotation:[], equip:{}, pickSlot:null, stance:'none', stanceTier:3, onslaught:0, transcendence:0, prof:[], wheelPts:{}, wheelSel:null, gems:{}}; }
+  var state={voc:'sorcerer', targets:[], useTargets:false, expose:false};
+  function mkBuild(){ return {weapon:null, ammo:null, rotation:[], equip:{}, pickSlot:null, stance:'none', stanceTier:3, onslaught:0, transcendence:0, prof:[], wprof:{}, shapes:[], wheelPts:{}, wheelSel:null, gems:{}}; }
   var builds={A:mkBuild(), B:mkBuild()};
   var cur='A';
-  ['weapon','ammo','rotation','equip','pickSlot','stance','stanceTier','onslaught','transcendence','prof','wheelPts','wheelSel','gems'].forEach(function(f){
+  ['weapon','ammo','rotation','equip','pickSlot','stance','stanceTier','onslaught','transcendence','prof','wprof','shapes','wheelPts','wheelSel','gems'].forEach(function(f){
     Object.defineProperty(state,f,{get:function(){return builds[cur][f];},set:function(v){builds[cur][f]=v;},configurable:true,enumerable:true});
   });
   // targets: [{n,hp,res,mit,ratio,charm,tier}]
@@ -879,25 +902,45 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
   function fmtN(n){ return Math.round(n).toLocaleString('pt-BR'); }
   function fmtD1(n){ return n.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}); }
   // 04 · comparação: dois cards com o detalhamento por magia (central/laterais/charms) e a vencedora
+  // resumo completo de uma build (troca cur, calcula, restaura) — pro lado a lado
+  function buildStats(key){
+    var save=cur; cur=key;
+    var tv=computeTurnValue();
+    var bd=builds[key];
+    var wd=wheelAutoFlat(), wtot=0; for(var k in (bd.wheelPts||{})) wtot+=bd.wheelPts[k]||0;
+    function cnt(o){ return o?Object.keys(o).filter(function(x){return o[x]!=null;}).length:0; }
+    var st={ tv:tv, wd:wd, wtot:wtot, eqn:cnt(bd.equip), profn:cnt(bd.wprof), gmn:cnt(bd.gems),
+      shn:(bd.shapes||[]).filter(Boolean).length, weapon:(bd.weapon&&bd.weapon.name)||'Sem arma',
+      stance:(bd.stance&&bd.stance!=='none')?bd.stance:'—' };
+    cur=save; return st;
+  }
   function renderCmpBreakdown(){
     var host=g('cmpgrid'); if(!host)return;
-    var save=cur;
-    cur='A'; var A=computeTurnValue(); cur='B'; var B=computeTurnValue(); cur=save;
-    var aWin=A.turn>B.turn, bWin=B.turn>A.turn;
-    host.innerHTML=[['A',A,aWin],['B',B,bWin]].map(function(e){
-      var key=e[0], d=e[1], win=e[2], kl=key.toLowerCase();
-      var bd=builds[key], wname=(bd.weapon&&bd.weapon.name)||'Sem arma';
-      var lines=d.lines.length? d.lines.map(function(l){
+    var A=buildStats('A'), B=buildStats('B');
+    var aWin=A.tv.turn>B.tv.turn, bWin=B.tv.turn>A.tv.turn;
+    host.innerHTML=[['A',A,aWin,B],['B',B,bWin,A]].map(function(e){
+      var key=e[0], d=e[1], win=e[2], other=e[3], kl=key.toLowerCase();
+      var diff = (other.tv.turn>0) ? (d.tv.turn-other.tv.turn)/other.tv.turn*100 : 0;
+      var deltaHtml = (Math.round(d.tv.turn)!==Math.round(other.tv.turn) && (d.tv.turn||other.tv.turn))
+        ? '<span class="cmpcard-delta '+(diff>=0?'up':'dn')+'">'+(diff>=0?'+':'')+diff.toFixed(1).replace('.',',')+'%</span>' : '';
+      var lines=d.tv.lines.length? d.tv.lines.map(function(l){
         var col=l.charm?'var(--gold)':(EL_COLOR[l.el]||'var(--muted)');
         return '<div class="cmpline'+(l.charm?' charm':'')+'"><span class="cmpline-sw" style="background:'+col+'"></span>'+
           '<span class="cmpline-nm">'+l.name+'</span>'+(l.tag?'<span class="cmpline-tag">'+l.tag+'</span>':'')+
           '<span class="cmpline-val">'+fmtD1(l.val)+'</span></div>';
       }).join('') : '<div class="cmpempty">Sem rotação nesta build.</div>';
+      function stat(k,v){ return '<div class="cmpstat"><span class="cmpstat-k">'+k+'</span><span class="cmpstat-v">'+v+'</span></div>'; }
+      var statsGrid='<div class="cmpstats">'+
+        stat('Wheel dmg','+'+d.wd)+ stat('Pts roda',d.wtot.toLocaleString('pt-BR'))+
+        stat('Equip',d.eqn+'/8')+ stat('Proficiências',d.profn)+
+        stat('Shapes',d.shn)+ stat('Gemas',d.gmn)+
+        (d.stance!=='—'?stat('Stance',d.stance):'')+'</div>';
       return '<div class="cmpcard '+kl+(win?' win':'')+'">'+
-        '<div class="cmpcard-h"><span class="cmpk '+kl+'">'+key+'</span><span class="cmpcard-nm">'+wname+'</span>'+
+        '<div class="cmpcard-h"><span class="cmpk '+kl+'">'+key+'</span><span class="cmpcard-nm">'+d.weapon+'</span>'+
         (win?'<span class="cmpcard-win">★ vencedora</span>':'')+'</div>'+
-        '<div class="cmpcard-tot">'+fmtN(d.turn)+'</div><div class="cmpcard-sub">dano por turno (c/ charms)</div>'+
-        lines+'</div>';
+        '<div class="cmpcard-tot">'+fmtN(d.tv.turn)+deltaHtml+'</div><div class="cmpcard-sub">dano por turno (c/ charms)</div>'+
+        '<div class="cmphit">por hit (méd): <b>'+fmtN(d.tv.hit)+'</b></div>'+
+        statsGrid+ lines+'</div>';
     }).join('');
   }
   // barra de vencedor: dano/turno de A e B (troca cur, restaura), barra proporcional e "X +Y%"
@@ -1757,7 +1800,7 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
     state.voc=v;
     // vocação é compartilhada por A e B → zera os campos de build das DUAS builds
     ['A','B'].forEach(function(k){ var b=builds[k];
-      b.weapon=null; b.ammo=null; b.rotation=[]; b.equip={}; b.pickSlot=null; b.prof=[]; b.wprof={}; b.wheelPts={}; b.wheelSel=null; b.gems={}; b.stance='none';
+      b.weapon=null; b.ammo=null; b.rotation=[]; b.equip={}; b.pickSlot=null; b.prof=[]; b.wprof={}; b.shapes=[]; b.wheelPts={}; b.wheelSel=null; b.gems={}; b.stance='none';
     });
     state.ammo=null;
     document.querySelectorAll('#voc .vb').forEach(function(b){b.classList.toggle('on',b.dataset.v===v);});
@@ -1790,8 +1833,7 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
   function inputsSnapshot(){ var o={}; ['level','ml','skill','critc','critd','wheel','fatal','tr','atkman','shielding','tres'].forEach(function(id){var el=g(id); if(el)o[id]=el.value;}); return o; }
   function captureBuild(){
     return { fmt:1, voc:state.voc, inp:inputsSnapshot(),
-      b: JSON.parse(JSON.stringify(builds[cur])),
-      wp: JSON.parse(JSON.stringify(state.wprof||{})), shp: JSON.parse(JSON.stringify(state.shapes||[])),
+      b: JSON.parse(JSON.stringify(builds[cur])),   // inclui weapon/equip/wheel/gems/wprof/shapes (tudo por-build)
       tg: JSON.parse(JSON.stringify(state.targets||[])), ut:!!state.useTargets, ex:!!state.expose };
   }
   function applyBuild(o){
@@ -1799,7 +1841,8 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
     selVoc(o.voc);                    // configura UI da vocação + zera builds
     var b=o.b||{}; Object.keys(b).forEach(function(k){ builds[cur][k]=b[k]; });
     builds[cur].pickSlot=null; builds[cur].wheelSel=null;
-    state.wprof=o.wp||{}; state.shapes=o.shp||[];
+    if(!builds[cur].wprof) builds[cur].wprof={}; if(!builds[cur].shapes) builds[cur].shapes=[];
+    if(o.wp) builds[cur].wprof=o.wp; if(o.shp) builds[cur].shapes=o.shp;   // compat com saves antigos
     state.targets=o.tg||[]; state.useTargets=!!o.ut; state.expose=!!o.ex;
     var inp=o.inp||{}; Object.keys(inp).forEach(function(id){ var el=g(id); if(el)el.value=inp[id]; });
     var ut=g('usetgt'); if(ut)ut.checked=state.useTargets; var ex=g('expose'); if(ex)ex.checked=state.expose;
@@ -1830,12 +1873,70 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
         '<div class="bcard-h"><span class="bcard-vc">'+(VOC_EMOJI[bd.voc]||'⚔️')+'</span><span class="bcard-nm" title="'+esc(bd.name)+'">'+esc(bd.name)+'</span><button class="bcard-x" data-bdel="'+bd.id+'" title="apagar">✕</button></div>'+
         '<div class="bcard-dano">'+(bd.dano||0).toLocaleString('pt-BR')+'<span>DANO / TURNO</span></div>'+
         '<div class="bcard-meta">ML '+esc(bd.ml||'?')+(bd.el?' · <span class="bcard-el">'+esc(bd.el)+'</span>':'')+'</div>'+
-        '<div class="bcard-acts"><button class="bbtn" data-bload="'+bd.id+'">abrir</button><button class="bbtn" data-bcode="'+bd.id+'">copiar código</button></div>'+
+        '<div class="bcard-acts"><button class="bbtn" data-bload="'+bd.id+'">abrir</button><button class="bbtn" data-bcode="'+bd.id+'">código</button><button class="bbtn" data-bpub="'+bd.id+'">publicar</button></div>'+
       '</div>';
     }).join('')+'</div>';
     host.querySelectorAll('[data-bload]').forEach(function(b){b.onclick=function(){ var bd=lsGet().find(function(x){return x.id===b.dataset.bload;}); if(bd&&applyBuild(bd.data)){ window.scrollTo({top:0,behavior:'smooth'}); } };});
     host.querySelectorAll('[data-bdel]').forEach(function(b){b.onclick=function(){ lsSet(lsGet().filter(function(x){return x.id!==b.dataset.bdel;})); renderBuilds(); };});
-    host.querySelectorAll('[data-bcode]').forEach(function(b){b.onclick=function(){ var bd=lsGet().find(function(x){return x.id===b.dataset.bcode;}); if(bd){ var ok=copy(encodeBuild(bd.data)); b.textContent=ok?'copiado ✓':'copie manual'; setTimeout(function(){b.textContent='copiar código';},1500); } };});
+    host.querySelectorAll('[data-bcode]').forEach(function(b){b.onclick=function(){ var bd=lsGet().find(function(x){return x.id===b.dataset.bcode;}); if(bd){ var ok=copy(encodeBuild(bd.data)); b.textContent=ok?'copiado ✓':'copie manual'; setTimeout(function(){b.textContent='código';},1500); } };});
+    host.querySelectorAll('[data-bpub]').forEach(function(b){b.onclick=function(){ var bd=lsGet().find(function(x){return x.id===b.dataset.bpub;}); if(bd)publishBuild(bd); };});
+  }
+  // ====== COMUNIDADE (Supabase REST — mesma config do site Tibia Panda) ======
+  var SB_URL='https://vrhsylkkdqnakftjutvb.supabase.co';
+  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZyaHN5bGtrZHFuYWtmdGp1dHZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzOTU0NTgsImV4cCI6MjEwMTk3MTQ1OH0.mDGmfcRv1iszb_IAYOGQ86SNwX9WeL8V5GI2bIABjuE';
+  function tpAuth(){ try{ return (window.parent&&window.parent!==window&&window.parent.TP_AUTH)||window.TP_AUTH||null; }catch(e){ return window.TP_AUTH||null; } }
+  function sbHeaders(){ var A=tpAuth(); return {apikey:SB_ANON, Authorization:'Bearer '+((A&&A.access_token)||SB_ANON), 'Content-Type':'application/json'}; }
+  function authorName(){ var A=tpAuth(); if(A&&A.user){ var u=A.user; return (u.user_metadata&&(u.user_metadata.handle||u.user_metadata.display_name||u.user_metadata.name))||(u.email?u.email.split('@')[0]:'Panda'); } return 'Panda'; }
+  var commState={liked:{}};
+  function loadCommunity(){
+    var host=g('commgallery'); if(!host)return;
+    var voc=g('commvoc').value, sort=g('commsort').value||'likes';
+    var q=SB_URL+'/rest/v1/builds?select=id,name,vocation,dano,ml,element,likes,author_name,created_at&status=eq.approved&order='+sort+'.desc&limit=60';
+    if(voc)q+='&vocation=eq.'+voc;
+    host.innerHTML='<div class="empty">Carregando…</div>';
+    fetch(q,{headers:sbHeaders()}).then(function(r){return r.json();}).then(function(rows){
+      if(!Array.isArray(rows)){ host.innerHTML='<div class="empty">Não deu pra carregar agora.</div>'; return; }
+      if(!rows.length){ host.innerHTML='<div class="empty">Nenhuma build publicada'+(voc?' pra essa vocação':'')+' ainda. Seja o primeiro — salve uma build e clique em <b>publicar</b>.</div>'; return; }
+      host.innerHTML='<div class="bgrid">'+rows.map(function(bd){
+        var liked=commState.liked[bd.id];
+        return '<div class="bcard">'+
+          '<div class="bcard-h"><span class="bcard-vc">'+(VOC_EMOJI[bd.vocation]||'⚔️')+'</span><span class="bcard-nm" title="'+esc(bd.name)+'">'+esc(bd.name)+'</span></div>'+
+          '<div class="bcard-dano">'+(bd.dano||0).toLocaleString('pt-BR')+'<span>DANO / TURNO</span></div>'+
+          '<div class="bcard-meta">por '+esc(bd.author_name||'Panda')+' · ML '+esc(bd.ml||'?')+(bd.element?' · <span class="bcard-el">'+esc(bd.element)+'</span>':'')+'</div>'+
+          '<div class="bcard-acts"><button class="bbtn" data-copen="'+bd.id+'">abrir</button><button class="bbtn'+(liked?' on':'')+'" data-clike="'+bd.id+'">♥ '+(bd.likes||0)+'</button></div>'+
+        '</div>';
+      }).join('')+'</div>';
+      host.querySelectorAll('[data-copen]').forEach(function(b){b.onclick=function(){ openCommunityBuild(b.dataset.copen); };});
+      host.querySelectorAll('[data-clike]').forEach(function(b){b.onclick=function(){ likeCommunity(b.dataset.clike, b); };});
+    }).catch(function(){ host.innerHTML='<div class="empty">Erro de conexão. Tente ↻ atualizar.</div>'; });
+  }
+  function openCommunityBuild(id){
+    fetch(SB_URL+'/rest/v1/builds?select=data&id=eq.'+id,{headers:sbHeaders()}).then(function(r){return r.json();}).then(function(rows){
+      if(rows&&rows[0]&&rows[0].data){ if(applyBuild(rows[0].data)) window.scrollTo({top:0,behavior:'smooth'}); }
+    }).catch(function(){});
+  }
+  function likeCommunity(id, btn){
+    var A=tpAuth(); if(!(A&&A.user)){ btn.textContent='entre p/ curtir'; return; }
+    var liked=commState.liked[id];
+    if(liked){ // unlike
+      fetch(SB_URL+'/rest/v1/build_likes?build_id=eq.'+id+'&user_id=eq.'+A.user.id,{method:'DELETE',headers:sbHeaders()}).then(function(){ commState.liked[id]=false; loadCommunity(); });
+    } else {
+      fetch(SB_URL+'/rest/v1/build_likes',{method:'POST',headers:sbHeaders(),body:JSON.stringify({build_id:id})}).then(function(r){ if(r.ok||r.status===409){ commState.liked[id]=true; } loadCommunity(); });
+    }
+  }
+  function publishBuild(localBuild){
+    var A=tpAuth();
+    if(!(A&&A.user)){ alert('Entre na sua conta do Tibia Panda pra publicar builds.'); return; }
+    var payload={ name:localBuild.name, vocation:localBuild.voc, dano:localBuild.dano||0, ml:parseInt(localBuild.ml)||null, element:localBuild.el||null, author_name:authorName(), data:localBuild.data };
+    fetch(SB_URL+'/rest/v1/builds',{method:'POST',headers:sbHeaders(),body:JSON.stringify(payload)}).then(function(r){
+      if(r.ok){ alert('Build publicada na comunidade! 🎉'); switchGtab('comunidade'); loadCommunity(); }
+      else r.text().then(function(t){ alert('Não deu pra publicar: '+(t||r.status)); });
+    }).catch(function(){ alert('Erro de conexão ao publicar.'); });
+  }
+  function switchGtab(which){
+    document.querySelectorAll('[data-gtab]').forEach(function(t){t.classList.toggle('on',t.dataset.gtab===which);});
+    g('gtab-minhas').hidden=(which!=='minhas'); g('gtab-comunidade').hidden=(which!=='comunidade');
+    if(which==='comunidade') loadCommunity();
   }
   ['level','wheel','ml','skill','critc','critd','fatal','tr','atkman','shielding','tres'].forEach(function(id){g(id).addEventListener('input',render);});
   document.querySelectorAll('#voc .vb').forEach(function(b){b.addEventListener('click',function(){selVoc(b.dataset.v);});});
@@ -1854,6 +1955,11 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
     if(applyBuild(o)){ var tv=computeTurnValue(); var list=lsGet();
       list.unshift({id:'b'+Date.now()+Math.floor(Math.random()*1000),name:'Importada '+new Date().toLocaleDateString('pt-BR'),ts:Date.now(),voc:state.voc,ml:g('ml').value,dano:Math.round(tv.turn||0),el:primaryEl(),data:o});
       lsSet(list); ic.value=''; renderBuilds(); window.scrollTo({top:0,behavior:'smooth'}); } }; }
+  // tabs Minhas / Comunidade + controles da comunidade
+  document.querySelectorAll('[data-gtab]').forEach(function(t){ t.onclick=function(){ switchGtab(t.dataset.gtab); }; });
+  var cvf=g('commvoc'); if(cvf)cvf.onchange=loadCommunity;
+  var csf=g('commsort'); if(csf)csf.onchange=loadCommunity;
+  var crf=g('commrefresh'); if(crf)crf.onclick=loadCommunity;
   selVoc('sorcerer');
   // deep-link: #b=<código> aplica a build ao abrir
   (function(){ var m=(location.hash||'').match(/[#&]b=([^&]+)/); if(m){ var o=decodeBuild(decodeURIComponent(m[1])); if(o)applyBuild(o); } })();
