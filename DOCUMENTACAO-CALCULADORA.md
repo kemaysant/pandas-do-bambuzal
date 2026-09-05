@@ -161,6 +161,15 @@ nas pernas (confirmado na pesquisa). Vazio é o correto e não afeta o dano.
     **Norcferatu Skullguard** (elmo RP, distance+2, lv270), **Norcferatu Goretrampers** (botas EK,
     lv270), **Dwarven Legs**. **Sprites reais** puxados da TibiaWiki (GIF animado) via o navegador —
     nada de ícone emprestado.
+14. **Validação da Roda do Destino** (a pedido: "a roda não ta afetando o cálculo?"). Confirmado que
+    a **fórmula está correta** — a roda contribui via: flat de revelação, +1 skill por fatia
+    "Skill Boost" completa, augmentos de conviction por fatia (dano por magia específica) e gemas.
+    Medido: roda **totalmente preenchida = +12,5% de dano** num Monk (1653→1860).
+    Porém a flat de revelação só entra com **≥250 pontos concentrados num domínio** — pontos
+    **espalhados** dão flat = 0 (era o que a UI e as builds antigas faziam). Também foi corrigida uma
+    **alocação inválida** nas builds de referência antigas (punham pontos em **slots de gema**, que um
+    jogador real não consegue). As 45 builds foram refeitas com **alocação válida e concentrada**
+    (dom1→dom3, respeitando a ordem de anéis a partir das sementes i1/i3) e revalidadas 1:1.
 
 ---
 
