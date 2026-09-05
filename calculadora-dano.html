@@ -841,6 +841,7 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
     var wheelAuto=wheelAutoFlat(), wheelManual=+g('wheel').value||0;
     var wheel = wheelAuto>0 ? wheelAuto : wheelManual;
     var wpnAtk=(+g('atkman').value||0) || ((state.weapon&&state.weapon.attack||0)+(state.ammo&&state.ammo.attack||0)+weaponProfAttack());
+    if(!wpnAtk && !state.weapon && state.voc==='monk') wpnAtk=7;   // Monk sem arma luta com os punhos (Fists, atk 7) — fonte TibiaWiki
     var skillIn=+g('skill').value||0;
     if(isGenericVoc()) skillIn += officialWheelSkill();   // +1 skill por fatia "* Skill Boost" completa (análogo ao Magic Skill Boost do MS)
     skillIn += gearSkill();   // skill de luta vindo do equipamento (fonte TibiaWiki), só do tipo da arma ativa
@@ -983,8 +984,15 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
       else { wf.readOnly=false; wf.title=''; }
     }
     if(wn){ var rev=wheelRevFlat(), gv=gemVesselFlat();
-      wn.innerHTML = wa>0 ? ('roda: <b>+'+wa+'</b> auto — revelação +'+rev+(gv?' · gemas +'+gv:'')+' <span style="opacity:.7">(= o “X from Wheel of Destiny” do jogo)</span>')
-                          : 'sem pontos na roda — digite manual se quiser'; }
+      var wtot=0, wp=state.wheelPts||{}; for(var wk in wp) wtot+=wp[wk]||0;
+      if(wa>0){
+        wn.innerHTML='roda: <b>+'+wa+'</b> auto — revelação +'+rev+(gv?' · gemas +'+gv:'')+' <span style="opacity:.7">(= o “X from Wheel of Destiny” do jogo)</span>';
+      } else if(wtot>0){
+        // pontos gastos mas nenhum domínio chegou a 250 → flat de revelação = 0
+        wn.innerHTML='<span style="color:var(--gold)">'+wtot+' pts na roda, mas <b>flat de revelação = 0</b></span> — concentre ≥250 pts num mesmo domínio (fatias do mesmo lado da roda) pra ativar o Flat Damage. Skill Boost e augmentos de fatia completa já contam no dano.';
+      } else {
+        wn.innerHTML='sem pontos na roda — digite manual se quiser';
+      } }
     var s=g('stance'); if(s)s.value=state.stance;
     var os=g('onslaught'); if(os)os.value=String(state.onslaught||0);
     var ts=g('transc'); if(ts)ts.value=String(state.transcendence||0);

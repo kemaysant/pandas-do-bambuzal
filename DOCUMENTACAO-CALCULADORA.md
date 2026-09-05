@@ -170,6 +170,22 @@ nas pernas (confirmado na pesquisa). Vazio é o correto e não afeta o dano.
     **alocação inválida** nas builds de referência antigas (punham pontos em **slots de gema**, que um
     jogador real não consegue). As 45 builds foram refeitas com **alocação válida e concentrada**
     (dom1→dom3, respeitando a ordem de anéis a partir das sementes i1/i3) e revalidadas 1:1.
+15. **Aviso da roda (UX)**: o campo abaixo do "Wheel Damage" agora avisa quando há pontos gastos mas a
+    **flat de revelação = 0** ("concentre ≥250 pts num mesmo domínio"), em vez de dizer "sem pontos".
+    Resolve a confusão de achar que a roda não afeta o cálculo.
+16. **Fix Monk sem arma**: monge sem arma equipada agora usa **Fists (ataque 7)** — antes usava 0,
+    subestimando as magias de punho. Achado pela validação cross-tool.
+17. **Timeline "Nossa jornada" (site)**: separado **O kit de ferramentas** (Loot Split, Hunt Finder,
+    Party Finder, Bosses) do **Task Delivery** (preço ao vivo) — eram implementações distintas.
+
+## Validação cross-tool (verify_spells.js)
+
+`verify_spells.js` porta as fórmulas do tibiatools (`yo`=média, `La`=min/max, com `additionalDamageMultiplier`
+e o multiplicador de spender do Monk) e compara **238 valores de magia** contra o que a calculadora
+renderiza, em 5 vocações e níveis de 200 a 1000. Resultado: **238/238 digit-perfect** (a única diferença
+é o *mínimo* do Fierce Berserk em 1 ponto, vindo de uma simplificação do próprio script de referência —
+a média bate). Crit/Fatal/Transcendence (`effMult`/função `po`) já haviam sido validados 1:1 contra o
+bundle real do tibiatools.
 
 ---
 
