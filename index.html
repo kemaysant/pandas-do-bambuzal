@@ -2982,6 +2982,7 @@ PlayerName (Leader)
     <div class="pth-tabs">
       <button class="pth-tab on" data-tab="rank" onclick="ptTab('rank',this)">Ranking</button>
       <button class="pth-tab" data-tab="analise" onclick="ptTab('analise',this)">Análise de PT</button>
+      <button class="pth-tab" data-tab="perf" onclick="ptTab('perf',this)">🎯 Performance</button>
     </div>
 
     <div class="pth-panel" data-panel="rank">
@@ -3047,6 +3048,76 @@ PlayerName (Leader)
         <div id="pt-charsel" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.7rem"></div>
         <div style="position:relative;height:320px"><canvas id="pt-multichart"></canvas></div>
       </div>
+    </div>
+
+    <!-- ── Performance (IPP) ── -->
+    <style>
+      #pthistory .ptperf-lead{color:var(--ink-3);font-size:.84rem;margin:0 0 1rem;max-width:70ch;line-height:1.6}
+      #pthistory .ptperf-hero{display:grid;grid-template-columns:230px 1fr;gap:14px;margin-bottom:14px}
+      @media(max-width:680px){#pthistory .ptperf-hero{grid-template-columns:1fr}}
+      #pthistory .ptperf-ringcard{background:linear-gradient(180deg,var(--surface),var(--bg-1,#14131c));border:1px solid var(--rule);border-radius:18px;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden}
+      #pthistory .ptperf-ringcard::before{content:"";position:absolute;inset:-40% 0 auto 0;height:130px;background:radial-gradient(closest-side,var(--pglow,rgba(139,92,246,.28)),transparent);pointer-events:none;transition:background .8s}
+      #pthistory .ptperf-ringwrap{position:relative;width:170px;height:170px}
+      #pthistory .ptperf-ringwrap svg{transform:rotate(-90deg)}
+      #pthistory .ptperf-track{fill:none;stroke:var(--bg-3,#23212f);stroke-width:13}
+      #pthistory .ptperf-prog{fill:none;stroke-width:13;stroke-linecap:round;transition:stroke-dashoffset 1.5s cubic-bezier(.22,.61,.36,1)}
+      #pthistory .ptperf-rc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+      #pthistory .ptperf-num{font-size:2.7rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:var(--ink)}
+      #pthistory .ptperf-lbl{font-size:.66rem;text-transform:uppercase;letter-spacing:.12em;color:var(--ink-3);margin-top:6px}
+      #pthistory .ptperf-band{font-size:.76rem;font-weight:700;margin-top:8px}
+      #pthistory .ptperf-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+      @media(max-width:420px){#pthistory .ptperf-stats{grid-template-columns:1fr}}
+      #pthistory .ptperf-tile{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:14px;padding:13px 15px;transition:transform .25s cubic-bezier(.22,.61,.36,1),border-color .25s}
+      #pthistory .ptperf-tile:hover{transform:translateY(-3px);border-color:var(--border-2,#37344a)}
+      #pthistory .ptperf-tile .l{font-size:.68rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
+      #pthistory .ptperf-tile .v{font-size:1.55rem;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;margin-top:4px}
+      #pthistory .ptperf-tile .s{font-size:.7rem;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      #pthistory .pp-good{color:#5fbf7a}#pthistory .pp-bad{color:#c0655f}#pthistory .pp-neu{color:var(--bamboo-light,#a78bfa)}
+      #pthistory .ptperf-chartcard{margin-bottom:16px}
+      #pthistory .ptperf-chartcard h4{font-size:.98rem;margin:0 0 2px}
+      #pthistory .ptperf-chartcard .cap{font-size:.74rem;color:var(--muted);margin:0 0 10px}
+      #pthistory .ptperf-chartholder{height:210px;position:relative}
+      #pthistory .ptperf-lh{display:flex;align-items:baseline;justify-content:space-between;margin:20px 0 10px;gap:1rem;flex-wrap:wrap}
+      #pthistory .ptperf-lh h4{font-size:1rem;margin:0}
+      #pthistory .ptperf-lh .hint{font-size:.72rem;color:var(--muted)}
+      #pthistory .pp-hunt{background:var(--surface);border:1px solid var(--rule);border-radius:14px;margin-bottom:9px;overflow:hidden;transition:border-color .25s,transform .25s cubic-bezier(.22,.61,.36,1),box-shadow .25s}
+      #pthistory .pp-hunt:hover{border-color:var(--border-2,#37344a);transform:translateY(-2px);box-shadow:0 10px 28px -18px rgba(0,0,0,.9)}
+      #pthistory .pp-top{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:12px 15px;cursor:pointer}
+      #pthistory .pp-place{font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      #pthistory .pp-sub{font-size:.72rem;color:var(--muted)}
+      #pthistory .pp-right{display:flex;align-items:center;gap:12px}
+      #pthistory .pp-badge{font-weight:800;font-size:1.1rem;font-variant-numeric:tabular-nums;min-width:52px;text-align:right}
+      #pthistory .pp-divbar{width:120px;height:9px;border-radius:6px;background:var(--bg-3,#23212f);position:relative;overflow:hidden}
+      #pthistory .pp-divbar .mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--muted);opacity:.6}
+      #pthistory .pp-divbar i{position:absolute;top:0;bottom:0;width:0;transition:width 1.05s cubic-bezier(.22,.61,.36,1)}
+      #pthistory .pp-divbar i.p{left:50%;background:linear-gradient(90deg,#5a9c4a,#5fbf7a)}
+      #pthistory .pp-divbar i.n{right:50%;background:linear-gradient(270deg,#c0655f,#e87070)}
+      #pthistory .pp-caret{color:var(--muted);transition:transform .3s cubic-bezier(.22,.61,.36,1);font-size:.75rem}
+      #pthistory .pp-hunt.open .pp-caret{transform:rotate(90deg)}
+      #pthistory .pp-detail{max-height:0;opacity:0;overflow:hidden;transition:max-height .45s cubic-bezier(.22,.61,.36,1),opacity .35s}
+      #pthistory .pp-hunt.open .pp-detail{max-height:560px;opacity:1}
+      #pthistory .pp-detin{padding:2px 15px 15px}
+      #pthistory .pp-metric{display:grid;grid-template-columns:86px 1fr 58px;gap:9px;align-items:center;padding:4px 0;font-size:.79rem}
+      #pthistory .pp-metric .mn{color:var(--ink-2)}
+      #pthistory .pp-mbar{height:7px;border-radius:5px;background:var(--bg-3,#23212f);position:relative;overflow:hidden}
+      #pthistory .pp-mbar .mid{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--muted);opacity:.5}
+      #pthistory .pp-mbar em{position:absolute;top:0;bottom:0;width:0;transition:width .85s cubic-bezier(.22,.61,.36,1)}
+      #pthistory .pp-mbar em.p{left:50%;background:#5a9c4a}#pthistory .pp-mbar em.n{right:50%;background:#c0655f}
+      #pthistory .pp-pts{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+      #pthistory .ptperf-legend{font-size:.7rem;color:var(--muted);margin-top:12px;display:flex;gap:14px;flex-wrap:wrap}
+      #pthistory .ptperf-legend .dot{width:9px;height:9px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:.35rem}
+      #pthistory .pp-rv{opacity:0;transform:translateY(12px);animation:ppUp .55s cubic-bezier(.22,.61,.36,1) forwards}
+      @keyframes ppUp{to{opacity:1;transform:none}}
+      #pthistory .ptperf-emptybox{text-align:center;padding:2.6rem 1.5rem;color:var(--ink-3)}
+      #pthistory .ptperf-emptybox .ic{font-size:2.2rem;margin-bottom:.5rem}
+      @media (prefers-reduced-motion: reduce){
+        #pthistory .pp-rv{animation:none;opacity:1;transform:none}
+        #pthistory .ptperf-prog,#pthistory .pp-divbar i,#pthistory .pp-mbar em,#pthistory .pp-detail{transition:none}
+      }
+    </style>
+    <div class="pth-panel" data-panel="perf" style="display:none">
+      <p class="ptperf-lead">Cada hunt vira uma nota (o <b>IPP</b>) centrada em 100: acima = melhor que a sua média do período, abaixo = pior. Combina damage, heal, kills, xp, balance, loot, supplies e mortes — e mostra o que puxou cada nota. Precisa de pelo menos 2 hunts com tempo salvo.</p>
+      <div id="pt-perf-root"></div>
     </div>
   </section>
 
@@ -12637,6 +12708,7 @@ function ewEnsureTcInput() {
     document.querySelectorAll('#pthistory .pth-tab').forEach(b=>b.classList.toggle('on',b===btn));
     document.querySelectorAll('#pthistory .pth-panel').forEach(p=>p.style.display=(p.dataset.panel===name)?'':'none');
     if(name==='analise'){ ptRenderSpots(); ptRenderMonthCmp(); ptBuildCharChips(); ptRenderMulti(); }
+    if(name==='perf'){ ptRenderPerf(); }
   };
   function renderAll(){
     const rows=ptFilteredRows();
@@ -12662,6 +12734,8 @@ function ewEnsureTcInput() {
     ptRenderMonthCmp();
     ptBuildCharChips();
     ptRenderMulti();
+    var _pp=document.querySelector('#pthistory .pth-panel[data-panel="perf"]');
+    if(_pp && _pp.style.display!=='none') ptRenderPerf();
   }
 
   function ymOf(r){ return String(r.session_date||r.created_at||'').slice(0,7); }
@@ -12728,6 +12802,123 @@ function ewEnsureTcInput() {
       options:{ responsive:true, maintainAspectRatio:false, interaction:{mode:'index',intersect:false},
         plugins:{ legend:{ display: datasets.length>1, labels:{color:ink,boxWidth:12,font:{size:11}} }, tooltip:{ callbacks:{ title:items=>items[0]?('Dia '+items[0].label):'', label:c=>c.dataset.label+': '+(c.parsed.y? compact(c.parsed.y)+unit : 'sem hunt') } } },
         scales:{ x:{ ticks:{ color:ink, maxRotation:0, autoSkip:true }, grid:{ display:false } }, y:{ beginAtZero:true, ticks:{ color:ink, callback:compact }, grid:{ color:grid } } } }
+    });
+  };
+
+  /* ══ Performance (IPP/ISP) — porte validado 1:1 do HuntFlow (IppService/SoloIspService) ══ */
+  const PP_PESOS={damage:.30,heal:.30,kills:.15,xp:.05,balance:.05,loot:.05,supplies:.05,death:.05};
+  const PP_NOMES={damage:'Damage/h',heal:'Heal/h',kills:'Kills/h',xp:'XP/h',balance:'Balance/h',loot:'Loot/h',supplies:'Supplies/h',death:'Mortes'};
+  const _reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let ptIpp=null;
+  function _nS(a,m){return m>0?a/m:null;} function _nI(a,m){return (a>0&&m>0)?m/a:null;}
+  function _dS(x,mx){return mx<=0?1:(x<=0?1:Math.max(0,1-x/mx));}
+  const _avg=(a,f)=>a.reduce((s,r)=>s+f(r),0)/a.length, _rd=(n,d)=>{d=d||0;const p=Math.pow(10,d);return Math.round(n*p)/p;};
+  function ppComputeIpp(ss){
+    if(!Array.isArray(ss)||ss.length<2) return {hasData:false,ranking:[]};
+    const rows=ss.map(s=>{const h=s.tempoSegundos>0?s.tempoSegundos/3600:0,per=v=>h>0?(v||0)/h:0;
+      return {s,damageH:per(s.dano),healH:per(s.cura),lootH:per(s.loot),suppliesH:per(s.supplies),balanceH:per(s.balance),xpH:per(s.exp),killsH:per(s.kills),mortes:s.mortes||0};});
+    const mD=_avg(rows,r=>r.damageH),mH=_avg(rows,r=>r.healH),mL=_avg(rows,r=>r.lootH),mS=_avg(rows,r=>r.suppliesH),mB=_avg(rows,r=>r.balanceH),mX=_avg(rows,r=>r.xpH),mK=_avg(rows,r=>r.killsH),mxM=Math.max.apply(null,rows.map(r=>r.mortes));
+    const ranking=rows.map(r=>{
+      const sc={damage:_nS(r.damageH,mD),heal:_nS(r.healH,mH),kills:_nS(r.killsH,mK),loot:_nS(r.lootH,mL),balance:_nS(r.balanceH,mB),supplies:_nI(r.suppliesH,mS),xp:r.xpH>0?_nS(r.xpH,mX):null,death:_dS(r.mortes,mxM)};
+      let pv=0,sp=0; for(const k in PP_PESOS){if(typeof sc[k]==='number'){sp+=sc[k]*PP_PESOS[k];pv+=PP_PESOS[k];}}
+      const idx=pv>0?(sp/pv)*100:100; let cs=[];
+      if(pv>0){for(const k in PP_PESOS){if(typeof sc[k]==='number'){cs.push({metrica:PP_NOMES[k],pontos:_rd((sc[k]-1)*(PP_PESOS[k]/pv)*100,1)});}} cs.sort((a,b)=>Math.abs(b.pontos)-Math.abs(a.pontos));}
+      return {id:r.s.id,data:r.s.data,tipoHunt:r.s.tipoHunt,ipp:_rd(idx,1),contribs:cs,damageH:_rd(r.damageH),killsH:_rd(r.killsH,1)};
+    });
+    let tp=0,tc=false;
+    if(ranking.length>=4){const m=Math.floor(ranking.length/2);const p=_avg(ranking.slice(0,m),r=>r.ipp),u=_avg(ranking.slice(ranking.length-m),r=>r.ipp);tp=p>0?_rd((u-p)/p*100,1):0;tc=true;}
+    return {hasData:true,ranking,medio:_rd(_avg(ranking,r=>r.ipp),1),melhor:_rd(Math.max.apply(null,ranking.map(r=>r.ipp)),1),pior:_rd(Math.min.apply(null,ranking.map(r=>r.ipp)),1),tendenciaPct:tp,tendenciaCalculada:tc};
+  }
+  function ppAggHunts(rows){
+    const by={};
+    rows.forEach(r=>{ const k=r.session_id||('_'+r.id); if(!by[k]) by[k]={id:k,dano:0,cura:0,loot:0,supplies:0,balance:0,exp:0,dur:0,date:'',place:''};
+      const a=by[k]; a.dano+=(+r.damage||0); a.cura+=(+r.healing||0); a.loot+=(+r.loot||0); a.supplies+=(+r.supplies||0); a.balance+=(+r.balance||0);
+      var xpv=(r.xp!=null&&r.xp!=='')?(+r.xp||0):0; a.exp+=xpv; a.dur=Math.max(a.dur,(+r.duration_min||0));
+      const d=String(r.session_date||r.created_at||'').slice(0,10); if(d&&(!a.date||d<a.date)) a.date=d; if(!a.place&&r.hunt_place) a.place=r.hunt_place; });
+    return Object.keys(by).map(k=>{const a=by[k];
+      return {id:a.id,data:a.date?(a.date.slice(8,10)+'/'+a.date.slice(5,7)):'—',dateRaw:a.date,tipoHunt:a.place||'Hunt',tempoSegundos:a.dur*60,dano:a.dano,cura:a.cura,loot:a.loot,supplies:a.supplies,balance:a.balance,exp:a.exp,kills:0,mortes:0};})
+      .filter(h=>h.tempoSegundos>0).sort((x,y)=>String(x.dateRaw).localeCompare(String(y.dateRaw)));
+  }
+  function ppBand(v){ return v>=106?{c:'#5fbf7a',t:'Acima da média',glow:'rgba(95,191,122,.30)'}
+    : v>=95?{c:'#a78bfa',t:'Na média',glow:'rgba(139,92,246,.28)'}
+    : {c:'#e87070',t:'Abaixo da média',glow:'rgba(232,112,112,.28)'}; }
+  function ppCountTo(el,to,dur,dec){ if(!el) return; dec=dec||0;
+    if(_reduce){el.textContent=(+to).toFixed(dec);return;}
+    const t0=performance.now();
+    (function step(t){let p=Math.min(1,(t-t0)/dur);p=1-Math.pow(1-p,3);el.textContent=(to*p).toFixed(dec);if(p<1)requestAnimationFrame(step);})(performance.now());
+  }
+  window.ptRenderPerf=function(){
+    const root=g('pt-perf-root'); if(!root) return;
+    const R=ppComputeIpp(ppAggHunts(ptFilteredRows()));
+    if(!R.hasData){
+      root.innerHTML='<div class="ptperf-emptybox"><div class="ic">🎯</div><div style="font-weight:700;color:var(--ink);margin-bottom:.35rem">Ainda sem dados de performance</div><div style="font-size:.84rem;max-width:430px;margin:0 auto">Salve pelo menos 2 hunts (com tempo) pelo Loot Split neste filtro pra ver o seu IPP, a evolução e o que puxa cada nota.</div></div>';
+      if(ptIpp){ptIpp.destroy();ptIpp=null;} return;
+    }
+    const b=ppBand(R.medio);
+    const bestH=R.ranking.find(x=>x.ipp===R.melhor)||{}, worstH=R.ranking.find(x=>x.ipp===R.pior)||{};
+    const up=R.tendenciaPct>=0;
+    root.innerHTML=
+      '<div class="ptperf-hero">'+
+        '<div class="ptperf-ringcard pp-rv" id="pt-ringcard">'+
+          '<div class="ptperf-ringwrap"><svg viewBox="0 0 170 170" width="170" height="170">'+
+            '<circle class="ptperf-track" cx="85" cy="85" r="72"></circle>'+
+            '<defs><linearGradient id="ppgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"></stop><stop offset="1" stop-color="#c9a840"></stop></linearGradient></defs>'+
+            '<circle class="ptperf-prog" id="pt-ring" cx="85" cy="85" r="72" stroke="url(#ppgrad)"></circle>'+
+          '</svg><div class="ptperf-rc"><div class="ptperf-num" id="pt-ringnum">0</div><div class="ptperf-lbl">IPP médio</div><div class="ptperf-band" id="pt-ringband"></div></div></div>'+
+        '</div>'+
+        '<div class="ptperf-stats">'+
+          '<div class="ptperf-tile pp-rv" style="animation-delay:.05s"><div class="l">🏆 Melhor hunt</div><div class="v pp-good" id="pt-best">0</div><div class="s">'+(bestH.tipoHunt||'—')+'</div></div>'+
+          '<div class="ptperf-tile pp-rv" style="animation-delay:.10s"><div class="l">🔻 Pior hunt</div><div class="v pp-bad" id="pt-worst">0</div><div class="s">'+(worstH.tipoHunt||'—')+'</div></div>'+
+          '<div class="ptperf-tile pp-rv" style="animation-delay:.15s"><div class="l">📈 Tendência</div><div class="v '+(up?'pp-good':'pp-bad')+'">'+(R.tendenciaCalculada?((up?'▲ ':'▼ ')+Math.abs(R.tendenciaPct).toFixed(1)+'%'):'—')+'</div><div class="s">últimas vs primeiras</div></div>'+
+          '<div class="ptperf-tile pp-rv" style="animation-delay:.20s"><div class="l">📚 Hunts</div><div class="v pp-neu" id="pt-count">0</div><div class="s">no período</div></div>'+
+        '</div>'+
+      '</div>'+
+      '<div class="card ptperf-chartcard pp-rv" style="animation-delay:.24s"><h4>Evolução do IPP</h4><div class="cap">Nota por hunt · linha de base = 100</div><div class="ptperf-chartholder"><canvas id="pt-ippchart"></canvas></div></div>'+
+      '<div class="ptperf-lh pp-rv" style="animation-delay:.28s"><h4>Hunts do período</h4><span class="hint">clique numa hunt pra ver o que puxou a nota</span></div>'+
+      '<div id="pt-perf-list"></div>'+
+      '<div class="ptperf-legend pp-rv" style="animation-delay:.34s"><span><i class="dot" style="background:#5fbf7a"></i>puxou pra cima</span><span><i class="dot" style="background:#e87070"></i>puxou pra baixo</span><span>peso: Damage 30 · Heal 30 · Kills 15 · resto 5 cada</span></div>';
+    var ring=g('pt-ring'), rr=72, circ=2*Math.PI*rr;
+    ring.style.strokeDasharray=circ; ring.style.strokeDashoffset=circ; ring.style.stroke=b.c;
+    var rc=g('pt-ringcard'); if(rc) rc.style.setProperty('--pglow',b.glow);
+    var bandEl=g('pt-ringband'); bandEl.textContent=b.t; bandEl.style.color=b.c;
+    var pctv=Math.max(0,Math.min(1,(R.medio-50)/100));
+    if(_reduce){ ring.style.transition='none'; ring.style.strokeDashoffset=circ*(1-pctv); }
+    else setTimeout(function(){ ring.style.strokeDashoffset=circ*(1-pctv); },220);
+    ppCountTo(g('pt-ringnum'),R.medio,1400,1);
+    ppCountTo(g('pt-best'),R.melhor,1100,1);
+    ppCountTo(g('pt-worst'),R.pior,1100,1);
+    ppCountTo(g('pt-count'),R.ranking.length,900,0);
+    if(typeof Chart!=='undefined'){
+      if(ptIpp){ptIpp.destroy();ptIpp=null;}
+      var cv=g('pt-ippchart'), cx=cv.getContext('2d');
+      var grad=cx.createLinearGradient(0,0,0,210); grad.addColorStop(0,'rgba(139,92,246,.32)'); grad.addColorStop(1,'rgba(139,92,246,0)');
+      var bl={id:'ppbl',afterDraw:function(c){var a=c.chartArea,y=c.scales.y,yy=y.getPixelForValue(100),x=c.ctx;x.save();x.strokeStyle='rgba(143,139,160,.45)';x.lineWidth=1;x.setLineDash([5,5]);x.beginPath();x.moveTo(a.left,yy);x.lineTo(a.right,yy);x.stroke();x.setLineDash([]);x.fillStyle='#8f8ba0';x.font='10px sans-serif';x.fillText('100',a.right-22,yy-5);x.restore();}};
+      ptIpp=new Chart(cx,{type:'line',
+        data:{labels:R.ranking.map(x=>x.data),datasets:[{data:R.ranking.map(x=>x.ipp),borderColor:'#a78bfa',borderWidth:2.5,fill:true,backgroundColor:grad,tension:.38,pointRadius:4,pointHoverRadius:7,pointBackgroundColor:R.ranking.map(x=>ppBand(x.ipp).c),pointBorderColor:'#0d0c12',pointBorderWidth:2}]},
+        options:{responsive:true,maintainAspectRatio:false,animation:_reduce?false:{duration:1300,easing:'easeOutQuart'},
+          plugins:{legend:{display:false},tooltip:{backgroundColor:'#1b1a25',borderColor:'#37344a',borderWidth:1,padding:10,titleColor:'#eae8f2',bodyColor:'#bfbccb',callbacks:{title:function(i){var x=R.ranking[i[0].dataIndex];return x.tipoHunt+' · '+x.data;},label:function(i){return 'IPP '+i.raw;}}}},
+          scales:{y:{grid:{color:'rgba(43,41,56,.7)'},ticks:{color:'#63607a',font:{size:11}},suggestedMin:80,suggestedMax:120},x:{grid:{display:false},ticks:{color:'#63607a',font:{size:11}}}}},
+        plugins:[bl]});
+    }
+    var list=g('pt-perf-list'), ordered=R.ranking.slice().reverse();
+    ordered.forEach(function(h,i){
+      var bd=ppBand(h.ipp);
+      var pos=h.contribs.filter(c=>c.pontos>0).reduce((a,c)=>a+c.pontos,0);
+      var neg=h.contribs.filter(c=>c.pontos<0).reduce((a,c)=>a+Math.abs(c.pontos),0);
+      var scale=Math.max(pos,neg,1);
+      var metrics=h.contribs.map(function(c){var p=c.pontos>=0,w=Math.min(100,Math.abs(c.pontos)/scale*100);
+        return '<div class="pp-metric"><span class="mn">'+c.metrica+'</span><span class="pp-mbar"><span class="mid"></span><em class="'+(p?'p':'n')+'" data-w="'+w+'"></em></span><span class="pp-pts" style="color:'+(p?'#5fbf7a':'#c0655f')+'">'+(p?'+':'')+c.pontos+'</span></div>';}).join('');
+      var el=document.createElement('div'); el.className='pp-hunt pp-rv'; el.style.animationDelay=(0.30+i*0.045)+'s';
+      el.innerHTML='<div class="pp-top"><div style="min-width:0"><div class="pp-place">'+h.tipoHunt+'</div><div class="pp-sub">'+h.data+' · Damage/h '+fmt(h.damageH)+(h.killsH?(' · '+h.killsH+' kills/h'):'')+'</div></div>'+
+        '<div class="pp-right"><span class="pp-badge" style="color:'+bd.c+'">'+h.ipp.toFixed(1)+'</span>'+
+        '<span class="pp-divbar" title="verde = a favor · vermelho = contra"><span class="mid"></span><em class="p" data-w="'+(pos/scale*50)+'"></em><em class="n" data-w="'+(neg/scale*50)+'"></em></span>'+
+        '<span class="pp-caret">▶</span></div></div>'+
+        '<div class="pp-detail"><div class="pp-detin"><div style="font-size:.74rem;color:var(--muted);margin:2px 0 8px">Contribuição de cada métrica pra nota (pontos de IPP, base 100):</div>'+metrics+'</div></div>';
+      el.querySelector('.pp-top').addEventListener('click',function(){ el.classList.toggle('open');
+        if(el.classList.contains('open')) el.querySelectorAll('.pp-mbar em').forEach(function(bb){bb.style.width=bb.getAttribute('data-w')+'%';}); });
+      list.appendChild(el);
+      var w1=el.querySelector('.pp-divbar em.p'), w2=el.querySelector('.pp-divbar em.n');
+      setTimeout(function(){ w1.style.width=w1.getAttribute('data-w')+'%'; w2.style.width=w2.getAttribute('data-w')+'%'; }, _reduce?0:(600+i*60));
     });
   };
 })();
