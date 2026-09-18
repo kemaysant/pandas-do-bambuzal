@@ -2959,30 +2959,54 @@ PlayerName (Leader)
       .pth-gate-actions{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap}
     </style>
 
-    <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.1rem;align-items:center">
-      <button class="filter-btn active" onclick="ptLoadHistory()">↻ Atualizar</button>
-      <span id="pt-status" style="font-size:.8rem;color:var(--muted)"></span>
-      <div style="display:flex;gap:.35rem;margin-left:auto">
-        <button class="filter-btn pt-per active" data-per="all" onclick="ptSetPeriod('all',this)">Tudo</button>
-        <button class="filter-btn pt-per" data-per="30" onclick="ptSetPeriod('30',this)">30 dias</button>
-        <button class="filter-btn pt-per" data-per="15" onclick="ptSetPeriod('15',this)">15 dias</button>
-        <button class="filter-btn pt-per" data-per="week" onclick="ptSetPeriod('week',this)">Semana atual</button>
-        <button class="filter-btn pt-per" data-per="7" onclick="ptSetPeriod('7',this)">7 dias</button>
+    <style>
+      #pthistory .pth-toolbar{background:linear-gradient(180deg,var(--bg-1,#14131c),var(--surface));border:1px solid var(--border);border-radius:16px;padding:12px 14px;margin-bottom:1.25rem;display:flex;flex-direction:column;gap:11px}
+      #pthistory .pth-tabs{display:inline-flex;border-bottom:0;margin:0;background:var(--bg-2,#1b1a25);border:1px solid var(--border);border-radius:13px;padding:4px;gap:3px;flex-wrap:wrap;width:max-content;max-width:100%}
+      #pthistory .pth-tab{border:0;background:none;color:var(--ink-3);padding:.5rem .95rem;border-radius:10px;font-size:.86rem;font-weight:700;cursor:pointer;margin:0;transition:color .22s,background .3s cubic-bezier(.22,.61,.36,1),box-shadow .3s;white-space:nowrap}
+      #pthistory .pth-tab:hover{color:var(--ink)}
+      #pthistory .pth-tab.on{color:#fff;background:linear-gradient(180deg,#8b5cf6,#7c4ef0);box-shadow:0 6px 16px -8px rgba(139,92,246,.9),inset 0 1px 0 rgba(255,255,255,.15)}
+      #pthistory .pth-filters{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+      #pthistory .pth-fgroup{display:inline-flex;align-items:center;gap:7px}
+      #pthistory .pth-flabel{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
+      #pthistory .seg{display:inline-flex;background:var(--bg-2,#1b1a25);border:1px solid var(--border);border-radius:12px;padding:3px;gap:2px}
+      #pthistory .seg .filter-btn{border:0!important;background:none!important;color:var(--ink-3)!important;padding:.4rem .72rem!important;border-radius:9px!important;font-size:.8rem;font-weight:600;cursor:pointer;transition:color .2s,background .28s cubic-bezier(.22,.61,.36,1),box-shadow .28s;white-space:nowrap;margin:0;box-shadow:none!important}
+      #pthistory .seg .filter-btn:hover{color:var(--ink)!important}
+      #pthistory .seg .filter-btn.active{color:#fff!important;background:linear-gradient(180deg,#8b5cf6,#7c4ef0)!important;box-shadow:0 5px 14px -8px rgba(139,92,246,.9),inset 0 1px 0 rgba(255,255,255,.14)!important}
+      #pthistory .pth-refresh{margin-left:auto;display:inline-flex;align-items:center;gap:6px;background:var(--bg-2,#1b1a25);border:1px solid var(--border);color:var(--ink-2);border-radius:10px;padding:.45rem .85rem;font-size:.8rem;font-weight:600;cursor:pointer;transition:border-color .2s,color .2s,transform .2s}
+      #pthistory .pth-refresh:hover{color:var(--ink);border-color:var(--bamboo);transform:translateY(-1px)}
+      #pthistory .pth-refresh .ic{display:inline-block;transition:transform .5s cubic-bezier(.22,.61,.36,1)}
+      #pthistory .pth-refresh:hover .ic{transform:rotate(-180deg)}
+      #pthistory .pth-modehint{font-size:.7rem;color:var(--muted);margin-top:-2px}
+      @media(max-width:560px){#pthistory .pth-refresh{margin-left:0}#pthistory .pth-filters{gap:10px}#pthistory .pth-flabel{display:none}}
+      @media (prefers-reduced-motion: reduce){#pthistory .pth-tab,#pthistory .seg .filter-btn,#pthistory .pth-refresh,#pthistory .pth-refresh .ic{transition:none}}
+    </style>
+    <div class="pth-toolbar">
+      <div class="pth-tabs">
+        <button class="pth-tab on" data-tab="rank" onclick="ptTab('rank',this)">📊 Ranking</button>
+        <button class="pth-tab" data-tab="analise" onclick="ptTab('analise',this)">📈 Análise de PT</button>
+        <button class="pth-tab" data-tab="perf" onclick="ptTab('perf',this)">🎯 Performance</button>
       </div>
-    </div>
-
-    <div style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem">
-      <span style="font-size:.75rem;color:var(--muted);font-weight:600">Modo:</span>
-      <button class="filter-btn pt-mode active" data-mode="group" onclick="ptSetMode('group',this)">🤝 PT (party)</button>
-      <button class="filter-btn pt-mode" data-mode="solo" onclick="ptSetMode('solo',this)">🧍 Solo (individual)</button>
-      <button class="filter-btn pt-mode" data-mode="all" onclick="ptSetMode('all',this)">Tudo</button>
-      <span style="font-size:.7rem;color:var(--muted)">PT e solo são coisas diferentes — o filtro mantém os dados separados.</span>
-    </div>
-
-    <div class="pth-tabs">
-      <button class="pth-tab on" data-tab="rank" onclick="ptTab('rank',this)">Ranking</button>
-      <button class="pth-tab" data-tab="analise" onclick="ptTab('analise',this)">Análise de PT</button>
-      <button class="pth-tab" data-tab="perf" onclick="ptTab('perf',this)">🎯 Performance</button>
+      <div class="pth-filters">
+        <div class="pth-fgroup"><span class="pth-flabel">Modo</span>
+          <div class="seg">
+            <button class="filter-btn pt-mode active" data-mode="group" onclick="ptSetMode('group',this)">🤝 PT</button>
+            <button class="filter-btn pt-mode" data-mode="solo" onclick="ptSetMode('solo',this)">🧍 Solo</button>
+            <button class="filter-btn pt-mode" data-mode="all" onclick="ptSetMode('all',this)">Tudo</button>
+          </div>
+        </div>
+        <div class="pth-fgroup"><span class="pth-flabel">Período</span>
+          <div class="seg">
+            <button class="filter-btn pt-per active" data-per="all" onclick="ptSetPeriod('all',this)">Tudo</button>
+            <button class="filter-btn pt-per" data-per="30" onclick="ptSetPeriod('30',this)">30d</button>
+            <button class="filter-btn pt-per" data-per="15" onclick="ptSetPeriod('15',this)">15d</button>
+            <button class="filter-btn pt-per" data-per="week" onclick="ptSetPeriod('week',this)">Semana</button>
+            <button class="filter-btn pt-per" data-per="7" onclick="ptSetPeriod('7',this)">7d</button>
+          </div>
+        </div>
+        <button class="pth-refresh" onclick="ptLoadHistory()" title="Recarregar do servidor"><span class="ic">↻</span> Atualizar</button>
+        <span id="pt-status" style="font-size:.76rem;color:var(--muted)"></span>
+      </div>
+      <div class="pth-modehint">🤝 PT e 🧍 Solo são separados — o filtro mantém os dados de cada um isolados.</div>
     </div>
 
     <div class="pth-panel" data-panel="rank">
