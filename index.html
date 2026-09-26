@@ -2131,6 +2131,9 @@ async function tibiaFetch(path) {
       </div>
     </div>
 
+    <!-- Faixa REAL (hunt-analyser) — camada de resultado real por vocação × nível -->
+    <div id="hf-real-band" style="display:none;margin-bottom:1rem"></div>
+
     <!-- counter -->
     <div id="hf-count" style="display:none;font-size:.78rem;color:var(--muted);margin-bottom:.75rem;font-weight:400"></div>
 
@@ -8664,6 +8667,42 @@ function hfPrefillFromProfile() {
   } catch (e) { /* silencioso: nunca trava a página */ }
 }
 
+// ── Hunt Finder → faixa REAL (hunt-analyser): XP/h e lucro medianos por vocação × faixa de nível ──
+// Lê a tabela hunt_stats (Supabase, leitura anônima) e mostra a banda real pro voc/nível atual.
+// Troca "número estimado" por "o que jogadores reais fazem". Some se não houver amostra.
+const HF_VOC_LABEL = { ek:'Elite Knight', ed:'Elder Druid', ms:'Master Sorcerer', rp:'Royal Paladin', monk:'Monk' };
+async function hfLoadRealBand(voc, lvl) {
+  const el = document.getElementById('hf-real-band');
+  if (!el) return;
+  if (!voc || voc === 'all' || !lvl) { el.style.display = 'none'; return; }
+  try {
+    const url = PANDA_SB_URL + '/rest/v1/hunt_stats'
+      + '?voc=eq.' + encodeURIComponent(voc)
+      + '&lvl_min=lte.' + lvl + '&lvl_max=gte.' + lvl
+      + '&select=bracket,n,xph_p25,xph_med,xph_p75,profit_med';
+    const res = await fetch(url, { headers: _pandaHeaders() });
+    if (!res.ok) throw 0;
+    const rows = await res.json();
+    if (!rows || !rows.length) { el.style.display = 'none'; return; }
+    const r = rows[0];
+    const M = n => (Math.abs(n) >= 1e6 ? (n/1e6).toFixed(1).replace('.0','') + 'M' : Math.round(n/1e3) + 'k');
+    el.innerHTML =
+      '<div style="background:var(--bamboo-pale);border:1px solid var(--rule);border-left:3px solid var(--bamboo);border-radius:8px;padding:.7rem .9rem">'
+      +   '<div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.4rem">'
+      +     '<span style="font-size:.9rem">📊</span>'
+      +     '<span style="font-weight:600;color:var(--bamboo);font-size:.88rem">Resultado real da comunidade</span>'
+      +     '<span style="color:var(--muted);font-size:.76rem">· ' + (HF_VOC_LABEL[voc] || voc) + ' · nível ' + lvl + ' (faixa ' + r.bracket + ')</span>'
+      +   '</div>'
+      +   '<div style="display:flex;gap:1.6rem;flex-wrap:wrap;font-size:.82rem">'
+      +     '<div><span style="color:var(--muted)">XP/h (p25 – mediana – p75)</span><br><b style="color:var(--ink)">' + M(r.xph_p25) + ' – ' + M(r.xph_med) + ' – ' + M(r.xph_p75) + '</b></div>'
+      +     '<div><span style="color:var(--muted)">Lucro/h (mediana)</span><br><b style="color:var(--ink)">' + M(r.profit_med) + '</b></div>'
+      +   '</div>'
+      +   '<div style="color:var(--muted);font-size:.7rem;margin-top:.45rem">mediana de ' + r.n + ' sessões reais · fonte: hunt-analyser.com</div>'
+      + '</div>';
+    el.style.display = 'block';
+  } catch (e) { el.style.display = 'none'; }
+}
+
 // ── Hunt Finder shared helpers: reliable sprites + item cross-reference ──
 window.HF_SLUG_OV = {
   'dawnfireasura':'Dawnfire-Asura','midnightasura':'Midnight-Asura',
@@ -8710,6 +8749,8 @@ function runHuntFinder() {
   const diff  = document.getElementById('hf-diff').value;
   const focus = hfFocus;
   const mode  = hfMode;
+
+  hfLoadRealBand(voc, lvl);   // camada de resultado real (hunt-analyser) pro voc/nível atual
 
   document.getElementById('hf-initial').style.display = 'none';
   document.getElementById('hf-empty').style.display = 'none';
