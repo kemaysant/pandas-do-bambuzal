@@ -2916,7 +2916,7 @@ PlayerName (Leader)
 
   <section class="page-section" id="pthistory">
     <h2 class="sec-title">Histórico de hunts</h2>
-    <p class="sec-sub">Seu histórico privado: desempenho dos seus personagens nas sessões salvas — profit, saldo, dano, cura e evolução. Só você vê o seu. Salve sessões pelo Loot Split (é preciso estar logado).</p>
+    <p class="sec-sub">Seu histórico privado — profit, dano, cura e evolução por personagem. Só você vê. Salve suas sessões pelo Loot Split.</p>
 
     <div id="pth-gate">
       <div class="card pth-gate-card">
@@ -2960,25 +2960,27 @@ PlayerName (Leader)
     </style>
 
     <style>
-      #pthistory .pth-toolbar{background:linear-gradient(180deg,var(--bg-1,#14131c),var(--surface));border:1px solid var(--border);border-radius:16px;padding:12px 14px;margin-bottom:1.25rem;display:flex;flex-direction:column;gap:11px}
+      #pthistory .pth-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:1.3rem}
       #pthistory .pth-tabs{display:inline-flex;border-bottom:0;margin:0;background:var(--bg-2,#1b1a25);border:1px solid var(--border);border-radius:13px;padding:4px;gap:3px;flex-wrap:wrap;width:max-content;max-width:100%}
-      #pthistory .pth-tab{border:0;background:none;color:var(--ink-3);padding:.5rem .95rem;border-radius:10px;font-size:.86rem;font-weight:700;cursor:pointer;margin:0;transition:color .22s,background .3s cubic-bezier(.22,.61,.36,1),box-shadow .3s;white-space:nowrap}
+      #pthistory .pth-tab{border:0;background:none;color:var(--ink-3);padding:.5rem 1rem;border-radius:10px;font-size:.86rem;font-weight:700;cursor:pointer;margin:0;transition:color .22s,background .3s cubic-bezier(.22,.61,.36,1),box-shadow .3s;white-space:nowrap}
       #pthistory .pth-tab:hover{color:var(--ink)}
       #pthistory .pth-tab.on{color:#fff;background:linear-gradient(180deg,#8b5cf6,#7c4ef0);box-shadow:0 6px 16px -8px rgba(139,92,246,.9),inset 0 1px 0 rgba(255,255,255,.15)}
-      #pthistory .pth-filters{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-      #pthistory .pth-fgroup{display:inline-flex;align-items:center;gap:7px}
-      #pthistory .pth-flabel{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700}
-      #pthistory .seg{display:inline-flex;background:var(--bg-2,#1b1a25);border:1px solid var(--border);border-radius:12px;padding:3px;gap:2px}
-      #pthistory .seg .filter-btn{border:0!important;background:none!important;color:var(--ink-3)!important;padding:.4rem .72rem!important;border-radius:9px!important;font-size:.8rem;font-weight:600;cursor:pointer;transition:color .2s,background .28s cubic-bezier(.22,.61,.36,1),box-shadow .28s;white-space:nowrap;margin:0;box-shadow:none!important}
-      #pthistory .seg .filter-btn:hover{color:var(--ink)!important}
-      #pthistory .seg .filter-btn.active{color:#fff!important;background:linear-gradient(180deg,#8b5cf6,#7c4ef0)!important;box-shadow:0 5px 14px -8px rgba(139,92,246,.9),inset 0 1px 0 rgba(255,255,255,.14)!important}
-      #pthistory .pth-refresh{margin-left:auto;display:inline-flex;align-items:center;gap:6px;background:var(--bg-2,#1b1a25);border:1px solid var(--border);color:var(--ink-2);border-radius:10px;padding:.45rem .85rem;font-size:.8rem;font-weight:600;cursor:pointer;transition:border-color .2s,color .2s,transform .2s}
-      #pthistory .pth-refresh:hover{color:var(--ink);border-color:var(--bamboo);transform:translateY(-1px)}
-      #pthistory .pth-refresh .ic{display:inline-block;transition:transform .5s cubic-bezier(.22,.61,.36,1)}
-      #pthistory .pth-refresh:hover .ic{transform:rotate(-180deg)}
-      #pthistory .pth-modehint{font-size:.7rem;color:var(--muted);margin-top:-2px}
-      @media(max-width:560px){#pthistory .pth-refresh{margin-left:0}#pthistory .pth-filters{gap:10px}#pthistory .pth-flabel{display:none}}
-      @media (prefers-reduced-motion: reduce){#pthistory .pth-tab,#pthistory .seg .filter-btn,#pthistory .pth-refresh,#pthistory .pth-refresh .ic{transition:none}}
+      #pthistory .pth-filters{display:inline-flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:wrap}
+      #pthistory .pth-select{appearance:none;-webkit-appearance:none;background:var(--bg-2,#1b1a25) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%238f8ba0' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E") no-repeat right .65rem center;border:1px solid var(--border);color:var(--ink-2);border-radius:10px;padding:.44rem 1.7rem .44rem .75rem;font-size:.8rem;font-weight:600;cursor:pointer;transition:border-color .2s,color .2s}
+      #pthistory .pth-select:hover{border-color:var(--bamboo);color:var(--ink)}
+      #pthistory .pth-iconbtn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;background:var(--bg-2,#1b1a25);border:1px solid var(--border);color:var(--ink-2);border-radius:10px;cursor:pointer;transition:border-color .2s,color .2s;font-size:.95rem}
+      #pthistory .pth-iconbtn:hover{color:var(--ink);border-color:var(--bamboo)}
+      #pthistory .pth-iconbtn .ic{display:inline-block;transition:transform .5s cubic-bezier(.22,.61,.36,1)}
+      #pthistory .pth-iconbtn:hover .ic{transform:rotate(-180deg)}
+      @media(max-width:620px){#pthistory .pth-filters{margin-left:0;width:100%}#pthistory .pth-select{flex:1}}
+      /* reveal + hover (Ranking/Análise) */
+      #pthistory .pth-reveal{opacity:0;transform:translateY(12px);animation:pthUp .5s cubic-bezier(.22,.61,.36,1) forwards}
+      @keyframes pthUp{to{opacity:1;transform:none}}
+      #pthistory #pt-metrics .card{transition:transform .22s cubic-bezier(.22,.61,.36,1),border-color .22s}
+      #pthistory #pt-metrics .card:hover{transform:translateY(-3px);border-color:var(--border-2,#37344a)}
+      #pthistory .member-table tbody tr{transition:background .18s}
+      #pthistory .member-table tbody tr:hover{background:rgba(139,92,246,.06)}
+      @media (prefers-reduced-motion: reduce){#pthistory .pth-tab,#pthistory .pth-select,#pthistory .pth-iconbtn,#pthistory .pth-iconbtn .ic,#pthistory #pt-metrics .card{transition:none}#pthistory .pth-reveal{animation:none;opacity:1;transform:none}}
     </style>
     <div class="pth-toolbar">
       <div class="pth-tabs">
@@ -2987,26 +2989,21 @@ PlayerName (Leader)
         <button class="pth-tab" data-tab="perf" onclick="ptTab('perf',this)">🎯 Performance</button>
       </div>
       <div class="pth-filters">
-        <div class="pth-fgroup"><span class="pth-flabel">Modo</span>
-          <div class="seg">
-            <button class="filter-btn pt-mode active" data-mode="group" onclick="ptSetMode('group',this)">🤝 PT</button>
-            <button class="filter-btn pt-mode" data-mode="solo" onclick="ptSetMode('solo',this)">🧍 Solo</button>
-            <button class="filter-btn pt-mode" data-mode="all" onclick="ptSetMode('all',this)">Tudo</button>
-          </div>
-        </div>
-        <div class="pth-fgroup"><span class="pth-flabel">Período</span>
-          <div class="seg">
-            <button class="filter-btn pt-per active" data-per="all" onclick="ptSetPeriod('all',this)">Tudo</button>
-            <button class="filter-btn pt-per" data-per="30" onclick="ptSetPeriod('30',this)">30d</button>
-            <button class="filter-btn pt-per" data-per="15" onclick="ptSetPeriod('15',this)">15d</button>
-            <button class="filter-btn pt-per" data-per="week" onclick="ptSetPeriod('week',this)">Semana</button>
-            <button class="filter-btn pt-per" data-per="7" onclick="ptSetPeriod('7',this)">7d</button>
-          </div>
-        </div>
-        <button class="pth-refresh" onclick="ptLoadHistory()" title="Recarregar do servidor"><span class="ic">↻</span> Atualizar</button>
-        <span id="pt-status" style="font-size:.76rem;color:var(--muted)"></span>
+        <select class="pth-select" aria-label="Modo" onchange="ptSetMode(this.value,null)">
+          <option value="group">🤝 Party</option>
+          <option value="solo">🧍 Solo</option>
+          <option value="all">Party + Solo</option>
+        </select>
+        <select class="pth-select" aria-label="Período" onchange="ptSetPeriod(this.value,null)">
+          <option value="all">Todo o período</option>
+          <option value="30">Últimos 30 dias</option>
+          <option value="15">Últimos 15 dias</option>
+          <option value="week">Semana atual</option>
+          <option value="7">Últimos 7 dias</option>
+        </select>
+        <button class="pth-iconbtn" onclick="ptLoadHistory()" title="Recarregar do servidor"><span class="ic">↻</span></button>
+        <span id="pt-status" style="font-size:.74rem;color:var(--muted)"></span>
       </div>
-      <div class="pth-modehint">🤝 PT e 🧍 Solo são separados — o filtro mantém os dados de cada um isolados.</div>
     </div>
 
     <div class="pth-panel" data-panel="rank">
@@ -8646,6 +8643,27 @@ function setHFFocus(focus, btn) {
   hfAutoSearch();
 }
 
+// ── Perfil → Hunt Finder: pré-preenche com o char principal do usuário logado ──
+// "No typing required": ao abrir o Hunt Finder, se o usuário está logado e tem um
+// char principal salvo (TP_AUTH.profile.main_char), busca ele automaticamente e roda
+// a pesquisa — reusando lookupHFChar() (que preenche level + vocação e já filtra).
+// Só age uma vez, e nunca por cima de um level já digitado manualmente.
+let hfPrefilled = false;
+function hfPrefillFromProfile() {
+  try {
+    if (hfPrefilled) return;
+    const lvlEl  = document.getElementById('hf-level');
+    const nameEl = document.getElementById('hf-char-name');
+    if (!nameEl || !lvlEl) return;
+    if (lvlEl.value || nameEl.value) return;               // respeita input manual
+    const main = window.TP_AUTH && window.TP_AUTH.profile && window.TP_AUTH.profile.main_char;
+    if (!main) return;                                     // sem login / sem char principal → comportamento atual
+    hfPrefilled = true;
+    nameEl.value = main;
+    lookupHFChar();                                        // preenche level+vocação via API e roda o finder
+  } catch (e) { /* silencioso: nunca trava a página */ }
+}
+
 // ── Hunt Finder shared helpers: reliable sprites + item cross-reference ──
 window.HF_SLUG_OV = {
   'dawnfireasura':'Dawnfire-Asura','midnightasura':'Midnight-Asura',
@@ -9225,6 +9243,9 @@ function showPage(id, btn) {
   }
   if (id === 'partyfinder') {
     loadPartyFinder();
+  }
+  if (id === 'huntfinder') {
+    hfPrefillFromProfile();
   }
   if (id === 'exercisecalc') {
     setTimeout(() => { ewUpdateSkillChips(); ewUpdateWeaponImg(); ewCalc(); }, 0);
@@ -12731,9 +12752,23 @@ function ewEnsureTcInput() {
   window.ptTab=function(name,btn){
     document.querySelectorAll('#pthistory .pth-tab').forEach(b=>b.classList.toggle('on',b===btn));
     document.querySelectorAll('#pthistory .pth-panel').forEach(p=>p.style.display=(p.dataset.panel===name)?'':'none');
+    if(name==='rank'){ ptAnimMetrics(); }
     if(name==='analise'){ ptRenderSpots(); ptRenderMonthCmp(); ptBuildCharChips(); ptRenderMulti(); }
     if(name==='perf'){ ptRenderPerf(); }
   };
+  function animCount(el){
+    var raw=(el.textContent||'').trim();
+    if(/\d\s*h|\d\s*m$/.test(raw)) return;              // tempo (60h 2m / 45m) — não anima
+    var mm=raw.match(/^(-?[\d.]+)(.*)$/); if(!mm) return;
+    var target=parseInt(mm[1].replace(/\./g,''),10); if(isNaN(target)) return;
+    var suffix=mm[2]||'';
+    if(typeof _reduce!=='undefined' && _reduce) return;
+    var t0=performance.now();
+    (function step(t){var p=Math.min(1,(t-t0)/850);p=1-Math.pow(1-p,3);
+      el.textContent=Math.round(target*p).toLocaleString('pt-BR')+suffix;
+      if(p<1)requestAnimationFrame(step);})(performance.now());
+  }
+  function ptAnimMetrics(){ var mm=g('pt-metrics'); if(!mm) return; mm.querySelectorAll('.pth-cv').forEach(animCount); }
   function renderAll(){
     const rows=ptFilteredRows();
     const agg=aggregate(rows);
@@ -12750,8 +12785,9 @@ function ewEnsureTcInput() {
     const m=g('pt-metrics');
     const cards=[['Sessões',totalSessions],['Meu profit',fmt(meuLucro)+' gp'],['Meus gastos (supplies)',fmt(meuSupp)+' gp'],['Meu tempo',fmtTime(meuMin)]];
     if(meuXp>0){ cards.push(['XP total',fmt(meuXp)],['XP/h médio',fmt(meuXpH)],['Maior XP/dia',fmt(bestXpDay)]); }
-    if(m) m.innerHTML=cards
-      .map(([k,v])=>`<div class="card" style="padding:.6rem .85rem;margin:0"><div style="font-size:1.05rem;font-weight:700;color:var(--ink)">${v}</div><div style="font-size:.7rem;color:var(--muted)">${k}</div></div>`).join('');
+    if(m){ m.innerHTML=cards
+      .map(([k,v],i)=>`<div class="card pth-reveal" style="padding:.6rem .85rem;margin:0;animation-delay:${(i*0.05).toFixed(2)}s"><div class="pth-cv" style="font-size:1.05rem;font-weight:700;color:var(--ink)">${v}</div><div style="font-size:.7rem;color:var(--muted)">${k}</div></div>`).join('');
+      ptAnimMetrics(); }
     const bm=g('pt-body-mine'); if(bm) bm.innerHTML=ptRowsHtml(mine, MY_CHARS.size? 'Nenhuma sessão dos seus personagens no período.' : 'Verifique um personagem no seu perfil para separar os seus aqui.','mine');
     const bo=g('pt-body-others'); if(bo) bo.innerHTML=ptRowsHtml(others,'Nenhum companheiro de PT no período.','others');
     ptRenderSpots();
