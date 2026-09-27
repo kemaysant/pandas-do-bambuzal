@@ -4727,7 +4727,7 @@ PlayerName (Leader)
       #builds .bd-note{margin-top:1.2rem;font-size:.73rem;color:var(--ink-3);line-height:1.5}
       #builds .bd-wsect{margin:.2rem 0 1.15rem}
       #builds .bd-wheelwrap{display:flex;gap:1.4rem;align-items:center;flex-wrap:wrap;background:radial-gradient(120% 120% at 50% 40%,rgba(139,92,246,.10),transparent 60%),var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem}
-      #builds .bd-wheelsvg{width:100%;max-width:340px;height:auto;flex:0 0 auto;filter:drop-shadow(0 10px 26px rgba(0,0,0,.5))}
+      #builds .bd-wheelsvg,#builds .bd-wheelimg{width:100%;max-width:420px;height:auto;flex:0 0 auto;border-radius:12px;filter:drop-shadow(0 10px 26px rgba(0,0,0,.5))}
       #builds .bd-wside{flex:1;min-width:238px;display:flex;flex-direction:column;gap:.55rem}
       #builds .bd-wpts{font-size:1.5rem;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
       #builds .bd-wpts span{font-size:.7rem;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em}
@@ -4747,7 +4747,7 @@ PlayerName (Leader)
       #builds .bd-wtip{font-size:.74rem;color:var(--ink-2);line-height:1.5;background:var(--bg-2);border-radius:8px;padding:.5rem .6rem}
       #builds .bd-wtip b{color:var(--ink)}
       #builds .bd-wcap{font-size:.67rem;color:var(--ink-3);line-height:1.45;opacity:.85}
-      @media(max-width:560px){#builds .bd-wheelwrap{justify-content:center}#builds .bd-wheelsvg{max-width:300px}}
+      @media(max-width:560px){#builds .bd-wheelwrap{justify-content:center}#builds .bd-wheelsvg,#builds .bd-wheelimg{max-width:320px}}
     </style>
     <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 5a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm7 0a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2h-3a2 2 0 01-2-2V5z"/></svg> Builds prontas</h2>
     <p class="sec-sub bld-sub">Builds validadas 1:1 contra a calculadora — uma boa referência por vocação e faixa de nível. Clique numa build pra ver o detalhe completo, as proficiências, a rotação e abrir na calculadora. <span class="dc-conf" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--gold-dim);color:var(--gold)">dano conferido pelo motor</span></p>
@@ -4832,17 +4832,10 @@ PlayerName (Leader)
       var stages=domPts.map(stg), flat=0; stages.forEach(function(s){flat+=W.revDmg[s]||0;});
       return {pts:pts,domPts:domPts,stages:stages,flat:flat,total:P,cap:W.total};
     }
-    function tpWheelSVG(voc,level){
+    function tpWheelSVG(voc,level,id){
       var W=TP_WHEEL[voc]; if(!W)return '';
       var A=tpWheelAlloc(voc,level); if(!A)return '';
-      var slices=W.slots.map(function(s){
-        var col=W.domains[s.dom].color, p=A.pts[s.i]||0, frac=s.max?p/s.max:0, op=frac>0?(0.28+0.60*frac):0.06;
-        return '<path d="'+s.d+'" fill="'+col+'" fill-opacity="'+op.toFixed(2)+'" stroke="#0d0c12" stroke-width="1"/>';
-      }).join('');
-      var hub='<circle cx="261" cy="261" r="50" fill="#141320" stroke="#2c2a38" stroke-width="1.5"/>'
-        +'<text x="261" y="253" text-anchor="middle" font-size="30" font-weight="800" fill="#ece9f5" font-family="Inter,sans-serif">'+A.total+'</text>'
-        +'<text x="261" y="276" text-anchor="middle" font-size="13" fill="#8a879b" font-family="Inter,sans-serif">de '+A.cap+'</text>';
-      var svg='<svg viewBox="0 0 522 522" class="bd-wheelsvg" role="img" aria-label="Roda do Destino">'+slices+hub+'</svg>';
+      var svg='<img class="bd-wheelimg" src="assets/builds-wheel/'+id+'.webp" alt="Roda do Destino" loading="lazy" onerror="this.style.display=\'none\'">';
       var rows=[3,0,2,1].map(function(dm){
         var d=W.domains[dm], stgN=A.stages[dm], p=A.domPts[dm];
         var tag=(dm===3?' <em>· ofensivo (casa com a rotação)</em>':(dm===2?' <em>· sobrevivência</em>':(dm===0?' <em>· avatar</em>':'')));
@@ -4932,7 +4925,7 @@ PlayerName (Leader)
       if(b.ml) tags.push('<span class="bld-tag">ML '+esc(b.ml)+'</span>');
       if(bb.stance&&bb.stance!=='none') tags.push('<span class="bld-tag">'+esc(bb.stance)+'</span>');
 
-      var wheelHtml=tpWheelSVG(b.vocation,(inp.level||st.level||0));
+      var wheelHtml=tpWheelSVG(b.vocation,(inp.level||st.level||0),id);
       var html='<button class="bd-back" onclick="tpCloseBuild()">← Voltar às builds</button>'
         +'<div class="bd-hero"><div class="bld-wic">'+(ic?'<img src="'+ic+'" alt="">':'⚔️')+'</div>'
         +'<div class="bd-htext"><div class="bld-vname">'+voc.emoji+' '+esc(voc.label)+(inp.level?' · Nível '+esc(inp.level):'')+'</div>'
