@@ -239,6 +239,9 @@ body{background-color:var(--bg-0);background-image:radial-gradient(1000px circle
 .nav-btn:hover .nav-icon { opacity: .8; }
 .nav-btn.active .nav-icon { opacity: 1; }
 .nav-label { flex: 1; }
+.sec-ico{width:1.05em;height:1.05em;vertical-align:-.14em;margin-right:.4rem;color:var(--gold)}
+.bd-h4ico{width:1em;height:1em;vertical-align:-.12em;margin-right:.35rem}
+
 
 .nav-group{display:flex;flex-direction:column}
 .nav-cat{display:flex;align-items:center;gap:.6rem;width:100%;background:none;border:none;cursor:pointer;padding:.52rem .75rem;border-radius:7px;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:500;color:var(--ink-2);text-align:left;transition:background .15s,color .15s}
@@ -1417,6 +1420,46 @@ footer strong{color:var(--ink-3);font-weight:500}
 .hf-link:hover { background:var(--bg-2); }
 .hf-link.bamboo { color:var(--bamboo); }
 </style>
+
+<style id="tp-topnav-css">
+/* ===== Barra de navegação horizontal (desktop) — estilo Blitz ===== */
+.tp-topnav{display:none;align-items:center;gap:.35rem;padding:0 1.4rem;height:56px;background:var(--bg-1);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:160}
+.tp-tn-logo{display:flex;align-items:center;gap:.5rem;font-weight:800;font-size:.98rem;margin-right:.7rem;cursor:pointer;background:none;border:none;color:var(--ink);font-family:inherit}
+.tp-tn-logo .p{width:30px;height:30px;border-radius:8px;background:var(--bamboo);display:flex;align-items:center;justify-content:center;font-size:1rem}
+.tp-tn-logo b span{color:var(--gold)}
+.tp-tn-nav{display:flex;align-items:center;gap:.1rem}
+.tp-tn-item{position:relative;font-size:.86rem;font-weight:600;color:var(--ink-2);padding:.5rem .8rem;border-radius:8px;cursor:pointer;background:none;border:none;font-family:inherit;display:inline-flex;align-items:center;gap:.35rem;white-space:nowrap}
+.tp-tn-item:hover{color:var(--ink);background:var(--bg-3)}
+.tp-tn-item.active{color:var(--ink)}
+.tp-tn-item.active::after{content:"";position:absolute;left:.8rem;right:.8rem;bottom:-.5rem;height:2px;background:var(--bamboo);border-radius:2px}
+.tp-tn-item.feat{color:var(--gold)}
+.tp-tn-item.feat:hover{color:var(--gold-light,#e0c060)}
+.tp-tn-cav{font-size:.58rem;opacity:.6;margin-left:.05rem}
+.tp-tn-spacer{flex:1}
+.tp-tn-search{display:flex;align-items:center;gap:.5rem;background:var(--bg-2);border:1px solid var(--border);border-radius:9px;padding:.44rem .7rem;color:var(--ink-3);font-size:.82rem;min-width:150px;max-width:260px;transition:border-color .15s}
+.tp-tn-search:focus-within{border-color:var(--bamboo)}
+.tp-tn-search input{background:none;border:none;color:var(--ink);font:inherit;outline:none;width:100%}
+.tp-tn-theme{background:none;border:1px solid var(--border);color:var(--ink-3);border-radius:8px;padding:.44rem .55rem;cursor:pointer;font-size:.9rem;line-height:1}
+.tp-tn-theme:hover{color:var(--ink);border-color:var(--bamboo)}
+/* mega + dropdown */
+.tp-pop{display:none;position:absolute;top:100%;margin-top:.35rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 24px 60px -22px #000;z-index:200}
+.tp-pop.open{display:block;animation:tpPopIn .16s ease}
+@keyframes tpPopIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:none}}
+.tp-mega{left:0;padding:1.1rem;width:min(760px,90vw)}
+.tp-mega-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.1rem}
+.tp-mega-col h5{margin:0 0 .5rem;font-size:.66rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--bamboo-light)}
+.tp-lnk{display:block;font-size:.83rem;color:var(--ink-2);padding:.32rem .35rem;border-radius:6px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.tp-lnk:hover{background:var(--bg-2);color:var(--ink)}
+.tp-dd{min-width:190px;padding:.4rem}
+/* ===== flip layout: desktop usa topnav; mobile mantém sidebar-drawer ===== */
+@media(min-width:769px){
+  .tp-topnav{display:flex}
+  .sidebar{display:none}
+  .page-wrapper{margin-left:0}
+  .topbar{position:static}
+}
+@media(max-width:768px){ .tp-topnav{display:none} }
+</style>
 </head>
 <body>
 
@@ -1630,6 +1673,61 @@ async function tibiaFetch(path) {
      PAGE WRAPPER
 ═══════════════════════════════ -->
 <div class="page-wrapper">
+
+  <!-- ═══ NAV HORIZONTAL (desktop) ═══ -->
+  <div class="tp-topnav" id="tp-topnav">
+    <button class="tp-tn-logo" data-page="home" title="Início"><span class="p">🐼</span><b>Tibia<span>Panda</span></b></button>
+    <nav class="tp-tn-nav">
+      <button class="tp-tn-item" data-tn="ini" data-page="home">Início</button>
+      <button class="tp-tn-item feat" data-tn="builds" data-page="builds" data-init="tpBuildsInit">★ Builds</button>
+      <div style="position:relative">
+        <button class="tp-tn-item" data-tn="ferr" data-mega="ferr">Ferramentas <span class="tp-tn-cav">▼</span></button>
+        <div class="tp-pop tp-mega" id="tp-mega-ferr">
+          <div class="tp-mega-grid">
+            <div class="tp-mega-col"><h5>Caçar</h5>
+              <a class="tp-lnk" data-page="huntfinder">Hunt Finder</a>
+              <a class="tp-lnk" data-page="partyfinder">Party Finder</a>
+              <a class="tp-lnk" data-page="lootsplit">Loot Split</a>
+              <a class="tp-lnk" data-page="bosses">Bosses</a>
+            </div>
+            <div class="tp-mega-col"><h5>Personagem &amp; Builds</h5>
+              <a class="tp-lnk" data-page="dmgcalc" data-init="tpDmgInit">Calculadora de Dano</a>
+              <a class="tp-lnk" data-page="builds" data-init="tpBuildsInit">Builds</a>
+              <a class="tp-lnk" data-page="imbuements">Imbuements</a>
+              <a class="tp-lnk" data-page="exercisecalc">Exercise Weapons</a>
+              <a class="tp-lnk" data-page="character">Personagem</a>
+            </div>
+            <div class="tp-mega-col"><h5>Progresso &amp; Guias</h5>
+              <a class="tp-lnk" data-page="quests">Guia de Quests</a>
+              <a class="tp-lnk" data-page="delivery">Task Delivery</a>
+              <a class="tp-lnk" data-page="houses" data-init="tpHousesInit">Houses</a>
+            </div>
+            <div class="tp-mega-col"><h5>Minha Conta</h5>
+              <a class="tp-lnk" data-page="profile">Meu Perfil</a>
+              <a class="tp-lnk" data-page="dashboard">Visão geral</a>
+              <a class="tp-lnk" data-page="pthistory">Histórico de hunts</a>
+              <a class="tp-lnk" data-page="bestiary" data-init="tpBestiaryLoad">Bestiary</a>
+              <a class="tp-lnk" data-page="store" data-init="tpStoreLoad">Store</a>
+              <a class="tp-lnk" data-page="__dados__">Dados Pessoais</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button class="tp-tn-item" data-tn="rank" data-page="rankings">Rankings</button>
+      <div style="position:relative">
+        <button class="tp-tn-item" data-tn="com" data-dd="com">Comunidade <span class="tp-tn-cav">▼</span></button>
+        <div class="tp-pop tp-dd" id="tp-dd-com">
+          <a class="tp-lnk" data-page="events">Eventos</a>
+          <a class="tp-lnk" data-page="agenda" data-init="tpAgendaLoad">Agenda</a>
+          <a class="tp-lnk" data-page="creators" data-init="tpCreatorsLoad">Criadores</a>
+        </div>
+      </div>
+    </nav>
+    <span class="tp-tn-spacer"></span>
+    <label class="tp-tn-search"><span>🔎</span><input id="tp-tn-search-input" placeholder="Buscar personagem…" autocomplete="off"></label>
+    <button class="tp-tn-theme" onclick="toggleDark()" title="Tema">☀</button>
+  </div>
+
 
   <!-- Top bar -->
   <div class="topbar">
@@ -1976,7 +2074,7 @@ async function tibiaFetch(path) {
     @media(max-width:640px){#character .cpg-info{grid-template-columns:1fr}#character .cpg-stats{grid-template-columns:1fr}}
     </style>
 
-    <h2 class="sec-title">🐼 Personagem</h2>
+    <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/></svg> Personagem</h2>
     <p class="sec-sub">Perfil completo de qualquer personagem — dados ao vivo via TibiaData.</p>
 
     <div class="cpg-search">
@@ -2408,7 +2506,7 @@ async function tibiaFetch(path) {
       #creators .cr-livecount b{color:#e0397a}
       #cr-grid.liveonly .cr-card:not(.live){display:none}
     </style>
-    <h2 class="sec-title">🎥 Criadores &amp; Streamers</h2>
+    <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12.553 1.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/></svg> Criadores &amp; Streamers</h2>
     <p class="sec-sub">Jogadores da comunidade que criam conteúdo de Tibia. Quem está <b style="color:#e0397a">ao vivo na Twitch</b> aparece destacado. Cadastre seus canais no seu perfil (Dados Pessoais) pra aparecer aqui.</p>
     <div class="cr-seg" id="cr-filterbar">
       <button class="on" data-f="all" onclick="if(window.tpCreatorsFilter)tpCreatorsFilter('all',this)">Todos</button>
@@ -2521,7 +2619,7 @@ async function tibiaFetch(path) {
       .agchat-input button:disabled{opacity:.5;cursor:not-allowed}
       .agchat-gate{text-align:center;padding:.9rem;background:var(--bg-2,#1b1a25);border-radius:10px;color:var(--muted);font-size:.82rem;margin-top:.7rem}
     </style>
-    <h2 class="sec-title">📅 Agenda da Comunidade</h2>
+    <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/></svg> Agenda da Comunidade</h2>
     <p class="sec-sub">Hunts, bosses, quests e eventos marcados pela comunidade. Confirme presença e adicione ao seu calendário. Crie os seus — públicos (do servidor), pra amigos, guild ou privados.</p>
     <div class="ag-top">
       <div class="ag-seg" id="ag-scopebar">
@@ -2691,7 +2789,7 @@ async function tibiaFetch(path) {
 
   <!-- ─── PAINEL DE MODERAÇÃO ─── -->
   <section class="page-section" id="moderation">
-    <h2 class="sec-title">🛡️ Painel de Moderação</h2>
+    <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.5l6.5 2.5v5c0 4-2.8 7.5-6.5 9-3.7-1.5-6.5-5-6.5-9v-5L10 1.5zm-1 11l4.5-4.5-1.4-1.4L9 9.7 7.9 8.6 6.5 10 9 12.5z"/></svg> Painel de Moderação</h2>
     <p class="sec-sub">Aprove ou recuse o conteúdo enviado pela comunidade. Aprove só o que é do tema Tibia; recuse conteúdo fora do tema, ofensivo, spam ou de baixa qualidade.</p>
     <div class="card" style="margin-bottom:1rem">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
@@ -2929,7 +3027,7 @@ PlayerName (Leader)
   <!-- ─── HISTÓRICO DA PT ─── -->
   <!-- ─── RANKINGS ─── -->
   <section class="page-section" id="rankings">
-    <h2 class="sec-title">🏆 Rankings da comunidade</h2>
+    <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 00-.364 1.118l1.287 3.958c.3.922-.755 1.688-1.54 1.118l-3.366-2.446a1 1 0 00-1.175 0l-3.367 2.446c-.784.57-1.838-.196-1.539-1.118l1.287-3.958a1 1 0 00-.364-1.118L2.98 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.958z"/></svg> Rankings da comunidade</h2>
     <p class="sec-sub">O placar do Tibia Panda. XP de hunt (hoje, semana e mês), profit e XP da comunidade — global ou entre seus amigos. Salve hunts no Loot Split pra aparecer.</p>
     <style>
       #rk-gate{display:none}
@@ -3934,7 +4032,7 @@ PlayerName (Leader)
     #bestiary .rec-empty{font-size:.8rem;color:var(--muted);padding:.4rem 0}
   </style>
   <section class="page-section" id="bestiary">
-    <h2 class="sec-title">🐾 Bestiary</h2>
+    <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg> Bestiary</h2>
     <p class="sec-sub">Seu progresso de criaturas — <b>descobertas</b> e <b>completas</b> (charm liberado). Alimentado pelos Hunt Analysers que você salva no Loot Split.</p>
 
     <div id="best-gate" style="display:none;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:12px;padding:1.4rem;text-align:center;color:var(--muted)">
@@ -3971,7 +4069,7 @@ PlayerName (Leader)
   <section class="page-section" id="store">
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
       <div>
-        <h2 class="sec-title" style="margin-bottom:.2rem">🛍️ Store</h2>
+        <h2 class="sec-title" style="margin-bottom:.2rem"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 2a3 3 0 00-3 3v1H5.5a1 1 0 00-.99.86l-1.2 8.4A2 2 0 005.29 18h9.42a2 2 0 001.98-2.74l-1.2-8.4A1 1 0 0014.5 6H13V5a3 3 0 00-3-3zM9 5a1 1 0 112 0v1H9V5z"/></svg> Store</h2>
         <p class="sec-sub" style="margin:0">Desbloqueie outfits com <strong style="color:var(--gold,#f0b429)">Panda Coins</strong> — a moeda que você ganha jogando e cumprindo missões. Sem dinheiro real.</p>
       </div>
       <div id="store-balance" style="display:flex;align-items:center;gap:.5rem;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:12px;padding:.6rem 1rem;white-space:nowrap">
@@ -4498,7 +4596,7 @@ PlayerName (Leader)
       #dmgcalc #dc-frame{width:100%;border:0;display:block;background:#131210;min-height:1500px}
       #dmgcalc .dc-conf{font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:4px;text-transform:uppercase;background:var(--gold-dim,#d4af4f18);color:var(--gold,#d4af4f);margin-left:.4rem}
     </style>
-    <h2 class="sec-title">⚔️ Calculadora de Dano</h2>
+    <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2h6v2H7V4zm0 4h2v2H7V8zm0 4h2v2H7v-2zm4-4h2v6h-2V8z"/></svg> Calculadora de Dano</h2>
     <p class="sec-sub">Estime o dano das suas magias e ataques contra qualquer criatura — todas as vocações, com equipamento, wheel, rotação e comparador A/B. <span class="dc-conf">beta · fórmulas da comunidade validadas 1:1</span></p>
 
     <!-- Gate de login (mesma mecânica de Rankings/Histórico) -->
@@ -4523,7 +4621,7 @@ PlayerName (Leader)
     </div>
   </section>
 
-    <!-- ─────────────────────────  BUILDS (galeria + página de detalhe)  ───────────────────────── -->
+      <!-- ─────────────────────────  BUILDS (galeria + página de detalhe)  ───────────────────────── -->
   <section class="page-section" id="builds">
     <style>
       #builds .bld-sub{font-size:.78rem}
@@ -4558,13 +4656,10 @@ PlayerName (Leader)
       #builds .bd-hero .bld-wic img{width:40px;height:40px}
       #builds .bd-htext{min-width:0}
       #builds .bd-wname{font-size:1.3rem;font-weight:800;color:var(--ink);line-height:1.1}
-      #builds .bd-grid{display:grid;grid-template-columns:minmax(0,420px) 1fr;gap:1.3rem;margin-top:1.1rem;align-items:start}
+      #builds .bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem 1.6rem;margin-top:1.3rem;align-items:start}
       @media(max-width:820px){#builds .bd-grid{grid-template-columns:1fr}}
-      #builds .bd-wheelwrap{background:var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:.7rem;text-align:center}
-      #builds .bd-wheelwrap img{width:100%;max-width:420px;height:auto;border-radius:10px;display:block;margin:0 auto}
-      #builds .bd-wheelcap{font-size:.72rem;color:var(--ink-3);margin-top:.5rem;text-transform:uppercase;letter-spacing:.04em}
-      #builds .bd-acts{display:flex;flex-direction:column;gap:.5rem;margin-top:.7rem}
-      #builds .bd-acts button{font:inherit;cursor:pointer;border-radius:9px;font-size:.82rem;font-weight:700;padding:.65rem .5rem;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;gap:.4rem;transition:var(--transition-color),transform .1s}
+      #builds .bd-acts{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.9rem}
+      #builds .bd-acts button{flex:1;min-width:180px;font:inherit;cursor:pointer;border-radius:9px;font-size:.82rem;font-weight:700;padding:.65rem .5rem;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;gap:.4rem;transition:var(--transition-color),transform .1s}
       #builds .bd-acts button:active{transform:scale(.985)}
       #builds .bd-open{background:var(--bamboo);border-color:var(--bamboo)!important;color:#fff}
       #builds .bd-open:hover{background:var(--bamboo-light)}
@@ -4590,8 +4685,8 @@ PlayerName (Leader)
       #builds .bd-eqi b{color:var(--ink-3);font-weight:600;text-transform:capitalize}
       #builds .bd-note{margin-top:1.2rem;font-size:.73rem;color:var(--ink-3);line-height:1.5}
     </style>
-    <h2 class="sec-title">🐼 Builds prontas</h2>
-    <p class="sec-sub bld-sub">Builds validadas 1:1 contra a calculadora — uma boa referência por vocação e faixa de nível. Clique numa build pra ver o detalhe completo, a roda do destino e abrir na calculadora. <span class="dc-conf" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--gold-dim);color:var(--gold)">dano conferido pelo motor</span></p>
+    <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 5a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm7 0a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2h-3a2 2 0 01-2-2V5z"/></svg> Builds prontas</h2>
+    <p class="sec-sub bld-sub">Builds validadas 1:1 contra a calculadora — uma boa referência por vocação e faixa de nível. Clique numa build pra ver o detalhe completo, as proficiências, a rotação e abrir na calculadora. <span class="dc-conf" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--gold-dim);color:var(--gold)">dano conferido pelo motor</span></p>
 
     <div id="bld-list">
       <div class="bld-filters" id="bld-filters"></div>
@@ -4619,7 +4714,6 @@ PlayerName (Leader)
     function encodeBuild(o){ try{ return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }catch(e){ return ''; } }
     function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
     function fmtNum(n){ n=+n||0; return n.toLocaleString('pt-BR'); }
-    function wheelUrl(id){ return 'assets/builds-wheel/'+id+'.webp'; }
 
     /* ---------- grid ---------- */
     function card(b){
@@ -4680,21 +4774,18 @@ PlayerName (Leader)
         +'<div class="bd-wname">'+esc(w.name||'—')+'</div></div></div>'
         +'<div class="bld-dmg" style="max-width:260px"><b>'+fmtNum(b.dano)+'</b><span>dano / turno</span></div>'
         +'<div class="bld-meta" style="margin-top:.5rem">'+tags.join('')+'</div>'
+        +'<div class="bd-acts">'
+          +'<button class="bd-open" onclick="tpOpenBuildInCalc(\''+code+'\')">⚔️ Abrir na Calculadora</button>'
+          +'<button class="bd-ghost" data-code="'+code+'" onclick="tpCopyBuild(this)">📋 Copiar código da build</button>'
+        +'</div>'
         +'<div class="bd-grid">'
           +'<div>'
-            +'<div class="bd-wheelwrap"><img src="'+wheelUrl(id)+'" alt="Roda do Destino" loading="lazy" onerror="this.parentNode.style.display=\'none\'">'
-            +'<div class="bd-wheelcap">🎡 Roda do Destino</div></div>'
-            +'<div class="bd-acts">'
-              +'<button class="bd-open" onclick="tpOpenBuildInCalc(\''+code+'\')">⚔️ Abrir na Calculadora</button>'
-              +'<button class="bd-ghost" data-code="'+code+'" onclick="tpCopyBuild(this)">📋 Copiar código da build</button>'
-              +'<button class="bd-ghost" onclick="tpDownloadWheel(\''+id+'\',\''+esc((voc.label+' '+(inp.level?'lvl'+inp.level:'')).replace(/[^a-z0-9]/gi,'_'))+'\')">🎡 Baixar imagem da roda</button>'
-            +'</div>'
+            +(statTiles?'<div class="bd-sect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg> Atributos</h4><div class="bd-stats">'+statTiles+'</div></div>':'')
+            +((perks||shapes)?'<div class="bd-sect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg> Proficiências da arma</h4><div class="bd-perks">'+perks+shapes+'</div></div>':'')
           +'</div>'
           +'<div>'
-            +(statTiles?'<div class="bd-sect"><h4>📊 Atributos</h4><div class="bd-stats">'+statTiles+'</div></div>':'')
-            +((perks||shapes)?'<div class="bd-sect"><h4>🗡️ Proficiências da arma</h4><div class="bd-perks">'+perks+shapes+'</div></div>':'')
-            +(rot?'<div class="bd-sect"><h4>🔁 Rotação</h4><div class="bd-rot">'+rot+'</div></div>':'')
-            +(eq?'<div class="bd-sect"><h4>🛡️ Equipamento</h4><div class="bd-eq">'+eq+'</div></div>':'')
+            +(rot?'<div class="bd-sect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/></svg> Rotação</h4><div class="bd-rot">'+rot+'</div></div>':'')
+            +(eq?'<div class="bd-sect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.5l6.5 2.5v5c0 4-2.8 7.5-6.5 9-3.7-1.5-6.5-5-6.5-9v-5L10 1.5zm-1 11l4.5-4.5-1.4-1.4L9 9.7 7.9 8.6 6.5 10 9 12.5z"/></svg> Equipamento</h4><div class="bd-eq">'+eq+'</div></div>':'')
           +'</div>'
         +'</div>';
       var host=document.getElementById('bld-detail'); host.innerHTML=html;
@@ -4706,10 +4797,6 @@ PlayerName (Leader)
       document.getElementById('builds').classList.remove('detail');
       var ln=document.getElementById('bld-listnote'); if(ln)ln.style.display='';
       window.scrollTo({top:0,behavior:'smooth'});
-    };
-    window.tpDownloadWheel=function(id,fname){
-      var a=document.createElement('a'); a.href=wheelUrl(id); a.download='roda_'+fname+'.webp';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
     };
     window.tpOpenBuildInCalc=function(code){
       showPage('dmgcalc');
@@ -4742,6 +4829,7 @@ PlayerName (Leader)
     };
   })();
   </script>
+
 
 
 
@@ -17764,5 +17852,44 @@ window.tpLoadJornada=async function(){
 })();
 </script>
 
+
+  <script>
+  (function(){
+    function closeMenus(){ document.querySelectorAll('.tp-pop.open').forEach(function(x){x.classList.remove('open');}); }
+    window.tpCloseTopMenus=closeMenus;
+    var PAGEMAP={home:'ini',builds:'builds',rankings:'rank',events:'com',agenda:'com',creators:'com'};
+    function sync(){
+      var act=document.querySelector('.page-section.active');
+      var id=act?act.id:'home';
+      var tn=PAGEMAP[id]||'ferr';
+      document.querySelectorAll('.tp-tn-item[data-tn]').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-tn')===tn); });
+    }
+    window.tpTopnavSync=sync;
+    function go(page, initName){
+      closeMenus();
+      if(page==='__dados__'){ if(window.tpAccountPage) tpAccountPage('dados'); }
+      else { if(window.showPage) showPage(page); if(initName && typeof window[initName]==='function') window[initName](); }
+      setTimeout(sync,0);
+    }
+    var tn=document.getElementById('tp-topnav');
+    if(tn){
+      tn.addEventListener('click', function(e){
+        var lnk=e.target.closest('[data-page]');
+        if(lnk){ e.preventDefault(); go(lnk.getAttribute('data-page'), lnk.getAttribute('data-init')); return; }
+        var mega=e.target.closest('[data-mega]');
+        if(mega){ e.stopPropagation(); var pop=document.getElementById('tp-mega-'+mega.getAttribute('data-mega')); var was=pop.classList.contains('open'); closeMenus(); if(!was)pop.classList.add('open'); return; }
+        var dd=e.target.closest('[data-dd]');
+        if(dd){ e.stopPropagation(); var pop2=document.getElementById('tp-dd-'+dd.getAttribute('data-dd')); var was2=pop2.classList.contains('open'); closeMenus(); if(!was2)pop2.classList.add('open'); return; }
+      });
+      var si=document.getElementById('tp-tn-search-input');
+      if(si) si.addEventListener('keydown', function(e){ if(e.key==='Enter'){ var v=si.value.trim(); go('character'); var ci=document.getElementById('character-search')||document.querySelector('#character input'); if(ci){ci.value=v; try{ci.dispatchEvent(new Event('input',{bubbles:true}));}catch(_){}} } });
+    }
+    document.addEventListener('click', function(e){ if(!e.target.closest('.tp-topnav')) closeMenus(); });
+    if(document.readyState!=='loading') sync(); else document.addEventListener('DOMContentLoaded', sync);
+    // keep top nav in sync when any showPage happens (sidebar/mobile clicks too)
+    var _sp=window.showPage;
+    if(typeof _sp==='function'){ window.showPage=function(){ var r=_sp.apply(this,arguments); try{setTimeout(sync,0);}catch(_){}; return r; }; }
+  })();
+  </script>
 </body>
 </html>
