@@ -4839,9 +4839,18 @@ PlayerName (Leader)
       var P=Math.max(0,Math.min((+level||0)-50,W.total)), pts={}, domPts=[0,0,0,0], left=P;
       var slotsByDom={}; [0,1,2,3].forEach(function(dm){ slotsByDom[dm]=W.slots.filter(function(s){return s.dom===dm;}).sort(function(a,b){return a.ring-b.ring||a.i-b.i;}); });
       function fillTo(dm,target){ var ss=slotsByDom[dm]; for(var k=0;k<ss.length;k++){ if(left<=0||domPts[dm]>=target)break; var s=ss[k], cur=pts[s.i]||0, room=s.max-cur; if(room<=0)continue; var take=Math.min(room,target-domPts[dm],left); if(take>0){pts[s.i]=cur+take;domPts[dm]+=take;left-=take;} } }
-      /* garante o estagio ofensivo (dom3, casa com a rotacao) primeiro, depois ativa Gift of Life (2) e Avatar (0) — "um lado e depois o outro", subindo estagios em conjunto */
-      [[3,250],[2,250],[0,250],[3,500],[2,500],[0,500],[1,250],[3,1000],[2,1000],[0,1000],[1,500],[1,1000]].forEach(function(g){ fillTo(g[0],g[1]); });
-      [3,2,0,1].forEach(function(dm){ fillTo(dm,1000); });
+      var byId={}; W.slots.forEach(function(s){byId[s.i]=s;});
+      function fillSlot(i){ var s=byId[i]; if(!s)return; var cur=pts[i]||0, room=s.max-cur; if(room<=0||left<=0)return; var t=Math.min(room,left); pts[i]=cur+t; domPts[s.dom]+=t; left-=t; }
+      function pathTo(i){ var s=byId[i],path=[]; while(s){ path.unshift(s.i); if(s.ring===0||!s.par||!s.par.length)break; s=s.par.map(function(x){return byId[x];}).sort(function(a,b){return a.ring-b.ring;})[0]; } return path; }
+      if(voc==='sorcerer'){
+        /* MS Master of Decay: garante o Aug. Death Echo dos DOIS lados (dom1 slot16 + dom3 slot22) = +12% dano base no Death Echo + reduz CD; depois Beam Mastery(3), Lord of Destruction(1), Gift of Life(2), Avatar(0) */
+        [22,16].forEach(function(i){ pathTo(i).forEach(fillSlot); });
+        [3,1,2,0].forEach(function(dm){ slotsByDom[dm].forEach(function(s){ fillSlot(s.i); }); });
+      } else {
+        /* garante o estagio ofensivo (dom3, casa com a rotacao) primeiro, depois Gift of Life (2) e Avatar (0) — "um lado e depois o outro" */
+        [[3,250],[2,250],[0,250],[3,500],[2,500],[0,500],[1,250],[3,1000],[2,1000],[0,1000],[1,500],[1,1000]].forEach(function(g){ fillTo(g[0],g[1]); });
+        [3,2,0,1].forEach(function(dm){ fillTo(dm,1000); });
+      }
       function stg(p){var s=0;W.stageAt.forEach(function(th,i){if(p>=th)s=i+1;});return s;}
       var stages=domPts.map(stg), flat=0; stages.forEach(function(s){flat+=W.revDmg[s]||0;});
       return {pts:pts,domPts:domPts,stages:stages,flat:flat,total:P,cap:W.total};
