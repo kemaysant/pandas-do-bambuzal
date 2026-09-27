@@ -4791,26 +4791,26 @@ PlayerName (Leader)
     /* ---- MS (Master Sorcerer) modo elemental: seletor Decay / Flames / Thunder ---- */
     (function(){
       var DANOS={
-        "f8f445af-4e37-4309-b018-29777b5f06e4":{decay:4106,flames:3587,thunder:3552},
-        "61a4cdd2-873a-4819-90e5-2a2e8b856af2":{decay:4595,flames:3990,thunder:4018},
-        "c0664827-01f5-45c1-abec-f0f0aeb96dc2":{decay:5200,flames:4518,thunder:4486},
-        "630a3868-ed00-4deb-8a9c-b304cda9360e":{decay:5751,flames:5062,thunder:5031},
-        "c52315fb-4dc2-4745-a5f2-5086b4e3d85c":{decay:6086,flames:5369,thunder:5389},
-        "5cb06486-2346-4b47-9689-77aabe48b14a":{decay:6392,flames:5650,thunder:5672},
-        "0c2cffec-dd1f-4025-9273-eae0850e25a3":{decay:6704,flames:5950,thunder:5973},
-        "95212bfa-7621-45b2-9144-7c9efb1cf7ae":{decay:6883,flames:6120,thunder:6145},
-        "48ed5bda-9cfe-43cd-a0de-5a7499e2d498":{decay:7056,flames:6400,thunder:6268}
+        "f8f445af-4e37-4309-b018-29777b5f06e4":{decay:4106,flames:3704,thunder:3552},
+        "61a4cdd2-873a-4819-90e5-2a2e8b856af2":{decay:4595,flames:4085,thunder:4090},
+        "c0664827-01f5-45c1-abec-f0f0aeb96dc2":{decay:5200,flames:4636,thunder:4486},
+        "630a3868-ed00-4deb-8a9c-b304cda9360e":{decay:5751,flames:5140,thunder:4827},
+        "c52315fb-4dc2-4745-a5f2-5086b4e3d85c":{decay:6121,flames:5459,thunder:5293},
+        "5cb06486-2346-4b47-9689-77aabe48b14a":{decay:6424,flames:5738,thunder:5538},
+        "0c2cffec-dd1f-4025-9273-eae0850e25a3":{decay:6704,flames:6031,thunder:5831},
+        "95212bfa-7621-45b2-9144-7c9efb1cf7ae":{decay:6921,flames:6199,thunder:6036},
+        "48ed5bda-9cfe-43cd-a0de-5a7499e2d498":{decay:7165,flames:6489,thunder:6385}
       };
       function R(list){return list.map(function(x){return {n:x[0],tg:5,focus:!!x[2],cd:x[1]};});}
       var ROT_DECAY=[["Death Echo",4,false],["Energy Wave",null,false],["Death Echo",4,false],["Great Death Beam",null,false],["Hell's Core",2,true]];
-      var ROT_FLAMES=[["Great Fire Wave",null,false],["Death Echo",4,false],["Great Fire Wave",null,false],["Death Echo",4,false],["Death Echo",4,false],["Hell's Core",2,true]];
+      var ROT_FLAMES=[["Great Fire Wave",null,false],["Death Echo",4,false],["Great Fire Wave",null,false],["Death Echo",4,false],["Hell's Core",2,true]];
       var ROT_THUNDER=[["Energy Wave",null,false],["Death Echo",4,false],["Great Energy Beam",null,false],["Death Echo",4,false]];
       Object.keys(DANOS).forEach(function(bid){
         if(!BDET[bid])return; var d=DANOS[bid];
         BDET[bid].modes={
           decay:{lbl:'Master of Decay',sub:'morte',rot:R(ROT_DECAY),el:'death',dano:d.decay},
           flames:{lbl:'Master of Flames',sub:'fogo',rot:R(ROT_FLAMES),el:'fire',dano:d.flames},
-          thunder:{lbl:'Master of Thunder',sub:'energia',rot:R(ROT_THUNDER),el:'energy',dano:d.thunder,pre:true}
+          thunder:{lbl:'Master of Thunder',sub:'energia',rot:R(ROT_THUNDER),el:'energy',dano:d.thunder}
         };
         BDET[bid].defMode='decay';
       });
@@ -4874,7 +4874,7 @@ PlayerName (Leader)
       document.addEventListener('mouseout', function(e){ var t=e.target.closest&&e.target.closest('.bd-rspell[data-anim]'); if(!t)return; var to=e.relatedTarget; if(to&&to.closest&&to.closest('.bd-rspell[data-anim]')===t)return; if(pop)pop.style.display='none'; });
       function place(p,t){ var r=t.getBoundingClientRect(); var pw=248, ph=175; var left=r.left+r.width/2-pw/2; left=Math.max(8,Math.min(left,window.innerWidth-pw-8)); var top=r.top-ph-10; if(top<8)top=r.bottom+10; p.style.left=Math.round(left)+'px'; p.style.top=Math.round(top)+'px'; }
     })();
-    function tpWheelAlloc(voc,level){
+    function tpWheelAlloc(voc,level,mode){
       var W=TP_WHEEL[voc]; if(!W)return null;
       var P=Math.max(0,Math.min((+level||0)-50,W.total)), pts={}, domPts=[0,0,0,0], left=P;
       var slotsByDom={}; [0,1,2,3].forEach(function(dm){ slotsByDom[dm]=W.slots.filter(function(s){return s.dom===dm;}).sort(function(a,b){return a.ring-b.ring||a.i-b.i;}); });
@@ -4882,10 +4882,13 @@ PlayerName (Leader)
       var byId={}; W.slots.forEach(function(s){byId[s.i]=s;});
       function fillSlot(i){ var s=byId[i]; if(!s)return; var cur=pts[i]||0, room=s.max-cur; if(room<=0||left<=0)return; var t=Math.min(room,left); pts[i]=cur+t; domPts[s.dom]+=t; left-=t; }
       function pathTo(i){ var s=byId[i],path=[]; while(s){ path.unshift(s.i); if(s.ring===0||!s.par||!s.par.length)break; s=s.par.map(function(x){return byId[x];}).sort(function(a,b){return a.ring-b.ring;})[0]; } return path; }
-      if(voc==='sorcerer'){
-        /* MS Master of Decay: garante o Aug. Death Echo dos DOIS lados (dom1 slot16 + dom3 slot22) = +12% dano base no Death Echo + reduz CD; depois Beam Mastery(3), Lord of Destruction(1), Gift of Life(2), Avatar(0) */
-        [22,16].forEach(function(i){ pathTo(i).forEach(fillSlot); });
-        [3,1,2,0].forEach(function(dm){ slotsByDom[dm].forEach(function(s){ fillSlot(s.i); }); });
+      if(voc==='sorcerer' && mode==='thunder'){
+        /* MS Master of Thunder (energia): prioriza Beam Mastery (dom3) para ativar as retas laterais do Great Energy Beam (vis lux) — "bufar a roda do lado"; intercala Lord of Destruction/Aug Death Echo (dom1) */
+        [[3,250],[1,250],[3,500],[1,500],[2,250],[0,250],[3,1000],[1,1000],[2,500],[0,500],[2,1000],[0,1000]].forEach(function(g){ fillTo(g[0],g[1]); });
+      } else if(voc==='sorcerer'){
+        /* MS Master of Decay/Flames: reproduz a roda de MORTE real (builds do user no planner oficial) — prioriza AUGMENTS: Aug. Death Echo II (slots 22+16 → +12% base no Death Echo; o caminho já acende Aug. Focus Spells I slot1 = +5% Hell's Core e Aug. Great Fire Wave I slot3), depois Aug. Energy Wave II (slots 13+18 = +10% Energy Wave). Espalha p/ augments em vez de concentrar em revelação (como as builds reais fazem) */
+        [22,16,13,18].forEach(function(i){ pathTo(i).forEach(fillSlot); });
+        [3,1,0,2].forEach(function(dm){ slotsByDom[dm].forEach(function(s){ fillSlot(s.i); }); });
       } else {
         /* garante o estagio ofensivo (dom3, casa com a rotacao) primeiro, depois Gift of Life (2) e Avatar (0) — "um lado e depois o outro" */
         [[3,250],[2,250],[0,250],[3,500],[2,500],[0,500],[1,250],[3,1000],[2,1000],[0,1000],[1,500],[1,1000]].forEach(function(g){ fillTo(g[0],g[1]); });
@@ -4895,10 +4898,11 @@ PlayerName (Leader)
       var stages=domPts.map(stg), flat=0; stages.forEach(function(s){flat+=W.revDmg[s]||0;});
       return {pts:pts,domPts:domPts,stages:stages,flat:flat,total:P,cap:W.total};
     }
-    function tpWheelSVG(voc,level,id){
+    function tpWheelSVG(voc,level,id,mode){
       var W=TP_WHEEL[voc]; if(!W)return '';
-      var A=tpWheelAlloc(voc,level); if(!A)return '';
-      var svg='<img class="bd-wheelimg" src="assets/builds-wheel/'+id+'.webp" alt="Roda do Destino" loading="lazy" onerror="this.style.display=\'none\'">';
+      var A=tpWheelAlloc(voc,level,mode); if(!A)return '';
+      var imgFile=(voc==='sorcerer'&&mode==='thunder')?(id+'-thunder.webp'):(id+'.webp');
+      var svg='<img class="bd-wheelimg" src="assets/builds-wheel/'+imgFile+'" alt="Roda do Destino" loading="lazy" onerror="this.style.display=\'none\'">';
       var rows=[3,0,2,1].map(function(dm){
         var d=W.domains[dm], stgN=A.stages[dm], p=A.domPts[dm];
         var tag=(dm===3?' <em>· ofensivo (casa com a rotação)</em>':(dm===2?' <em>· sobrevivência</em>':(dm===0?' <em>· avatar</em>':'')));
@@ -4912,7 +4916,12 @@ PlayerName (Leader)
         : '<div class="bd-wflat off">Sem estágio de revelação neste nível <span>(1º estágio = 250 pts = nível 300)</span></div>';
       var nhit=A.stages.filter(function(s){return s>0;}).length;
       var tip;
-      if(A.total>=250) tip='Estratégia: primeiro o <b>domínio ofensivo</b> (que empodera a rotação) até o Estágio I, depois <b>Gift of Life</b> e <b>Avatar</b> — ativando um lado e depois o outro. '+(nhit>1?('Aqui já são <b>'+nhit+' revelações</b> ativas.'):'')+' Alternativa: concentrar tudo num domínio para subir o estágio mais rápido (Estágio II = +9 &gt; dois Estágio I = +8), trocando sobrevivência por um pouco mais de dano.';
+      if(voc==='sorcerer'&&mode==='thunder'){
+        tip=(A.total>=250)
+          ? 'Estratégia (energia): prioriza <b>Beam Mastery</b> (o lado do feixe) para ativar as <b>retas laterais do Great Energy Beam</b> (vis lux) — é o buff que a rotação de energia precisa. '+(A.stages[3]>0?('Beam Mastery já está no <b>Estágio '+TP_WROMAN[A.stages[3]]+'</b>.'):'')+' Em seguida <b>Lord of Destruction</b> (Aug. Death Echo do outro lado).'
+          : 'Abaixo de 250 pts o feixe ainda não ganha as retas laterais; o 1º estágio de Beam Mastery abre no nível 300.';
+      }
+      else if(A.total>=250) tip='Estratégia: primeiro o <b>domínio ofensivo</b> (que empodera a rotação) até o Estágio I, depois <b>Gift of Life</b> e <b>Avatar</b> — ativando um lado e depois o outro. '+(nhit>1?('Aqui já são <b>'+nhit+' revelações</b> ativas.'):'')+' Alternativa: concentrar tudo num domínio para subir o estágio mais rápido (Estágio II = +9 &gt; dois Estágio I = +8), trocando sobrevivência por um pouco mais de dano.';
       else tip='Abaixo de 250 pts os pontos vão para atributos/skills e o caminho de Gift of Life. O 1º estágio de revelação abre no nível 300.';
       var side='<div class="bd-wside"><div class="bd-wpts">'+A.total+' <span>pontos de promoção</span></div>'
         +flatLine+'<div class="bd-wdoms">'+rows+'</div><div class="bd-wtip">'+tip+'</div>'
@@ -4995,7 +5004,7 @@ PlayerName (Leader)
       if(_M) tags.push('<span class="bld-tag">'+esc(_M.lbl)+' ('+esc(_M.sub)+')</span>');
       else if(bb.stance&&bb.stance!=='none') tags.push('<span class="bld-tag">'+esc(STANCE_LBL[bb.stance]||bb.stance)+'</span>');
 
-      var wheelHtml=tpWheelSVG(b.vocation,(inp.level||st.level||0),id);
+      var wheelHtml=tpWheelSVG(b.vocation,(inp.level||st.level||0),id,_curMode);
       var html='<button class="bd-back" onclick="tpCloseBuild()">← Voltar às builds</button>'
         +'<div class="bd-hero"><div class="bld-wic">'+(ic?'<img src="'+ic+'" alt="">':'⚔️')+'</div>'
         +'<div class="bd-htext"><div class="bld-vname">'+voc.emoji+' '+esc(voc.label)+(inp.level?' · Nível '+esc(inp.level):'')+'</div>'
