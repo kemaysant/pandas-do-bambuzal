@@ -239,6 +239,25 @@ body{background-color:var(--bg-0);background-image:radial-gradient(1000px circle
 .nav-btn:hover .nav-icon { opacity: .8; }
 .nav-btn.active .nav-icon { opacity: 1; }
 .nav-label { flex: 1; }
+
+.nav-group{display:flex;flex-direction:column}
+.nav-cat{display:flex;align-items:center;gap:.6rem;width:100%;background:none;border:none;cursor:pointer;padding:.52rem .75rem;border-radius:7px;font-family:'Inter',sans-serif;font-size:.8rem;font-weight:500;color:var(--ink-2);text-align:left;transition:background .15s,color .15s}
+.nav-cat:hover{background:var(--bg-3);color:var(--ink)}
+.nav-cat-icon{width:16px;height:16px;flex-shrink:0;opacity:.55;transition:opacity .15s,color .15s}
+.nav-cat:hover .nav-cat-icon{opacity:.85}
+.nav-cat .nav-label{flex:1}
+.nav-chev{width:13px;height:13px;flex-shrink:0;opacity:.45;transition:transform .2s,opacity .15s}
+.nav-group.open>.nav-cat .nav-chev{transform:rotate(90deg);opacity:.75}
+.nav-group.open>.nav-cat{color:var(--ink)}
+.nav-group.has-active>.nav-cat{color:var(--bamboo-light)}
+.nav-group.has-active>.nav-cat .nav-cat-icon{opacity:1;color:var(--bamboo-light)}
+.nav-sub{display:none;flex-direction:column;gap:1px;margin:.1rem 0 .35rem .7rem;padding-left:.55rem;border-left:1px solid var(--border);overflow:hidden}
+.nav-group.open>.nav-sub{display:flex;animation:navSubIn .18s ease}
+@keyframes navSubIn{from{opacity:.3;transform:translateY(-3px)}to{opacity:1;transform:none}}
+.nav-sub .nav-btn{font-size:.78rem;padding:.44rem .7rem}
+.nav-footlinks{margin-top:1rem;padding-top:.6rem;border-top:1px solid var(--border)}
+.nav-btn.nav-foot{color:var(--muted);font-size:.75rem}
+
 .nav-group-label {
   font-size: .58rem; font-weight: 600;
   letter-spacing: 2px; text-transform: uppercase;
@@ -1458,120 +1477,146 @@ async function tibiaFetch(path) {
   <nav class="site-nav">
     <div class="nav-inner">
 
-      <div class="nav-group-label">Principal</div>
-      <button class="nav-btn active" onclick="showPage('home',this)">
+      <button class="nav-btn" onclick="showPage('home',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h4a1 1 0 001-1v-3h2v3a1 1 0 001 1h4a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
         <span class="nav-label">Início</span>
       </button>
-      <button class="nav-btn" onclick="showPage('events',this)">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
-        <span class="nav-label">Eventos</span>
-      </button>
-      <button class="nav-btn" onclick="showPage('rankings',this)">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-.44 0-.87.038-1.29.111a1 1 0 00-.71.71A8.05 8.05 0 003 7c0 3.36 2.07 6.24 5 7.42V17a1 1 0 102 0v-2.58c2.93-1.18 5-4.06 5-7.42 0-.66-.08-1.31-.24-1.92a1 1 0 00-.71-.71A8.04 8.04 0 0014.5 4a7.968 7.968 0 00-3.5.804V3a1 1 0 10-2 0v1.804zM10 6a3 3 0 100 6 3 3 0 000-6z"/></svg>
-        <span class="nav-label">Rankings</span>
-      </button>
 
       <div class="nav-group-label" style="margin-top:.75rem">Ferramentas</div>
-      <button class="nav-btn" onclick="showPage('bosses',this)">
+      <div class="nav-group" data-g="cacar">
+        <button class="nav-cat" type="button" onclick="tpNavToggle(this)"><svg class="nav-cat-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-3a5 5 0 100-10 5 5 0 000 10zm0-3a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg><span class="nav-label">Caçar</span><svg class="nav-chev" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></button>
+        <div class="nav-sub">
+<button class="nav-btn" onclick="showPage('huntfinder',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Hunt Finder</span>
+      </button><button class="nav-btn" onclick="showPage('partyfinder',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 12.094A5.973 5.973 0 004 15v1H1v-1a3 3 0 013.75-2.906z"/></svg>
+        <span class="nav-label">Party Finder</span>
+      </button><button class="nav-btn" onclick="showPage('lootsplit',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Loot Split</span>
+      </button><button class="nav-btn" onclick="showPage('bosses',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Bosses</span>
       </button>
-      <button class="nav-btn" onclick="showPage('huntfinder',this)">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
-        <span class="nav-label">Hunt Finder</span>
-      </button>
-      <button class="nav-btn" onclick="showPage('partyfinder',this)">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 12.094A5.973 5.973 0 004 15v1H1v-1a3 3 0 013.75-2.906z"/></svg>
-        <span class="nav-label">Party Finder</span>
-      </button>
-      <button class="nav-btn" onclick="showPage('houses',this);if(window.tpHousesInit)tpHousesInit()">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h0a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
-        <span class="nav-label">Houses</span>
-      </button>
-      <button class="nav-btn" onclick="showPage('creators',this);if(window.tpCreatorsLoad)tpCreatorsLoad()">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12.553 1.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/></svg>
-        <span class="nav-label">Criadores</span>
-      </button>
-      <button class="nav-btn" onclick="showPage('agenda',this);if(window.tpAgendaLoad)tpAgendaLoad()">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
-        <span class="nav-label">Agenda</span>
-      </button>
-      <button class="nav-btn" onclick="showPage('character',this)">
+        </div>
+      </div>
+      <div class="nav-group" data-g="perso">
+        <button class="nav-cat" type="button" onclick="tpNavToggle(this)"><svg class="nav-cat-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg><span class="nav-label">Personagem &amp; Builds</span><svg class="nav-chev" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></button>
+        <div class="nav-sub">
+<button class="nav-btn" onclick="showPage('dmgcalc',this);if(window.tpDmgInit)tpDmgInit()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2h6v2H7V4zm0 4h2v2H7V8zm0 4h2v2H7v-2zm4-4h2v6h-2V8z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Calculadora de Dano</span>
+      </button><button class="nav-btn" onclick="showPage('builds',this);if(window.tpBuildsInit)tpBuildsInit()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm7 0a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2h-3a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Builds</span>
+      </button><button class="nav-btn" onclick="showPage('imbuements',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.997.266-1.948.699-2.79A4 4 0 0012 6a4 4 0 00-3.413 6.11c.433.842.684 1.793.7 2.79h2.714z"/></svg>
+        <span class="nav-label">Imbuements</span>
+      </button><button class="nav-btn" onclick="showPage('exercisecalc',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/></svg>
+        <span class="nav-label">Exercise Weapons</span>
+      </button><button class="nav-btn" onclick="showPage('character',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Personagem</span>
       </button>
-      <button class="nav-btn" onclick="showPage('quests',this)">
+        </div>
+      </div>
+      <div class="nav-group" data-g="prog">
+        <button class="nav-cat" type="button" onclick="tpNavToggle(this)"><svg class="nav-cat-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg><span class="nav-label">Progresso &amp; Guias</span><svg class="nav-chev" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></button>
+        <div class="nav-sub">
+<button class="nav-btn" onclick="showPage('quests',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg>
         <span class="nav-label">Guia de Quests</span>
-      </button>
-      <button class="nav-btn" onclick="showPage('imbuements',this)">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.997.266-1.948.699-2.79A4 4 0 0012 6a4 4 0 00-3.413 6.11c.433.842.684 1.793.7 2.79h2.714z"/></svg>
-        <span class="nav-label">Imbuements</span>
-      </button>
-      <button class="nav-btn" onclick="showPage('delivery',this)">
+      </button><button class="nav-btn" onclick="showPage('delivery',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z"/><path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Task Delivery</span>
+      </button><button class="nav-btn" onclick="showPage('houses',this);if(window.tpHousesInit)tpHousesInit()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h0a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+        <span class="nav-label">Houses</span>
       </button>
-      <button class="nav-btn" onclick="showPage('lootsplit',this)">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
-        <span class="nav-label">Loot Split</span>
+        </div>
+      </div>
+      <div class="nav-group" data-g="com">
+        <button class="nav-cat" type="button" onclick="tpNavToggle(this)"><svg class="nav-cat-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 12.094A5.973 5.973 0 004 15v1H1v-1a3 3 0 013.75-2.906z"/></svg><span class="nav-label">Comunidade</span><svg class="nav-chev" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></button>
+        <div class="nav-sub">
+<button class="nav-btn" onclick="showPage('rankings',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-.44 0-.87.038-1.29.111a1 1 0 00-.71.71A8.05 8.05 0 003 7c0 3.36 2.07 6.24 5 7.42V17a1 1 0 102 0v-2.58c2.93-1.18 5-4.06 5-7.42 0-.66-.08-1.31-.24-1.92a1 1 0 00-.71-.71A8.04 8.04 0 0014.5 4a7.968 7.968 0 00-3.5.804V3a1 1 0 10-2 0v1.804zM10 6a3 3 0 100 6 3 3 0 000-6z"/></svg>
+        <span class="nav-label">Rankings</span>
+      </button><button class="nav-btn" onclick="showPage('events',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Eventos</span>
+      </button><button class="nav-btn" onclick="showPage('agenda',this);if(window.tpAgendaLoad)tpAgendaLoad()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Agenda</span>
+      </button><button class="nav-btn" onclick="showPage('creators',this);if(window.tpCreatorsLoad)tpCreatorsLoad()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12.553 1.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/></svg>
+        <span class="nav-label">Criadores</span>
       </button>
-
-      <button class="nav-btn" onclick="showPage('exercisecalc',this)">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/></svg>
-        <span class="nav-label">Exercise Weapons</span>
-      </button>
-
-      <button class="nav-btn" onclick="showPage('dmgcalc',this);if(window.tpDmgInit)tpDmgInit()">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2h6v2H7V4zm0 4h2v2H7V8zm0 4h2v2H7v-2zm4-4h2v6h-2V8z" clip-rule="evenodd"/></svg>
-        <span class="nav-label">Calculadora de Dano</span>
-      </button>
-
-      <button class="nav-btn" onclick="showPage('builds',this);if(window.tpBuildsInit)tpBuildsInit()">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm7 0a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2h-3a2 2 0 01-2-2V5z" clip-rule="evenodd"/></svg>
-        <span class="nav-label">Builds</span>
-      </button>
-
-      <button class="nav-btn" onclick="showPage('about',this)">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-        <span class="nav-label">Sobre nós</span>
-      </button>
+        </div>
+      </div>
 
       <div id="nav-account" style="display:none">
         <div class="nav-group-label" style="margin-top:.75rem">Minha Conta</div>
-        <button class="nav-btn" onclick="showPage('profile',this)">
+        <div class="nav-group" data-g="conta">
+          <button class="nav-cat" type="button" onclick="tpNavToggle(this)"><svg class="nav-cat-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 8a3 3 0 116 0 3 3 0 01-6 0zm-2.72 6.53a5.98 5.98 0 015.72-2.53 5.98 5.98 0 015.72 2.53 7.97 7.97 0 01-11.44 0z" clip-rule="evenodd"/></svg><span class="nav-label">Minha Conta</span><svg class="nav-chev" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg></button>
+          <div class="nav-sub">
+<button class="nav-btn" onclick="showPage('profile',this)">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
           <span class="nav-label">Meu Perfil</span>
-        </button>
-        <button class="nav-btn" onclick="showPage('dashboard',this)">
+        </button><button class="nav-btn" onclick="showPage('dashboard',this)">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M3 3h6v8H3V3zm0 10h6v4H3v-4zM11 3h6v4h-6V3zm0 6h6v8h-6V9z"/></svg>
           <span class="nav-label">Visão geral</span>
-        </button>
-        <button class="nav-btn" onclick="showPage('pthistory',this)">
+        </button><button class="nav-btn" onclick="showPage('pthistory',this)">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
           <span class="nav-label">Histórico de hunts</span>
-        </button>
-        <button class="nav-btn" onclick="showPage('bestiary',this);if(window.tpBestiaryLoad)tpBestiaryLoad()">
+        </button><button class="nav-btn" onclick="showPage('bestiary',this);if(window.tpBestiaryLoad)tpBestiaryLoad()">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a5 5 0 00-5 5c0 1.9 1 3.2 2 4.2.6.6 1 1.1 1 1.8v1a1 1 0 001 1h2a1 1 0 001-1v-1c0-.7.4-1.2 1-1.8 1-1 2-2.3 2-4.2a5 5 0 00-5-5zM8 17a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"/></svg>
           <span class="nav-label">Bestiary</span>
-        </button>
-        <button class="nav-btn" onclick="showPage('store',this);if(window.tpStoreLoad)tpStoreLoad()">
+        </button><button class="nav-btn" onclick="showPage('store',this);if(window.tpStoreLoad)tpStoreLoad()">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>
           <span class="nav-label">Store</span>
-        </button>
-        <button class="nav-btn" id="nav-moderation" style="display:none" onclick="showPage('moderation',this);if(window.tpModPanelLoad)tpModPanelLoad()">
+        </button><button class="nav-btn" id="nav-moderation" style="display:none" onclick="showPage('moderation',this);if(window.tpModPanelLoad)tpModPanelLoad()">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1.5l6.5 2.5v5c0 4-2.8 7.5-6.5 9-3.7-1.5-6.5-5-6.5-9v-5L10 1.5zm-1 11l4.5-4.5-1.4-1.4L9 9.7 7.9 8.6 6.5 10 9 12.5z" clip-rule="evenodd"/></svg>
           <span class="nav-label">Moderação <span id="nav-mod-badge" style="display:none;background:var(--red,#e87070);color:#1b1a25;border-radius:999px;padding:0 6px;font-size:.66rem;font-weight:900;margin-left:4px">0</span></span>
-        </button>
-        <button class="nav-btn" onclick="if(window.tpAccountPage)tpAccountPage('dados',this)">
+        </button><button class="nav-btn" onclick="if(window.tpAccountPage)tpAccountPage('dados',this)">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
           <span class="nav-label">Dados Pessoais</span>
         </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="nav-footlinks">
+      <button class="nav-btn nav-foot" onclick="showPage('about',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Sobre nós</span>
+      </button>
       </div>
 
     </div>
   </nav>
+  <script>
+  (function(){
+    function tpNavToggle(btn){
+      var g=btn.closest('.nav-group'); if(!g) return;
+      var wasOpen=g.classList.contains('open');
+      document.querySelectorAll('.site-nav .nav-group').forEach(function(x){x.classList.remove('open');});
+      if(!wasOpen) g.classList.add('open');
+    }
+    window.tpNavToggle=tpNavToggle;
+    function tpNavSyncActive(){
+      var groups=document.querySelectorAll('.site-nav .nav-group');
+      groups.forEach(function(g){g.classList.remove('has-active');});
+      var act=document.querySelector('.site-nav .nav-btn.active');
+      if(act){ var g=act.closest('.nav-group'); if(g){ g.classList.add('has-active'); groups.forEach(function(x){x.classList.toggle('open', x===g);}); } }
+    }
+    window.tpNavSyncActive=tpNavSyncActive;
+    var nav=document.querySelector('.site-nav');
+    if(nav) nav.addEventListener('click', function(e){ if(e.target.closest('.nav-btn')) setTimeout(tpNavSyncActive,0); });
+    if(document.readyState!=='loading') tpNavSyncActive(); else document.addEventListener('DOMContentLoaded', tpNavSyncActive);
+  })();
+  </script>
 
   <!-- Sidebar footer -->
   <div class="sidebar-footer">
@@ -4478,7 +4523,7 @@ PlayerName (Leader)
     </div>
   </section>
 
-      <!-- ─────────────────────────  BUILDS (galeria + página de detalhe)  ───────────────────────── -->
+    <!-- ─────────────────────────  BUILDS (galeria + página de detalhe)  ───────────────────────── -->
   <section class="page-section" id="builds">
     <style>
       #builds .bld-sub{font-size:.78rem}
@@ -4513,10 +4558,13 @@ PlayerName (Leader)
       #builds .bd-hero .bld-wic img{width:40px;height:40px}
       #builds .bd-htext{min-width:0}
       #builds .bd-wname{font-size:1.3rem;font-weight:800;color:var(--ink);line-height:1.1}
-      #builds .bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem 1.6rem;margin-top:1.3rem;align-items:start}
+      #builds .bd-grid{display:grid;grid-template-columns:minmax(0,420px) 1fr;gap:1.3rem;margin-top:1.1rem;align-items:start}
       @media(max-width:820px){#builds .bd-grid{grid-template-columns:1fr}}
-      #builds .bd-acts{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.9rem}
-      #builds .bd-acts button{flex:1;min-width:180px;font:inherit;cursor:pointer;border-radius:9px;font-size:.82rem;font-weight:700;padding:.65rem .5rem;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;gap:.4rem;transition:var(--transition-color),transform .1s}
+      #builds .bd-wheelwrap{background:var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:.7rem;text-align:center}
+      #builds .bd-wheelwrap img{width:100%;max-width:420px;height:auto;border-radius:10px;display:block;margin:0 auto}
+      #builds .bd-wheelcap{font-size:.72rem;color:var(--ink-3);margin-top:.5rem;text-transform:uppercase;letter-spacing:.04em}
+      #builds .bd-acts{display:flex;flex-direction:column;gap:.5rem;margin-top:.7rem}
+      #builds .bd-acts button{font:inherit;cursor:pointer;border-radius:9px;font-size:.82rem;font-weight:700;padding:.65rem .5rem;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;gap:.4rem;transition:var(--transition-color),transform .1s}
       #builds .bd-acts button:active{transform:scale(.985)}
       #builds .bd-open{background:var(--bamboo);border-color:var(--bamboo)!important;color:#fff}
       #builds .bd-open:hover{background:var(--bamboo-light)}
@@ -4543,7 +4591,7 @@ PlayerName (Leader)
       #builds .bd-note{margin-top:1.2rem;font-size:.73rem;color:var(--ink-3);line-height:1.5}
     </style>
     <h2 class="sec-title">🐼 Builds prontas</h2>
-    <p class="sec-sub bld-sub">Builds validadas 1:1 contra a calculadora — uma boa referência por vocação e faixa de nível. Clique numa build pra ver o detalhe completo, as proficiências, a rotação e abrir na calculadora. <span class="dc-conf" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--gold-dim);color:var(--gold)">dano conferido pelo motor</span></p>
+    <p class="sec-sub bld-sub">Builds validadas 1:1 contra a calculadora — uma boa referência por vocação e faixa de nível. Clique numa build pra ver o detalhe completo, a roda do destino e abrir na calculadora. <span class="dc-conf" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--gold-dim);color:var(--gold)">dano conferido pelo motor</span></p>
 
     <div id="bld-list">
       <div class="bld-filters" id="bld-filters"></div>
@@ -4571,6 +4619,7 @@ PlayerName (Leader)
     function encodeBuild(o){ try{ return btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }catch(e){ return ''; } }
     function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
     function fmtNum(n){ n=+n||0; return n.toLocaleString('pt-BR'); }
+    function wheelUrl(id){ return 'assets/builds-wheel/'+id+'.webp'; }
 
     /* ---------- grid ---------- */
     function card(b){
@@ -4631,16 +4680,19 @@ PlayerName (Leader)
         +'<div class="bd-wname">'+esc(w.name||'—')+'</div></div></div>'
         +'<div class="bld-dmg" style="max-width:260px"><b>'+fmtNum(b.dano)+'</b><span>dano / turno</span></div>'
         +'<div class="bld-meta" style="margin-top:.5rem">'+tags.join('')+'</div>'
-        +'<div class="bd-acts">'
-          +'<button class="bd-open" onclick="tpOpenBuildInCalc(\''+code+'\')">⚔️ Abrir na Calculadora</button>'
-          +'<button class="bd-ghost" data-code="'+code+'" onclick="tpCopyBuild(this)">📋 Copiar código da build</button>'
-        +'</div>'
         +'<div class="bd-grid">'
+          +'<div>'
+            +'<div class="bd-wheelwrap"><img src="'+wheelUrl(id)+'" alt="Roda do Destino" loading="lazy" onerror="this.parentNode.style.display=\'none\'">'
+            +'<div class="bd-wheelcap">🎡 Roda do Destino</div></div>'
+            +'<div class="bd-acts">'
+              +'<button class="bd-open" onclick="tpOpenBuildInCalc(\''+code+'\')">⚔️ Abrir na Calculadora</button>'
+              +'<button class="bd-ghost" data-code="'+code+'" onclick="tpCopyBuild(this)">📋 Copiar código da build</button>'
+              +'<button class="bd-ghost" onclick="tpDownloadWheel(\''+id+'\',\''+esc((voc.label+' '+(inp.level?'lvl'+inp.level:'')).replace(/[^a-z0-9]/gi,'_'))+'\')">🎡 Baixar imagem da roda</button>'
+            +'</div>'
+          +'</div>'
           +'<div>'
             +(statTiles?'<div class="bd-sect"><h4>📊 Atributos</h4><div class="bd-stats">'+statTiles+'</div></div>':'')
             +((perks||shapes)?'<div class="bd-sect"><h4>🗡️ Proficiências da arma</h4><div class="bd-perks">'+perks+shapes+'</div></div>':'')
-          +'</div>'
-          +'<div>'
             +(rot?'<div class="bd-sect"><h4>🔁 Rotação</h4><div class="bd-rot">'+rot+'</div></div>':'')
             +(eq?'<div class="bd-sect"><h4>🛡️ Equipamento</h4><div class="bd-eq">'+eq+'</div></div>':'')
           +'</div>'
@@ -4654,6 +4706,10 @@ PlayerName (Leader)
       document.getElementById('builds').classList.remove('detail');
       var ln=document.getElementById('bld-listnote'); if(ln)ln.style.display='';
       window.scrollTo({top:0,behavior:'smooth'});
+    };
+    window.tpDownloadWheel=function(id,fname){
+      var a=document.createElement('a'); a.href=wheelUrl(id); a.download='roda_'+fname+'.webp';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
     };
     window.tpOpenBuildInCalc=function(code){
       showPage('dmgcalc');
@@ -4686,7 +4742,6 @@ PlayerName (Leader)
     };
   })();
   </script>
-
 
 
 
