@@ -4720,6 +4720,8 @@ PlayerName (Leader)
       #builds .bd-rline b{color:var(--ink);font-weight:700}
       #builds .bd-rline span{color:var(--ink-3);font-size:.72rem;white-space:nowrap}
       #builds .bd-eq{display:flex;flex-wrap:wrap;gap:.3rem}#builds .bd-eqgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.5rem}#builds .bd-eqthumb{display:flex;align-items:center;gap:.55rem;background:var(--bg-1);border:1px solid var(--border);border-radius:9px;padding:.4rem .55rem}#builds .bd-eqic{width:34px;height:34px;flex:0 0 34px;border-radius:7px;background:var(--bg-2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;image-rendering:pixelated}#builds .bd-eqic img{width:28px;height:28px;image-rendering:pixelated}#builds .bd-eqnm{font-size:.76rem;color:var(--ink-2);line-height:1.2;min-width:0}#builds .bd-rname{display:flex;align-items:center;gap:.5rem;min-width:0}#builds .bd-rbadge{font-size:.6rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:.1rem .4rem;border-radius:5px;white-space:nowrap}#builds .bd-rbadge.rot{background:var(--bamboo-dim);color:var(--bamboo-light)}#builds .bd-rbadge.ult{background:var(--gold-dim);color:var(--gold)}
+      #builds .bd-eqslots{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;max-width:330px}#builds .bd-eqsock{background:var(--bg-1);border:1px solid var(--border);border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;min-height:66px;padding:.35rem;text-align:center}#builds .bd-eqsock.filled{border-color:var(--gold);background:var(--gold-dim)}#builds .bd-eqsock.lock{opacity:.3}#builds .bd-eqsock.spacer{background:none;border:none;min-height:0}#builds .bd-eqi{width:34px;height:34px;image-rendering:pixelated;object-fit:contain}#builds .bd-eqab{font-weight:700;font-size:.95rem;color:var(--gold);line-height:1}#builds .bd-eqplus{font-size:1.1rem;color:var(--ink-3);line-height:1}#builds .bd-eqsl{font-size:.5rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);margin-top:4px;line-height:1.15;word-break:break-word}#builds .bd-eqsock.filled .bd-eqsl{color:var(--gold)}
+      #builds .bd-rotseq{display:flex;flex-wrap:wrap;align-items:flex-start;gap:.15rem;margin-bottom:.8rem}#builds .bd-rspell{position:relative;display:flex;flex-direction:column;align-items:center;gap:.25rem;width:62px}#builds .bd-rsic{width:44px;height:44px;border-radius:9px;border:2px solid var(--border);background:var(--bg-2);display:flex;align-items:center;justify-content:center;position:relative}#builds .bd-rsic img{width:38px;height:38px;image-rendering:pixelated;object-fit:contain}#builds .bd-rspell.ult .bd-rsic{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold-dim)}#builds .bd-rspell.rota .bd-rsic{border-color:var(--bamboo)}#builds .bd-rsnum{position:absolute;top:-6px;left:-6px;width:17px;height:17px;border-radius:50%;background:var(--bamboo);color:#fff;font-size:.58rem;font-weight:800;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px #000;z-index:1}#builds .bd-rspell.ult .bd-rsnum{background:var(--gold);color:#3a2a00}#builds .bd-rsnm{font-size:.55rem;color:var(--ink-2);text-align:center;line-height:1.1;word-break:break-word}#builds .bd-rsarrow{align-self:flex-start;margin-top:14px;color:var(--ink-3);font-size:.85rem;font-weight:700}#builds .bd-rsemoji{font-size:1.4rem;line-height:1}
       #builds .bd-eqi{font-size:.74rem;color:var(--ink-2);background:var(--bg-2);border:1px solid var(--border);border-radius:6px;padding:.2rem .5rem}
       #builds .bd-eqi b{color:var(--ink-3);font-weight:600;text-transform:capitalize}
       #builds .bd-note{margin-top:1.2rem;font-size:.73rem;color:var(--ink-3);line-height:1.5}
@@ -4827,7 +4829,21 @@ PlayerName (Leader)
       function rotRow(r){var badge=r.focus?'<span class="bd-rbadge ult">★ Ultimate</span>':'<span class="bd-rbadge rot">Rotação</span>';var right=(r.tg?r.tg+' alvo(s)':'')+(r.focus?' · finalizador':'');return '<div class="bd-rline"><span class="bd-rname"><b>'+esc(r.n)+'</b>'+badge+'</span><span>'+right+'</span></div>';}
       var _rs=(det.rot||[]).filter(function(r){return !r.focus;}),_ru=(det.rot||[]).filter(function(r){return r.focus;});
       var rot=_rs.map(rotRow).join('')+_ru.map(rotRow).join('');
-      var eq=(det.equip2||[]).map(function(it){var ic=WIC[it.icon];return '<div class="bd-eqthumb" title="'+esc(it.name||'')+'"><div class="bd-eqic">'+(ic?'<img src="'+ic+'" alt="">':'')+'</div><div class="bd-eqnm">'+esc(it.name||'')+'</div></div>';}).join('');
+      var _eqby={}; (det.equip2||[]).forEach(function(it){ _eqby[it.slot]=it; });
+      function eqCell(slotKey,label){
+        var it=_eqby[slotKey];
+        if(it){ var ic=WIC[it.icon]; return '<div class="bd-eqsock filled" title="'+esc(it.name||'')+'">'+(ic?'<img class="bd-eqi" src="'+ic+'" alt="">':'<span class="bd-eqab">'+esc((it.name||'?').slice(0,2))+'</span>')+'<span class="bd-eqsl">'+esc(it.name||'')+'</span></div>'; }
+        return '<div class="bd-eqsock" title="'+esc(label)+'"><span class="bd-eqplus">+</span><span class="bd-eqsl">'+esc(label)+'</span></div>';
+      }
+      function eqLock(label){ return '<div class="bd-eqsock lock"><span class="bd-eqplus">🔒</span><span class="bd-eqsl">'+esc(label)+'</span></div>'; }
+      function eqWeapon(){ var it=_eqby.weapon; if(it){ var ci=WIC[it.icon]; return '<div class="bd-eqsock filled" title="'+esc(it.name||'')+'">'+(ci?'<img class="bd-eqi" src="'+ci+'" alt="">':'<span class="bd-eqab">🗡️</span>')+'<span class="bd-eqsl">'+esc(it.name||'')+'</span></div>'; } return '<div class="bd-eqsock"><span class="bd-eqplus">🗡️</span><span class="bd-eqsl">Arma</span></div>'; }
+      function eqRight(){ if(b.vocation==='monk') return '<div class="bd-eqsock lock"><span class="bd-eqplus">✕</span><span class="bd-eqsl">Off-hand</span></div>'; var lbl=(b.vocation==='knight')?'Escudo':(b.vocation==='paladin')?'Aljava':'Livro'; return eqCell('right',lbl); }
+      var eq='<div class="bd-eqslots">'
+        +eqCell('amulet','Amuleto')+eqCell('helmet','Elmo')+eqLock('Bag')
+        +eqWeapon()+eqCell('armor','Armadura')+eqRight()
+        +eqCell('ring','Anel')+eqCell('legs','Pernas')+eqLock('Trinket')
+        +'<div class="bd-eqsock spacer"></div>'+eqCell('boots','Botas')+'<div class="bd-eqsock spacer"></div>'
+        +'</div>';
       var tags=[];
       if(el) tags.push('<span class="bld-tag" style="background:'+elc+'22;border-color:'+elc+'55;color:'+elc+'">'+esc(el)+'</span>');
       if(b.ml) tags.push('<span class="bld-tag">ML '+esc(b.ml)+'</span>');
@@ -4850,7 +4866,7 @@ PlayerName (Leader)
           +'</div>'
           +'<div>'
             +(rot?'<div class="bd-sect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/></svg> Rotação</h4><div class="bd-rot">'+rot+'</div></div>':'')
-            +(eq?'<div class="bd-sect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.5l6.5 2.5v5c0 4-2.8 7.5-6.5 9-3.7-1.5-6.5-5-6.5-9v-5L10 1.5zm-1 11l4.5-4.5-1.4-1.4L9 9.7 7.9 8.6 6.5 10 9 12.5z"/></svg> Equipamentos sugeridos</h4><div class="bd-eqgrid">'+eq+'</div></div>':'')
+            +(eq?'<div class="bd-sect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.5l6.5 2.5v5c0 4-2.8 7.5-6.5 9-3.7-1.5-6.5-5-6.5-9v-5L10 1.5zm-1 11l4.5-4.5-1.4-1.4L9 9.7 7.9 8.6 6.5 10 9 12.5z"/></svg> Equipamentos &amp; slots</h4>'+eq+'</div>':'')
           +'</div>'
         +'</div>';
       var host=document.getElementById('bld-detail'); host.innerHTML=html;
