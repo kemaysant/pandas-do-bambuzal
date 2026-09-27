@@ -1436,6 +1436,9 @@ footer strong{color:var(--ink-3);font-weight:500}
 .tp-tn-item.feat:hover{color:var(--gold-light,#e0c060)}
 .tp-tn-cav{font-size:.58rem;opacity:.6;margin-left:.05rem}
 .tp-tn-spacer{flex:1}
+.tp-tn-right{display:flex;align-items:center;gap:.5rem}
+.tp-tn-right .wsel-btn{white-space:nowrap}
+@media(min-width:769px) and (max-width:1080px){ .tp-tn-search{display:none} }
 .tp-tn-search{display:flex;align-items:center;gap:.5rem;background:var(--bg-2);border:1px solid var(--border);border-radius:9px;padding:.44rem .7rem;color:var(--ink-3);font-size:.82rem;min-width:150px;max-width:260px;transition:border-color .15s}
 .tp-tn-search:focus-within{border-color:var(--bamboo)}
 .tp-tn-search input{background:none;border:none;color:var(--ink);font:inherit;outline:none;width:100%}
@@ -1724,8 +1727,10 @@ async function tibiaFetch(path) {
       </div>
     </nav>
     <span class="tp-tn-spacer"></span>
-    <label class="tp-tn-search"><span>🔎</span><input id="tp-tn-search-input" placeholder="Buscar personagem…" autocomplete="off"></label>
-    <button class="tp-tn-theme" onclick="toggleDark()" title="Tema">☀</button>
+    <div class="tp-tn-right" id="tp-tn-right">
+      <div class="tp-tn-search-wrap" style="position:relative"><label class="tp-tn-search"><span>🔎</span><input id="tp-tn-search-input" placeholder="Buscar ferramenta…" autocomplete="off"></label><div class="tp-pop tp-dd" id="tp-tn-search-pop" style="left:0;min-width:230px;max-height:340px;overflow:auto"></div></div>
+      <button class="tp-tn-theme" onclick="toggleDark()" title="Tema">☀</button>
+    </div>
   </div>
 
 
@@ -1870,6 +1875,19 @@ async function tibiaFetch(path) {
         · <span class="world-players" id="wb-players">—</span> jogadores online
       </div>
       <span class="world-record" id="wb-record"></span>
+    </div>
+
+    <!-- BUILDS EM DESTAQUE -->
+    <div class="reveal" onclick="showPage('builds');if(window.tpBuildsInit)tpBuildsInit();if(window.tpTopnavSync)tpTopnavSync();window.scrollTo({top:0,behavior:'smooth'})" style="cursor:pointer;display:flex;align-items:center;gap:1rem;margin-bottom:1.6rem;padding:1.1rem 1.3rem;border-radius:16px;background:linear-gradient(100deg,var(--gold-dim),transparent 72%),var(--surface);border:1px solid var(--gold);transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 32px -14px #c9a84055'" onmouseout="this.style.transform='';this.style.boxShadow=''">
+      <div style="width:52px;height:52px;flex:0 0 52px;border-radius:12px;background:var(--gold-dim);display:flex;align-items:center;justify-content:center">
+        <svg viewBox="0 0 20 20" fill="var(--gold)" style="width:26px;height:26px"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 5a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm7 0a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2h-3a2 2 0 01-2-2V5z"/></svg>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)">★ Em destaque</div>
+        <div style="font-size:1.12rem;font-weight:800;color:var(--ink);line-height:1.15">Builds prontas por vocação</div>
+        <div style="font-size:.82rem;color:var(--ink-3);margin-top:.2rem">Validadas 1:1 — proficiências, rotação e equipamento. Copiar e colar ou abrir na calculadora.</div>
+      </div>
+      <div style="font-weight:700;color:var(--gold);white-space:nowrap;font-size:.9rem">Ver builds →</div>
     </div>
 
     <!-- PRÓXIMOS EVENTOS DA COMUNIDADE -->
@@ -4629,7 +4647,24 @@ PlayerName (Leader)
       #builds .bld-chip{font:inherit;cursor:pointer;border:1px solid var(--border);background:var(--bg-2);color:var(--ink-2);padding:.4rem .8rem;border-radius:999px;font-size:.8rem;font-weight:600;display:inline-flex;align-items:center;gap:.35rem;transition:var(--transition-color),transform .12s}
       #builds .bld-chip:hover{border-color:var(--bamboo);color:var(--ink)}
       #builds .bld-chip.on{background:var(--bamboo);border-color:var(--bamboo);color:#fff}
-      #builds .bld-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.9rem}
+      #builds .bld-grid{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--surface)}
+      #builds .bld-row{display:flex;align-items:center;gap:.9rem;padding:.72rem 1rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s}
+      #builds .bld-row:last-child{border-bottom:none}
+      #builds .bld-row:hover{background:var(--bg-2)}
+      #builds .bld-lvlbadge{width:40px;height:40px;flex:0 0 40px;border-radius:9px;background:var(--gold-dim);color:var(--gold);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+      #builds .bld-lvlbadge b{font-size:.92rem;font-weight:800}
+      #builds .bld-lvlbadge span{font-size:.46rem;letter-spacing:.06em;opacity:.75;margin-top:1px}
+      #builds .bld-rowwic{width:40px;height:40px;flex:0 0 40px;border-radius:9px;background:var(--bg-1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;image-rendering:pixelated}
+      #builds .bld-rowwic img{width:30px;height:30px;image-rendering:pixelated}
+      #builds .bld-rmain{min-width:150px;flex:0 0 auto}
+      #builds .bld-rvoc{font-size:.63rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--bamboo-light)}
+      #builds .bld-rname{font-size:.92rem;font-weight:700;color:var(--ink);line-height:1.15}
+      #builds .bld-rperks{display:flex;flex-wrap:wrap;gap:.3rem;flex:1;min-width:120px}
+      #builds .bld-rdmg{text-align:right;flex:0 0 auto}
+      #builds .bld-rdmg b{display:block;font-size:1.05rem;color:var(--gold);font-variant-numeric:tabular-nums;line-height:1}
+      #builds .bld-rdmg span{font-size:.56rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em}
+      #builds .bld-rcta{font-size:.74rem;font-weight:700;color:var(--bamboo-light);white-space:nowrap;flex:0 0 auto}
+      @media(max-width:760px){#builds .bld-rperks{display:none}#builds .bld-rcta{display:none}}
       #builds .bld-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem;display:flex;flex-direction:column;gap:.7rem;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s}
       #builds .bld-card:hover{border-color:var(--bamboo);transform:translateY(-2px);box-shadow:0 8px 26px -12px #8b5cf655}
       #builds .bld-top{display:flex;align-items:center;gap:.6rem}
@@ -4719,19 +4754,22 @@ PlayerName (Leader)
     function card(b){
       var d=b.data||{}, bb=d.b||{}, w=bb.weapon||{}, inp=d.inp||{};
       var voc=VOCS[b.vocation]||{label:b.vocation,emoji:'🐼'};
+      var det=BDET[b.id]||{};
       var ic=WIC[w.icon], el=b.element||w.damageType||'', elc=ELCOL[el]||'var(--gold)';
-      var lvl=inp.level?('Nível '+inp.level):'';
-      var tags=[];
-      if(el) tags.push('<span class="bld-tag" style="background:'+elc+'22;border-color:'+elc+'55;color:'+elc+'">'+esc(el)+'</span>');
-      if(b.ml) tags.push('<span class="bld-tag">ML '+esc(b.ml)+'</span>');
-      if(bb.stance&&bb.stance!=='none') tags.push('<span class="bld-tag">'+esc(bb.stance)+'</span>');
-      return '<div class="bld-card" onclick="tpOpenBuild(\''+b.id+'\')">'
-        +'<div class="bld-top"><div class="bld-wic">'+(ic?'<img src="'+ic+'" alt="">':'⚔️')+'</div>'
-        +'<div style="min-width:0"><div class="bld-vname">'+voc.emoji+' '+esc(voc.label)+'</div><div class="bld-wname">'+esc(w.name||'—')+'</div></div>'
-        +(lvl?'<div class="bld-lvl">'+esc(lvl)+'</div>':'')+'</div>'
-        +'<div class="bld-dmg"><b>'+fmtNum(b.dano)+'</b><span>dano / turno</span></div>'
-        +'<div class="bld-meta">'+tags.join('')+'</div>'
-        +'<div class="bld-cardcta">Ver build →</div></div>';
+      var chips=[];
+      if(el) chips.push('<span class="bld-tag" style="background:'+elc+'22;border-color:'+elc+'55;color:'+elc+'">'+esc(el)+'</span>');
+      if(b.ml) chips.push('<span class="bld-tag">ML '+esc(b.ml)+'</span>');
+      if(bb.stance&&bb.stance!=='none') chips.push('<span class="bld-tag">'+esc(bb.stance)+'</span>');
+      if(det.rot&&det.rot[0]&&det.rot[0].n) chips.push('<span class="bld-tag">'+esc(det.rot[0].n)+'</span>');
+      (det.shapes||[]).slice(0,1).forEach(function(sh){ chips.push('<span class="bld-tag" style="border-color:var(--bamboo)">✦ '+esc(sh.n)+'</span>'); });
+      var lvl=inp.level||'';
+      return '<div class="bld-row" onclick="tpOpenBuild(\''+b.id+'\')">'
+        +'<div class="bld-lvlbadge"><b>'+esc(lvl)+'</b><span>NÍVEL</span></div>'
+        +'<div class="bld-rowwic">'+(ic?'<img src="'+ic+'" alt="">':'⚔️')+'</div>'
+        +'<div class="bld-rmain"><div class="bld-rvoc">'+voc.emoji+' '+esc(voc.label)+'</div><div class="bld-rname">'+esc(w.name||'—')+'</div></div>'
+        +'<div class="bld-rperks">'+chips.join('')+'</div>'
+        +'<div class="bld-rdmg"><b>'+fmtNum(b.dano)+'</b><span>dano/turno</span></div>'
+        +'<div class="bld-rcta">Ver build →</div></div>';
     }
     function render(){
       var grid=document.getElementById('bld-grid'); if(!grid)return;
@@ -17881,8 +17919,34 @@ window.tpLoadJornada=async function(){
         var dd=e.target.closest('[data-dd]');
         if(dd){ e.stopPropagation(); var pop2=document.getElementById('tp-dd-'+dd.getAttribute('data-dd')); var was2=pop2.classList.contains('open'); closeMenus(); if(!was2)pop2.classList.add('open'); return; }
       });
+      var TOOLS=[
+        {l:'Início',p:'home'},{l:'Builds',p:'builds',i:'tpBuildsInit'},{l:'Calculadora de Dano',p:'dmgcalc',i:'tpDmgInit'},
+        {l:'Hunt Finder',p:'huntfinder'},{l:'Party Finder',p:'partyfinder'},{l:'Loot Split',p:'lootsplit'},{l:'Bosses',p:'bosses'},
+        {l:'Imbuements',p:'imbuements'},{l:'Exercise Weapons',p:'exercisecalc'},{l:'Personagem',p:'character'},
+        {l:'Guia de Quests',p:'quests'},{l:'Task Delivery',p:'delivery'},{l:'Houses',p:'houses',i:'tpHousesInit'},
+        {l:'Rankings',p:'rankings'},{l:'Eventos',p:'events'},{l:'Agenda',p:'agenda',i:'tpAgendaLoad'},{l:'Criadores',p:'creators',i:'tpCreatorsLoad'},
+        {l:'Bestiary',p:'bestiary',i:'tpBestiaryLoad'},{l:'Store',p:'store',i:'tpStoreLoad'},
+        {l:'Meu Perfil',p:'profile'},{l:'Visão geral',p:'dashboard'},{l:'Histórico de hunts',p:'pthistory'},{l:'Dados Pessoais',p:'__dados__'},{l:'Sobre nós',p:'about'}
+      ];
+      function norm(x){ return (x||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
       var si=document.getElementById('tp-tn-search-input');
-      if(si) si.addEventListener('keydown', function(e){ if(e.key==='Enter'){ var v=si.value.trim(); go('character'); var ci=document.getElementById('character-search')||document.querySelector('#character input'); if(ci){ci.value=v; try{ci.dispatchEvent(new Event('input',{bubbles:true}));}catch(_){}} } });
+      var sp=document.getElementById('tp-tn-search-pop');
+      function renderSearch(){
+        var q=norm(si.value.trim());
+        if(!q){ sp.classList.remove('open'); sp.innerHTML=''; return; }
+        var res=TOOLS.filter(function(t){return norm(t.l).indexOf(q)>=0;}).slice(0,8);
+        if(!res.length){ sp.innerHTML='<div style="padding:.5rem .7rem;font-size:.8rem;color:var(--ink-3)">Nada encontrado</div>'; sp.classList.add('open'); return; }
+        sp.innerHTML=res.map(function(t){return '<a class="tp-lnk" data-page="'+t.p+'"'+(t.i?' data-init="'+t.i+'"':'')+'>'+t.l+'</a>';}).join('');
+        sp.classList.add('open');
+      }
+      if(si){
+        si.addEventListener('input', renderSearch);
+        si.addEventListener('focus', renderSearch);
+        si.addEventListener('keydown', function(e){
+          if(e.key==='Enter'){ var first=sp.querySelector('.tp-lnk[data-page]'); if(first){ e.preventDefault(); go(first.getAttribute('data-page'), first.getAttribute('data-init')); si.value=''; sp.classList.remove('open'); si.blur(); } }
+          else if(e.key==='Escape'){ sp.classList.remove('open'); si.blur(); }
+        });
+      }
     }
     document.addEventListener('click', function(e){ if(!e.target.closest('.tp-topnav')) closeMenus(); });
     if(document.readyState!=='loading') sync(); else document.addEventListener('DOMContentLoaded', sync);
@@ -17891,5 +17955,41 @@ window.tpLoadJornada=async function(){
     if(typeof _sp==='function'){ window.showPage=function(){ var r=_sp.apply(this,arguments); try{setTimeout(sync,0);}catch(_){}; return r; }; }
   })();
   </script>
-</body>
+
+  <script>
+  (function(){
+    var homes=null;
+    function E(){
+      return {
+        topnav:document.getElementById('tp-topnav'),
+        right:document.getElementById('tp-tn-right'),
+        topbar:document.querySelector('.topbar'),
+        theme:document.querySelector('#tp-tn-right .tp-tn-theme'),
+        wsel:document.querySelector('.topbar .wsel'),
+        online:document.getElementById('world-online-count'),
+        notif:document.getElementById('tp-topnotif'),
+        auth:document.getElementById('tp-auth-area')
+      };
+    }
+    function layout(){
+      try{
+        var e=E(); if(!e.topnav||!e.right||!e.topbar) return;
+        if(!homes){ homes=[]; [e.wsel,e.online,e.notif,e.auth].forEach(function(el){ if(el) homes.push({el:el,parent:el.parentNode,next:el.nextSibling}); }); }
+        var desktop=window.innerWidth>=769;
+        if(desktop){
+          [e.wsel,e.notif,e.auth].forEach(function(el){ if(el && el.parentNode!==e.right) e.right.insertBefore(el, e.theme); });
+          e.topbar.style.display='none';
+        }else{
+          if(homes) homes.forEach(function(h){ if(h.el && h.el.parentNode===e.right){ if(h.next && h.next.parentNode===h.parent) h.parent.insertBefore(h.el,h.next); else h.parent.appendChild(h.el); } });
+          e.topbar.style.display='';
+        }
+      }catch(_){}
+    }
+    window.tpHeaderLayout=layout;
+    var t; window.addEventListener('resize', function(){ clearTimeout(t); t=setTimeout(layout,120); });
+    if(document.readyState!=='loading') layout(); else document.addEventListener('DOMContentLoaded', layout);
+    // re-run after auth UI updates (login/logout can rebuild #tp-auth-area content, but element persists)
+    setTimeout(layout, 800);
+  })();
+  </script></body>
 </html>
