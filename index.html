@@ -1535,6 +1535,9 @@ async function tibiaFetch(path) {
 <button class="nav-btn" onclick="showPage('huntfinder',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Hunt Finder</span>
+      </button><button class="nav-btn" onclick="showPage('huntmeta',this);if(window.tpHuntMetaInit)tpHuntMetaInit()">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 000 2h.5v10H3a1 1 0 100 2h14a1 1 0 100-2h-.5V5H17a1 1 0 100-2H3zm3 4a1 1 0 011-1h1a1 1 0 011 1v7a1 1 0 01-1 1H7a1 1 0 01-1-1V7zm5-2a1 1 0 00-1 1v9a1 1 0 001 1h1a1 1 0 001-1V6a1 1 0 00-1-1h-1z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Meta de Hunts</span>
       </button><button class="nav-btn" onclick="showPage('partyfinder',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 12.094A5.973 5.973 0 004 15v1H1v-1a3 3 0 013.75-2.906z"/></svg>
         <span class="nav-label">Party Finder</span>
@@ -1689,6 +1692,7 @@ async function tibiaFetch(path) {
           <div class="tp-mega-grid">
             <div class="tp-mega-col"><h5>Caçar</h5>
               <a class="tp-lnk" data-page="huntfinder">Hunt Finder</a>
+              <a class="tp-lnk" data-page="huntmeta" data-init="tpHuntMetaInit">Meta de Hunts</a>
               <a class="tp-lnk" data-page="partyfinder">Party Finder</a>
               <a class="tp-lnk" data-page="lootsplit">Loot Split</a>
               <a class="tp-lnk" data-page="bosses">Bosses</a>
@@ -4640,6 +4644,51 @@ PlayerName (Leader)
       </div>
       <p class="sec-sub" style="margin-top:.8rem;font-size:.76rem;opacity:.7">Fórmulas derivadas da comunidade (não oficiais da CipSoft), validadas 1:1 contra as ferramentas de referência.</p>
     </div>
+  </section>
+
+      <!-- ─────────────────────────  META DE HUNTS (melhor build por local, dados reais)  ───────────────────────── -->
+  <section class="page-section" id="huntmeta">
+    <style>
+      #huntmeta .hm-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:.6rem;margin-bottom:.3rem}
+      #huntmeta .hm-src{font-size:.72rem;color:var(--ink-3)}
+      #huntmeta .hm-src a{color:var(--bamboo-light,#8fd694)}
+      #huntmeta .hm-bar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:1rem 0}
+      #huntmeta .hm-search{flex:1;min-width:200px;font:inherit;font-size:.9rem;padding:.6rem .8rem;border-radius:10px;border:1px solid var(--border);background:var(--bg-1);color:var(--ink)}
+      #huntmeta .hm-vfilter{display:flex;gap:.3rem;flex-wrap:wrap}
+      #huntmeta .hm-vchip{cursor:pointer;font:inherit;font-size:.72rem;font-weight:700;padding:.35rem .6rem;border-radius:8px;border:1px solid var(--border);background:var(--bg-1);color:var(--ink-2)}
+      #huntmeta .hm-vchip.on{color:#fff}
+      #huntmeta .hm-list{display:flex;flex-direction:column;gap:.55rem}
+      #huntmeta .hm-row{background:var(--surface,var(--bg-1));border:1px solid var(--border);border-radius:12px;padding:.7rem .9rem;transition:border-color .12s}
+      #huntmeta .hm-row:hover{border-color:var(--ink-3)}
+      #huntmeta .hm-rtop{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;cursor:pointer}
+      #huntmeta .hm-spot{font-size:.98rem;font-weight:800;color:var(--ink);flex:1;min-width:140px}
+      #huntmeta .hm-best{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;font-weight:800;padding:.28rem .6rem;border-radius:8px}
+      #huntmeta .hm-xph{font-size:.86rem;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+      #huntmeta .hm-xph span{font-size:.62rem;color:var(--ink-3);font-weight:600}
+      #huntmeta .hm-n{font-size:.66rem;color:var(--ink-3)}
+      #huntmeta .hm-lc{font-size:.6rem;color:#e0a020;border:1px solid #e0a02055;border-radius:5px;padding:.05rem .3rem}
+      #huntmeta .hm-detail{margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border);display:none;flex-direction:column;gap:.3rem}
+      #huntmeta .hm-row.open .hm-detail{display:flex}
+      #huntmeta .hm-vrow{display:flex;align-items:center;gap:.5rem;font-size:.78rem}
+      #huntmeta .hm-vbadge{width:34px;text-align:center;font-weight:800;font-size:.72rem;border-radius:6px;padding:.12rem 0;color:#fff;flex-shrink:0}
+      #huntmeta .hm-vtrack{flex:1;height:9px;border-radius:5px;background:var(--bg-3);overflow:hidden;min-width:60px}
+      #huntmeta .hm-vfill{height:100%;border-radius:5px}
+      #huntmeta .hm-vval{font-variant-numeric:tabular-nums;color:var(--ink-2);white-space:nowrap;font-size:.74rem}
+      #huntmeta .hm-vlvl{color:var(--ink-3);font-size:.68rem;white-space:nowrap}
+      #huntmeta .hm-empty{color:var(--ink-3);padding:2rem;text-align:center}
+      #huntmeta .hm-note{font-size:.72rem;color:var(--ink-3);margin-top:1rem;line-height:1.5}
+    </style>
+    <div class="hm-head">
+      <h2 class="sec-title" style="margin:0">Meta de Hunts</h2>
+      <span class="hm-src">melhor vocação por local, a partir de <b id="hm-nsess">—</b> hunts públicas reais · fonte: <a href="https://hunt-analyser.com/hunt_sessions?hunt_sessions_by=is_public" target="_blank" rel="noopener">hunt-analyser.com</a></span>
+    </div>
+    <p class="sec-sub" style="margin-top:.2rem">Qual vocação rende mais XP/h em cada spot, medido em sessões reais de jogadores. Clique num local para ver todas as vocações.</p>
+    <div class="hm-bar">
+      <input type="text" class="hm-search" id="hm-search" placeholder="Buscar local (ex.: ingol, library, cobra)…" oninput="tpHuntMetaRender()">
+      <div class="hm-vfilter" id="hm-vfilter"></div>
+    </div>
+    <div class="hm-list" id="hm-list"><div class="hm-empty">Carregando dados de hunts…</div></div>
+    <div class="hm-note">Mediana de XP/h por vocação (sessões ≥15min). Um local só entra com 6+ sessões; a vocação "melhor" precisa de 3+ sessões (senão marcamos <span class="hm-lc">amostra baixa</span>). Balance/h (lucro) aparece no detalhe. Os números refletem quem JÁ caçou ali — vocações sem sessões registradas não aparecem, não que sejam ruins.</div>
   </section>
 
       <!-- ─────────────────────────  BUILDS (galeria + página de detalhe)  ───────────────────────── -->
@@ -18205,6 +18254,61 @@ window.tpLoadJornada=async function(){
     if(document.readyState!=='loading') layout(); else document.addEventListener('DOMContentLoaded', layout);
     // re-run after auth UI updates (login/logout can rebuild #tp-auth-area content, but element persists)
     setTimeout(layout, 800);
+  })();
+  </script>
+  <script>
+  /* ===== Meta de Hunts — melhor build por hunt-spot (dados reais de hunt-analyser.com) ===== */
+  (function(){
+    var HM={data:null,loaded:false,voc:''};
+    var VC={MS:{n:'Master Sorcerer',c:'#9a6ec2'},EK:{n:'Elite Knight',c:'#c0453e'},ED:{n:'Elder Druid',c:'#5a9e3f'},RP:{n:'Royal Paladin',c:'#c9a840'},EM:{n:'Exalted Monk',c:'#3fb0a6'}};
+    function fmtK(n){ if(n>=1e6) return (n/1e6).toFixed(1).replace('.0','')+'M'; if(n>=1e3) return Math.round(n/1e3)+'k'; return String(n); }
+    function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+    window.tpHuntMetaInit=function(){
+      if(HM.loaded) { tpHuntMetaRender(); return; }
+      HM.loaded=true;
+      // vocation filter chips
+      var vf=document.getElementById('hm-vfilter');
+      if(vf){ vf.innerHTML='<button class="hm-vchip on" data-v="" onclick="tpHuntMetaVoc(\'\')">Todas</button>'+
+        Object.keys(VC).map(function(v){return '<button class="hm-vchip" data-v="'+v+'" style="border-color:'+VC[v].c+'66" onclick="tpHuntMetaVoc(\''+v+'\')">'+v+'</button>';}).join(''); }
+      fetch('assets/hunt-spots.json').then(function(r){return r.json();}).then(function(j){
+        HM.data=j; var ns=document.getElementById('hm-nsess'); if(ns)ns.textContent=(j.meta&&j.meta.sessions||'—').toLocaleString('pt-BR');
+        tpHuntMetaRender();
+      }).catch(function(){ var l=document.getElementById('hm-list'); if(l)l.innerHTML='<div class="hm-empty">Não foi possível carregar os dados de hunts agora.</div>'; });
+    };
+    window.tpHuntMetaVoc=function(v){ HM.voc=v; document.querySelectorAll('#hm-vfilter .hm-vchip').forEach(function(c){var on=c.getAttribute('data-v')===v;c.classList.toggle('on',on);c.style.background=on?(v?VC[v].c:'var(--bamboo,#4a7a3a)'):'';}); tpHuntMetaRender(); };
+    window.tpHuntMetaRender=function(){
+      if(!HM.data) return;
+      var q=(document.getElementById('hm-search')||{}).value||''; q=q.trim().toLowerCase();
+      var list=HM.data.spots.filter(function(s){
+        if(q && s.s.toLowerCase().indexOf(q)<0) return false;
+        if(HM.voc){ return s.v.some(function(v){return v.v===HM.voc;}); }
+        return true;
+      });
+      if(HM.voc){ // sort by that vocation's xph
+        list=list.slice().sort(function(a,b){ var av=(a.v.find(function(x){return x.v===HM.voc;})||{}).x||0; var bv=(b.v.find(function(x){return x.v===HM.voc;})||{}).x||0; return bv-av; });
+      }
+      var host=document.getElementById('hm-list'); if(!host) return;
+      if(!list.length){ host.innerHTML='<div class="hm-empty">Nenhum local encontrado para "'+esc(q)+'".</div>'; return; }
+      host.innerHTML=list.map(function(s,idx){
+        var b=s.b, bc=VC[b.v]||{n:b.v,c:'#888'};
+        var maxx=Math.max.apply(null,s.v.map(function(v){return v.x;}))||1;
+        var vrows=s.v.map(function(v){ var vc=VC[v.v]||{n:v.v,c:'#888'};
+          return '<div class="hm-vrow"><span class="hm-vbadge" style="background:'+vc.c+'" title="'+esc(vc.n)+'">'+v.v+'</span>'
+            +'<div class="hm-vtrack"><div class="hm-vfill" style="width:'+Math.round(v.x/maxx*100)+'%;background:'+vc.c+'"></div></div>'
+            +'<span class="hm-vval">'+fmtK(v.x)+' XP/h · '+fmtK(v.bal)+'/h</span>'
+            +'<span class="hm-vlvl">lvl '+v.lo+'–'+v.hi+' · '+v.n+' hunts</span></div>';
+        }).join('');
+        return '<div class="hm-row" id="hmr'+idx+'">'
+          +'<div class="hm-rtop" onclick="document.getElementById(\'hmr'+idx+'\').classList.toggle(\'open\')">'
+            +'<span class="hm-spot">'+esc(s.s)+'</span>'
+            +'<span class="hm-best" style="background:'+bc.c+'22;border:1px solid '+bc.c+'66;color:'+bc.c+'">'+b.v+' · melhor'+(b.lc?' <span class="hm-lc">amostra baixa</span>':'')+'</span>'
+            +'<span class="hm-xph">'+fmtK(b.x)+' <span>XP/h</span></span>'
+            +'<span class="hm-n">'+s.n+' hunts</span>'
+          +'</div>'
+          +'<div class="hm-detail">'+vrows+'</div>'
+        +'</div>';
+      }).join('');
+    };
   })();
   </script></body>
 </html>
