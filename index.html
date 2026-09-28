@@ -4983,20 +4983,9 @@ PlayerName (Leader)
     function tpWheelSVG(voc,level,id,mode){
       var W=TP_WHEEL[voc]; if(!W)return '';
       var A=tpWheelAlloc(voc,level,mode); if(!A)return '';
-      /* roda desenhada INLINE (SVG) a partir da alocação — sem imagem estática; acompanha a alocação e mostra os CAMINHOS até os augments em vez de fatia cheia */
-      var _augS={}; (TP_AUG[voc]||[]).forEach(function(a){a.s.forEach(function(si){_augS[si]=1;});});
-      var _paths=W.slots.map(function(s){
-        var amt=A.pts[s.i]||0, dd=W.domains[s.dom], off=(s.dom===A.prim||s.dom===A.sec);
-        var fill,op=1,stroke='#0b0e13',sw=1;
-        if(amt<=0){ fill='#171b22'; }
-        else if(_augS[s.i]&&amt>=s.max){ fill=dd.bright; stroke='#f2f4f8'; sw=2.2; }
-        else { fill=dd.color; op=((off?0.5:0.32)+0.5*(amt/s.max)); }
-        return '<path d="'+s.d+'" fill="'+fill+'" fill-opacity="'+op.toFixed(2)+'" stroke="'+stroke+'" stroke-width="'+sw+'"/>';
-      }).join('');
-      var svg='<svg class="bd-wheelsvg" viewBox="0 0 522 522" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Roda do Destino">'
-        +_paths
-        +'<line x1="78" y1="78" x2="444" y2="444" stroke="#000" stroke-opacity=".3" stroke-width="2"/><line x1="444" y1="78" x2="78" y2="444" stroke="#000" stroke-opacity=".3" stroke-width="2"/>'
-        +'<circle cx="261" cy="261" r="30" fill="#0e1218" stroke="#39424f" stroke-width="2"/></svg>';
+      /* roda = ARTE REAL do renderizador da calculadora (screenshot por build/alocação), como o usuário pediu ("está perfeita") */
+      var imgFile=(voc==='sorcerer'&&mode==='thunder')?(id+'-thunder.webp'):(id+'.webp');
+      var svg='<img class="bd-wheelimg" src="assets/builds-wheel/'+imgFile+'" alt="Roda do Destino" loading="lazy" onerror="this.style.display=\'none\'">';
       var rows=[3,0,2,1].map(function(dm){
         var d=W.domains[dm], stgN=A.stages[dm], p=A.domPts[dm];
         var tag=(dm===A.prim?' <em>· ofensivo primário</em>':(dm===A.sec?' <em>· ofensivo secundário</em>':(dm===2?' <em>· sobrevivência</em>':(dm===0?' <em>· avatar</em>':''))));
