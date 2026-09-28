@@ -4823,6 +4823,9 @@ PlayerName (Leader)
       #builds .bd-wastage{font-size:.68rem;color:var(--ink-3);font-weight:700}
       #builds .bd-wastage.on{color:var(--bamboo-light,#8fd694)}
       #builds .bd-wcap{font-size:.67rem;color:var(--ink-3);line-height:1.45;opacity:.85}
+      #builds .bd-wgems{margin:.2rem 0 .1rem}
+      #builds .bd-wgemtxt{font-size:.76rem;color:var(--ink-2);line-height:1.5;background:rgba(201,168,64,.08);border:1px solid rgba(201,168,64,.22);border-radius:8px;padding:.4rem .55rem}
+      #builds .bd-wgemtxt b{color:var(--ink)}
       @media(max-width:560px){#builds .bd-wheelwrap{justify-content:center}#builds .bd-wheelsvg,#builds .bd-wheelimg{max-width:320px}}
     </style>
     <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 5a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm7 0a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2h-3a2 2 0 01-2-2V5z"/></svg> Builds prontas</h2>
@@ -4944,34 +4947,56 @@ PlayerName (Leader)
     function tpWheelAlloc(voc,level,mode){
       var W=TP_WHEEL[voc]; if(!W)return null;
       var P=Math.max(0,Math.min((+level||0)-50,W.total)), pts={}, domPts=[0,0,0,0], left=P;
-      var slotsByDom={}; [0,1,2,3].forEach(function(dm){ slotsByDom[dm]=W.slots.filter(function(s){return s.dom===dm;}).sort(function(a,b){return a.ring-b.ring||a.i-b.i;}); });
+      var slotsByDom={}; [0,1,2,3].forEach(function(dm){ slotsByDom[dm]=W.slots.filter(function(s){return s.dom===dm;}).sort(function(a,b){return a.ring-b.ring||a.max-b.max||a.i-b.i;}); });
       function fillTo(dm,target){ var ss=slotsByDom[dm]; for(var k=0;k<ss.length;k++){ if(left<=0||domPts[dm]>=target)break; var s=ss[k], cur=pts[s.i]||0, room=s.max-cur; if(room<=0)continue; var take=Math.min(room,target-domPts[dm],left); if(take>0){pts[s.i]=cur+take;domPts[dm]+=take;left-=take;} } }
       var byId={}; W.slots.forEach(function(s){byId[s.i]=s;});
       function fillSlot(i){ var s=byId[i]; if(!s)return; var cur=pts[i]||0, room=s.max-cur; if(room<=0||left<=0)return; var t=Math.min(room,left); pts[i]=cur+t; domPts[s.dom]+=t; left-=t; }
       function pathTo(i){ var s=byId[i],path=[]; while(s){ path.unshift(s.i); if(s.ring===0||!s.par||!s.par.length)break; s=s.par.map(function(x){return byId[x];}).sort(function(a,b){return a.ring-b.ring;})[0]; } return path; }
+      function filledS(i){ return (pts[i]||0)>0; }
+      function contig(s){ return s.ring===0 || (s.par||[]).some(filledS); }
+      /* padTo: completa um domínio até o limiar de revelação com as fatias MAIS BARATAS contíguas (anéis internos = Dedication), sem espalhar pro anel externo à toa — é o "padding" que a roda real faz depois de acender os augments */
+      function padTo(dm,target){ var ss=slotsByDom[dm],guard=0;
+        while(domPts[dm]<target && left>0 && guard++<60){
+          var cand=null;
+          for(var k=0;k<ss.length;k++){ var s=ss[k]; if((pts[s.i]||0)>=s.max) continue; if(!contig(s)) continue; if(!cand||s.ring<cand.ring||(s.ring===cand.ring&&s.max<cand.max)) cand=s; }
+          if(!cand) break; var room=cand.max-(pts[cand.i]||0), take=Math.min(room,target-domPts[dm],left); if(take<=0)break;
+          pts[cand.i]=(pts[cand.i]||0)+take; domPts[cand.dom]+=take; left-=take;
+        } }
+      function stg(p){var s=0;W.stageAt.forEach(function(th,i){if(p>=th)s=i+1;});return s;}
       var PRIM,SEC;
       if(voc==='sorcerer'){
-        /* MS — roda tuned por MODO (dano depende do domínio: Lord of Destruction dom1 = +morte; Beam Mastery dom3 = retas do feixe). Aug. Death Echo II (slots 16+22) + Focus Spells/Great Fire Wave, e front-load do domínio do modo. Nesta faixa de pontos, espalhar p/ 2 Estágios I (+8) ganha de concentrar 1 (não dá p/ chegar no Estágio II antes de ~lvl800), por isso mantém a alocação alternada. DECAY/FLAMES primário dom1; THUNDER primário dom3. */
+        /* MS — roda tuned por MODO (dano depende do domínio: Lord of Destruction dom1 = +morte; Beam Mastery dom3 = retas do feixe). É a roda de referência (prioriza habilidades). DECAY/FLAMES primário dom1; THUNDER primário dom3. */
         PRIM=(mode==='thunder')?3:1; SEC=(PRIM===1)?3:1;
         var acts = (mode==='thunder')
           ? [['p',22],['p',16],['f',3,250],['f',1,250],['f',3,500],['f',1,500],['f',3,1000],['f',1,1000]]
           : [['p',16],['p',22],['f',1,250],['f',3,250],['f',1,500],['f',3,500],['f',1,1000],['f',3,1000]];
         acts.forEach(function(a){ if(a[0]==='p') pathTo(a[1]).forEach(fillSlot); else fillTo(a[1],a[2]); });
       } else {
-        /* CONCENTRAÇÃO (roda real): não enche os dois lados no Estágio I — concentra o domínio ofensivo PRIMÁRIO até o Estágio II (500 = a habilidade sobe) antes de espalhar. Primário por vocação = o das rodas reais dos tops: knight Combat Mastery(dom1), monk Ascetic(dom1), paladin Divine Empowerment(dom1), druid Twin Bursts(dom3). Ativa os 2 augments-raiz ofensivos ASAP (slots 1 e 3). Gift of Life(2)/Avatar(0) ficam de fora (sobrevivência/boss). */
-        PRIM=({knight:1,paladin:1,monk:1,druid:1})[voc]; if(PRIM==null)PRIM=1; SEC=(PRIM===1)?3:1;
-        [1,3].forEach(function(i){ pathTo(i).forEach(fillSlot); });
-        fillTo(PRIM,500); fillTo(SEC,250); fillTo(SEC,500); fillTo(PRIM,1000); fillTo(SEC,1000);
+        /* CAMINHO ATÉ OS AUGMENTS (prioriza habilidades principais, como a do MS) — NÃO enche a fatia. Faz caminhos radiais estreitos até os slots dos augments das magias (as 2 cópias = Estágio II, o dano %) e só completa até o limiar de revelação com Dedication barata. Domínios ofensivos = dom1 + dom3 (diagonal SW+NE). Gift of Life(2)/Avatar(0) ficam de fora. Ordem: raízes (Est.I) → augment do anel 2 nas 2 cópias (Est.II) → revelação Est.1/2 → augments do anel 4 (Est.II) → Est.3. */
+        PRIM=1; SEC=3;
+        var steps=[['p',1],['p',3],['p',16],['p',22],['r',250],['r',500],['p',33],['p',35],['r',1000]];
+        steps.forEach(function(st){ if(left<=0)return; if(st[0]==='p') pathTo(st[1]).forEach(fillSlot); else { padTo(1,st[1]); padTo(3,st[1]); } });
       }
-      function stg(p){var s=0;W.stageAt.forEach(function(th,i){if(p>=th)s=i+1;});return s;}
       var stages=domPts.map(stg), flat=0; stages.forEach(function(s){flat+=W.revDmg[s]||0;});
       return {pts:pts,domPts:domPts,stages:stages,flat:flat,total:P,cap:W.total,prim:PRIM,sec:SEC};
     }
     function tpWheelSVG(voc,level,id,mode){
       var W=TP_WHEEL[voc]; if(!W)return '';
       var A=tpWheelAlloc(voc,level,mode); if(!A)return '';
-      var imgFile=(voc==='sorcerer'&&mode==='thunder')?(id+'-thunder.webp'):(id+'.webp');
-      var svg='<img class="bd-wheelimg" src="assets/builds-wheel/'+imgFile+'" alt="Roda do Destino" loading="lazy" onerror="this.style.display=\'none\'">';
+      /* roda desenhada INLINE (SVG) a partir da alocação — sem imagem estática; acompanha a alocação e mostra os CAMINHOS até os augments em vez de fatia cheia */
+      var _augS={}; (TP_AUG[voc]||[]).forEach(function(a){a.s.forEach(function(si){_augS[si]=1;});});
+      var _paths=W.slots.map(function(s){
+        var amt=A.pts[s.i]||0, dd=W.domains[s.dom], off=(s.dom===A.prim||s.dom===A.sec);
+        var fill,op=1,stroke='#0b0e13',sw=1;
+        if(amt<=0){ fill='#171b22'; }
+        else if(_augS[s.i]&&amt>=s.max){ fill=dd.bright; stroke='#f2f4f8'; sw=2.2; }
+        else { fill=dd.color; op=((off?0.5:0.32)+0.5*(amt/s.max)); }
+        return '<path d="'+s.d+'" fill="'+fill+'" fill-opacity="'+op.toFixed(2)+'" stroke="'+stroke+'" stroke-width="'+sw+'"/>';
+      }).join('');
+      var svg='<svg class="bd-wheelsvg" viewBox="0 0 522 522" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Roda do Destino">'
+        +_paths
+        +'<line x1="78" y1="78" x2="444" y2="444" stroke="#000" stroke-opacity=".3" stroke-width="2"/><line x1="444" y1="78" x2="78" y2="444" stroke="#000" stroke-opacity=".3" stroke-width="2"/>'
+        +'<circle cx="261" cy="261" r="30" fill="#0e1218" stroke="#39424f" stroke-width="2"/></svg>';
       var rows=[3,0,2,1].map(function(dm){
         var d=W.domains[dm], stgN=A.stages[dm], p=A.domPts[dm];
         var tag=(dm===A.prim?' <em>· ofensivo primário</em>':(dm===A.sec?' <em>· ofensivo secundário</em>':(dm===2?' <em>· sobrevivência</em>':(dm===0?' <em>· avatar</em>':''))));
@@ -4991,8 +5016,8 @@ PlayerName (Leader)
           : 'Abaixo de 250 pts o feixe ainda não ganha as retas laterais; o 1º estágio de Beam Mastery abre no nível 300.';
       }
       else if(voc==='sorcerer') tip='Roda otimizada p/ <b>dano por turno</b>: só os <b>2 domínios ofensivos</b> — <b>Beam Mastery</b> (NE) e <b>Lord of Destruction</b> (SW). Ativa o <b>Aug. Death Echo</b> dos dois lados (+12% base), que no caminho já acende <b>Aug. Focus Spells</b> (Hell\'s Core) e <b>Aug. Great Fire Wave</b>, e sobe os estágios de revelação. <b>Gift of Life e Avatar ficam de fora</b> (sobrevivência/boss, sem ganho de dano na caçada).'+(nhit>1?(' Aqui já são <b>'+nhit+' revelações</b> ativas.'):'');
-      else if(A.total>=250) tip='Roda <b>concentrada</b> p/ dano por turno: em vez de encher os dois lados no Estágio I, <b>concentra o domínio ofensivo primário ('+esc(W.domains[A.prim].name)+') até o Estágio II</b> — o bônus sobe de +4 p/ +9 <em>e a habilidade da revelação evolui</em> (é o "melhor bônus", não só encher o lado). Os augments-raiz dos dois lados são ativados cedo. <b>Gift of Life e Avatar ficam de fora</b> (sobrevivência/boss). '+(A.stages[A.prim]>=2?('Aqui <b>'+esc(W.domains[A.prim].name)+'</b> já está no <b>Estágio '+TP_WROMAN[A.stages[A.prim]]+'</b>.'):('Subindo '+esc(W.domains[A.prim].name)+' até o Estágio II primeiro.'));
-      else tip='Abaixo de 250 pts os pontos ainda não abrem estágio de revelação (1º estágio = 250 pts = nível 300); o foco vai para os domínios ofensivos.';
+      else if(A.total>=250) tip='Roda que <b>prioriza as habilidades principais</b>: em vez de encher a fatia, faz <b>caminhos até os slots dos augments</b> das magias — cada augment tem 2 cópias, e encher as duas destrava o <b>Estágio II</b> (o dano %). Depois completa até o limiar de revelação com Dedication barata. <b>'+esc(W.domains[1].name)+'</b> (SW) e <b>'+esc(W.domains[3].name)+'</b> (NE) são os 2 lados ofensivos; <b>Gift of Life e Avatar ficam de fora</b> (sobrevivência/boss).';
+      else tip='Abaixo de 250 pts nenhum lado abre estágio de revelação ainda — o foco vai pros <b>augments</b> (acender as habilidades) e, sem poder maximizar, as <b>gemas</b> entram como reforço (ver abaixo).';
       var _augList=TP_AUG[voc]||[]; var _byId={}; W.slots.forEach(function(s){_byId[s.i]=s;});
       var augHtml='';
       if(_augList.length){
@@ -5003,9 +5028,24 @@ PlayerName (Leader)
         }).join('');
         augHtml='<div class="bd-waugs"><div class="bd-waugh">Habilidades potencializadas (augments)</div>'+arows+'</div>';
       }
+      /* GEMAS (roda+gemas = 1 sistema só): subir a revelação do lado principal até o tier que DESTRAVA a Greater gem (ex.: "Beam Mastery tier 2 pra Greater gem") → Greater com Base Damage no lado principal + Rev. Mastery no outro lado (pontos-fantasma). Sem poder maximizar → fallback: vida (mago) / mitigação (EK/RP/Monk; monk vida lvl1). */
+      var _mage=(voc==='sorcerer'||voc==='druid');
+      var _canMax=[A.prim,A.sec].some(function(dm){return A.stages[dm]>0;}) || _augList.some(function(a){return a.s.every(function(si){return (A.pts[si]||0)>=(_byId[si]?_byId[si].max:9999);});});
+      var _GEMSUP={sorcerer:'Great Death / Great Energy Beam',druid:'Strong Ice Wave / Ice Burst',knight:'Front Sweep / Executioner\'s Throw',paladin:'Ethereal Spear / Divine Missile',monk:'Forceful Uppercut'};
+      var _RMSUP={sorcerer:'Beam Mastery / Lord of Destruction',druid:'Twin Bursts / Blessing of the Grove',knight:'Combat Mastery / Executioner\'s Throw',paladin:'Divine Empowerment / Divine Grenade',monk:'Ascetic / Spiritual Outburst'};
+      var _extraSup=(voc==='knight'||voc==='monk')?'Life Leech':'Crit Extra Damage';
+      var _gemTxt;
+      if(_canMax){
+        _gemTxt='<b>Pega o vessel de Greater gem (lv 3) do lado principal assim que puder</b> — sobe a revelação até o tier que abre a Greater. '
+          +'Lado principal: Greater com <b>'+esc(_GEMSUP[voc])+'</b> (Base Damage) + '+_extraSup+', com <b>Vessel Resonance ×3</b> pra ativar os 3 mods. '
+          +'Outro lado: <b>Revelation Mastery ('+esc(_RMSUP[voc])+')</b> — dá +150→225 pontos-fantasma e sobe aquela revelação de graça. Pra boss, gema de <b>Avatar</b> (buffa o Ultimate).';
+      } else {
+        _gemTxt='Ainda não dá pra maximizar nem abrir uma Greater — enquanto isso use '+(_mage?'<b>gemas de vida</b> (mago)':'<b>gemas de mitigação</b>'+(voc==='monk'?' (ou de vida lvl 1)':''))+'. Assim que abrir um lado, migra pras ofensivas (Greater + Rev. Mastery).';
+      }
+      var gemHtml='<div class="bd-wgems"><div class="bd-waugh">Gemas</div><div class="bd-wgemtxt">'+_gemTxt+'</div></div>';
       var side='<div class="bd-wside"><div class="bd-wpts">'+A.total+' <span>pontos de promoção</span></div>'
-        +flatLine+'<div class="bd-wdoms">'+rows+'</div>'+augHtml+'<div class="bd-wtip">'+tip+'</div>'
-        +'<div class="bd-wcap">Alocação de referência (dano por turno). Pontos, limiares de estágio (250/500/1000), o bônus +4/+9/+20 e os augments são mecânica exata do jogo; a escolha das casas é do jogador.</div></div>';
+        +flatLine+'<div class="bd-wdoms">'+rows+'</div>'+augHtml+gemHtml+'<div class="bd-wtip">'+tip+'</div>'
+        +'<div class="bd-wcap">Roda desenhada a partir da alocação: caminhos até os augments das habilidades principais (não enche a fatia). Limiares 250/500/1000 = revelação +4/+9/+20; augment com as 2 cópias = Estágio II. Mecânica exata do jogo; a escolha das casas é do jogador.</div></div>';
       return '<div class="bd-wheelwrap">'+svg+side+'</div>';
     }
 
