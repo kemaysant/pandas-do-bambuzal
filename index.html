@@ -17885,6 +17885,16 @@ window.tpLoadJornada=async function(){
     window.__AG_CHAT.eid=null;
   };
   function chatWhen(iso){ var d=new Date(iso), n=new Date(); var same=d.toDateString()===n.toDateString(); return same?d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+  function vocTag(v){ if(!v) return ''; var s=(''+v).toLowerCase();
+    if(s.indexOf('monk')>=0) return s.indexOf('exalted')>=0?'EM':'M';
+    if(s.indexOf('knight')>=0) return s.indexOf('elite')>=0?'EK':'K';
+    if(s.indexOf('sorcerer')>=0) return s.indexOf('master')>=0?'MS':'S';
+    if(s.indexOf('druid')>=0) return s.indexOf('elder')>=0?'ED':'D';
+    if(s.indexOf('paladin')>=0) return s.indexOf('royal')>=0?'RP':'P';
+    return ''; }
+  function chatWho(m){ var tag=vocTag(m&&m.vocation); var lv=(m&&m.level!=null&&m.level!=='')?m.level:null; var badge='';
+    if(tag||lv){ badge='<span class="agchat-voc" style="font-weight:700;font-size:.82em;opacity:.72;margin-right:.2rem;letter-spacing:.02em">['+(tag||'?')+(lv!=null?(' '+lv):'')+']</span>'; }
+    return badge+esc(m&&m.character||'Jogador'); }
   window.tpAgendaChatLoad=function(full){
     var eid=window.__AG_CHAT.eid; if(!eid) return;
     var scroll=document.getElementById('agchat-scroll'); if(!scroll) return;
@@ -17896,7 +17906,7 @@ window.tpLoadJornada=async function(){
         if(!msgs.length){ scroll.innerHTML='<div class="agchat-empty">Ainda não há mensagens. Seja o primeiro a falar! 👋</div>'; return; }
         var atBottom=(scroll.scrollHeight-scroll.scrollTop-scroll.clientHeight)<40;
         scroll.innerHTML=msgs.map(function(m){
-          return '<div class="agchat-msg'+(m.mine?' mine':'')+'"><div class="agchat-mh"><span class="who">'+esc(m.character||'Jogador')+'</span><span class="when">'+chatWhen(m.created_at)+'</span>'+(m.can_delete?'<button class="del" title="Apagar" onclick="tpAgendaChatDelete(\''+m.id+'\')">🗑</button>':'')+'</div><div class="agchat-body">'+esc(m.body)+'</div></div>';
+          return '<div class="agchat-msg'+(m.mine?' mine':'')+'"><div class="agchat-mh"><span class="who">'+chatWho(m)+'</span><span class="when">'+chatWhen(m.created_at)+'</span>'+(m.can_delete?'<button class="del" title="Apagar" onclick="tpAgendaChatDelete(\''+m.id+'\')">🗑</button>':'')+'</div><div class="agchat-body">'+esc(m.body)+'</div></div>';
         }).join('');
         if(full||atBottom) scroll.scrollTop=scroll.scrollHeight;
       }).catch(function(){});
@@ -17991,7 +18001,7 @@ window.tpLoadJornada=async function(){
         var msgs=Array.isArray(d.messages)?d.messages:[];
         if(!msgs.length){ scroll.innerHTML='<div class="agchat-empty">Sem mensagens ainda. Comece a conversa! 👋</div>'; return; }
         var atBottom=(scroll.scrollHeight-scroll.scrollTop-scroll.clientHeight)<40;
-        scroll.innerHTML=msgs.map(function(m){ return '<div class="agchat-msg'+(m.mine?' mine':'')+'"><div class="agchat-mh"><span class="who">'+esc(m.character||'Jogador')+'</span><span class="when">'+chatWhen(m.created_at)+'</span>'+(m.can_delete?'<button class="del" title="Apagar" onclick="tpEvpChatDelete(\''+m.id+'\')">🗑</button>':'')+'</div><div class="agchat-body">'+esc(m.body)+'</div></div>'; }).join('');
+        scroll.innerHTML=msgs.map(function(m){ return '<div class="agchat-msg'+(m.mine?' mine':'')+'"><div class="agchat-mh"><span class="who">'+chatWho(m)+'</span><span class="when">'+chatWhen(m.created_at)+'</span>'+(m.can_delete?'<button class="del" title="Apagar" onclick="tpEvpChatDelete(\''+m.id+'\')">🗑</button>':'')+'</div><div class="agchat-body">'+esc(m.body)+'</div></div>'; }).join('');
         if(full||atBottom) scroll.scrollTop=scroll.scrollHeight;
       }).catch(function(){});
   }
