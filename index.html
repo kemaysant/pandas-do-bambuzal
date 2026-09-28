@@ -5076,7 +5076,8 @@ PlayerName (Leader)
       var _M=_modes?_modes[_curMode]:null;
       var voc=VOCS[b.vocation]||{label:b.vocation,emoji:'🐼'};
       var ic=WIC[w.icon], el=b.element||w.damageType||'', elc=ELCOL[el]||'var(--gold)';
-      var code=encodeBuild(d);
+      var _cd={}; for(var _ck in d){ if(_ck!=='guide') _cd[_ck]=d[_ck]; }
+      var code=encodeBuild(_cd);
       var st=det.stats||{};
       var _isMage=(b.vocation==='druid'||b.vocation==='sorcerer');
       var statTiles=[['Nível',st.level],['Magic Level',st.ml]]
