@@ -333,6 +333,13 @@ tbody tr.inrot{background:#20241455}
 .whgem-nm{font-size:.76rem;color:var(--ink-2);width:120px;flex:none}
 .whgem-sel{flex:1;font-size:.76rem;padding:.3rem .4rem}
 .whgem-lock{flex:1;font-size:.7rem;color:var(--faint);font-style:italic}
+.whgem-row{flex-wrap:wrap}
+.whves{display:inline-flex;align-items:center;gap:.3rem;font-size:.74rem;color:var(--ink-2);cursor:pointer;user-select:none}
+.whves input{cursor:pointer;margin:0}
+.whves-dh{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;color:var(--dc,#7ea6ff);margin-left:.35rem}
+.whves-dh.off{color:var(--faint);font-weight:400}
+.whgem-note{font-size:.68rem;color:var(--faint);line-height:1.5;margin-top:.4rem;border-top:1px dashed var(--rule);padding-top:.4rem}
+.whgem-h b{color:var(--dc,#7ea6ff)}
 </style>
 <div class="wrap">
 <div class="resbar">
@@ -574,10 +581,10 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
   // builds.A / builds.B; state.<campo> é um proxy pra build ativa (cur), então as ~90 referências a
   // state.weapon/rotation/wheelPts/... continuam funcionando sem alteração — só trocamos "cur".
   var state={voc:'sorcerer', targets:[], useTargets:false, expose:false};
-  function mkBuild(){ return {weapon:null, ammo:null, rotation:[], equip:{}, pickSlot:null, stance:'none', stanceTier:3, onslaught:0, transcendence:0, prof:[], wprof:{}, shapes:{}, wheelPts:{}, wheelSel:null, gems:{}}; }
+  function mkBuild(){ return {weapon:null, ammo:null, rotation:[], equip:{}, pickSlot:null, stance:'none', stanceTier:3, onslaught:0, transcendence:0, prof:[], wprof:{}, shapes:{}, wheelPts:{}, wheelSel:null, gems:{}, vessels:{}}; }
   var builds={A:mkBuild(), B:mkBuild()};
   var cur='A';
-  ['weapon','ammo','rotation','equip','pickSlot','stance','stanceTier','onslaught','transcendence','prof','wprof','shapes','wheelPts','wheelSel','gems'].forEach(function(f){
+  ['weapon','ammo','rotation','equip','pickSlot','stance','stanceTier','onslaught','transcendence','prof','wprof','shapes','wheelPts','wheelSel','gems','vessels'].forEach(function(f){
     Object.defineProperty(state,f,{get:function(){return builds[cur][f];},set:function(v){builds[cur][f]=v;},configurable:true,enumerable:true});
   });
   // targets: [{n,hp,res,mit,ratio,charm,tier}]
@@ -834,8 +841,8 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
   // por domínio, a PRESENÇA de gema em vessel ativo soma D&H — +2 se o vessel greater (VR III, estágio 3) está destravado, senão +1 se há vessel (estágio 1-2). Máx +2/domínio (não empilha).
   // Assume a build "pro" preenchendo os vessels que a roda destrava (é o que o exiva faz). Derivado dos estágios, sem depender de qual gema.
   function gemVesselFlat(){
-    var pts=wheelEffDomPts(), stageFn=(state.voc==='sorcerer')?wheelStage:dwStage, n=0;
-    for(var k=0;k<4;k++){ var st=stageFn(pts[k])||0; n += (st>=3?2:(st>=1?1:0)); }
+    var pts=wheelEffDomPts(), stageFn=(state.voc==='sorcerer')?wheelStage:dwStage, ves=state.vessels||{}, n=0;
+    for(var k=0;k<4;k++){ if(ves[k]===false) continue; var st=stageFn(pts[k])||0; n += (st>=3?2:(st>=1?1:0)); }
     return n;
   }
   // total que a roda soma no flat (aparece no jogo como "X from Wheel of Destiny")
@@ -1043,17 +1050,25 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
   function gemBonuses(){ var out=[]; [0,1,2,3].forEach(function(dom){ var g=gemFor(dom); if(g&&g.bonuses)g.bonuses.forEach(function(bn){out.push({value:bn.value,scope:bn.perk.scope,bonusType:bn.perk.bonusType});}); }); return out; }
   function renderGemPanel(){
     var W=gemWheel();
-    if(!W||!W.greaterGems||!W.greaterSlotByDom) return '';
+    if(!W||!W.domains) return '';
+    var pts=wheelEffDomPts(), stageFn=(state.voc==='sorcerer')?wheelStage:dwStage, ves=state.vessels||{};
     var rows=W.domains.map(function(dm){
-      var slot=W.greaterSlotByDom[dm.k], unlocked=(slot!=null&&gemMaxed(slot)), cur=state.gems[dm.k];
-      var sel;
-      if(unlocked){
-        var opts='<option value="">— vazio —</option>'+W.greaterGems.map(function(g){return '<option value="'+g.n+'"'+(cur===g.n?' selected':'')+'>'+g.label+'</option>';}).join('');
-        sel='<select class="in whgem-sel" data-gd="'+dm.k+'">'+opts+'</select>';
-      } else { sel='<span class="whgem-lock">🔒 complete o slot greater (anel 4)</span>'; }
-      return '<div class="whgem-row"><span class="whgem-sw" style="background:'+(WBRIGHT[dm.k]||dm.color)+'"></span><span class="whgem-nm">'+dm.name+'</span>'+sel+'</div>';
+      var k=dm.k, st=stageFn(pts[k])||0, dh=(st>=3?2:(st>=1?1:0)), on=(ves[k]!==false);
+      var sw='<span class="whgem-sw" style="background:'+(WBRIGHT[k]||dm.color)+'"></span>';
+      var nm='<span class="whgem-nm">'+dm.name+'</span>';
+      if(st<=0){ return '<div class="whgem-row off">'+sw+nm+'<span class="whgem-lock">🔒 trave a revelação (250 pts) p/ abrir o vessel</span></div>'; }
+      var tier=(st>=3?'greater · VR III':'lesser/regular');
+      var tog='<label class="whves"><input type="checkbox" data-ves="'+k+'"'+(on?' checked':'')+'><span>gema encaixada</span></label>';
+      var badge='<span class="whves-dh'+(on?'':' off')+'">'+(on?('+'+dh):'0')+' D&amp;H · '+tier+'</span>';
+      var slot=W.greaterSlotByDom?W.greaterSlotByDom[k]:null, unlocked=(slot!=null&&gemMaxed(slot)), cur=state.gems[k], sel='';
+      if(unlocked&&W.greaterGems){
+        var opts='<option value="">— sem mod supremo —</option>'+W.greaterGems.map(function(g){return '<option value="'+g.n+'"'+(cur===g.n?' selected':'')+'>'+g.label+'</option>';}).join('');
+        sel='<select class="in whgem-sel" data-gd="'+k+'">'+opts+'</select>';
+      }
+      return '<div class="whgem-row">'+sw+nm+tog+badge+sel+'</div>';
     }).join('');
-    return '<div class="whgems-panel"><div class="whgem-h">Gemas · Vessel III (greater)</div>'+rows+'</div>';
+    var tot=0; for(var q=0;q<4;q++){ if(ves[q]===false) continue; var s2=stageFn(pts[q])||0; tot+=(s2>=3?2:(s2>=1?1:0)); }
+    return '<div class="whgems-panel"><div class="whgem-h">Revelations &amp; Gemas · D&amp;H de vessel <b>+'+tot+'</b></div>'+rows+'<div class="whgem-note">Encaixar gema num vessel de domínio ativo soma D&amp;H (Vessel Resonance): <b>+2</b> no greater (estágio 3), <b>+1</b> no lesser/regular. Só a presença conta — o mod não muda esse D&amp;H.</div></div>';
   }
   // alcançabilidade: flood-fill do centro por fatias COMPLETAS, seguindo adjacência (interna + lateral)
   function wheelReach(){
@@ -1137,7 +1152,7 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
         bar+'<div class="whrev-eff">'+eff+'</div></div>';
     }).join('')+ renderGemPanel()+
     '<div class="whnote">Cada <b style="color:var(--ink-2)">fatia completa</b> concede o perk de Conviction (ML, augment por magia). As <b style="color:var(--ink-2)">gemas VR III</b> (abaixo) liberam ao completar o slot greater daquele domínio: gema de Revelation soma +225 pontos (empurra o estágio), gema de Aug soma crit/dano-base por magia. O <b style="color:var(--ink-2)">beam stage</b> multiplica Great Death/Energy Beam na rotação.</div>';
-    g('whpanel').querySelectorAll('[data-gd]').forEach(function(sel){ sel.onchange=function(){ var d=+sel.dataset.gd, v=sel.value; if(v==='')delete state.gems[d]; else state.gems[d]=+v; render(); }; });
+    wireGemSel(g('whpanel'));
   }
 
   function renderSliceCtl(){
@@ -1361,7 +1376,10 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
     wireGemSel(host);
   }
   // liga os selects de gema (usado em todas as vocações)
-  function wireGemSel(host){ host.querySelectorAll('[data-gd]').forEach(function(sel){ sel.onchange=function(){ var d=+sel.dataset.gd, v=sel.value; if(v==='')delete state.gems[d]; else state.gems[d]=+v; render(); }; }); }
+  function wireGemSel(host){
+    host.querySelectorAll('[data-gd]').forEach(function(sel){ sel.onchange=function(){ var d=+sel.dataset.gd, v=sel.value; if(v==='')delete state.gems[d]; else state.gems[d]=+v; render(); }; });
+    host.querySelectorAll('[data-ves]').forEach(function(cb){ cb.onchange=function(){ var d=+cb.dataset.ves; if(!state.vessels)state.vessels={}; state.vessels[d]=cb.checked; render(); }; });
+  }
   function renderDruidSliceCtl(){
     var host=g('dwhslicectl'); if(!host)return; var i=state.wheelSel;
     if(i==null||!DWHEEL.slots[i]){ host.innerHTML='<div class="whsel-empty">Clique numa fatia da roda pra alocar pontos.</div>'; return; }
@@ -1528,7 +1546,7 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
     g('onslaught').onchange=function(){state.onslaught=+g('onslaught').value;render();};
     g('transc').onchange=function(){state.transcendence=+g('transc').value;render();};
     g('profclear').onclick=function(){state.prof=[];state.wprof={};state.shapes={};render();};
-    g('whclear').onclick=function(){state.wheelPts={};state.wheelSel=null;state.gems={};render();};
+    g('whclear').onclick=function(){state.wheelPts={};state.wheelSel=null;state.gems={};state.vessels={};render();};
     var dwc=g('dwhclear'); if(dwc)dwc.onclick=function(){state.wheelPts={};state.wheelSel=null;render();};
     var owc=g('owhclear'); if(owc)owc.onclick=function(){state.wheelPts={};state.wheelSel=null;render();};
     var ti=g('profsearch'), sg=g('profsugg');
@@ -1862,7 +1880,7 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
     state.voc=v;
     // vocação é compartilhada por A e B → zera os campos de build das DUAS builds
     ['A','B'].forEach(function(k){ var b=builds[k];
-      b.weapon=null; b.ammo=null; b.rotation=[]; b.equip={}; b.pickSlot=null; b.prof=[]; b.wprof={}; b.shapes={}; b.wheelPts={}; b.wheelSel=null; b.gems={}; b.stance='none';
+      b.weapon=null; b.ammo=null; b.rotation=[]; b.equip={}; b.pickSlot=null; b.prof=[]; b.wprof={}; b.shapes={}; b.wheelPts={}; b.wheelSel=null; b.gems={}; b.vessels={}; b.stance='none';
     });
     state.ammo=null;
     document.querySelectorAll('#voc .vb').forEach(function(b){b.classList.toggle('on',b.dataset.v===v);});

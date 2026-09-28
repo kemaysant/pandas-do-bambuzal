@@ -4809,6 +4809,8 @@ PlayerName (Leader)
       #builds .bd-wdname em{font-style:normal;font-size:.65rem;color:var(--ink-3)}
       #builds .bd-wdpts{font-variant-numeric:tabular-nums;color:var(--ink-3);min-width:34px;text-align:right}
       #builds .bd-wdstage{font-size:.63rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);min-width:66px;text-align:right}
+      #builds .bd-wdgem{font-size:.66rem;font-weight:700;color:var(--gold,#c9a840);min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
+      #builds .bd-wdgem.off{color:var(--ink-3);opacity:.45;font-weight:400}
       #builds .bd-wdstage.on{color:var(--bamboo-light);font-weight:700}
       #builds .bd-wtip{font-size:.74rem;color:var(--ink-2);line-height:1.5;background:var(--bg-2);border-radius:8px;padding:.5rem .6rem}
       #builds .bd-wtip b{color:var(--ink)}
@@ -4989,10 +4991,13 @@ PlayerName (Leader)
       var rows=[3,0,2,1].map(function(dm){
         var d=W.domains[dm], stgN=A.stages[dm], p=A.domPts[dm];
         var tag=(dm===A.prim?' <em>· ofensivo primário</em>':(dm===A.sec?' <em>· ofensivo secundário</em>':(dm===2?' <em>· sobrevivência</em>':(dm===0?' <em>· avatar</em>':''))));
+        var gdh=(stgN>=3?2:(stgN>=1?1:0));
+        var gemBadge=gdh>0?'<span class="bd-wdgem" title="Gema encaixada no vessel (Vessel Resonance) — '+(stgN>=3?'greater · VR III':'lesser/regular')+'">💎 +'+gdh+'</span>':'<span class="bd-wdgem off">—</span>';
         return '<div class="bd-wdom'+(stgN>0?' hit':'')+'"><span class="bd-wdot" style="background:'+d.color+'"></span>'
           +'<span class="bd-wdname">'+esc(d.name)+tag+'</span>'
           +'<span class="bd-wdpts">'+p+'</span>'
-          +'<span class="bd-wdstage'+(stgN>0?' on':'')+'">'+(stgN>0?'Estágio '+TP_WROMAN[stgN]:'—')+'</span></div>';
+          +'<span class="bd-wdstage'+(stgN>0?' on':'')+'">'+(stgN>0?'Estágio '+TP_WROMAN[stgN]:'—')+'</span>'
+          +gemBadge+'</div>';
       }).join('');
       var _vess=0; if(A.stages){ for(var _vk=0;_vk<4;_vk++){ var _vst=A.stages[_vk]||0; _vess += (_vst>=3?2:(_vst>=1?1:0)); } }
       var flatLine=(A.flat>0||_vess>0)
