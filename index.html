@@ -4994,8 +4994,9 @@ PlayerName (Leader)
           +'<span class="bd-wdpts">'+p+'</span>'
           +'<span class="bd-wdstage'+(stgN>0?' on':'')+'">'+(stgN>0?'Estágio '+TP_WROMAN[stgN]:'—')+'</span></div>';
       }).join('');
-      var flatLine=A.flat>0
-        ? '<div class="bd-wflat">Bônus de revelação: <b>+'+A.flat+'</b> de aumento de dano e cura (todas as fontes)</div>'
+      var _vess=0; if(A.stages){ for(var _vk=0;_vk<4;_vk++){ var _vst=A.stages[_vk]||0; _vess += (_vst>=3?2:(_vst>=1?1:0)); } }
+      var flatLine=(A.flat>0||_vess>0)
+        ? '<div class="bd-wflat">Dano &amp; Cura da roda: <b>+'+A.flat+'</b> de revelação'+(_vess>0?' · <b>+'+_vess+'</b> de gemas (Vessel Resonance)':'')+'</div>'
         : '<div class="bd-wflat off">Sem estágio de revelação neste nível <span>(1º estágio = 250 pts = nível 300)</span></div>';
       var nhit=A.stages.filter(function(s){return s>0;}).length;
       var tip;

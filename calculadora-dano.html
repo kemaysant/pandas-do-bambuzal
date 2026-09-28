@@ -830,8 +830,14 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
     for(var k=0;k<4;k++) f+=R[stageFn(pts[k])]||0;
     return f;
   }
-  // Vessels/Gems Damage&Healing: +2 por gema greater ativa (VR III radiant casa com greater → +1 base +1 greater)
-  function gemVesselFlat(){ var n=0; [0,1,2,3].forEach(function(dom){ if(gemFor(dom)) n+=2; }); return n; }
+  // Vessels/Gems Damage&Healing (modelo exivabuild, validado no código-fonte deles):
+  // por domínio, a PRESENÇA de gema em vessel ativo soma D&H — +2 se o vessel greater (VR III, estágio 3) está destravado, senão +1 se há vessel (estágio 1-2). Máx +2/domínio (não empilha).
+  // Assume a build "pro" preenchendo os vessels que a roda destrava (é o que o exiva faz). Derivado dos estágios, sem depender de qual gema.
+  function gemVesselFlat(){
+    var pts=wheelEffDomPts(), stageFn=(state.voc==='sorcerer')?wheelStage:dwStage, n=0;
+    for(var k=0;k<4;k++){ var st=stageFn(pts[k])||0; n += (st>=3?2:(st>=1?1:0)); }
+    return n;
+  }
   // total que a roda soma no flat (aparece no jogo como "X from Wheel of Destiny")
   function wheelAutoFlat(){ return wheelRevFlat()+gemVesselFlat(); }
 
