@@ -4789,8 +4789,8 @@ PlayerName (Leader)
       #builds .bd-eqi b{color:var(--ink-3);font-weight:600;text-transform:capitalize}
       #builds .bd-rspell[data-anim]{cursor:help}
       #builds .bd-rspell[data-anim] .bd-rsic::after{content:'';position:absolute;right:2px;bottom:2px;width:6px;height:6px;border-radius:50%;background:var(--bamboo-light);box-shadow:0 0 4px var(--bamboo-light)}
-      .bd-animpop{position:fixed;z-index:99999;width:248px;padding:6px;background:#0d0c12;border:1px solid var(--gold,#c9a840);border-radius:10px;box-shadow:0 14px 40px -8px rgba(0,0,0,.85);pointer-events:none}
-      .bd-animpop img{display:block;width:236px;height:auto;border-radius:6px;image-rendering:pixelated}
+      .bd-animpop{position:fixed;z-index:99999;width:150px;height:150px;padding:5px;background:#0d0c12;border:1px solid var(--gold,#c9a840);border-radius:10px;box-shadow:0 14px 40px -8px rgba(0,0,0,.85);pointer-events:none;display:flex;align-items:center;justify-content:center}
+      .bd-animpop img{display:block;max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;border-radius:6px;image-rendering:pixelated}
       #builds .bd-note{margin-top:1.2rem;font-size:.73rem;color:var(--ink-3);line-height:1.5}
       #builds .bd-wsect{margin:.2rem 0 1.15rem}
       #builds .bd-herosum{color:var(--ink-2);font-size:.86rem;line-height:1.5;margin-top:.4rem;max-width:62ch}
@@ -4966,7 +4966,7 @@ PlayerName (Leader)
       document.addEventListener('mouseover', function(e){ var t=e.target.closest&&e.target.closest('.bd-rspell[data-anim]'); if(!t)return; var p=ensure(); var img=p.querySelector('img'); var src=t.getAttribute('data-anim'); if(img.getAttribute('src')!==src){img.setAttribute('src',src);} p.style.display='block'; place(p,t); });
       document.addEventListener('mousemove', function(e){ if(pop&&pop.style.display==='block'){ var t=e.target.closest&&e.target.closest('.bd-rspell[data-anim]'); if(t)place(pop,t); } });
       document.addEventListener('mouseout', function(e){ var t=e.target.closest&&e.target.closest('.bd-rspell[data-anim]'); if(!t)return; var to=e.relatedTarget; if(to&&to.closest&&to.closest('.bd-rspell[data-anim]')===t)return; if(pop)pop.style.display='none'; });
-      function place(p,t){ var r=t.getBoundingClientRect(); var pw=248, ph=175; var left=r.left+r.width/2-pw/2; left=Math.max(8,Math.min(left,window.innerWidth-pw-8)); var top=r.top-ph-10; if(top<8)top=r.bottom+10; p.style.left=Math.round(left)+'px'; p.style.top=Math.round(top)+'px'; }
+      function place(p,t){ var r=t.getBoundingClientRect(); var pw=160, ph=(p.offsetHeight||162); var left=r.left+r.width/2-pw/2; left=Math.max(8,Math.min(left,window.innerWidth-pw-8)); var top=r.top-ph-12; if(top<8){ top=Math.max(8,Math.min(r.top+r.height/2-ph/2,window.innerHeight-ph-8)); left=(r.right+pw+12<=window.innerWidth-8)?r.right+12:Math.max(8,r.left-pw-12); } p.style.left=Math.round(left)+'px'; p.style.top=Math.round(top)+'px'; }
     })();
     function tpWheelAlloc(voc,level,mode){
       var W=TP_WHEEL[voc]; if(!W)return null;
