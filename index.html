@@ -4792,6 +4792,25 @@ PlayerName (Leader)
       .bd-animpop img{display:block;width:236px;height:auto;border-radius:6px;image-rendering:pixelated}
       #builds .bd-note{margin-top:1.2rem;font-size:.73rem;color:var(--ink-3);line-height:1.5}
       #builds .bd-wsect{margin:.2rem 0 1.15rem}
+      #builds .bd-herosum{color:var(--ink-2);font-size:.86rem;line-height:1.5;margin-top:.4rem;max-width:62ch}
+      #builds .bd-gchips{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.5rem}
+      #builds .bd-gchip{font-size:.7rem;font-weight:600;color:var(--ink-2);background:var(--bg-2);border:1px solid var(--border);border-radius:999px;padding:2px 9px}
+      #builds .bd-gsect .bd-rsteps,#builds .bd-gsect .bd-prio{list-style:none;margin:.6rem 0 0;padding:0;counter-reset:g}
+      #builds .bd-gsect .bd-rsteps li,#builds .bd-gsect .bd-prio li{counter-increment:g;position:relative;padding:.4rem 0 .4rem 1.7rem;color:var(--ink-2);font-size:.84rem;border-bottom:1px solid var(--border)}
+      #builds .bd-gsect .bd-rsteps li:last-child,#builds .bd-gsect .bd-prio li:last-child{border-bottom:0}
+      #builds .bd-gsect .bd-rsteps li::before,#builds .bd-gsect .bd-prio li::before{content:counter(g);position:absolute;left:0;top:.42rem;width:1.15rem;height:1.15rem;border-radius:50%;font-size:.68rem;font-weight:800;display:flex;align-items:center;justify-content:center}
+      #builds .bd-gsect .bd-rsteps li::before{background:var(--bamboo-dim,#2a3a1e);color:var(--bamboo-light,#a4d76a)}
+      #builds .bd-gsect .bd-prio li::before{background:rgba(177,131,230,.18);color:#c9a6f0}
+      #builds .bd-gsect .bd-rsteps li b,#builds .bd-gsect .bd-prio li b{color:var(--ink)}
+      #builds .bd-gmode{background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:.6rem .8rem;margin-bottom:.2rem}
+      #builds .bd-gmode h3{margin:0 0 .25rem;font-size:.85rem;color:var(--ink)}
+      #builds .bd-gmode p{margin:0;color:var(--ink-2);font-size:.82rem}
+      #builds .bd-gins{list-style:none;margin:0;padding:0}
+      #builds .bd-gins li{position:relative;padding:.35rem 0 .35rem 1.1rem;color:var(--ink-2);font-size:.84rem;border-bottom:1px solid var(--border)}
+      #builds .bd-gins li:last-child{border-bottom:0}
+      #builds .bd-gins li::before{content:'';position:absolute;left:.15rem;top:.7rem;width:7px;height:7px;border-radius:50%}
+      #builds .bd-gins.b li::before{background:#5aa9e8}#builds .bd-gins.g li::before{background:#4bd07a}#builds .bd-gins.r li::before{background:#e8746b}
+      #builds .bd-gins li b{color:var(--ink)}
       #builds .bd-wheelwrap{display:flex;gap:1.4rem;align-items:center;flex-wrap:wrap;background:radial-gradient(120% 120% at 50% 40%,rgba(139,92,246,.10),transparent 60%),var(--bg-1);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem}
       #builds .bd-wheelsvg,#builds .bd-wheelimg{width:100%;max-width:420px;height:auto;flex:0 0 auto;border-radius:12px;filter:drop-shadow(0 10px 26px rgba(0,0,0,.5))}
       #builds .bd-wside{flex:1;min-width:238px;display:flex;flex-direction:column;gap:.55rem}
@@ -5120,10 +5139,25 @@ PlayerName (Leader)
       else if(bb.stance&&bb.stance!=='none') tags.push('<span class="bld-tag">'+esc(STANCE_LBL[bb.stance]||bb.stance)+'</span>');
 
       var wheelHtml=tpWheelSVG(b.vocation,(inp.level||st.level||0),id,_curMode);
+      /* GUIA estilo Blitz (opcional por build em d.guide): resumo, rotação-passos, prioridades, insights/forças/fraquezas */
+      var guide=(d.guide&&typeof d.guide==='object')?d.guide:null;
+      function gmd(s){ return esc(''+s).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>'); }
+      var gHeroSum='', gRotSec='', gPrioSec='', gInsSec='', rotGrid=rot;
+      if(guide){
+        var gc=(guide.chips&&guide.chips.length)?('<div class="bd-gchips">'+guide.chips.map(function(c){return '<span class="bd-gchip">'+esc(c)+'</span>';}).join('')+'</div>'):'';
+        gHeroSum=(guide.summary?'<div class="bd-herosum">'+gmd(guide.summary)+'</div>':'')+gc;
+        var gsteps=(guide.rotation&&guide.rotation.length)?('<ol class="bd-rsteps">'+guide.rotation.map(function(s){return '<li>'+gmd(s)+'</li>';}).join('')+'</ol>'):'';
+        if(rot||gsteps){ gRotSec='<div class="bd-sect bd-gsect"><h4>⚔️ Rotação</h4>'+(rot?'<div class="bd-rot">'+rot+'</div>':'')+gsteps+'</div>'; rotGrid=''; }
+        var gmode=(guide.style?'<div class="bd-gmode"><h3>'+esc(guide.styleTitle||'Como jogar')+'</h3><p>'+gmd(guide.style)+'</p></div>':'');
+        var gprio=(guide.priorities&&guide.priorities.length)?('<ol class="bd-prio">'+guide.priorities.map(function(p){return '<li>'+gmd(p)+'</li>';}).join('')+'</ol>'):'';
+        if(gmode||gprio) gPrioSec='<div class="bd-sect bd-gsect"><h4>🎯 Prioridades &amp; o porquê</h4>'+gmode+gprio+'</div>';
+        var gil=function(arr,cls,col,ttl){ return (arr&&arr.length)?('<div class="bd-sect bd-gsect"><h4 style="color:'+col+'">'+ttl+'</h4><ul class="bd-gins '+cls+'">'+arr.map(function(x){return '<li>'+gmd(x)+'</li>';}).join('')+'</ul></div>'):''; };
+        gInsSec=gil(guide.insights,'b','#5aa9e8','Insights-chave')+gil(guide.strengths,'g','#4bd07a','Forças')+gil(guide.weaknesses,'r','#e8746b','Fraquezas');
+      }
       var html='<button class="bd-back" onclick="tpCloseBuild()">← Voltar às builds</button>'
         +'<div class="bd-hero"><div class="bld-wic">'+(ic?'<img src="'+ic+'" alt="">':'⚔️')+'</div>'
         +'<div class="bd-htext"><div class="bld-vname">'+voc.emoji+' '+esc(voc.label)+(inp.level?' · Nível '+esc(inp.level):'')+'</div>'
-        +'<div class="bd-wname">'+esc(w.name||'—')+'</div></div></div>'
+        +'<div class="bd-wname">'+esc(w.name||'—')+'</div>'+gHeroSum+'</div></div>'
         +'<div class="bld-dmg" style="max-width:260px"><b>'+fmtNum(_M?_M.dano:b.dano)+'</b><span>dano / turno</span></div>'
         +'<div class="bld-meta" style="margin-top:.5rem">'+tags.join('')+'</div>'
         +(_M?('<div class="bd-modebar" role="tablist" aria-label="Modo elemental">'
@@ -5136,6 +5170,7 @@ PlayerName (Leader)
           +'<button class="bd-open" onclick="tpOpenBuildInCalc(\''+code+'\')">⚔️ Abrir na Calculadora</button>'
           +'<button class="bd-ghost" data-code="'+code+'" onclick="tpCopyBuild(this)">📋 Copiar código da build</button>'
         +'</div>'
+        +gRotSec+gPrioSec
         +(wheelHtml?'<div class="bd-sect bd-wsect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-3a5 5 0 100-10 5 5 0 000 10zm0-3a2 2 0 100-4 2 2 0 000 4z"/></svg> Roda do Destino <span style="font-size:.6rem;font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0">— pontos e revelação no nível da build</span></h4>'+wheelHtml+'</div>':'')
         +'<div class="bd-grid">'
           +'<div>'
@@ -5143,10 +5178,11 @@ PlayerName (Leader)
             +((perks||shapes)?'<div class="bd-sect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg> Proficiências da arma <span style="font-size:.6rem;font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0">— destaque = selecionado</span></h4><div class="bd-ptree">'+perks+shapes+'</div></div>':'')
           +'</div>'
           +'<div>'
-            +(rot?'<div class="bd-sect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/></svg> Rotação</h4><div class="bd-rot">'+rot+'</div></div>':'')
+            +(rotGrid?'<div class="bd-sect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"/></svg> Rotação</h4><div class="bd-rot">'+rotGrid+'</div></div>':'')
             +(eq?'<div class="bd-sect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.5l6.5 2.5v5c0 4-2.8 7.5-6.5 9-3.7-1.5-6.5-5-6.5-9v-5L10 1.5zm-1 11l4.5-4.5-1.4-1.4L9 9.7 7.9 8.6 6.5 10 9 12.5z"/></svg> Equipamentos &amp; slots</h4>'+eq+'</div>':'')
           +'</div>'
-        +'</div>';
+        +'</div>'
+        +gInsSec;
       var host=document.getElementById('bld-detail'); host.innerHTML=html;
       document.getElementById('builds').classList.add('detail');
       var ln=document.getElementById('bld-listnote'); if(ln)ln.style.display='none';
