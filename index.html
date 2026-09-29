@@ -5155,6 +5155,30 @@ PlayerName (Leader)
     }
 
     /* ===== Fatia 4 — render da roda SALVA (data.b.wheelPts) na página pública ===== */
+    var _WSVGN=0;
+    /* SVG polido da roda — disco escuro limpo + fatias alocadas com brilho (padrão do planner) */
+    function _wheelSvg(W,pts,opts){
+      opts=opts||{}; pts=pts||{}; var E=window.esc||function(s){return String(s==null?'':s);};
+      var uid='wg'+(++_WSVGN), size=opts.size||340, interactive=!!opts.interactive;
+      var slices=W.slots.map(function(s){
+        var d=W.domains[s.dom], pv=Math.max(0,Math.min(+pts[s.i]||0,s.max)), frac=s.max?pv/s.max:0, on=pv>0;
+        var fill,op,stroke,sop,sw,extra='';
+        if(on){ fill=d.bright||d.color; op=(0.50+0.50*frac).toFixed(2); stroke=d.bright||d.color; sop='0.95'; sw='1.1'; extra=' filter="url(#'+uid+'g)"'; }
+        else { fill=d.color; op='0.05'; stroke='#0a0d13'; sop='0.55'; sw='1'; }
+        var ev=interactive?(' style="cursor:pointer" onclick="tpBEwheelPt('+s.i+',25,event)" oncontextmenu="return tpBEwheelPt('+s.i+',-25,event)"'):'';
+        return '<path class="wsl'+(on?' on':'')+'" d="'+s.d+'" fill="'+fill+'" fill-opacity="'+op+'" stroke="'+stroke+'" stroke-opacity="'+sop+'" stroke-width="'+sw+'"'+extra+ev+'><title>'+E(d.name)+' · '+pv+'/'+s.max+'</title></path>';
+      }).join('');
+      var rings=[53,105,157,209,260].map(function(r){ return '<circle cx="261" cy="261" r="'+r+'" fill="none" stroke="#0a0d13" stroke-width="1" stroke-opacity="0.5"/>'; }).join('');
+      var budget=opts.budget, used=opts.used||0;
+      var center='<circle cx="261" cy="261" r="52" fill="#0d1117" stroke="#2a2f3a" stroke-width="1.5"/>'
+        +'<text x="261" y="'+(budget!=null?255:262)+'" text-anchor="middle" fill="#e6edf3" font-size="30" font-weight="800">'+used+'</text>'
+        +(budget!=null?('<text x="261" y="278" text-anchor="middle" fill="#7d8590" font-size="13">/'+budget+' pts</text>')
+                      :('<text x="261" y="280" text-anchor="middle" fill="#7d8590" font-size="12">pontos</text>'));
+      var defs='<defs><radialGradient id="'+uid+'bg" cx="50%" cy="50%" r="50%"><stop offset="55%" stop-color="#141821"/><stop offset="100%" stop-color="#0b0e15"/></radialGradient>'
+        +'<filter id="'+uid+'g" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+      var bg='<circle cx="261" cy="261" r="261" fill="url(#'+uid+'bg)"/>';
+      return '<svg class="bewheel-svg'+(interactive?'':' ro')+'" viewBox="0 0 522 522" width="'+size+'" height="'+size+'"'+(opts.hidden?' style="display:none"':'')+' role="img" aria-label="Roda do Destino">'+defs+bg+slices+rings+center+'</svg>';
+    }
     function tpWheelStats(voc,pts){
       var W=TP_WHEEL[voc]; if(!W) return null; pts=pts||{};
       var dom=[0,0,0,0];
@@ -5166,18 +5190,18 @@ PlayerName (Leader)
     }
     var _WGEMTIER=['','lesser','regular','greater'], _WGEMLBL={lesser:'Lesser',regular:'Regular',greater:'Greater'};
     function _wheelGem(g){ if(g==null) return null; if(typeof g==='number'){ var t=_WGEMTIER[g]; return t?{tier:t}:null; } if(typeof g==='object'){ return g.tier?g:null; } return null; }
-    function tpWheelRenderPts(voc,pts,gems,level){
+    function tpWheelRenderPts(voc,pts,gems,level,id,mode){
       var S=tpWheelStats(voc,pts); if(!S) return ''; pts=pts||{}; gems=gems||{};
       var W=S.W, E=window.esc||function(s){return String(s==null?'':s);};
-      var paths=W.slots.map(function(s){
-        var d=W.domains[s.dom], pv=Math.max(0,Math.min(+pts[s.i]||0,s.max)), frac=s.max?pv/s.max:0;
-        var op=(pv>0)?(0.30+0.70*frac):0.10, col=(pv>0)?(d.bright||d.color):d.color;
-        return '<path d="'+s.d+'" fill="'+col+'" fill-opacity="'+op.toFixed(2)+'" stroke="#0d1117" stroke-width="1.4"><title>'+E(d.name)+' · '+pv+'/'+s.max+'</title></path>';
-      }).join('');
-      var svg='<svg class="bewheel-svg ro" viewBox="0 0 522 522" width="320" height="320" role="img" aria-label="Roda do Destino">'+paths
-        +'<circle cx="261" cy="261" r="52" fill="#0d1117" stroke="#2a2f3a" stroke-width="1.5"/>'
-        +'<text x="261" y="256" text-anchor="middle" fill="#e6edf3" font-size="30" font-weight="800">'+S.used+'</text>'
-        +'<text x="261" y="278" text-anchor="middle" fill="#7d8590" font-size="12">pontos</text></svg>';
+      /* prefere a arte webp (quando existe pra build) e cai pro SVG polido no onerror */
+      var hasWebp=!!id;
+      var svgMk=_wheelSvg(W,pts,{interactive:false,used:S.used,size:320,hidden:hasWebp});
+      var svg;
+      if(hasWebp){
+        var imgFile=(voc==='sorcerer'&&mode==='thunder')?(id+'-thunder.webp'):(id+'.webp');
+        svg='<div class="bewheel-gfx"><img class="bewheel-webp" src="assets/builds-wheel/'+imgFile+'?v='+(window.TP_WHEELVER||'2')+'" alt="Roda do Destino" loading="lazy" '
+          +'onerror="var s=this.parentNode.querySelector(\'svg\');if(s)s.style.display=\'\';this.style.display=\'none\'">'+svgMk+'</div>';
+      } else { svg=svgMk; }
       var rows=[3,0,2,1].map(function(dm){
         var d=W.domains[dm], stgN=S.stages[dm], p=S.domPts[dm], next=W.stageAt.filter(function(th){return p<th;})[0];
         return '<div class="bewheel-dom'+(stgN>0?' hit':'')+'"><span class="bewheel-dot" style="background:'+d.color+'"></span>'
@@ -5289,7 +5313,7 @@ PlayerName (Leader)
       var _wlvl=(inp.level||st.level||0);
       var _savedWP=_wheelHasPts(bb.wheelPts)?bb.wheelPts:null;
       if(_savedWP)_beCss2();
-      var wheelHtml=_savedWP?tpWheelRenderPts(b.vocation,_savedWP,bb.gems,_wlvl):tpWheelSVG(b.vocation,_wlvl,id,_curMode);
+      var wheelHtml=_savedWP?tpWheelRenderPts(b.vocation,_savedWP,bb.gems,_wlvl,id,_curMode):tpWheelSVG(b.vocation,_wlvl,id,_curMode);
       /* GUIA estilo Blitz (opcional por build em d.guide): resumo, rotação-passos, prioridades, insights/forças/fraquezas */
       var guide=(d.guide&&typeof d.guide==='object')?d.guide:null;
       var _spRe=(function(){ try{ var ks=Object.keys(TP_SPELLICON).sort(function(a,b){return b.length-a.length;}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}); return new RegExp('('+ks.join('|')+')','g'); }catch(e){ return null; } })();
@@ -5451,7 +5475,7 @@ PlayerName (Leader)
     /* ===== Editor de build in-place (Fase 2 / Caminho B) ===== */
     function _beCss2(){ if(document.getElementById('be2-css'))return; var s=document.createElement('style'); s.id='be2-css';
       s.textContent='#builds .be2{padding:0 0 5rem}#builds .be2bar{position:sticky;top:0;z-index:50;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;background:linear-gradient(180deg,var(--bg-1,#0f0e15) 60%,rgba(15,14,21,.85));border-bottom:1px solid var(--rule);padding:.7rem .2rem;margin-bottom:1rem}#builds .be2bar b{font-family:Cinzel,serif;color:var(--gold,#c9a840)}#builds .be2save{margin-left:auto;background:var(--bamboo,#8b5cf6);border:0;color:#fff;border-radius:9px;padding:.5rem 1rem;font:inherit;font-weight:800;cursor:pointer}#builds .be2cancel{background:var(--bg-2);border:1px solid var(--rule);color:var(--ink-2);border-radius:9px;padding:.5rem 1rem;font:inherit;font-weight:700;cursor:pointer}#builds .be2sec{background:var(--surface,#17161f);border:1px solid var(--rule);border-radius:14px;padding:15px 16px;margin-bottom:1rem}#builds .be2sec h4{font-family:Inter,sans-serif;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 .9rem}#builds .be2grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}#builds .be2f{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.5rem}#builds .be2f span{font-size:.68rem;color:var(--ink-3);font-weight:700}#builds .be2f input,#builds .be2f select,#builds .be2f textarea{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:.5rem .6rem;font:inherit;font-size:.85rem;width:100%;box-sizing:border-box}#builds .be2f textarea{resize:vertical;line-height:1.4}#builds .be2soon{font-size:.8rem;color:var(--muted);font-style:italic;line-height:1.5}#builds .be2 .bd-pti{cursor:pointer}#builds .be2 .bd-pti:hover{outline:2px solid var(--bamboo,#8b5cf6);outline-offset:1px}'
-      +'.bewheel-wrap{display:flex;gap:1.2rem;flex-wrap:wrap;align-items:flex-start}.bewheel-left{flex:0 0 auto}.bewheel-right{flex:1 1 260px;min-width:240px}.bewheel-svg{display:block;max-width:100%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.4))}.bewheel-svg path:hover{fill-opacity:.95!important}.bewheel-ctrls{display:flex;gap:.5rem;margin:.7rem 0 .4rem;flex-wrap:wrap}.bewheel-ctrls .be2cancel{flex:1}'
+      +'.bewheel-wrap{display:flex;gap:1.2rem;flex-wrap:wrap;align-items:flex-start}.bewheel-left{flex:0 0 auto}.bewheel-right{flex:1 1 260px;min-width:240px}.bewheel-svg{display:block;max-width:100%;height:auto;filter:drop-shadow(0 8px 24px rgba(0,0,0,.5))}.bewheel-svg .wsl{transition:fill-opacity .12s}.bewheel-svg:not(.ro) .wsl:hover{fill-opacity:.95!important}.bewheel-svg.ro .wsl{cursor:default}.bewheel-gfx{position:relative}.bewheel-webp{display:block;max-width:100%;width:340px;height:auto;border-radius:14px;filter:drop-shadow(0 8px 24px rgba(0,0,0,.5))}.bewheel-ctrls{display:flex;gap:.5rem;margin:.7rem 0 .4rem;flex-wrap:wrap}.bewheel-ctrls .be2cancel{flex:1}'
       +'.bewheel-flat{font-size:.85rem;color:var(--ink);background:rgba(201,168,64,.08);border:1px solid rgba(201,168,64,.25);border-radius:8px;padding:.5rem .6rem}.bewheel-flat.off{color:var(--muted);background:transparent;border-color:var(--rule)}.bewheel-flat b{color:var(--gold,#c9a840)}.bewheel-over{font-size:.82rem;color:#e0554b;background:rgba(224,85,75,.1);border:1px solid rgba(224,85,75,.35);border-radius:8px;padding:.45rem .6rem;margin-bottom:.4rem}'
       +'.bewheel-doms{display:flex;flex-direction:column;gap:.35rem}.bewheel-dom{display:grid;grid-template-columns:auto 1fr auto;gap:.5rem;align-items:center;padding:.4rem .55rem;border:1px solid var(--rule);border-radius:8px;font-size:.82rem}.bewheel-dom.hit{border-color:rgba(201,168,64,.4);background:rgba(201,168,64,.05)}.bewheel-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}.bewheel-dn{font-weight:600;color:var(--ink)}.bewheel-dp{color:var(--ink);font-variant-numeric:tabular-nums;text-align:right}.bewheel-dp small{color:var(--muted)}.bewheel-ds{font-size:.72rem;color:var(--muted);grid-column:2/-1;justify-self:start}.bewheel-ds.on{color:var(--gold,#c9a840);font-weight:700}.bewheel-df{display:none}'
       +'.bewheel-subh{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:.9rem 0 .5rem;font-weight:700}.bewheel-augs{margin-top:.8rem}.bewheel-aug{display:flex;gap:.5rem;align-items:center;font-size:.8rem;padding:.3rem .5rem;color:var(--muted)}.bewheel-aug.on{color:var(--ink)}.bewheel-aug b{margin-left:auto;font-size:.72rem}.bewheel-aug.on b{color:var(--gold,#c9a840)}.bewheel-adot{width:8px;height:8px;border-radius:50%;background:var(--rule)}.bewheel-adot.on{background:var(--gold,#c9a840)}'
@@ -5601,21 +5625,8 @@ PlayerName (Leader)
       var C=_beWheelCompute(); if(!C) return '<div class="be2sec"><h4>🎡 Roda do Destino</h4><div class="be2soon">Sem dados de roda pra esta vocação.</div></div>';
       var W=C.W, voc=C.voc, wp=C.wp, E=window.esc||function(s){return String(s==null?'':s);};
       var over=C.used>C.budget;
-      /* SVG interativo — geometria real do TP_WHEEL */
-      var paths=W.slots.map(function(s){
-        var dom=W.domains[s.dom], pv=Math.max(0,Math.min(+wp[s.i]||0,s.max)), frac=s.max?pv/s.max:0;
-        var op=(pv>0)?(0.30+0.70*frac):0.10;
-        var col=(pv>0)?(dom.bright||dom.color):dom.color;
-        var title=E(dom.name)+' · '+pv+'/'+s.max+' pts (anel '+s.ring+')';
-        return '<path d="'+s.d+'" fill="'+col+'" fill-opacity="'+op.toFixed(2)+'" stroke="#0d1117" stroke-width="1.4" '
-          +'style="cursor:pointer;transition:fill-opacity .12s" '
-          +'onclick="tpBEwheelPt('+s.i+',25,event)" oncontextmenu="return tpBEwheelPt('+s.i+',-25,event)"><title>'+title+'</title></path>';
-      }).join('');
-      var svg='<svg class="bewheel-svg" viewBox="0 0 522 522" width="360" height="360" role="img" aria-label="Roda do Destino editável">'+paths
-        +'<circle cx="261" cy="261" r="52" fill="#0d1117" stroke="#2a2f3a" stroke-width="1.5"/>'
-        +'<text x="261" y="255" text-anchor="middle" fill="#e6edf3" font-size="30" font-weight="800">'+C.used+'</text>'
-        +'<text x="261" y="278" text-anchor="middle" fill="#7d8590" font-size="13">/'+C.budget+' pts</text>'
-        +'</svg>';
+      /* SVG interativo polido — geometria real do TP_WHEEL (mesmo renderer da página pública) */
+      var svg=_wheelSvg(W,wp,{interactive:true,used:C.used,budget:C.budget,size:360});
       /* resumo por domínio */
       var rows=[3,0,2,1].map(function(dm){
         var d=W.domains[dm], stgN=C.stages[dm], p=C.domPts[dm];
