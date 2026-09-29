@@ -4845,7 +4845,8 @@ PlayerName (Leader)
       #builds .bd-wdname em{font-style:normal;font-size:.65rem;color:var(--ink-3)}
       #builds .bd-wdpts{font-variant-numeric:tabular-nums;color:var(--ink-3);min-width:34px;text-align:right}
       #builds .bd-wdstage{font-size:.63rem;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);min-width:66px;text-align:right}
-      #builds .bd-wdgem{font-size:.66rem;font-weight:700;color:var(--gold,#c9a840);min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
+      #builds .bd-wdgem{display:inline-flex;align-items:center;justify-content:flex-end;gap:3px;font-size:.66rem;font-weight:700;color:var(--gold,#c9a840);min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
+      #builds .bd-wdgemimg{width:15px;height:15px;image-rendering:pixelated;vertical-align:middle;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
       #builds .bd-wdgem.off{color:var(--ink-3);opacity:.45;font-weight:400}
       #builds .bd-wdstage.on{color:var(--bamboo-light);font-weight:700}
       #builds .bd-wtip{font-size:.74rem;color:var(--ink-2);line-height:1.5;background:var(--bg-2);border-radius:8px;padding:.5rem .6rem}
@@ -5069,6 +5070,7 @@ PlayerName (Leader)
       return '<div class="bd-wmiles"><div class="bd-waugh">Marcos da Roda <span class="bd-mileq" title="Pontos de promoção = nível − 50 (a partir do 51). Cada marco libera combinações da roda — revelação (Estágios 1/2/3 = +4/+9/+20 D&amp;H) e Conviction Perks (melhoram spells).">?</span></div>'
         +'<div class="bd-milehead">'+head+'</div><ul class="bd-milelist">'+rows+'</ul></div>';
     }
+    var TP_VOCGEM={druid:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAYAAABWdVznAAAAyklEQVR4nGNkwA7+I7EZGXBxYIpDl75lYGBgYDh/4x7DnWZTFHVM2BRHuQsyGGvyMRhqKDFwx05DsZEF3fgod0GGZTvfM2zbsZLh54tLGNaj28Bw89FfhvM37mFVjFUDMlCwSGZgl9DDqQHu2ecPTjMwMDAwPDgxl7ANZ69/QnGOpIIpbg3nb9xDcQ4DAwODoYYSTg2Md5pN4ZoenJjLwC6hx2CsyYeiASNYnz84zcAuoccgqWDKYKihxFBhxMrAgBRxWGMajY+iBgAy5z0Ti64OZwAAAABJRU5ErkJggg==",sorcerer:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAABRklEQVR4nI2SsU4CQRRFzywDbCS2VEwMREOsrLRGCxITYiuUFpAshR/gL9hRWJhQaE0oDMaO7DfQbGFiYihItsWC6C7PAndFYNWbTPFm5ubceW9gg4xWYrSSTWeJMlrJyEHeHlq/mq1V02NzcXfrsIrXb/InOSKNHGQ+6cl80pNO2ZaRQzJ51VTLpaSWS8nIIdGsjVbi9ZtxvLPdc6qFNJ4fAiFFM8Md2txUZrRdJeNAFIAyWkltWwNwfXdBvdGlWkgD4PkhTv2D1+dvUttVjANROtoYv88XsTM/+kXptMXVfReTsRhMAyKiHgeiBtNADrIWL0+37OdtAIpmRtEkNzMmmoyFO0xTOZnF0Y4vW9Qb6zRYmaPnh5ROW+zsLUz/UjSSTtmWo6wVr07Z3jhHvVy4QxvPD8nrONHXWNalloukH7L8tkifQgSVL8+zj4QAAAAASUVORK5CYII=",knight:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAABGklEQVR4nGNkwAT/sYjBACMGA6bp2e+/DK8+fmVgYGBguH33IYOqsjycNhDhw6aH4f+FN5/+P/v99/+z33//X3jz6f+FN5/+rz55+f+z33//h8Zl/kd2DROyzoO7DzIcPXeNgYGBgUGMn5tBjJ+bwdpIiyHC0x/DzUwYIlCQn5zDkJ+cw/Dq41eGd29fEacR5kdFdU2G23cfMjAwMDC8fPaYOBvRgbiULGkan917QJyNMIWK6poMDAwMDE/v3cdqIIZGKSUFFL60kiJWjSy4bDR1cWRgYGBgUFWWZ1g7dyZhjU/v3WdYO3cmPAqEhMUYLBzdGO7fvI7bqU/v3Wc4sX8XSry9e/uK4f7N6wyrF01nYMCXVrF6CItaAEmgb7SVhNbDAAAAAElFTkSuQmCC",paladin:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAA4klEQVR4nJWRMQrCQBBFX4wLKSwt7dLlDBZ6BkvLNFZCWo8RsBS8gJ2CB5BUNhKxs5GUSRGxECRZC0l0dWP0w8Duznze7IxBtWTFuwHQeClSYuVDGECaeGTnBWniKe5mcUgTj5bocrltymRLdAFYzwccd5a+rVFPyDBAZudFGWGA9F1L+q5VdPJJjOKc6UTg2EP67pXpRBDFJp12hmObH6Tij8ZynymJKM4BcGyT8exaDuXdqBSfto97p62ktcRSh+OTXEV7NyrtfqNpib/QtMYozit3Vift3mqJoA7ob2pdwR1sbF3sCh20UAAAAABJRU5ErkJggg==",monk:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAA8ElEQVR4nI3SMQrCMBTG8X+iIOLq6CTWScEj6OTs4CGcxIsoLnqInsBN8Ag6WXDSqR26OBSkcbBJjUnBDIWk79fvPRqBu5TnDEBUbgC1OzUdEV0km8XTqhe/aNhdmoPzbVuJZRUCzH7YXRIMclb7lhlF/KJ+ewrANTk4qd/JdWcgz3z36AVAJyjLHaiTyrTPNMkjB14GS7sIC+m05JGTxqrAnkSNo4sESgQwnjc4hplpu64Lg0FeAMxLjdJYcQwzqyMJiM3iaaHJTJr20ljRG9UA6I1qhOsMQFgXoPhPVmIaKweZhw/rpT/yjXwQ/rzkbwMQiQrL4Eh1AAAAAElFTkSuQmCC"};
     function tpWheelSVG(voc,level,id,mode){
       var W=TP_WHEEL[voc]; if(!W)return '';
       var A=tpWheelAlloc(voc,level,mode); if(!A)return '';
@@ -5079,7 +5081,8 @@ PlayerName (Leader)
         var d=W.domains[dm], stgN=A.stages[dm], p=A.domPts[dm];
         var tag=(dm===A.prim?' <em>· ofensivo primário</em>':(dm===A.sec?' <em>· ofensivo secundário</em>':(dm===2?' <em>· sobrevivência</em>':(dm===0?' <em>· avatar</em>':''))));
         var gdh=(stgN>=3?2:(stgN>=1?1:0));
-        var gemBadge=gdh>0?'<span class="bd-wdgem" title="Gema encaixada no vessel (Vessel Resonance) — '+(stgN>=3?'greater · VR III':'lesser/regular')+'">💎 +'+gdh+'</span>':'<span class="bd-wdgem off">—</span>';
+        var _gemimg=TP_VOCGEM[voc]||'';
+        var gemBadge=gdh>0?'<span class="bd-wdgem" title="Gema encaixada no vessel (Vessel Resonance) — '+(stgN>=3?'greater · VR III':'lesser/regular')+'">'+(_gemimg?'<img class="bd-wdgemimg" src="'+_gemimg+'" alt="gema">':'💎')+' +'+gdh+'</span>':'<span class="bd-wdgem off">—</span>';
         return '<div class="bd-wdom'+(stgN>0?' hit':'')+'"><span class="bd-wdot" style="background:'+d.color+'"></span>'
           +'<span class="bd-wdname">'+esc(d.name)+tag+'</span>'
           +'<span class="bd-wdpts">'+p+'</span>'
