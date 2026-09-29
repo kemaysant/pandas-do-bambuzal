@@ -5256,6 +5256,7 @@ PlayerName (Leader)
           +'<button class="bd-open" onclick="tpOpenBuildInCalc(\''+code+'\')">⚔️ Abrir na Calculadora</button>'
           +'<button class="bd-ghost" data-bid="'+esc(id)+'" onclick="tpCopyLink(this)">🔗 Copiar link</button>'
           +'<button class="bd-ghost bd-savebtn'+((window.__tpSavedBuilds&&window.__tpSavedBuilds[id])?' on':'')+'" data-bid="'+esc(id)+'" onclick="tpToggleSaveBuild(this)">'+((window.__tpSavedBuilds&&window.__tpSavedBuilds[id])?'✓ Salva':'⭐ Salvar')+'</button>'
+          +'<button class="bd-ghost bd-editbtn" data-bid="'+esc(id)+'" onclick="tpOpenBuildEditor(this.getAttribute(\'data-bid\'))" style="display:none">✏️ Editar</button>'
         +'</div>'
         +gRotSec+gPrioSec
         +(wheelHtml?'<div class="bd-sect bd-wsect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-3a5 5 0 100-10 5 5 0 000 10zm0-3a2 2 0 100-4 2 2 0 000 4z"/></svg> <span class="bd-wvoc">'+voc.emoji+' '+esc(voc.label)+'</span> <span class="bd-wsep">·</span> Roda do Destino</h4><div class="bd-wsub">'+((guide&&guide.wheelHi)?gmd(guide.wheelHi):((guide&&guide.styleTitle)?esc(guide.styleTitle.replace(/^Estilo:\s*/i,'')):'pontos e revelação no nível da build'))+'</div>'+wheelHtml+'</div>':'')
@@ -5271,6 +5272,7 @@ PlayerName (Leader)
         +'</div>'
         +gInsSec;
       var host=document.getElementById('bld-detail'); host.innerHTML=html;
+      if(window.tpCheckBuildAdmin) tpCheckBuildAdmin();
       document.getElementById('builds').classList.add('detail');
       if(window.tpLoadSavedBuilds) tpLoadSavedBuilds();
       var ln=document.getElementById('bld-listnote'); if(ln)ln.style.display='none';
@@ -5306,6 +5308,78 @@ PlayerName (Leader)
         if(window.tpRenderMyBuilds) tpRenderMyBuilds();
       }catch(e){}
       btn.disabled=false;
+    };
+    /* ===== Editor de build (admin) ===== */
+    window.TP_IS_ADMIN=window.TP_IS_ADMIN||false; window.__tpAdminChecked=window.__tpAdminChecked||false;
+    window.tpCheckBuildAdmin=function(){
+      var A=window.TP_AUTH;
+      var reveal=function(){ if(window.TP_IS_ADMIN) document.querySelectorAll('.bd-editbtn').forEach(function(b){b.style.display='';}); };
+      if(!A||!A.user){ window.TP_IS_ADMIN=false; return; }
+      if(window.__tpAdminChecked){ reveal(); return; }
+      (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/user_roles?select=role&role=eq.admin&user_id=eq.'+A.user.id,{headers:{Accept:'application/json'}})
+        .then(function(r){return r.json();}).then(function(rows){ window.__tpAdminChecked=true; window.TP_IS_ADMIN=Array.isArray(rows)&&rows.length>0; reveal(); }).catch(function(){});
+    };
+    function _beCss(){ if(document.getElementById('be-css'))return; var s=document.createElement('style'); s.id='be-css';
+      s.textContent='#tp-buildedit .be-card{max-width:640px;max-height:88vh;overflow:auto;text-align:left}#tp-buildedit .be-title{font-size:1.1rem;margin:0 0 .3rem}#tp-buildedit .be-sec{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:1rem 0 .5rem;font-weight:800}#tp-buildedit .be-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}#tp-buildedit .be-fld{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.5rem}#tp-buildedit .be-lbl{font-size:.72rem;color:var(--ink-3);font-weight:700}#tp-buildedit .be-fld input,#tp-buildedit .be-fld select,#tp-buildedit .be-fld textarea{background:var(--bg-2,#1b1a25);border:1px solid var(--rule,#2b2938);color:var(--ink,#eae8f2);border-radius:8px;padding:.5rem .6rem;font:inherit;font-size:.85rem;width:100%;box-sizing:border-box}#tp-buildedit .be-fld textarea{resize:vertical;line-height:1.45}#tp-buildedit .be-acts{display:flex;gap:.5rem;margin-top:1rem}#tp-buildedit .be-save{background:var(--bamboo,#8b5cf6);border:0;color:#fff;border-radius:9px;padding:.6rem 1rem;font:inherit;font-weight:800;cursor:pointer}#tp-buildedit .be-cancel{background:var(--bg-2);border:1px solid var(--rule);color:var(--ink-2);border-radius:9px;padding:.6rem 1rem;font:inherit;font-weight:700;cursor:pointer}#tp-buildedit .be-note{font-size:.72rem;color:var(--muted);margin-top:.8rem;line-height:1.5;border-top:1px solid var(--rule);padding-top:.6rem}@media(max-width:560px){#tp-buildedit .be-grid{grid-template-columns:1fr}}';
+      document.head.appendChild(s); }
+    window.tpOpenBuildEditor=async function(id){
+      if(!id) return;
+      if(!(window.TP_AUTH&&window.TP_AUTH.user)){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
+      var row=null;
+      try{ var r=await (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/builds?select=*&id=eq.'+id,{headers:{Accept:'application/json'}}); var rows=await r.json(); row=Array.isArray(rows)&&rows[0]; }catch(e){}
+      if(!row){ if(window.tpToast) tpToast('Não consegui carregar a build pra editar.','error'); return; }
+      window.__tpEditBuild=row; _beCss();
+      var d=row.data||{}, g=(d.guide)||{};
+      var E=window.esc||function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+      function ta(v){ return E(Array.isArray(v)?v.join('\n'):(v||'')); }
+      var vocs=['druid','sorcerer','knight','paladin','monk'];
+      var m=document.getElementById('tp-buildedit'); if(!m){ m=document.createElement('div'); m.id='tp-buildedit'; m.className='tp-modal'; document.body.appendChild(m); }
+      function fld(lbl,inner){ return '<label class="be-fld"><span class="be-lbl">'+lbl+'</span>'+inner+'</label>'; }
+      m.innerHTML='<div class="tp-modal-card be-card"><button class="tp-modal-close" onclick="tpCloseBuildEditor()">✕</button>'
+        +'<h3 class="be-title">✏️ Editar build</h3>'
+        +'<div class="be-sec">Metadados</div><div class="be-grid">'
+          +fld('Nome','<input id="be-name" value="'+E(row.name||'')+'">')
+          +fld('Vocação','<select id="be-voc">'+vocs.map(function(v){return '<option'+(row.vocation===v?' selected':'')+'>'+v+'</option>';}).join('')+'</select>')
+          +fld('Elemento','<input id="be-el" value="'+E(row.element||'')+'">')
+          +fld('Dano/turno','<input id="be-dano" type="number" value="'+(row.dano||0)+'">')
+          +fld('ML','<input id="be-ml" type="number" value="'+(row.ml||0)+'">')
+          +fld('Status','<select id="be-status"><option value="approved"'+(row.status==='approved'?' selected':'')+'>Pública (approved)</option><option value="hidden"'+(row.status==='hidden'?' selected':'')+'>Oculta (hidden)</option></select>')
+        +'</div>'
+        +'<div class="be-sec">Guia (aceita **negrito** em markdown)</div>'
+        +fld('Resumo','<textarea id="be-summary" rows="3">'+ta(g.summary)+'</textarea>')
+        +fld('Estilo — título','<input id="be-styletitle" value="'+E(g.styleTitle||'')+'">')
+        +fld('Estilo — texto','<textarea id="be-style" rows="2">'+ta(g.style)+'</textarea>')
+        +fld('O que a roda ativa (wheelHi)','<input id="be-wheelhi" value="'+E(g.wheelHi||'')+'">')
+        +fld('Chips (separados por vírgula)','<input id="be-chips" value="'+E((g.chips||[]).join(', '))+'">')
+        +fld('Rotação (1 passo por linha)','<textarea id="be-rotation" rows="4">'+ta(g.rotation)+'</textarea>')
+        +fld('Insights-chave (1 por linha)','<textarea id="be-insights" rows="4">'+ta(g.insights)+'</textarea>')
+        +fld('Forças (1 por linha)','<textarea id="be-strengths" rows="3">'+ta(g.strengths)+'</textarea>')
+        +fld('Fraquezas (1 por linha)','<textarea id="be-weaknesses" rows="3">'+ta(g.weaknesses)+'</textarea>')
+        +fld('Prioridades (1 por linha)','<textarea id="be-priorities" rows="3">'+ta(g.priorities)+'</textarea>')
+        +'<div class="be-acts"><button class="be-save" onclick="tpSaveBuildEdit()">💾 Salvar alterações</button><button class="be-cancel" onclick="tpCloseBuildEditor()">Cancelar</button></div>'
+        +'<div class="be-note">Itens, roda e rotação numérica (cálculo de dano) continuam na <b>calculadora</b> — use "Abrir na Calculadora" e salve por lá. Aqui você edita o conteúdo do guia e os metadados.</div>'
+        +'</div>';
+      m.classList.add('open'); m.onclick=function(ev){ if(ev.target===m) tpCloseBuildEditor(); };
+    };
+    window.tpCloseBuildEditor=function(){ var m=document.getElementById('tp-buildedit'); if(m) m.classList.remove('open'); };
+    window.tpSaveBuildEdit=async function(){
+      var row=window.__tpEditBuild; if(!row) return;
+      var val=function(id){ var e=document.getElementById(id); return e?e.value:''; };
+      var lines=function(id){ return val(id).split('\n').map(function(x){return x.trim();}).filter(Boolean); };
+      var data=Object.assign({}, row.data||{}), guide=Object.assign({}, (data.guide)||{});
+      guide.summary=val('be-summary'); guide.style=val('be-style'); guide.styleTitle=val('be-styletitle'); guide.wheelHi=val('be-wheelhi');
+      guide.chips=val('be-chips').split(',').map(function(x){return x.trim();}).filter(Boolean);
+      guide.rotation=lines('be-rotation'); guide.insights=lines('be-insights'); guide.strengths=lines('be-strengths'); guide.weaknesses=lines('be-weaknesses'); guide.priorities=lines('be-priorities');
+      data.guide=guide;
+      var payload={ name:val('be-name'), vocation:val('be-voc'), element:val('be-el'), dano:parseInt(val('be-dano'),10)||0, ml:parseInt(val('be-ml'),10)||0, status:val('be-status'), data:data, updated_at:new Date().toISOString() };
+      var btn=document.querySelector('#tp-buildedit .be-save'); if(btn){btn.disabled=true;btn.textContent='Salvando…';}
+      try{
+        var r=await (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/builds?id=eq.'+row.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(payload)});
+        if(!r.ok) throw new Error('PATCH '+r.status);
+        if(window.tpToast) tpToast('Build atualizada! ✅','success');
+        tpCloseBuildEditor();
+        setTimeout(function(){ location.reload(); },600);
+      }catch(e){ if(window.tpToast) tpToast('Não consegui salvar (confirme que você é admin).','error'); if(btn){btn.disabled=false;btn.textContent='💾 Salvar alterações';} }
     };
     window.tpCloseBuild=function(){
       document.getElementById('builds').classList.remove('detail');
