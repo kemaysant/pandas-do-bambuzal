@@ -4759,7 +4759,9 @@ PlayerName (Leader)
       #builds .bd-hero .bld-wic img{width:40px;height:40px}
       #builds .bd-htext{min-width:0}
       #builds .bd-wname{font-size:1.3rem;font-weight:800;color:var(--ink);line-height:1.1}
-      #builds .bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem 1.6rem;margin-top:1.3rem;align-items:start}
+      #builds .bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem 1.6rem;margin:1.3rem 0 1rem;align-items:start}
+      #builds .bd-grid+.bd-sect{margin-top:.9rem}
+      #builds #bld-detail{padding-bottom:2.2rem}
       @media(max-width:820px){#builds .bd-grid{grid-template-columns:1fr}}
       #builds .bd-acts{display:flex;flex-wrap:wrap;gap:.5rem;margin:.9rem 0 1.4rem}
       #builds .bd-acts button{flex:1;min-width:180px;font:inherit;cursor:pointer;border-radius:9px;font-size:.82rem;font-weight:700;padding:.65rem .5rem;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;gap:.4rem;transition:var(--transition-color),transform .1s}
@@ -5036,7 +5038,7 @@ PlayerName (Leader)
     var TP_MILESTONES=[
       {p:250,  t:'1º Revelation Perk (Estágio 1)', d:'+4 de Dano &amp; Cura no domínio'},
       {p:500,  t:'Revelation Perk Estágio 2', d:'+9 de Dano &amp; Cura'},
-      {p:575,  t:'1º Conviction Perk (fatia externa)', d:'melhorias fortes de spell — ex: −2s de CD do Death Echo (6s→4s)'},
+      {p:575,  t:'1º Conviction Perk (fatia externa)', d:'melhoria forte numa spell específica (ex: reduzir o cooldown ou aumentar o dano de uma magia da build)'},
       {p:750,  t:'Estágio 2 + Estágio 1 (ou três Estágio 1)', d:'segundo domínio ofensivo entra'},
       {p:825,  t:'Est. 2 + Est. 1 oposto + Conviction', d:'dois lados + perk de spell'},
       {p:1000, t:'Dois Estágio 2 · ou um Estágio 3', d:'+20 de D&amp;H no Estágio 3'},
@@ -5234,7 +5236,6 @@ PlayerName (Leader)
         +'<div class="bd-acts">'
           +'<button class="bd-open" onclick="tpOpenBuildInCalc(\''+code+'\')">⚔️ Abrir na Calculadora</button>'
           +'<button class="bd-ghost" data-bid="'+esc(id)+'" onclick="tpCopyLink(this)">🔗 Copiar link</button>'
-          +'<button class="bd-ghost" data-code="'+code+'" onclick="tpCopyBuild(this)">📋 Copiar código da build</button>'
         +'</div>'
         +gRotSec+gPrioSec
         +(wheelHtml?'<div class="bd-sect bd-wsect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-3a5 5 0 100-10 5 5 0 000 10zm0-3a2 2 0 100-4 2 2 0 000 4z"/></svg> Roda do Destino <span style="font-size:.6rem;font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0">— pontos e revelação no nível da build</span></h4>'+wheelHtml+'</div>':'')
