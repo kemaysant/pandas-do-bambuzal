@@ -4784,6 +4784,12 @@ PlayerName (Leader)
       #builds .bd-ghost:hover{border-color:var(--gold)!important;color:var(--gold)}
       #builds .bd-ghost.done{border-color:#5bd18a!important;color:#5bd18a}
       #builds .bd-savebtn.on{border-color:#c9a840!important;color:#f0c040!important;background:rgba(201,168,64,.12)}
+      #builds .bd-setswrap{overflow-x:auto;border:1px solid var(--rule);border-radius:10px}
+      #builds .bd-setstbl{width:100%;border-collapse:collapse;font-size:.72rem;min-width:660px}
+      #builds .bd-setstbl th,#builds .bd-setstbl td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:.4rem .5rem;text-align:left;white-space:nowrap;color:var(--ink-2)}
+      #builds .bd-setstbl thead th{background:var(--bg-2);color:var(--muted);text-transform:uppercase;font-size:.6rem;letter-spacing:.03em;position:sticky;top:0}
+      #builds .bd-setstbl .bd-setlvl{background:var(--bg-2);color:var(--gold,#c9a840);font-weight:800}
+      #builds .bd-setsrc{font-size:.6rem;font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0}
       #builds .bd-sect{margin-bottom:1rem;background:linear-gradient(180deg,rgba(255,255,255,.024),rgba(255,255,255,.006));border:1px solid var(--border);border-radius:14px;padding:1rem 1.15rem}
       #builds .bd-grid>div>.bd-sect:last-child{margin-bottom:0}
       #builds .bd-sect.bd-wsect{background:none;border:0;padding:0;margin:.2rem 0 1rem}
@@ -5233,7 +5239,7 @@ PlayerName (Leader)
       var guide=(d.guide&&typeof d.guide==='object')?d.guide:null;
       var _spRe=(function(){ try{ var ks=Object.keys(TP_SPELLICON).sort(function(a,b){return b.length-a.length;}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}); return new RegExp('('+ks.join('|')+')','g'); }catch(e){ return null; } })();
       function gmd(s){ var h=esc(''+s).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>'); if(_spRe){ h=h.replace(_spRe,function(m){ var ic=TP_SPELLICON[m]; return ic?('<img class="bd-inlineic" src="'+ic+'" alt="" loading="lazy">'+m):m; }); } return h; }
-      var gHeroSum='', gRotSec='', gPrioSec='', gInsSec='', rotGrid=rot;
+      var gHeroSum='', gRotSec='', gPrioSec='', gInsSec='', gSetsSec='', rotGrid=rot;
       if(guide){
         var gc=(guide.chips&&guide.chips.length)?('<div class="bd-gchips">'+guide.chips.map(function(c){return '<span class="bd-gchip">'+esc(c)+'</span>';}).join('')+'</div>'):'';
         gHeroSum=(guide.summary?'<div class="bd-herosum">'+gmd(guide.summary)+'</div>':'')+gc;
@@ -5245,6 +5251,11 @@ PlayerName (Leader)
         var gil=function(arr,cls,col,ttl){ return (arr&&arr.length)?('<div class="bd-gsub"><h5 class="bd-gsubh" style="color:'+col+'"><span class="bd-gsubdot" style="background:'+col+'"></span>'+ttl+'</h5><ul class="bd-gins '+cls+'">'+arr.map(function(x){return '<li>'+gmd(x)+'</li>';}).join('')+'</ul></div>'):''; };
         var _insBlocks=gil(guide.insights,'b','#5aa9e8','Insights-chave')+gil(guide.strengths,'g','#4bd07a','Forças')+gil(guide.weaknesses,'r','#e8746b','Fraquezas');
         gInsSec=_insBlocks?('<div class="bd-sect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.34.208-.646.477-.859a4 4 0 10-4.954 0c.27.213.462.519.476.859h4.002z"/></svg> Análise da build</h4><div class="bd-gsubs">'+_insBlocks+'</div></div>'):'';
+        if(guide.sets && guide.sets.length){
+          var _sslots=['Nível','Amuleto','Arma','Anel','Elmo','Armadura','Pernas','Botas','Livro','Instr.'];
+          var _srows=guide.sets.map(function(s){ var p=(typeof s==='string'?s.split('|'):s).map(function(x){return String(x).trim();}); var c=''; for(var i=0;i<_sslots.length;i++){ c+=(i===0?'<th class="bd-setlvl">'+esc(p[0]||'')+'</th>':'<td>'+esc(p[i]||'—')+'</td>'); } return '<tr>'+c+'</tr>'; }).join('');
+          gSetsSec='<div class="bd-sect"><h4>🎒 Sets por nível <span class="bd-setsrc">— fonte: TibiaWiki (econômico → premium)</span></h4><div class="bd-setswrap"><table class="bd-setstbl"><thead><tr>'+_sslots.map(function(h){return '<th>'+h+'</th>';}).join('')+'</tr></thead><tbody>'+_srows+'</tbody></table></div></div>';
+        }
       }
       var html='<button class="bd-back" onclick="tpCloseBuild()">← Voltar às builds</button>'
         +'<div class="bd-hero"><div class="bld-wic">'+(ic?'<img src="'+ic+'" alt="">':'⚔️')+'</div>'
@@ -5270,7 +5281,7 @@ PlayerName (Leader)
             +(eq?'<div class="bd-sect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.5l6.5 2.5v5c0 4-2.8 7.5-6.5 9-3.7-1.5-6.5-5-6.5-9v-5L10 1.5zm-1 11l4.5-4.5-1.4-1.4L9 9.7 7.9 8.6 6.5 10 9 12.5z"/></svg> Equipamentos &amp; slots</h4>'+eq+'</div>':'')
           +'</div>'
         +'</div>'
-        +gInsSec;
+        +gSetsSec+gInsSec;
       var host=document.getElementById('bld-detail'); host.innerHTML=html;
       if(window.tpCheckBuildAdmin) tpCheckBuildAdmin();
       document.getElementById('builds').classList.add('detail');
@@ -5356,6 +5367,7 @@ PlayerName (Leader)
         +fld('Forças (1 por linha)','<textarea id="be-strengths" rows="3">'+ta(g.strengths)+'</textarea>')
         +fld('Fraquezas (1 por linha)','<textarea id="be-weaknesses" rows="3">'+ta(g.weaknesses)+'</textarea>')
         +fld('Prioridades (1 por linha)','<textarea id="be-priorities" rows="3">'+ta(g.priorities)+'</textarea>')
+        +fld('Sets por nível — 1 por linha: Nível | Amuleto | Arma | Anel | Elmo | Armadura | Pernas | Botas | Livro | Instrumento','<textarea id="be-sets" rows="7" style="font-family:monospace;font-size:.78rem">'+ta(g.sets)+'</textarea>')
         +'<div class="be-acts"><button class="be-save" onclick="tpSaveBuildEdit()">💾 Salvar alterações</button><button class="be-cancel" onclick="tpCloseBuildEditor()">Cancelar</button></div>'
         +'<div class="be-note">Itens, roda e rotação numérica (cálculo de dano) continuam na <b>calculadora</b> — use "Abrir na Calculadora" e salve por lá. Aqui você edita o conteúdo do guia e os metadados.</div>'
         +'</div>';
@@ -5369,7 +5381,7 @@ PlayerName (Leader)
       var data=Object.assign({}, row.data||{}), guide=Object.assign({}, (data.guide)||{});
       guide.summary=val('be-summary'); guide.style=val('be-style'); guide.styleTitle=val('be-styletitle'); guide.wheelHi=val('be-wheelhi');
       guide.chips=val('be-chips').split(',').map(function(x){return x.trim();}).filter(Boolean);
-      guide.rotation=lines('be-rotation'); guide.insights=lines('be-insights'); guide.strengths=lines('be-strengths'); guide.weaknesses=lines('be-weaknesses'); guide.priorities=lines('be-priorities');
+      guide.rotation=lines('be-rotation'); guide.insights=lines('be-insights'); guide.strengths=lines('be-strengths'); guide.weaknesses=lines('be-weaknesses'); guide.priorities=lines('be-priorities'); guide.sets=lines('be-sets');
       data.guide=guide;
       var payload={ name:val('be-name'), vocation:val('be-voc'), element:val('be-el'), dano:parseInt(val('be-dano'),10)||0, ml:parseInt(val('be-ml'),10)||0, status:val('be-status'), data:data, updated_at:new Date().toISOString() };
       var btn=document.querySelector('#tp-buildedit .be-save'); if(btn){btn.disabled=true;btn.textContent='Salvando…';}
