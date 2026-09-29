@@ -4979,7 +4979,8 @@ PlayerName (Leader)
       var d=b.data||{}, bb=d.b||{}, w=bb.weapon||{}, inp=d.inp||{};
       var voc=VOCS[b.vocation]||{label:b.vocation,emoji:'🐼'};
       var det=BDET[b.id]||{};
-      var ic=WIC[w.icon], el=b.element||w.damageType||'', elc=ELCOL[el]||'var(--gold)';
+      var _DCIl=(window.__DC&&window.__DC.icons)||{};
+      var ic=_DCIl[w.icon]||WIC[w.icon], el=b.element||w.damageType||'', elc=ELCOL[el]||'var(--gold)';
       var chips=[];
       (VOC_ELEMS[b.vocation]||(el?[el]:[])).forEach(function(e){var ec=ELCOL[e]||'var(--gold)';chips.push('<span class="bld-tag" style="background:'+ec+'22;border-color:'+ec+'55;color:'+ec+'">'+(ELPT[e]||e)+'</span>');});
       if(b.ml) chips.push('<span class="bld-tag">ML '+esc(b.ml)+'</span>');
@@ -6034,6 +6035,8 @@ PlayerName (Leader)
       fetch(url,{headers:_pandaHeaders()}).then(function(r){return r.json();}).then(function(rows){
         all=(rows||[]).sort(sortBuilds); byId={}; all.forEach(function(b){byId[b.id]=b;});
         renderFilters(); render(); window.__tpBuildsReady=true;
+        /* re-render a lista quando o catálogo (ícones reais de arma) terminar de carregar */
+        if(window.tpLoadCatalog){ tpLoadCatalog().then(function(){ try{ render(); }catch(e){} }); }
       }).catch(function(){ var g=document.getElementById('bld-grid'); if(g)g.innerHTML='<div class="bld-empty">Não foi possível carregar as builds agora. Tente de novo em instantes.</div>'; });
     };
   })();
