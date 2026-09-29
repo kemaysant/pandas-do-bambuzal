@@ -5203,7 +5203,7 @@ PlayerName (Leader)
         var base=stripQ(r.n), isAA=/^auto.?attack$/i.test(base), url=isAA?null:TP_SPELLICON[base];
         var emoji=isAA?'⚔️':(r.focus?'✦':'🔮');
         var cls=isAA?'aa':(r.focus?'ult':'rota'), nm=isAA?'Auto-attack':base;
-        var anim=(!isAA && TP_SPELLANIM.has(base)) ? (' data-anim="assets/spell-anim/'+base.replace(/'/g,'').replace(/ /g,'_')+'.webp"') : '';
+        var anim=(!isAA && TP_SPELLANIM.has(base)) ? (' data-anim="assets/spell-anim/'+base.replace(/'/g,'').replace(/ /g,'_')+'.gif"') : '';
         var inner='<span class="bd-rsnum">'+idx+'</span><span class="bd-rsemoji">'+emoji+'</span>'
           +(url?'<img src="'+url+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'');
         return '<div class="bd-rspell '+cls+'"'+anim+' title="'+esc(r.n)+'"><div class="bd-rsic">'+inner+'</div><div class="bd-rsnm">'+esc(nm)+'</div></div>';
