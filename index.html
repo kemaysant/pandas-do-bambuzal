@@ -5405,6 +5405,7 @@ PlayerName (Leader)
       if(!row){ if(window.tpToast) tpToast('Não consegui carregar a build.','error'); return; }
       window.__BE={ id:id, row:row, data:JSON.parse(JSON.stringify(row.data||{})) };
       var bp=document.getElementById('builds'); if(bp) bp.classList.add('detail');
+      await tpLoadItemCat();
       tpBERender(); window.scrollTo({top:0,behavior:'smooth'});
     };
     window.tpBECapture=function(){
@@ -5457,11 +5458,30 @@ PlayerName (Leader)
         +F('O que a roda ativa',I('be2-wheelhi',guide.wheelHi))+F('Chips (vírgula)',I('be2-chips',(guide.chips||[]).join(', ')))
         +F('Rotação (1/linha)',TA('be2-rotation',guide.rotation,4))+F('Insights (1/linha)',TA('be2-insights',guide.insights,4))
         +'</div>';
-      var soon='<div class="be2sec"><h4>🎒 Set &amp; 🎡 Roda com gemas</h4><div class="be2soon">Os editores visuais de <b>set</b> (com presets por vocação) e da <b>roda com gemas</b> entram nas próximas fatias. Por ora, itens e roda continuam pela calculadora.</div></div>';
+      // ---- Editor de Set (catálogo real do appearances.dat) ----
+      var CAT=window.__TPITEMS||{}, BYS=window.__TPITEMSBYSLUG||{}, equip=b.equip||(b.equip={});
+      var EQ=[['helmet','Elmo','helmet'],['amulet','Amuleto','amulet'],['armor','Armadura','armor'],['legs','Pernas','legs'],['boots','Botas','boots'],['ring','Anel','ring'],['right','Off-hand (livro/escudo)','shield']];
+      var usedCS={}; EQ.forEach(function(e){usedCS[e[2]]=1;});
+      var dls=Object.keys(usedCS).map(function(cs){ return '<datalist id="tpil-'+cs+'">'+((CAT[cs]||[]).map(function(it){return '<option value="'+E(it.n)+'">'+(it.l?'lvl '+it.l:'')+'</option>';}).join(''))+'</datalist>'; }).join('');
+      var eqfields=EQ.map(function(e){ var cur=equip[e[0]]||''; var curName=BYS[cur]||cur||''; return '<label class="be2f"><span>'+e[1]+'</span><input list="tpil-'+e[2]+'" id="be2eq-'+e[0]+'" value="'+E(curName)+'" placeholder="buscar item…" oninput="tpBEequip(\''+e[0]+'\',this.value)"></label>'; }).join('');
+      var presets=((d.guide||{}).sets)||[];
+      var presetHtml=presets.length?('<div style="display:flex;gap:.5rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:.9rem"><label class="be2f" style="margin:0;min-width:180px"><span>Preset por nível (TibiaWiki)</span><select id="be2-preset">'+presets.map(function(s,i){ return '<option value="'+i+'">Nível '+E((String(s).split('|')[0]||('#'+(i+1))).trim())+'</option>'; }).join('')+'</select></label><button class="be2cancel" type="button" onclick="tpBEpreset()">Aplicar preset nos slots</button></div>'):'';
+      var wname=(b.weapon&&b.weapon.name)||'—';
+      var setsec='<div class="be2sec"><h4>🎒 Set / Equipamentos <span style="font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0">— catálogo real do jogo · digite pra buscar</span></h4>'
+        +presetHtml
+        +'<div class="be2grid">'+eqfields+'</div>'
+        +'<div class="be2soon" style="margin-top:.6rem">🗡️ Arma atual: <b>'+E(wname)+'</b> — a troca de arma (que muda a árvore de proficiência) entra junto do editor de roda, na próxima fatia.</div>'
+        +dls+'</div>';
+      var wheelsoon='<div class="be2sec"><h4>🎡 Roda com gemas</h4><div class="be2soon">Editor visual da roda (alocar pontos + colocar gemas/vessels, estilo planner do Tibia) é a próxima fatia.</div></div>';
       var host=document.getElementById('bld-detail'); if(!host) return;
-      host.innerHTML='<div class="be2">'+bar+meta+mods+prof+gsec+soon+'</div>';
+      host.innerHTML='<div class="be2">'+bar+meta+mods+prof+setsec+gsec+wheelsoon+'</div>';
     };
     window.tpBEprof=function(li,oi){ tpBECapture(); var b=window.__BE.data.b; b.wprof=b.wprof||{}; if(+b.wprof[li]===oi) delete b.wprof[li]; else b.wprof[li]=oi; tpBERender(); };
+    window.__TPITEMS=window.__TPITEMS||null; window.__TPITEMSBYSLUG=window.__TPITEMSBYSLUG||{};
+    async function tpLoadItemCat(){ if(window.__TPITEMS) return; try{ var r=await fetch('assets/data/tibia-items.json'); var j=await r.json(); window.__TPITEMS=j; var idx={}; Object.keys(j).forEach(function(sl){ (j[sl]||[]).forEach(function(it){ idx[it.s]=it.n; }); }); window.__TPITEMSBYSLUG=idx; }catch(e){ window.__TPITEMS={}; } }
+    function _tpSlug(n){ return String(n||'').toLowerCase().replace(/['’]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''); }
+    window.tpBEequip=function(eqkey,name){ tpBECapture(); var b=window.__BE.data.b; b.equip=b.equip||{}; var s=_tpSlug(name); if(s) b.equip[eqkey]=s; else delete b.equip[eqkey]; };
+    window.tpBEpreset=function(){ var sel=document.getElementById('be2-preset'); if(!sel) return; var presets=((window.__BE.data.guide||{}).sets)||[]; var row=presets[+sel.value]; if(!row) return; tpBECapture(); var p=String(row).split('|').map(function(x){return x.trim();}); var b=window.__BE.data.b; b.equip=b.equip||{}; [['amulet',1],['ring',3],['helmet',4],['armor',5],['legs',6],['boots',7],['right',8]].forEach(function(m){ var nm=p[m[1]]; if(nm&&nm!=='—'&&nm!=='·'&&nm!=='-') b.equip[m[0]]=_tpSlug(nm); }); tpBERender(); if(window.tpToast) tpToast('Preset aplicado nos slots.','success'); };
     window.tpBECancel=function(){ var id=window.__BE&&window.__BE.id; window.__BE=null; if(id&&window.tpOpenBuild) tpOpenBuild(id); };
     window.tpBESave=async function(){
       var BE=window.__BE; if(!BE) return; tpBECapture();
