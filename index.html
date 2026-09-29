@@ -5267,7 +5267,7 @@ PlayerName (Leader)
           +'<button class="bd-open" onclick="tpOpenBuildInCalc(\''+code+'\')">⚔️ Abrir na Calculadora</button>'
           +'<button class="bd-ghost" data-bid="'+esc(id)+'" onclick="tpCopyLink(this)">🔗 Copiar link</button>'
           +'<button class="bd-ghost bd-savebtn'+((window.__tpSavedBuilds&&window.__tpSavedBuilds[id])?' on':'')+'" data-bid="'+esc(id)+'" onclick="tpToggleSaveBuild(this)">'+((window.__tpSavedBuilds&&window.__tpSavedBuilds[id])?'✓ Salva':'⭐ Salvar')+'</button>'
-          +'<button class="bd-ghost bd-editbtn" data-bid="'+esc(id)+'" onclick="tpOpenBuildEditor(this.getAttribute(\'data-bid\'))" style="display:none">✏️ Editar</button>'
+          +'<button class="bd-ghost bd-editbtn" data-bid="'+esc(id)+'" onclick="tpBuildEditor(this.getAttribute(\'data-bid\'))" style="display:none">✏️ Editar</button>'
         +'</div>'
         +gRotSec+gPrioSec
         +(wheelHtml?'<div class="bd-sect bd-wsect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-3a5 5 0 100-10 5 5 0 000 10zm0-3a2 2 0 100-4 2 2 0 000 4z"/></svg> <span class="bd-wvoc">'+voc.emoji+' '+esc(voc.label)+'</span> <span class="bd-wsep">·</span> Roda do Destino</h4><div class="bd-wsub">'+((guide&&guide.wheelHi)?gmd(guide.wheelHi):((guide&&guide.styleTitle)?esc(guide.styleTitle.replace(/^Estilo:\s*/i,'')):'pontos e revelação no nível da build'))+'</div>'+wheelHtml+'</div>':'')
@@ -5392,6 +5392,88 @@ PlayerName (Leader)
         tpCloseBuildEditor();
         setTimeout(function(){ location.reload(); },600);
       }catch(e){ if(window.tpToast) tpToast('Não consegui salvar (confirme que você é admin).','error'); if(btn){btn.disabled=false;btn.textContent='💾 Salvar alterações';} }
+    };
+    /* ===== Editor de build in-place (Fase 2 / Caminho B) ===== */
+    function _beCss2(){ if(document.getElementById('be2-css'))return; var s=document.createElement('style'); s.id='be2-css';
+      s.textContent='#builds .be2{padding:0 0 5rem}#builds .be2bar{position:sticky;top:0;z-index:50;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;background:linear-gradient(180deg,var(--bg-1,#0f0e15) 60%,rgba(15,14,21,.85));border-bottom:1px solid var(--rule);padding:.7rem .2rem;margin-bottom:1rem}#builds .be2bar b{font-family:Cinzel,serif;color:var(--gold,#c9a840)}#builds .be2save{margin-left:auto;background:var(--bamboo,#8b5cf6);border:0;color:#fff;border-radius:9px;padding:.5rem 1rem;font:inherit;font-weight:800;cursor:pointer}#builds .be2cancel{background:var(--bg-2);border:1px solid var(--rule);color:var(--ink-2);border-radius:9px;padding:.5rem 1rem;font:inherit;font-weight:700;cursor:pointer}#builds .be2sec{background:var(--surface,#17161f);border:1px solid var(--rule);border-radius:14px;padding:15px 16px;margin-bottom:1rem}#builds .be2sec h4{font-family:Inter,sans-serif;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 .9rem}#builds .be2grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}#builds .be2f{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.5rem}#builds .be2f span{font-size:.68rem;color:var(--ink-3);font-weight:700}#builds .be2f input,#builds .be2f select,#builds .be2f textarea{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:.5rem .6rem;font:inherit;font-size:.85rem;width:100%;box-sizing:border-box}#builds .be2f textarea{resize:vertical;line-height:1.4}#builds .be2soon{font-size:.8rem;color:var(--muted);font-style:italic;line-height:1.5}#builds .be2 .bd-pti{cursor:pointer}#builds .be2 .bd-pti:hover{outline:2px solid var(--bamboo,#8b5cf6);outline-offset:1px}';
+      document.head.appendChild(s); }
+    window.tpBuildEditor=async function(id){
+      if(!id) return;
+      if(!(window.TP_AUTH&&window.TP_AUTH.user)){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
+      var row=null;
+      try{ var r=await (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/builds?select=*&id=eq.'+id,{headers:{Accept:'application/json'}}); var rows=await r.json(); row=Array.isArray(rows)&&rows[0]; }catch(e){}
+      if(!row){ if(window.tpToast) tpToast('Não consegui carregar a build.','error'); return; }
+      window.__BE={ id:id, row:row, data:JSON.parse(JSON.stringify(row.data||{})) };
+      var bp=document.getElementById('builds'); if(bp) bp.classList.add('detail');
+      tpBERender(); window.scrollTo({top:0,behavior:'smooth'});
+    };
+    window.tpBECapture=function(){
+      var BE=window.__BE; if(!BE) return;
+      var g=function(k){ var e=document.getElementById(k); return e?e.value:null; };
+      var lines=function(k){ var v=g(k); return v==null?null:v.split('\n').map(function(x){return x.trim();}).filter(Boolean); };
+      var row=BE.row, d=BE.data, b=d.b||(d.b={}), inp=d.inp||(d.inp={}), guide=d.guide||(d.guide={});
+      var S=function(o,k,v){ if(v!=null) o[k]=v; };
+      S(row,'name',g('be2-name')); S(row,'element',g('be2-el')); if(g('be2-dano')!=null) row.dano=parseInt(g('be2-dano'),10)||0; S(row,'status',g('be2-status'));
+      S(inp,'level',g('be2-level')); S(inp,'ml',g('be2-ml')); S(inp,'critc',g('be2-critc')); S(inp,'critd',g('be2-critd')); if(g('be2-skill')!=null) inp.skill=g('be2-skill');
+      if(g('be2-onsl')!=null) b.onslaught=parseInt(g('be2-onsl'),10)||0; if(g('be2-tr')!=null) b.transcendence=parseInt(g('be2-tr'),10)||0;
+      S(guide,'summary',g('be2-summary')); S(guide,'styleTitle',g('be2-styletitle')); S(guide,'wheelHi',g('be2-wheelhi'));
+      var ch=g('be2-chips'); if(ch!=null) guide.chips=ch.split(',').map(function(x){return x.trim();}).filter(Boolean);
+      var rot=lines('be2-rotation'); if(rot!=null) guide.rotation=rot;
+      var ins=lines('be2-insights'); if(ins!=null) guide.insights=ins;
+      d.b=b; d.inp=inp; d.guide=guide;
+    };
+    window.tpBERender=function(){
+      _beCss2(); var BE=window.__BE; if(!BE) return;
+      var row=BE.row, d=BE.data, b=d.b||(d.b={}), inp=d.inp||(d.inp={}), guide=d.guide||(d.guide={});
+      var E=window.esc||function(s){return String(s==null?'':s);};
+      var isMage=(row.vocation==='druid'||row.vocation==='sorcerer');
+      function F(lbl,inner){ return '<label class="be2f"><span>'+lbl+'</span>'+inner+'</label>'; }
+      function I(id,val,type){ return '<input id="'+id+'"'+(type?' type="'+type+'"':'')+' value="'+E(val==null?'':val)+'">'; }
+      function TA(id,val,rows){ return '<textarea id="'+id+'" rows="'+(rows||3)+'">'+E(Array.isArray(val)?val.join('\n'):(val||''))+'</textarea>'; }
+      var bar='<div class="be2bar"><b>Editando build</b><span style="color:var(--muted);font-size:.8rem">'+E(row.vocation)+'</span><button class="be2cancel" onclick="tpBECancel()">✖ Cancelar</button><button class="be2save" onclick="tpBESave()">💾 Salvar</button></div>';
+      var meta='<div class="be2sec"><h4>Metadados</h4><div class="be2grid">'
+        +F('Nome',I('be2-name',row.name))+F('Elemento',I('be2-el',row.element))
+        +F('Dano/turno',I('be2-dano',row.dano,'number'))
+        +F('Status','<select id="be2-status"><option value="approved"'+(row.status==='approved'?' selected':'')+'>Pública</option><option value="hidden"'+(row.status==='hidden'?' selected':'')+'>Oculta</option></select>')
+        +'</div></div>';
+      var mods='<div class="be2sec"><h4>⚙️ Modificadores (calculadora)</h4><div class="be2grid">'
+        +F('Nível',I('be2-level',inp.level,'number'))+F('Magic Level',I('be2-ml',inp.ml,'number'))
+        +F('Crit %',I('be2-critc',inp.critc,'number'))+F('Crit dmg %',I('be2-critd',inp.critd,'number'))
+        +(isMage?'':F('Skill',I('be2-skill',inp.skill,'number')))
+        +F('Onslaught (0/1)',I('be2-onsl',b.onslaught!=null?b.onslaught:0,'number'))
+        +F('Transcendence (0/1)',I('be2-tr',b.transcendence!=null?b.transcendence:0,'number'))
+        +'</div></div>';
+      var w=b.weapon||{}, tree=(typeof TP_PTREE!=='undefined'?TP_PTREE:{})[w.profClass||''], PIC=(typeof TP_PICON!=='undefined'?TP_PICON:{});
+      var profHtml;
+      if(tree&&tree.length){ var wprof=b.wprof||(b.wprof={});
+        profHtml='<div class="bd-ptgrid">'+tree.map(function(opts,li){
+          var tiles=opts.map(function(o,oi){ var on=(+wprof[li]===oi); var pic=PIC[o.bi], pov=o.ovi?PIC[o.ovi]:null; var pm=String(o.text||'').match(/^\+([\d.]+%?)/);
+            return '<div class="bd-pti'+(on?' on':'')+(o.bonus?'':' sit')+'" title="'+E(o.text)+'" onclick="tpBEprof('+li+','+oi+')">'+(pic?'<img class="bd-ptic" src="'+pic+'" alt="">':'<span class="bd-ptic bd-ptic-x">?</span>')+(pov?'<img class="bd-ptov" src="'+pov+'" alt="">':'')+(pm?'<span class="bd-ptpct">+'+E(pm[1])+'</span>':'')+'</div>'; }).join('');
+          return '<div class="bd-ptcol"><div class="bd-ptch">★'+(li+1)+'</div>'+tiles+'</div>'; }).join('')+'</div>';
+      } else { profHtml='<div class="be2soon">Sem árvore de proficiência pra esta arma ('+E(w.name||'—')+').</div>'; }
+      var prof='<div class="be2sec"><h4>🎖️ Proficiência de arma <span style="font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0">— clique pra marcar/desmarcar</span></h4>'+profHtml+'</div>';
+      var gsec='<div class="be2sec"><h4>📝 Guia</h4>'
+        +F('Resumo',TA('be2-summary',guide.summary,3))+F('Estilo — título',I('be2-styletitle',guide.styleTitle))
+        +F('O que a roda ativa',I('be2-wheelhi',guide.wheelHi))+F('Chips (vírgula)',I('be2-chips',(guide.chips||[]).join(', ')))
+        +F('Rotação (1/linha)',TA('be2-rotation',guide.rotation,4))+F('Insights (1/linha)',TA('be2-insights',guide.insights,4))
+        +'</div>';
+      var soon='<div class="be2sec"><h4>🎒 Set &amp; 🎡 Roda com gemas</h4><div class="be2soon">Os editores visuais de <b>set</b> (com presets por vocação) e da <b>roda com gemas</b> entram nas próximas fatias. Por ora, itens e roda continuam pela calculadora.</div></div>';
+      var host=document.getElementById('bld-detail'); if(!host) return;
+      host.innerHTML='<div class="be2">'+bar+meta+mods+prof+gsec+soon+'</div>';
+    };
+    window.tpBEprof=function(li,oi){ tpBECapture(); var b=window.__BE.data.b; b.wprof=b.wprof||{}; if(+b.wprof[li]===oi) delete b.wprof[li]; else b.wprof[li]=oi; tpBERender(); };
+    window.tpBECancel=function(){ var id=window.__BE&&window.__BE.id; window.__BE=null; if(id&&window.tpOpenBuild) tpOpenBuild(id); };
+    window.tpBESave=async function(){
+      var BE=window.__BE; if(!BE) return; tpBECapture();
+      var row=BE.row, d=BE.data;
+      var payload={ name:row.name, element:row.element, dano:row.dano||0, ml:parseInt((d.inp||{}).ml,10)||(row.ml||0), status:row.status, data:d, updated_at:new Date().toISOString() };
+      var btn=document.querySelector('#builds .be2save'); if(btn){btn.disabled=true;btn.textContent='Salvando…';}
+      try{
+        var r=await (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/builds?id=eq.'+BE.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(payload)});
+        if(!r.ok) throw new Error('PATCH '+r.status);
+        if(window.tpToast) tpToast('Build salva! ✅','success'); window.__BE=null;
+        setTimeout(function(){ location.reload(); },600);
+      }catch(e){ if(window.tpToast) tpToast('Não consegui salvar (confirme que você é admin).','error'); if(btn){btn.disabled=false;btn.textContent='💾 Salvar';} }
     };
     window.tpCloseBuild=function(){
       document.getElementById('builds').classList.remove('detail');
