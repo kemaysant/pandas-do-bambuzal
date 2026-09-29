@@ -10122,6 +10122,11 @@ function showPage(id, btn) {
   if(btn) btn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
   triggerReveal();
+  if (id === 'builds') {
+    // volta pra LISTA ao entrar em Builds pela nav (tira o modo detalhe da build aberta)
+    var _bd=document.getElementById('builds'); if(_bd) _bd.classList.remove('detail');
+    var _bln=document.getElementById('bld-listnote'); if(_bln) _bln.style.display='';
+  }
   if (id === 'dashboard' && window.tpRenderDashboard) {
     tpRenderDashboard();
   }
@@ -13472,7 +13477,7 @@ function ewEnsureTcInput() {
   }
   function wire(){
     const btn=g('wselBtn'); if(!btn) return;
-    btn.addEventListener('click',e=>{e.stopPropagation();const p=g('wselPop');p.classList.toggle('open');const s=g('wselSearch');if(s){s.value='';render('');s.focus();}});
+    btn.addEventListener('click',e=>{e.stopPropagation();if(window.tpCloseTopMenus)tpCloseTopMenus('wsel');const p=g('wselPop');p.classList.toggle('open');const s=g('wselSearch');if(s){s.value='';render('');s.focus();}});
     const s=g('wselSearch'); if(s) s.addEventListener('input',e=>render(e.target.value));
     const l=g('wselList'); if(l) l.addEventListener('click',e=>{const it=e.target.closest('.wsel-item'); if(it){ setWorld(it.dataset.w); g('wselPop').classList.remove('open'); }});
     document.addEventListener('click',e=>{ if(!e.target.closest('.wsel')){ const p=g('wselPop'); if(p) p.classList.remove('open'); }});
@@ -13957,7 +13962,7 @@ function ewEnsureTcInput() {
     try{ var _dc=document.getElementById('dmgcalc'); if(_dc && _dc.classList.contains('active') && window.tpDmgInit) window.tpDmgInit(); }catch(e){}
   }
 
-  window.tpUserMenu=function(e){ if(e){ e.stopPropagation(); } const w=document.getElementById('tp-userwrap'); if(w) w.classList.toggle('open'); };
+  window.tpUserMenu=function(e){ if(e){ e.stopPropagation(); } if(window.tpCloseTopMenus)tpCloseTopMenus('user'); const w=document.getElementById('tp-userwrap'); if(w) w.classList.toggle('open'); };
   window.tpUserGo=function(page){ const w=document.getElementById('tp-userwrap'); if(w) w.classList.remove('open'); const nav=document.querySelector('.nav-btn[onclick*="'+page+'"]'); if(nav){ nav.click(); } };
   if(!window.__tpUserMenuBound){ window.__tpUserMenuBound=true;
     document.addEventListener('click',function(ev){ const w=document.getElementById('tp-userwrap'); if(w && !w.contains(ev.target)) w.classList.remove('open'); });
@@ -16519,7 +16524,7 @@ window.tpLoadJornada=async function(){
   .tp-social-launch{display:flex;align-items:center;gap:.5rem;background:var(--bamboo,#8b5cf6);color:#fff;border:none;border-radius:12px 12px 0 0;padding:.6rem 1rem;cursor:pointer;font-weight:700;font-size:.85rem;box-shadow:0 -4px 20px rgba(0,0,0,.35)}
   .tp-social-unread{background:#e05a5a;color:#fff;border-radius:999px;font-size:.65rem;font-weight:800;padding:0 6px;min-width:16px;text-align:center}
   .tp-social-pop{position:absolute;bottom:100%;right:0;width:290px;max-height:60vh;overflow:auto;background:var(--bg-1,#14131c);border:1px solid var(--rule,#2b2938);border-radius:12px 12px 0 0;box-shadow:0 -14px 44px rgba(0,0,0,.5);display:none;margin-bottom:2px}
-  .tp-social-pop.open{display:block}
+  .tp-social-pop.open{display:block;border-radius:12px;margin-bottom:8px}
   .tp-social-pop-hd{font-weight:800;font-size:.85rem;color:var(--ink,#eae8f2);padding:.7rem .9rem;border-bottom:1px solid var(--rule,#2b2938);position:sticky;top:0;background:var(--bg-1,#14131c);display:flex;align-items:center;justify-content:space-between;gap:.5rem}
   .tp-notif-launch{padding:.6rem .75rem}
   .tp-topnotif-btn{position:relative;background:transparent;border:1px solid var(--rule,#2b2938);color:var(--ink,#eae8f2);border-radius:10px;padding:.42rem .55rem;cursor:pointer;font-size:1rem;line-height:1;display:flex;align-items:center}
@@ -16728,7 +16733,7 @@ window.tpLoadJornada=async function(){
   function renderDockPop(){ var host=document.getElementById('tp-social-pop-body'); if(!host) return;
     var un={}; INBOX.forEach(function(x){ un[x.id]=+x.unread||0; });
     var online=FRIENDS.filter(function(f){return f.online;}).length;
-    var hd=document.getElementById('tp-social-pop-hd'); if(hd) hd.innerHTML='Amigos <span style="color:var(--muted);font-weight:600">· '+online+' online de '+FRIENDS.length+'</span>';
+    var hd=document.getElementById('tp-social-pop-hd'); if(hd) hd.innerHTML='<span>Amigos <span style="color:var(--muted);font-weight:600">· '+online+' online de '+FRIENDS.length+'</span></span><span class="soc-pop-x" title="Fechar" onclick="tpSocialToggle()" style="cursor:pointer;color:var(--muted);font-size:1.05rem;line-height:1;padding:0 2px 0 8px">✕</span>';
     var req=INCOMING.length?'<div class="soc-reqrow" onclick="tpGoFriends()">📥 '+INCOMING.length+' pedido(s) — abrir</div>':'';
     // ordena: online primeiro (já vem ordenado do RPC), separa seção
     var onl=FRIENDS.filter(function(f){return f.online;}), off=FRIENDS.filter(function(f){return !f.online;});
@@ -16771,7 +16776,7 @@ window.tpLoadJornada=async function(){
     notifUnread=NOTIFS.filter(function(n){return !n.read;}).length; renderNotifBadge(); }
   window.tpNotifReadAll=function(ev){ if(ev){ ev.stopPropagation(); } markNotifsRead(null).then(function(){ if(notifPopOpen()) renderNotifPop(); }); };
   window.tpNotifToggle=function(){ var p=document.getElementById('tp-notif-pop'); if(!p) return;
-    var sp=document.getElementById('tp-social-pop'); if(sp) sp.classList.remove('open');
+    if(window.tpCloseTopMenus) tpCloseTopMenus('notif');
     p.classList.toggle('open');
     if(p.classList.contains('open')){ renderNotifPop(); if(notifUnread>0) markNotifsRead(null); } };
   window.tpNotifClick=function(id){ var n=NOTIFS.filter(function(x){return x.id===id;})[0]; if(!n) return;
@@ -16784,8 +16789,11 @@ window.tpLoadJornada=async function(){
     var t=document.querySelector('#profile .pf-tab[data-tab=prog]'); if(t) t.click();
     setTimeout(function(){ var el=document.querySelector('#profile .pass-track,#profile .pass-feature,#profile [class*="pass"]'); if(el&&el.scrollIntoView) el.scrollIntoView({behavior:'smooth',block:'center'}); },250); }
   window.tpSocialToggle=function(){ var p=document.getElementById('tp-social-pop'); if(!p) return;
-    var np=document.getElementById('tp-notif-pop'); if(np) np.classList.remove('open');
-    p.classList.toggle('open'); if(p.classList.contains('open')) renderDockPop(); };
+    if(window.tpCloseTopMenus) tpCloseTopMenus('social');
+    p.classList.toggle('open');
+    var lb=document.querySelector('.tp-social-launch');
+    if(p.classList.contains('open')){ if(lb) lb.style.display='none'; renderDockPop(); }
+    else { if(lb) lb.style.display=''; } };
   window.tpGoFriends=function(){ if(typeof showPage==='function'){ var b=document.querySelector('.nav-btn[onclick*="profile"]'); showPage('profile',b); } var t=document.querySelector('#profile .pf-tab[data-tab=amigos]'); if(t) t.click(); var p=document.getElementById('tp-social-pop'); if(p) p.classList.remove('open'); };
 
   // ---- chat ----
@@ -18363,7 +18371,13 @@ window.tpLoadJornada=async function(){
 
   <script>
   (function(){
-    function closeMenus(){ document.querySelectorAll('.tp-pop.open').forEach(function(x){x.classList.remove('open');}); }
+    function closeMenus(except){
+      document.querySelectorAll('.tp-pop.open').forEach(function(x){x.classList.remove('open');});
+      if(except!=='wsel'){ var wp=document.getElementById('wselPop'); if(wp) wp.classList.remove('open'); }
+      if(except!=='notif'){ var np=document.getElementById('tp-notif-pop'); if(np) np.classList.remove('open'); }
+      if(except!=='user'){ var uw=document.getElementById('tp-userwrap'); if(uw) uw.classList.remove('open'); }
+      if(except!=='social'){ var s2=document.getElementById('tp-social-pop'); if(s2) s2.classList.remove('open'); var lb=document.querySelector('.tp-social-launch'); if(lb) lb.style.display=''; }
+    }
     window.tpCloseTopMenus=closeMenus;
     var PAGEMAP={home:'ini',builds:'builds',rankings:'rank',events:'com',agenda:'com',creators:'com'};
     function sync(){
@@ -18418,7 +18432,7 @@ window.tpLoadJornada=async function(){
         });
       }
     }
-    document.addEventListener('click', function(e){ if(!e.target.closest('.tp-topnav')) closeMenus(); });
+    document.addEventListener('click', function(e){ var t=e.target; if(!t||!t.closest) return; if(t.closest('.tp-topnav')||t.closest('.wsel')||t.closest('#tp-topnotif')||t.closest('#tp-userwrap')||t.closest('#tp-social')) return; closeMenus(); });
     if(document.readyState!=='loading') sync(); else document.addEventListener('DOMContentLoaded', sync);
     // keep top nav in sync when any showPage happens (sidebar/mobile clicks too)
     var _sp=window.showPage;
