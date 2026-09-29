@@ -5520,23 +5520,29 @@ PlayerName (Leader)
       var row=null;
       try{ var r=await (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/builds?select=*&id=eq.'+id,{headers:{Accept:'application/json'}}); var rows=await r.json(); row=Array.isArray(rows)&&rows[0]; }catch(e){}
       if(!row){ if(window.tpToast) tpToast('Não consegui carregar a build.','error'); return; }
-      window.__BE={ id:id, row:row, data:JSON.parse(JSON.stringify(row.data||{})) };
+      window.__BE={ id:id, row:row, data:JSON.parse(JSON.stringify(row.data||{})), pick:null, pickW:false, pickR:false, shapeLi:null };
       var bp=document.getElementById('builds'); if(bp) bp.classList.add('detail');
       await tpLoadItemCat();
+      if(window.tpLoadCatalog) tpLoadCatalog();
+      var host0=document.getElementById('bld-detail'); if(host0) host0.innerHTML='<div class="be2"><div class="be2sec"><div class="be2soon">Carregando catálogo do editor…</div></div></div>';
+      if(window.tpLoadEditorCat){ await tpLoadEditorCat(); }
       tpBERender(); window.scrollTo({top:0,behavior:'smooth'});
     };
     window.tpBECapture=function(){
       var BE=window.__BE; if(!BE) return;
       var g=function(k){ var e=document.getElementById(k); return e?e.value:null; };
       var lines=function(k){ var v=g(k); return v==null?null:v.split('\n').map(function(x){return x.trim();}).filter(Boolean); };
-      var row=BE.row, d=BE.data, guide=d.guide||(d.guide={});
+      var row=BE.row, d=BE.data, b=d.b||(d.b={}), inp=d.inp||(d.inp={}), guide=d.guide||(d.guide={});
       var S=function(o,k,v){ if(v!=null) o[k]=v; };
       S(row,'name',g('be2-name')); S(row,'element',g('be2-el')); S(row,'status',g('be2-status'));
+      S(inp,'level',g('be2-level')); S(inp,'ml',g('be2-ml')); S(inp,'critc',g('be2-critc')); S(inp,'critd',g('be2-critd')); if(g('be2-skill')!=null) inp.skill=g('be2-skill');
+      if(g('be2-onsl')!=null) b.onslaught=parseInt(g('be2-onsl'),10)||0; if(g('be2-tr')!=null) b.transcendence=parseInt(g('be2-tr'),10)||0;
+      var stv=g('be2-stance'); if(stv!=null) b.stance=stv;
       S(guide,'summary',g('be2-summary')); S(guide,'styleTitle',g('be2-styletitle')); S(guide,'wheelHi',g('be2-wheelhi'));
       var ch=g('be2-chips'); if(ch!=null) guide.chips=ch.split(',').map(function(x){return x.trim();}).filter(Boolean);
       var rot=lines('be2-rotation'); if(rot!=null) guide.rotation=rot;
       var ins=lines('be2-insights'); if(ins!=null) guide.insights=ins;
-      d.guide=guide;
+      d.b=b; d.inp=inp; d.guide=guide;
     };
     /* ponte com a calculadora embutida: ajusta a altura do iframe conforme o conteúdo */
     function _beCalcBridge(){
@@ -5546,8 +5552,166 @@ PlayerName (Leader)
         if(m.type==='tp-calc-height'){ var f=document.getElementById('be2-calc'); if(f && m.h && m.h>400){ f.style.height=(m.h+20)+'px'; } }
       });
     }
+    /* ===== Editor NATIVO (Fase 2) — set/arma/proficiência/shapes/roda/postura/rotação, dados reais do DC_DATA ===== */
+    window.__DCE=window.__DCE||null;
+    window.tpLoadEditorCat=function(){
+      if(window.__DCE) return Promise.resolve(window.__DCE);
+      if(window.__DCEp) return window.__DCEp;
+      window.__DCEp=fetch('assets/data/dc-editor.json').then(function(r){return r.json();}).then(function(j){ window.__DCE=j; return j; }).catch(function(){ window.__DCE={equip:{},weapons:{},spells:{},profTrees:{},profIcons:{},shapeOpts:[],shapeIcons:{},stances:{},icons:{}}; return window.__DCE; });
+      return window.__DCEp;
+    };
+    window.tpBEReflow=function(){ tpBECapture(); tpBERender(); };
+    window.tpBEfilterList=function(listId,q){ q=(q||'').toLowerCase(); var el=document.getElementById(listId); if(!el)return; Array.prototype.forEach.call(el.children,function(c){ var n=(c.getAttribute('data-name')||'').toLowerCase(); c.style.display=(!q||n.indexOf(q)>=0)?'':'none'; }); };
+    function _beDCE(){ return window.__DCE||{equip:{},weapons:{},spells:{},profTrees:{},profIcons:{},shapeOpts:[],shapeIcons:{},stances:{},icons:{}}; }
+    /* dano no save: iframe oculto só-motor da calculadora */
+    function _beCompDano(code){
+      return new Promise(function(resolve){
+        var f=document.createElement('iframe'); f.style.cssText='position:absolute;width:8px;height:8px;left:-9999px;top:-9999px;border:0;opacity:.01'; var done=false;
+        function onMsg(ev){ var m=ev.data||{}; if(m.type==='tp-build'){ done=true; clean(); resolve(Math.round(m.dano||0)); } }
+        function clean(){ window.removeEventListener('message',onMsg); try{f.parentNode.removeChild(f);}catch(e){} }
+        window.addEventListener('message',onMsg);
+        f.onload=function(){ setTimeout(function(){ try{ f.contentWindow.postMessage({type:'tp-get-build'},'*'); }catch(e){} },700); };
+        f.src='/calculadora-dano.html#b='+encodeURIComponent(code);
+        document.body.appendChild(f);
+        setTimeout(function(){ if(!done){ clean(); resolve(null); } },9000);
+      });
+    }
+    function _beModsHtml(){
+      var BE=window.__BE, d=BE.data, inp=d.inp||(d.inp={}), E=esc, isMage=(BE.row.vocation==='druid'||BE.row.vocation==='sorcerer');
+      function F(l,i){ return '<label class="be2f"><span>'+l+'</span>'+i+'</label>'; }
+      var _wc=(function(){ try{ var lv=parseInt(inp.level,10)||0; return Math.max(0,Math.min(lv-50,4000)); }catch(e){ return 0; } })();
+      return '<div class="be2sec"><h4>⚙️ Nível &amp; modificadores <span class="be2hint">— o nível trava os pontos da roda ('+_wc+' pts)</span></h4><div class="be2grid">'
+        +F('Nível do personagem','<input id="be2-level" type="number" value="'+E(inp.level==null?'':inp.level)+'" onchange="tpBEReflow()">')
+        +F('Magic Level','<input id="be2-ml" type="number" value="'+E(inp.ml==null?'':inp.ml)+'">')
+        +F('Crit %','<input id="be2-critc" type="number" value="'+E(inp.critc==null?'':inp.critc)+'">')
+        +F('Crit dmg %','<input id="be2-critd" type="number" value="'+E(inp.critd==null?'':inp.critd)+'">')
+        +(isMage?'':F('Skill','<input id="be2-skill" type="number" value="'+E(inp.skill==null?'':inp.skill)+'">'))
+        +'</div></div>';
+    }
+    function _beWeaponHtml3(){
+      var BE=window.__BE, b=BE.data.b, w=b.weapon||{}, voc=BE.row.vocation, E=esc, DCE=_beDCE();
+      var pub=(window.__DC&&window.__DC.icons)||{};
+      var icd=(DCE.icons&&DCE.icons[w.icon])||pub[w.icon]||WIC[w.icon]||null;
+      var cur='<div class="be2wcur">'+(icd?'<img src="'+icd+'">':'<span class="be2wemoji">🗡️</span>')
+        +'<div class="be2wtxt"><b>'+E(w.name||'— sem arma —')+'</b>'+(w.profClass?'<small>'+E(w.profClass)+'</small>':'')+'</div>'
+        +'<button type="button" class="be2cancel" onclick="tpBEpickWeapon()">'+(BE.pickW?'Fechar':'Trocar arma')+'</button></div>';
+      var pick='';
+      if(BE.pickW){
+        var ws=Object.keys(DCE.weapons||{}).map(function(id){return DCE.weapons[id];}).filter(function(x){ return x&&x.vocations&&x.vocations.indexOf(voc)>=0; }).sort(function(a,b){return String(a.name).localeCompare(b.name);});
+        var rows=ws.map(function(x){ var i2=DCE.icons&&DCE.icons[x.icon]; return '<div class="be2pi" data-name="'+E(x.name)+'" onclick="tpBEsetWeapon(\''+x.id+'\')">'+(i2?'<img src="'+i2+'">':'<span class="be2piemoji">🗡️</span>')+'<span class="be2piname">'+E(x.name)+'</span><span class="be2pimeta">'+E(x.profClass||'')+'</span></div>'; }).join('');
+        pick='<div class="be2picker"><div class="be2phead">Escolher arma <button type="button" class="be2cancel" onclick="tpBEpickWeapon()">Fechar</button></div><input class="be2psearch" placeholder="buscar arma…" oninput="tpBEfilterList(\'be2-wpl\',this.value)"><div class="be2pilist" id="be2-wpl">'+rows+'</div></div>';
+      }
+      return '<div class="be2sec"><h4>🗡️ Arma <span class="be2hint">— muda a árvore de proficiência</span></h4>'+cur+pick+'</div>';
+    }
+    function _beProfHtml3(){
+      var BE=window.__BE, b=BE.data.b, w=b.weapon||{}, voc=BE.row.vocation, E=esc, DCE=_beDCE();
+      var tree=(DCE.profTrees&&DCE.profTrees[w.profClass||''])||(typeof TP_PTREE!=='undefined'?TP_PTREE:{})[w.profClass||''];
+      var PIC=(DCE.profIcons&&Object.keys(DCE.profIcons).length)?DCE.profIcons:(typeof TP_PICON!=='undefined'?TP_PICON:{});
+      if(!tree||!tree.length) return '<div class="be2sec"><h4>🎖️ Proficiência</h4><div class="be2soon">Equipe uma arma com árvore pra editar a proficiência.</div></div>';
+      var wprof=b.wprof||(b.wprof={}), shapes=b.shapes||(b.shapes={});
+      var SO=(DCE.shapeOpts||[]).filter(function(o){return o.voc===voc||o.voc==='all';});
+      var SIC=DCE.shapeIcons||{};
+      var shCount=Object.keys(shapes).length;
+      var cols=tree.map(function(opts,li){
+        var hasShape=shapes[li];
+        var tiles=opts.map(function(o,oi){ var on=(+wprof[li]===oi); var pic=PIC[o.bi], pov=o.ovi?PIC[o.ovi]:null; var pm=String(o.text||'').match(/^\+([\d.]+%?)/);
+          return '<div class="bd-pti'+(on?' on':'')+(o.bonus?'':' sit')+(hasShape?' shaped':'')+'" title="'+E(o.text)+'" onclick="tpBEprof('+li+','+oi+')">'+(pic?'<img class="bd-ptic" src="'+pic+'">':'<span class="bd-ptic bd-ptic-x">?</span>')+(pov?'<img class="bd-ptov" src="'+pov+'">':'')+(pm?'<span class="bd-ptpct">+'+E(pm[1])+'</span>':'')+'</div>'; }).join('');
+        var shBtn;
+        if(hasShape){ var sh=shapes[li]; var opt=SO.filter(function(o){return o.n===sh.n;})[0]; var val=opt?Math.round((opt.r0+(opt.r10-opt.r0)*(+sh.rank||0)/10)*100)/100:0; var sicd=opt?SIC[opt.ic]:null; shBtn='<div class="be2shtag">'+(sicd?'<img src="'+sicd+'">':'✦ ')+E(sh.n)+' +'+val+'% <button type="button" onclick="tpBEshapeClear('+li+')">✕</button></div>'; }
+        else shBtn='<button type="button" class="be2shbtn'+(shCount>=2?' off':'')+'" onclick="tpBEshapeOpen('+li+')"'+(shCount>=2?' disabled':'')+'>✦ shape</button>';
+        var editor='';
+        if(BE.shapeLi===li){ editor='<div class="be2sheditor"><select id="be2-shopt">'+SO.map(function(o,i){return '<option value="'+i+'">'+E(o.n)+' ('+o.r0+'–'+o.r10+'%)</option>';}).join('')+'</select><select id="be2-shrank">'+[0,1,2,3,4,5,6,7,8,9,10].map(function(r){return '<option value="'+r+'"'+(r===10?' selected':'')+'>r'+r+'</option>';}).join('')+'</select><button type="button" class="be2shok" onclick="tpBEshapeSet('+li+')">OK</button></div>'; }
+        return '<div class="bd-ptcol be2ptcol"><div class="bd-ptch">★'+(li+1)+'</div>'+tiles+shBtn+editor+'</div>';
+      }).join('');
+      return '<div class="be2sec"><h4>🎖️ Proficiência — '+E(w.name||'')+' <span class="be2hint">— clique num perk; ✦ shape substitui (máx 2)</span></h4><div class="bd-ptgrid be2ptgrid">'+cols+'</div></div>';
+    }
+    function _beSetHtml(){
+      var BE=window.__BE, b=BE.data.b, eqp=b.equip||(b.equip={}), voc=BE.row.vocation, E=esc, DCE=_beDCE();
+      var EQ=DCE.equip||{}, IC=DCE.icons||{};
+      var SLOTS=[['helmet','Elmo'],['amulet','Amuleto'],['armor','Armadura'],['legs','Pernas'],['boots','Botas'],['ring','Anel'],['right',(voc==='knight'?'Escudo':voc==='paladin'?'Aljava':'Livro')]];
+      function slotCell(k,lbl){
+        if(voc==='monk'&&k==='right') return '<div class="be2slot lock"><span class="be2plus">✕</span><span class="be2sllbl">Off-hand</span></div>';
+        var id=eqp[k], it=EQ[id], icd=it&&IC[it.icon], sel=(BE.pick===k);
+        return '<div class="be2slot'+(sel?' sel':'')+(id?' filled':'')+'" onclick="tpBEpickSlot(\''+k+'\')">'
+          +(id?(icd?'<img src="'+icd+'">':'<span class="be2slab">'+E((it?it.name:id).slice(0,2))+'</span>'):'<span class="be2plus">+</span>')
+          +'<span class="be2sllbl">'+(id&&it?E(it.name):lbl)+'</span>'
+          +(id?'<button type="button" class="be2slx" onclick="event.stopPropagation();tpBEsetItem(\''+k+'\',\'\')">✕</button>':'')+'</div>';
+      }
+      var grid='<div class="be2slots">'+SLOTS.map(function(s){return slotCell(s[0],s[1]);}).join('')+'</div>';
+      var pick='';
+      if(BE.pick){
+        var slot=BE.pick;
+        var items=Object.keys(EQ).map(function(id){var it=EQ[id];return {id:id,it:it};}).filter(function(x){return x.it&&x.it.slot===slot;}).sort(function(a,b){return (a.it.minLevel||0)-(b.it.minLevel||0)||String(a.it.name).localeCompare(b.it.name);});
+        var rows=items.map(function(x){ var it=x.it, icd=IC[it.icon], bn=[]; if(it.ml)bn.push('ml+'+it.ml); if(it.minLevel)bn.push('lv '+it.minLevel);
+          return '<div class="be2pi" data-name="'+E(it.name)+'" onclick="tpBEsetItem(\''+slot+'\',\''+x.id+'\')">'+(icd?'<img src="'+icd+'">':'<span class="be2piemoji">▪</span>')+'<span class="be2piname">'+E(it.name)+'</span><span class="be2pimeta">'+bn.join(' · ')+'</span></div>'; }).join('');
+        pick='<div class="be2picker"><div class="be2phead">Escolher '+E(slot)+' <button type="button" class="be2cancel" onclick="tpBEpickSlot(\''+slot+'\')">Fechar</button></div><input class="be2psearch" placeholder="buscar item…" oninput="tpBEfilterList(\'be2-ipl\',this.value)"><div class="be2pilist" id="be2-ipl">'+rows+'</div></div>';
+      }
+      return '<div class="be2sec"><h4>🎒 Set — clique num slot pra escolher</h4>'+grid+pick+'</div>';
+    }
+    function _beStanceHtml(){
+      var BE=window.__BE, b=BE.data.b, voc=BE.row.vocation, E=esc, DCE=_beDCE();
+      var M=(DCE.stances&&DCE.stances.masteries)||{}, list=(voc==='sorcerer'?M.list:M[voc])||[];
+      var stSel='';
+      if(list.length){ stSel='<label class="be2f"><span>Mastery (postura)</span><select id="be2-stance" onchange="tpBEstance()"><option value="none"'+(!b.stance||b.stance==='none'?' selected':'')+'>Nenhuma</option>'+list.map(function(m){return '<option value="'+m.id+'"'+(b.stance===m.id?' selected':'')+'>'+E(m.label)+' ('+E(m.element)+')</option>';}).join('')+'</select></label>'; }
+      return '<div class="be2sec"><h4>🎭 Postura &amp; buffs <span class="be2hint">— a mastery define o elemento e as tags</span></h4><div class="be2grid">'
+        +stSel
+        +'<label class="be2f"><span>Onslaught (0/1)</span><input id="be2-onsl" type="number" value="'+(b.onslaught||0)+'"></label>'
+        +'<label class="be2f"><span>Transcendence (0/1)</span><input id="be2-tr" type="number" value="'+(b.transcendence||0)+'"></label>'
+        +'</div></div>';
+    }
+    function _beRotHtml(){
+      var BE=window.__BE, b=BE.data.b, voc=BE.row.vocation, E=esc, DCE=_beDCE(), SP=DCE.spells||{}, rot=b.rotation||(b.rotation=[]);
+      var SIC=(typeof TP_SPELLICON!=='undefined')?TP_SPELLICON:{};
+      var lines=rot.map(function(r,i){ var sp=SP[String(r.id)]||{}; var nm=sp.dn||String(sp.n||('#'+r.id)).replace(/\s*\([^)]*\)\s*$/,''); var icd=SIC[nm]||null;
+        return '<div class="be2rotline">'+(icd?'<img class="be2roti" src="'+icd+'">':'<span class="be2rotemoji">🔮</span>')+'<span class="be2rotnm">'+E(nm)+'</span>'
+          +'<label class="be2rotf">alvos<input type="number" min="1" value="'+(r.targets||1)+'" onchange="tpBErotField('+i+',\'targets\',this.value)"></label>'
+          +'<label class="be2rotf">peso<input type="number" min="1" value="'+(r.ratio||1)+'" onchange="tpBErotField('+i+',\'ratio\',this.value)"></label>'
+          +'<button type="button" class="be2rotx" onclick="tpBErotDel('+i+')">✕</button></div>'; }).join('');
+      var pick='';
+      if(BE.pickR){ var used={}; rot.forEach(function(r){used[String(r.id)]=1;});
+        var avail=Object.keys(SP).map(function(id){return {id:id,s:SP[id]};}).filter(function(x){var s=x.s; return s.vc&&s.vc.indexOf(voc)>=0 && s.sel!==false && s.vis!==false && s.st!=='homing-missile' && s.st!=='auto' && !used[x.id];}).sort(function(a,b){return String(a.s.n).localeCompare(b.s.n);});
+        var rows=avail.map(function(x){ var s=x.s, nm=s.dn||String(s.n).replace(/\s*\([^)]*\)\s*$/,''); var icd=SIC[nm];
+          return '<div class="be2pi" data-name="'+E(nm)+'" onclick="tpBErotAdd(\''+x.id+'\')">'+(icd?'<img src="'+icd+'">':'<span class="be2piemoji">🔮</span>')+'<span class="be2piname">'+E(nm)+'</span><span class="be2pimeta">'+E(s.el||'')+'</span></div>'; }).join('');
+        pick='<div class="be2picker"><div class="be2phead">Adicionar magia <button type="button" class="be2cancel" onclick="tpBErotPick()">Fechar</button></div><input class="be2psearch" placeholder="buscar magia…" oninput="tpBEfilterList(\'be2-rpl\',this.value)"><div class="be2pilist" id="be2-rpl">'+rows+'</div></div>';
+      }
+      return '<div class="be2sec"><h4>⚔️ Rotação de magias <span class="be2hint">— na ordem; alvos e peso afetam o dano</span></h4>'+(lines||'<div class="be2soon">Nenhuma magia ainda.</div>')+'<button type="button" class="be2cancel" style="margin-top:.55rem" onclick="tpBErotPick()">'+(BE.pickR?'Fechar':'+ Adicionar magia')+'</button>'+pick+'</div>';
+    }
+    window.tpBEpickSlot=function(k){ tpBECapture(); window.__BE.pick=(window.__BE.pick===k?null:k); window.__BE.pickW=false; window.__BE.pickR=false; tpBERender(); };
+    window.tpBEsetItem=function(slot,id){ tpBECapture(); var b=window.__BE.data.b; b.equip=b.equip||{}; if(id) b.equip[slot]=id; else delete b.equip[slot]; window.__BE.pick=null; tpBERender(); };
+    window.tpBEpickWeapon=function(){ tpBECapture(); window.__BE.pickW=!window.__BE.pickW; window.__BE.pick=null; window.__BE.pickR=false; tpBERender(); };
+    window.tpBEsetWeapon=function(id){ tpBECapture(); var wm=(window.__DCE&&window.__DCE.weapons&&window.__DCE.weapons[id]); if(!wm)return; var b=window.__BE.data.b; b.weapon=JSON.parse(JSON.stringify(wm)); b.wprof={}; b.shapes={}; window.__BE.pickW=false; tpBERender(); };
+    window.tpBEshapeOpen=function(li){ tpBECapture(); window.__BE.shapeLi=(window.__BE.shapeLi===li?null:li); tpBERender(); };
+    window.tpBEshapeSet=function(li){ var os=document.getElementById('be2-shopt'), rs=document.getElementById('be2-shrank'); if(!os)return; var voc=window.__BE.row.vocation; var SO=((window.__DCE||{}).shapeOpts||[]).filter(function(o){return o.voc===voc||o.voc==='all';}); var opt=SO[+os.value]; if(!opt)return; tpBECapture(); var b=window.__BE.data.b; b.shapes=b.shapes||{}; if(!b.shapes[li] && Object.keys(b.shapes).length>=2){ if(window.tpToast)tpToast('Máximo de 2 shapes.','info'); return; } b.shapes[li]={n:opt.n,voc:opt.voc,rank:+rs.value}; window.__BE.shapeLi=null; tpBERender(); };
+    window.tpBEshapeClear=function(li){ tpBECapture(); var b=window.__BE.data.b; if(b.shapes) delete b.shapes[li]; tpBERender(); };
+    window.tpBEstance=function(){ tpBECapture(); tpBERender(); };
+    window.tpBErotPick=function(){ tpBECapture(); window.__BE.pickR=!window.__BE.pickR; window.__BE.pick=null; window.__BE.pickW=false; tpBERender(); };
+    window.tpBErotAdd=function(id){ tpBECapture(); var b=window.__BE.data.b; b.rotation=b.rotation||[]; if(!b.rotation.some(function(r){return String(r.id)===String(id);})) b.rotation.push({id:+id,ratio:1,targets:1,lat:0}); tpBERender(); };
+    window.tpBErotDel=function(i){ tpBECapture(); if(window.__BE.data.b.rotation) window.__BE.data.b.rotation.splice(i,1); tpBERender(); };
+    window.tpBErotField=function(i,f,v){ tpBECapture(); var r=window.__BE.data.b.rotation&&window.__BE.data.b.rotation[i]; if(r) r[f]=parseInt(v,10)||0; };
+    function _beCss3(){ if(document.getElementById('be3-css'))return; var s=document.createElement('style'); s.id='be3-css';
+      s.textContent='#builds .be2hint{font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0;font-size:.7rem}'
+        +'#builds .be2slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:.5rem}'
+        +'#builds .be2slot{position:relative;display:flex;flex-direction:column;align-items:center;gap:.25rem;padding:.6rem .3rem;border:1px solid var(--rule);border-radius:10px;cursor:pointer;background:var(--bg-2,#16151f);transition:border-color .12s}'
+        +'#builds .be2slot:hover{border-color:var(--bamboo,#8b5cf6)}#builds .be2slot.sel{border-color:var(--gold,#c9a840);box-shadow:0 0 0 1px var(--gold,#c9a840)}#builds .be2slot.lock{opacity:.5;cursor:default}'
+        +'#builds .be2slot img{width:34px;height:34px;object-fit:contain;image-rendering:auto}#builds .be2slab{width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--muted)}#builds .be2plus{font-size:1.3rem;color:var(--muted);line-height:34px}'
+        +'#builds .be2sllbl{font-size:.6rem;color:var(--ink-2);text-align:center;line-height:1.15;max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'
+        +'#builds .be2slx{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.5);border:0;color:#fff;border-radius:50%;width:16px;height:16px;font-size:.6rem;cursor:pointer;line-height:1}'
+        +'#builds .be2picker{margin-top:.7rem;border:1px solid var(--rule);border-radius:10px;padding:.6rem;background:var(--bg-1,#0f0e15)}'
+        +'#builds .be2phead{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.8rem;margin-bottom:.5rem;text-transform:capitalize}'
+        +'#builds .be2psearch{width:100%;box-sizing:border-box;background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:.45rem .6rem;font:inherit;font-size:.85rem;margin-bottom:.5rem}'
+        +'#builds .be2pilist{max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:.15rem}'
+        +'#builds .be2pi{display:flex;align-items:center;gap:.55rem;padding:.35rem .5rem;border-radius:7px;cursor:pointer}'
+        +'#builds .be2pi:hover{background:rgba(139,92,246,.14)}#builds .be2pi img{width:26px;height:26px;object-fit:contain;image-rendering:auto}#builds .be2piemoji{width:26px;text-align:center}'
+        +'#builds .be2piname{font-size:.8rem;color:var(--ink);flex:1}#builds .be2pimeta{font-size:.68rem;color:var(--muted)}'
+        +'#builds .be2wcur{display:flex;align-items:center;gap:.7rem;padding:.5rem .6rem;border:1px solid var(--rule);border-radius:10px}#builds .be2wcur img{width:38px;height:38px;object-fit:contain}#builds .be2wemoji{font-size:1.6rem}#builds .be2wtxt{flex:1}#builds .be2wtxt b{display:block;color:var(--ink)}#builds .be2wtxt small{color:var(--muted);font-size:.7rem}'
+        +'#builds .be2ptgrid{gap:.6rem}#builds .be2ptcol{display:flex;flex-direction:column;align-items:center;gap:.3rem}#builds .bd-pti.shaped{opacity:.4}'
+        +'#builds .be2shbtn{font-size:.62rem;background:transparent;border:1px dashed var(--bamboo,#8b5cf6);color:var(--bamboo,#8b5cf6);border-radius:6px;padding:.15rem .35rem;cursor:pointer}#builds .be2shbtn.off{opacity:.35;cursor:default}'
+        +'#builds .be2shtag{font-size:.6rem;color:var(--gold,#c9a840);display:flex;align-items:center;gap:.2rem;text-align:center;line-height:1.1}#builds .be2shtag img{width:14px;height:14px}#builds .be2shtag button{background:none;border:0;color:#e0554b;cursor:pointer;font-size:.65rem}'
+        +'#builds .be2sheditor{display:flex;flex-direction:column;gap:.2rem;margin-top:.2rem}#builds .be2sheditor select,#builds .be2sheditor .be2shok{font-size:.62rem;background:var(--bg-2);border:1px solid var(--rule);color:var(--ink);border-radius:5px;padding:.15rem}#builds .be2shok{background:var(--bamboo,#8b5cf6);color:#fff;border:0;cursor:pointer;font-weight:700}'
+        +'#builds .be2rotline{display:flex;align-items:center;gap:.5rem;padding:.35rem .5rem;border:1px solid var(--rule);border-radius:8px;margin-bottom:.35rem}#builds .be2roti{width:26px;height:26px;object-fit:contain}#builds .be2rotemoji{width:26px;text-align:center}#builds .be2rotnm{flex:1;font-size:.82rem;color:var(--ink)}#builds .be2rotf{font-size:.62rem;color:var(--muted);display:flex;flex-direction:column;align-items:center}#builds .be2rotf input{width:48px;background:var(--bg-2);border:1px solid var(--rule);color:var(--ink);border-radius:5px;padding:.2rem;font:inherit;font-size:.72rem;text-align:center}#builds .be2rotx{background:none;border:0;color:#e0554b;cursor:pointer;font-size:.9rem}';
+      document.head.appendChild(s); }
     window.tpBERender=function(){
-      _beCss2(); var BE=window.__BE; if(!BE) return;
+      _beCss2(); _beCss3(); var BE=window.__BE; if(!BE) return;
       var row=BE.row, d=BE.data, guide=d.guide||(d.guide={});
       var E=window.esc||function(s){return String(s==null?'':s);};
       function F(lbl,inner){ return '<label class="be2f"><span>'+lbl+'</span>'+inner+'</label>'; }
@@ -5561,17 +5725,10 @@ PlayerName (Leader)
       var gsec='<div class="be2sec"><h4>📝 Guia</h4>'
         +F('Resumo',TA('be2-summary',guide.summary,3))+F('Estilo — título',I('be2-styletitle',guide.styleTitle))
         +F('O que a roda ativa',I('be2-wheelhi',guide.wheelHi))+F('Chips (vírgula)',I('be2-chips',(guide.chips||[]).join(', ')))
-        +F('Rotação (1/linha)',TA('be2-rotation',guide.rotation,4))+F('Insights (1/linha)',TA('be2-insights',guide.insights,4))
+        +F('Rotação — passos em texto (1/linha)',TA('be2-rotation',guide.rotation,4))+F('Insights (1/linha)',TA('be2-insights',guide.insights,4))
         +'</div>';
-      // ---- Editor mecânico = CALCULADORA REAL embutida (roda + set + proficiência + modificadores) ----
-      var _cd={}; for(var k in d){ if(k!=='guide') _cd[k]=d[k]; }
-      var code=encodeBuild(_cd);
-      var frame='<div class="be2sec be2calcsec"><h4>🧮 Build — roda, set, proficiência e modificadores <span style="font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0">— a calculadora de verdade</span></h4>'
-        +'<div class="be2soon" style="margin-bottom:.7rem">Edite tudo aqui exatamente como na calculadora (roda com gemas/revelação, picker de itens com ícones, proficiência, modificadores). O <b>dano é recalculado automaticamente</b> quando você salva.</div>'
-        +'<iframe id="be2-calc" class="be2calcframe" src="/calculadora-dano.html#b='+encodeURIComponent(code)+'" title="Editor da build" style="width:100%;height:1600px;border:1px solid var(--rule);border-radius:12px;background:#0d0c12"></iframe></div>';
       var host=document.getElementById('bld-detail'); if(!host) return;
-      host.innerHTML='<div class="be2">'+bar+meta+frame+gsec+'</div>';
-      _beCalcBridge();
+      host.innerHTML='<div class="be2">'+bar+meta+_beModsHtml()+_beWeaponHtml3()+_beProfHtml3()+_beSetHtml()+_beWheelHtml()+_beStanceHtml()+_beRotHtml()+gsec+'</div>';
     };
     window.tpBEprof=function(li,oi){ tpBECapture(); var b=window.__BE.data.b; b.wprof=b.wprof||{}; if(+b.wprof[li]===oi) delete b.wprof[li]; else b.wprof[li]=oi; tpBERender(); };
     /* ===== Fatia 3 — Editor da Roda do Destino (pontos + gemas) + troca de arma ===== */
@@ -5732,20 +5889,20 @@ PlayerName (Leader)
     }
     window.tpBESave=async function(){
       var BE=window.__BE; if(!BE) return; tpBECapture();
-      var row=BE.row, guide=BE.data.guide||{};
-      var btn=document.getElementById('be2-savebtn')||document.querySelector('#builds .be2save'); if(btn){btn.disabled=true;btn.textContent='Calculando…';}
-      var res=await _beGetCalcBuild(5000);
-      if(!res || res.err || !res.o || !res.o.b){ if(window.tpToast) tpToast('Não consegui ler a build da calculadora — tente de novo.','error'); if(btn){btn.disabled=false;btn.textContent='💾 Salvar';} return; }
+      var row=BE.row, d=BE.data;
+      var _cd={ fmt:d.fmt||1, voc:d.voc||row.vocation, inp:d.inp||{}, b:d.b||{}, tg:d.tg||[], ut:!!d.ut, ex:!!d.ex };
+      var code=encodeBuild(_cd);
+      var btn=document.getElementById('be2-savebtn')||document.querySelector('#builds .be2save'); if(btn){btn.disabled=true;btn.textContent='Calculando dano…';}
+      var dano=await _beCompDano(code);
       if(btn) btn.textContent='Salvando…';
-      var o=res.o; // {fmt,voc,inp,b,tg,ut,ex}
-      var newData={ fmt:o.fmt||1, voc:o.voc||row.vocation, inp:o.inp||{}, b:o.b||{}, tg:o.tg||[], ut:!!o.ut, ex:!!o.ex, guide:guide };
-      var dano=Math.round(res.dano||0);
-      var ml=parseInt((o.inp||{}).ml,10)||row.ml||0;
-      var payload={ name:row.name, element:row.element, dano:dano, ml:ml, status:row.status, data:newData, updated_at:new Date().toISOString() };
+      var newData={ fmt:_cd.fmt, voc:_cd.voc, inp:_cd.inp, b:_cd.b, tg:_cd.tg, ut:_cd.ut, ex:_cd.ex, guide:(d.guide||{}) };
+      var _dano=(dano!=null?dano:(row.dano||0));
+      var ml=parseInt((_cd.inp||{}).ml,10)||row.ml||0;
+      var payload={ name:row.name, element:row.element, dano:_dano, ml:ml, status:row.status, data:newData, updated_at:new Date().toISOString() };
       try{
         var r=await (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/builds?id=eq.'+BE.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(payload)});
         if(!r.ok) throw new Error('PATCH '+r.status);
-        if(window.tpToast) tpToast('Build salva! Dano recalculado: '+dano.toLocaleString('pt-BR')+' ✅','success'); window.__BE=null;
+        if(window.tpToast) tpToast('Build salva!'+(dano!=null?(' Dano: '+_dano.toLocaleString('pt-BR')):'')+' ✅','success'); window.__BE=null;
         setTimeout(function(){ location.reload(); },800);
       }catch(e){ if(window.tpToast) tpToast('Não consegui salvar (confirme que você é admin).','error'); if(btn){btn.disabled=false;btn.textContent='💾 Salvar';} }
     };
