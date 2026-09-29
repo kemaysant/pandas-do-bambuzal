@@ -5395,7 +5395,12 @@ PlayerName (Leader)
     };
     /* ===== Editor de build in-place (Fase 2 / Caminho B) ===== */
     function _beCss2(){ if(document.getElementById('be2-css'))return; var s=document.createElement('style'); s.id='be2-css';
-      s.textContent='#builds .be2{padding:0 0 5rem}#builds .be2bar{position:sticky;top:0;z-index:50;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;background:linear-gradient(180deg,var(--bg-1,#0f0e15) 60%,rgba(15,14,21,.85));border-bottom:1px solid var(--rule);padding:.7rem .2rem;margin-bottom:1rem}#builds .be2bar b{font-family:Cinzel,serif;color:var(--gold,#c9a840)}#builds .be2save{margin-left:auto;background:var(--bamboo,#8b5cf6);border:0;color:#fff;border-radius:9px;padding:.5rem 1rem;font:inherit;font-weight:800;cursor:pointer}#builds .be2cancel{background:var(--bg-2);border:1px solid var(--rule);color:var(--ink-2);border-radius:9px;padding:.5rem 1rem;font:inherit;font-weight:700;cursor:pointer}#builds .be2sec{background:var(--surface,#17161f);border:1px solid var(--rule);border-radius:14px;padding:15px 16px;margin-bottom:1rem}#builds .be2sec h4{font-family:Inter,sans-serif;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 .9rem}#builds .be2grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}#builds .be2f{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.5rem}#builds .be2f span{font-size:.68rem;color:var(--ink-3);font-weight:700}#builds .be2f input,#builds .be2f select,#builds .be2f textarea{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:.5rem .6rem;font:inherit;font-size:.85rem;width:100%;box-sizing:border-box}#builds .be2f textarea{resize:vertical;line-height:1.4}#builds .be2soon{font-size:.8rem;color:var(--muted);font-style:italic;line-height:1.5}#builds .be2 .bd-pti{cursor:pointer}#builds .be2 .bd-pti:hover{outline:2px solid var(--bamboo,#8b5cf6);outline-offset:1px}';
+      s.textContent='#builds .be2{padding:0 0 5rem}#builds .be2bar{position:sticky;top:0;z-index:50;display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;background:linear-gradient(180deg,var(--bg-1,#0f0e15) 60%,rgba(15,14,21,.85));border-bottom:1px solid var(--rule);padding:.7rem .2rem;margin-bottom:1rem}#builds .be2bar b{font-family:Cinzel,serif;color:var(--gold,#c9a840)}#builds .be2save{margin-left:auto;background:var(--bamboo,#8b5cf6);border:0;color:#fff;border-radius:9px;padding:.5rem 1rem;font:inherit;font-weight:800;cursor:pointer}#builds .be2cancel{background:var(--bg-2);border:1px solid var(--rule);color:var(--ink-2);border-radius:9px;padding:.5rem 1rem;font:inherit;font-weight:700;cursor:pointer}#builds .be2sec{background:var(--surface,#17161f);border:1px solid var(--rule);border-radius:14px;padding:15px 16px;margin-bottom:1rem}#builds .be2sec h4{font-family:Inter,sans-serif;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 .9rem}#builds .be2grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem}#builds .be2f{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.5rem}#builds .be2f span{font-size:.68rem;color:var(--ink-3);font-weight:700}#builds .be2f input,#builds .be2f select,#builds .be2f textarea{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:.5rem .6rem;font:inherit;font-size:.85rem;width:100%;box-sizing:border-box}#builds .be2f textarea{resize:vertical;line-height:1.4}#builds .be2soon{font-size:.8rem;color:var(--muted);font-style:italic;line-height:1.5}#builds .be2 .bd-pti{cursor:pointer}#builds .be2 .bd-pti:hover{outline:2px solid var(--bamboo,#8b5cf6);outline-offset:1px}'
+      +'.bewheel-wrap{display:flex;gap:1.2rem;flex-wrap:wrap;align-items:flex-start}.bewheel-left{flex:0 0 auto}.bewheel-right{flex:1 1 260px;min-width:240px}.bewheel-svg{display:block;max-width:100%;height:auto;filter:drop-shadow(0 6px 18px rgba(0,0,0,.4))}.bewheel-svg path:hover{fill-opacity:.95!important}.bewheel-ctrls{display:flex;gap:.5rem;margin:.7rem 0 .4rem;flex-wrap:wrap}.bewheel-ctrls .be2cancel{flex:1}'
+      +'.bewheel-flat{font-size:.85rem;color:var(--ink);background:rgba(201,168,64,.08);border:1px solid rgba(201,168,64,.25);border-radius:8px;padding:.5rem .6rem}.bewheel-flat.off{color:var(--muted);background:transparent;border-color:var(--rule)}.bewheel-flat b{color:var(--gold,#c9a840)}.bewheel-over{font-size:.82rem;color:#e0554b;background:rgba(224,85,75,.1);border:1px solid rgba(224,85,75,.35);border-radius:8px;padding:.45rem .6rem;margin-bottom:.4rem}'
+      +'.bewheel-doms{display:flex;flex-direction:column;gap:.35rem}.bewheel-dom{display:grid;grid-template-columns:auto 1fr auto;gap:.5rem;align-items:center;padding:.4rem .55rem;border:1px solid var(--rule);border-radius:8px;font-size:.82rem}.bewheel-dom.hit{border-color:rgba(201,168,64,.4);background:rgba(201,168,64,.05)}.bewheel-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}.bewheel-dn{font-weight:600;color:var(--ink)}.bewheel-dp{color:var(--ink);font-variant-numeric:tabular-nums;text-align:right}.bewheel-dp small{color:var(--muted)}.bewheel-ds{font-size:.72rem;color:var(--muted);grid-column:2/-1;justify-self:start}.bewheel-ds.on{color:var(--gold,#c9a840);font-weight:700}.bewheel-df{display:none}'
+      +'.bewheel-subh{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:.9rem 0 .5rem;font-weight:700}.bewheel-augs{margin-top:.8rem}.bewheel-aug{display:flex;gap:.5rem;align-items:center;font-size:.8rem;padding:.3rem .5rem;color:var(--muted)}.bewheel-aug.on{color:var(--ink)}.bewheel-aug b{margin-left:auto;font-size:.72rem}.bewheel-aug.on b{color:var(--gold,#c9a840)}.bewheel-adot{width:8px;height:8px;border-radius:50%;background:var(--rule)}.bewheel-adot.on{background:var(--gold,#c9a840)}'
+      +'.bewheel-gems{margin-top:1rem}.bewheel-vessel{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;padding:.5rem .6rem;border:1px solid var(--rule);border-radius:8px;margin-bottom:.45rem;font-size:.82rem}.bewheel-vessel.on{border-color:rgba(201,168,64,.4);background:rgba(201,168,64,.05)}.bewheel-vessel.off{opacity:.55}.bewheel-vn{font-weight:600;color:var(--ink);min-width:120px}.bewheel-vn small{color:var(--muted);font-weight:400}.bewheel-vlock{color:var(--muted);font-size:.78rem;font-style:italic}.bewheel-gemimg{width:20px;height:20px;image-rendering:pixelated}.bewheel-tier{width:120px}.bewheel-modin{flex:1;min-width:150px}.bewheel-tier,.bewheel-modin{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .5rem;font:inherit;font-size:.82rem}';
       document.head.appendChild(s); }
     window.tpBuildEditor=async function(id){
       if(!id) return;
@@ -5421,6 +5426,7 @@ PlayerName (Leader)
       var ch=g('be2-chips'); if(ch!=null) guide.chips=ch.split(',').map(function(x){return x.trim();}).filter(Boolean);
       var rot=lines('be2-rotation'); if(rot!=null) guide.rotation=rot;
       var ins=lines('be2-insights'); if(ins!=null) guide.insights=ins;
+      var wn=g('be2-wname'); if(wn!=null){ b.weapon=b.weapon||{}; b.weapon.name=wn; } var wd=g('be2-wdmg'); if(wd!=null){ b.weapon=b.weapon||{}; b.weapon.damageType=wd; }
       d.b=b; d.inp=inp; d.guide=guide;
     };
     window.tpBERender=function(){
@@ -5470,13 +5476,160 @@ PlayerName (Leader)
       var setsec='<div class="be2sec"><h4>🎒 Set / Equipamentos <span style="font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0">— catálogo real do jogo · digite pra buscar</span></h4>'
         +presetHtml
         +'<div class="be2grid">'+eqfields+'</div>'
-        +'<div class="be2soon" style="margin-top:.6rem">🗡️ Arma atual: <b>'+E(wname)+'</b> — a troca de arma (que muda a árvore de proficiência) entra junto do editor de roda, na próxima fatia.</div>'
+        +'<div class="be2soon" style="margin-top:.6rem">🗡️ Arma atual: <b>'+E(wname)+'</b> — a troca de arma fica na seção <b>Arma</b> acima (muda a árvore de proficiência).</div>'
         +dls+'</div>';
-      var wheelsoon='<div class="be2sec"><h4>🎡 Roda com gemas</h4><div class="be2soon">Editor visual da roda (alocar pontos + colocar gemas/vessels, estilo planner do Tibia) é a próxima fatia.</div></div>';
+      var weaponSec=_beWeaponHtml();
+      var wheelSec=_beWheelHtml();
       var host=document.getElementById('bld-detail'); if(!host) return;
-      host.innerHTML='<div class="be2">'+bar+meta+mods+prof+setsec+gsec+wheelsoon+'</div>';
+      host.innerHTML='<div class="be2">'+bar+meta+mods+weaponSec+prof+setsec+wheelSec+gsec+'</div>';
     };
     window.tpBEprof=function(li,oi){ tpBECapture(); var b=window.__BE.data.b; b.wprof=b.wprof||{}; if(+b.wprof[li]===oi) delete b.wprof[li]; else b.wprof[li]=oi; tpBERender(); };
+    /* ===== Fatia 3 — Editor da Roda do Destino (pontos + gemas) + troca de arma ===== */
+    function _beVoc(){ return String((window.__BE&&window.__BE.row&&window.__BE.row.vocation)||'').toLowerCase(); }
+    function _beWheelBudget(){
+      var el=document.getElementById('be2-level'); var lv=el?parseInt(el.value,10):((window.__BE&&window.__BE.data.inp&&window.__BE.data.inp.level)||0);
+      lv=+lv||0; var W=TP_WHEEL[_beVoc()]; var cap=W?W.total:4000;
+      return Math.max(0,Math.min(lv-50,cap));
+    }
+    function _beWheelUsed(){ var b=window.__BE?window.__BE.data.b:{}; var wp=b.wheelPts||{}; var t=0; Object.keys(wp).forEach(function(k){ t+=+wp[k]||0; }); return t; }
+    function _beWheelCompute(){
+      var voc=_beVoc(), W=TP_WHEEL[voc]; if(!W) return null;
+      var b=window.__BE.data.b, wp=b.wheelPts||{};
+      var domPts=[0,0,0,0];
+      W.slots.forEach(function(s){ domPts[s.dom]+=Math.max(0,Math.min(+wp[s.i]||0,s.max)); });
+      function stg(p){ var s=0; W.stageAt.forEach(function(th){ if(p>=th)s++; }); return s; }
+      var stages=domPts.map(stg), flat=0; stages.forEach(function(s){ flat+=W.revDmg[s]||0; });
+      return {W:W,voc:voc,wp:wp,domPts:domPts,stages:stages,flat:flat,used:_beWheelUsed(),budget:_beWheelBudget()};
+    }
+    window.tpBEwheelPt=function(i,delta,ev){
+      if(ev){ if(ev.preventDefault)ev.preventDefault(); if(ev.shiftKey&&delta>0)delta=-delta; }
+      var BE=window.__BE; if(!BE) return false;
+      tpBECapture();
+      var voc=_beVoc(), W=TP_WHEEL[voc]; if(!W) return false;
+      var slot=null; for(var k=0;k<W.slots.length;k++){ if(W.slots[k].i===i){ slot=W.slots[k]; break; } }
+      if(!slot) return false;
+      var b=BE.data.b; b.wheelPts=b.wheelPts||{};
+      var cur=+b.wheelPts[i]||0, nv=cur+delta;
+      if(nv<0)nv=0; if(nv>slot.max)nv=slot.max;
+      if(nv>cur){ var budget=_beWheelBudget(), used=_beWheelUsed(); var avail=budget-(used-cur); if(avail<cur)avail=cur; if(nv>avail){ nv=Math.max(cur,avail); if(nv===cur){ if(window.tpToast) tpToast('Sem pontos disponíveis — suba o nível ou tire de outra fatia.','info'); } } }
+      if(nv<=0) delete b.wheelPts[i]; else b.wheelPts[i]=nv;
+      tpBERender();
+      return false;
+    };
+    window.tpBEwheelAuto=function(){
+      var BE=window.__BE; if(!BE) return; tpBECapture();
+      var voc=_beVoc(); var el=document.getElementById('be2-level'); var lv=el?parseInt(el.value,10):((BE.data.inp||{}).level||0); lv=+lv||0;
+      var mode=(voc==='sorcerer' && (BE.data.b.stance==='thunder'))?'thunder':null;
+      var A=tpWheelAlloc(voc,lv,mode);
+      if(!A){ if(window.tpToast) tpToast('Não consegui montar a roda automática pra esse nível.','error'); return; }
+      BE.data.b.wheelPts={}; Object.keys(A.pts).forEach(function(i){ if(A.pts[i]>0) BE.data.b.wheelPts[i]=A.pts[i]; });
+      tpBERender(); if(window.tpToast) tpToast('Roda preenchida pelo nível '+(lv||'?')+' — ajuste como quiser.','success');
+    };
+    window.tpBEwheelClear=function(){ var BE=window.__BE; if(!BE) return; tpBECapture(); BE.data.b.wheelPts={}; tpBERender(); };
+    window.tpBEgem=function(dom,field,val){
+      var BE=window.__BE; if(!BE) return; tpBECapture();
+      var b=BE.data.b; b.gems=b.gems||{}; b.gems[dom]=b.gems[dom]||{};
+      if(field==='tier'){ if(!val) delete b.gems[dom]; else b.gems[dom].tier=val; }
+      else { if(val==='') delete b.gems[dom][field]; else b.gems[dom][field]=val; }
+      if(b.gems[dom] && !b.gems[dom].tier) delete b.gems[dom];
+      tpBERender();
+    };
+    window.tpBEweapon=function(pc){
+      var BE=window.__BE; if(!BE) return; tpBECapture();
+      var b=BE.data.b; b.weapon=b.weapon||{}; b.weapon.profClass=pc||''; b.wprof={};
+      tpBERender();
+    };
+    var _BE_GEMSUP={sorcerer:['Great Death','Great Energy Beam','Great Fire Wave'],druid:['Strong Ice Wave','Ice Burst','Terra Wave'],knight:['Front Sweep',"Executioner's Throw",'Fierce Berserk'],paladin:['Ethereal Spear','Divine Missile','Divine Caldera'],monk:['Forceful Uppercut','Mystic Repulse','Flurry of Blows']};
+    var _BE_RMSUP={sorcerer:['Beam Mastery','Lord of Destruction'],druid:['Twin Bursts','Blessing of the Grove'],knight:['Combat Mastery',"Executioner's Throw"],paladin:['Divine Empowerment','Divine Grenade'],monk:['Ascetic','Spiritual Outburst']};
+    var _BE_TIERLBL={lesser:'Lesser',regular:'Regular',greater:'Greater'};
+    function _beWheelHtml(){
+      var C=_beWheelCompute(); if(!C) return '<div class="be2sec"><h4>🎡 Roda do Destino</h4><div class="be2soon">Sem dados de roda pra esta vocação.</div></div>';
+      var W=C.W, voc=C.voc, wp=C.wp, E=window.esc||function(s){return String(s==null?'':s);};
+      var over=C.used>C.budget;
+      /* SVG interativo — geometria real do TP_WHEEL */
+      var paths=W.slots.map(function(s){
+        var dom=W.domains[s.dom], pv=Math.max(0,Math.min(+wp[s.i]||0,s.max)), frac=s.max?pv/s.max:0;
+        var op=(pv>0)?(0.30+0.70*frac):0.10;
+        var col=(pv>0)?(dom.bright||dom.color):dom.color;
+        var title=E(dom.name)+' · '+pv+'/'+s.max+' pts (anel '+s.ring+')';
+        return '<path d="'+s.d+'" fill="'+col+'" fill-opacity="'+op.toFixed(2)+'" stroke="#0d1117" stroke-width="1.4" '
+          +'style="cursor:pointer;transition:fill-opacity .12s" '
+          +'onclick="tpBEwheelPt('+s.i+',25,event)" oncontextmenu="return tpBEwheelPt('+s.i+',-25,event)"><title>'+title+'</title></path>';
+      }).join('');
+      var svg='<svg class="bewheel-svg" viewBox="0 0 522 522" width="360" height="360" role="img" aria-label="Roda do Destino editável">'+paths
+        +'<circle cx="261" cy="261" r="52" fill="#0d1117" stroke="#2a2f3a" stroke-width="1.5"/>'
+        +'<text x="261" y="255" text-anchor="middle" fill="#e6edf3" font-size="30" font-weight="800">'+C.used+'</text>'
+        +'<text x="261" y="278" text-anchor="middle" fill="#7d8590" font-size="13">/'+C.budget+' pts</text>'
+        +'</svg>';
+      /* resumo por domínio */
+      var rows=[3,0,2,1].map(function(dm){
+        var d=W.domains[dm], stgN=C.stages[dm], p=C.domPts[dm];
+        var next=W.stageAt.filter(function(th){return p<th;})[0];
+        var faltam=next?(' · faltam '+(next-p)+' p/ Est.'+TP_WROMAN[C.stages[dm]+1]):'';
+        return '<div class="bewheel-dom'+(stgN>0?' hit':'')+'"><span class="bewheel-dot" style="background:'+d.color+'"></span>'
+          +'<span class="bewheel-dn">'+E(d.name)+'</span>'
+          +'<span class="bewheel-dp">'+p+'<small>/1000</small></span>'
+          +'<span class="bewheel-ds'+(stgN>0?' on':'')+'">'+(stgN>0?'Estágio '+TP_WROMAN[stgN]:'—')+'</span>'
+          +'<span class="bewheel-df">'+(next?faltam.replace(' · ',''):'máx')+'</span></div>';
+      }).join('');
+      /* augments */
+      var byId={}; W.slots.forEach(function(s){byId[s.i]=s;});
+      var augList=TP_AUG[voc]||[];
+      var augHtml=augList.length?('<div class="bewheel-augs"><div class="bewheel-subh">Habilidades potencializadas (augments)</div>'+augList.map(function(a){
+        var st=a.s.filter(function(si){return (+wp[si]||0)>=(byId[si]?byId[si].max:9999);}).length; var on=st>0;
+        return '<div class="bewheel-aug'+(on?' on':'')+'"><span class="bewheel-adot'+(on?' on':'')+'"></span><span>'+E(a.n)+'</span><b>'+(on?'Aug. '+TP_WROMAN[st]:'—')+'</b></div>';
+      }).join('')+'</div>'):'';
+      /* gemas / vessels por domínio, gated pelo estágio de revelação */
+      var gems=window.__BE.data.b.gems||{};
+      var vgimg=(typeof TP_VOCGEM!=='undefined'?(TP_VOCGEM[voc]||''):'');
+      var supList=(_BE_GEMSUP[voc]||[]).concat(_BE_RMSUP[voc]||[]);
+      var supDL='<datalist id="be2-gemsup">'+supList.map(function(x){return '<option value="'+E(x)+'">';}).join('')+'</datalist>';
+      var vessels=[3,0,2,1].map(function(dm){
+        var d=W.domains[dm], stgN=C.stages[dm];
+        var maxTier=stgN>=3?'greater':(stgN>=2?'regular':(stgN>=1?'lesser':''));
+        var g=gems[dm]||{};
+        if(!maxTier){
+          return '<div class="bewheel-vessel off"><span class="bewheel-dot" style="background:'+d.color+'"></span><span class="bewheel-vn">'+E(d.name)+'</span><span class="bewheel-vlock">🔒 sem revelação (Est. I = '+W.stageAt[0]+' pts)</span></div>';
+        }
+        var tiers=[['','—']]; if(stgN>=1)tiers.push(['lesser','Lesser']); if(stgN>=2)tiers.push(['regular','Regular']); if(stgN>=3)tiers.push(['greater','Greater']);
+        var tierSel='<select class="bewheel-tier" onchange="tpBEgem('+dm+',\'tier\',this.value)">'+tiers.map(function(t){return '<option value="'+t[0]+'"'+(g.tier===t[0]?' selected':'')+'>'+t[1]+'</option>';}).join('')+'</select>';
+        var modInp='<input class="bewheel-modin" list="be2-gemsup" placeholder="modificador supremo…" value="'+E(g.mod||'')+'" oninput="tpBEgem('+dm+',\'mod\',this.value)">';
+        return '<div class="bewheel-vessel'+(g.tier?' on':'')+'">'
+          +'<span class="bewheel-dot" style="background:'+d.color+'"></span>'
+          +'<span class="bewheel-vn">'+E(d.name)+' <small>(vessel até '+_BE_TIERLBL[maxTier]+')</small></span>'
+          +(g.tier&&vgimg?'<img class="bewheel-gemimg" src="'+vgimg+'" alt="gema">':'')
+          +tierSel+modInp+'</div>';
+      }).join('');
+      var flatLine=(C.flat>0)?('<div class="bewheel-flat">Dano &amp; Cura da roda: <b>+'+C.flat+'</b> de revelação'+(over?'':'')+'</div>')
+        :('<div class="bewheel-flat off">Nenhum estágio de revelação ainda (Est. I = '+W.stageAt[0]+' pts / nível '+(W.stageAt[0]+50)+')</div>');
+      var overWarn=over?('<div class="bewheel-over">⚠ '+C.used+' pts alocados, mas o nível só dá '+C.budget+'. Reduza ou suba o nível.</div>'):'';
+      return '<div class="be2sec"><h4>🎡 Roda do Destino <span style="font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0">— clique numa fatia: +25 · botão direito/Shift: −25</span></h4>'
+        +'<div class="bewheel-wrap">'
+          +'<div class="bewheel-left">'+svg
+            +'<div class="bewheel-ctrls"><button type="button" class="be2cancel" onclick="tpBEwheelAuto()">✨ Auto por nível</button><button type="button" class="be2cancel" onclick="tpBEwheelClear()">🗑️ Limpar</button></div>'
+            +overWarn+flatLine
+          +'</div>'
+          +'<div class="bewheel-right"><div class="bewheel-doms">'+rows+'</div>'+augHtml+'</div>'
+        +'</div>'
+        +'<div class="bewheel-gems"><div class="bewheel-subh">💎 Gemas / Vessels <span style="font-weight:400;color:var(--ink-3);text-transform:none">— desbloqueiam conforme o estágio de revelação de cada domínio</span></div>'+vessels+'</div>'+supDL
+        +'</div>';
+    }
+    function _beWeaponHtml(){
+      var b=window.__BE.data.b, w=b.weapon||{}, E=window.esc||function(s){return String(s==null?'':s);};
+      var voc=_beVoc();
+      var TYPES={sorcerer:['Rod','Wand'],druid:['Rod','Wand'],knight:['Axe','Fist','Sword','Club'],monk:['Fist'],paladin:['Bow','Crossbow']};
+      var allow=TYPES[voc]||null;
+      var keys=Object.keys((typeof TP_PTREE!=='undefined'?TP_PTREE:{}));
+      if(allow) keys=keys.filter(function(k){ return allow.some(function(t){ return k.indexOf(' '+t)>-1 || k.indexOf(t+' ')>-1 || k.indexOf(t)>-1; }); });
+      if(!keys.length) keys=Object.keys((typeof TP_PTREE!=='undefined'?TP_PTREE:{}));
+      var opts='<option value="">— sem árvore —</option>'+keys.map(function(k){ return '<option value="'+E(k)+'"'+(w.profClass===k?' selected':'')+'>'+E(k)+'</option>'; }).join('');
+      return '<div class="be2sec"><h4>🗡️ Arma <span style="font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0">— troca a classe de proficiência</span></h4>'
+        +'<div class="be2grid">'
+          +'<label class="be2f"><span>Nome da arma</span><input id="be2-wname" value="'+E(w.name||'')+'"></label>'
+          +'<label class="be2f"><span>Tipo de dano</span><input id="be2-wdmg" value="'+E(w.damageType||'')+'"></label>'
+          +'<label class="be2f" style="grid-column:1/-1"><span>Classe de proficiência</span><select id="be2-wprofclass" onchange="tpBEweapon(this.value)">'+opts+'</select></label>'
+        +'</div><div class="be2soon" style="margin-top:.5rem">Trocar a classe reseta as marcações de proficiência (árvore nova).</div></div>';
+    }
     window.__TPITEMS=window.__TPITEMS||null; window.__TPITEMSBYSLUG=window.__TPITEMSBYSLUG||{};
     async function tpLoadItemCat(){ if(window.__TPITEMS) return; try{ var r=await fetch('assets/data/tibia-items.json'); var j=await r.json(); window.__TPITEMS=j; var idx={}; Object.keys(j).forEach(function(sl){ (j[sl]||[]).forEach(function(it){ idx[it.s]=it.n; }); }); window.__TPITEMSBYSLUG=idx; }catch(e){ window.__TPITEMS={}; } }
     function _tpSlug(n){ return String(n||'').toLowerCase().replace(/['’]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''); }
