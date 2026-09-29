@@ -4848,6 +4848,22 @@ PlayerName (Leader)
       #builds .bd-wastage.on{color:var(--bamboo-light,#8fd694)}
       #builds .bd-wcap{font-size:.67rem;color:var(--ink-3);line-height:1.45;opacity:.85}
       #builds .bd-wgems{margin:.2rem 0 .1rem}
+      #builds .bd-wmiles{margin:.55rem 0 .2rem}
+      #builds .bd-mileq{display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:50%;background:var(--bg-2);border:1px solid var(--border);color:var(--ink-3);font-size:.58rem;cursor:help;margin-left:.25rem;vertical-align:middle}
+      #builds .bd-milehead{font-size:.76rem;color:var(--ink-2);line-height:1.45;margin:.1rem 0 .4rem}
+      #builds .bd-milehead b{color:var(--ink)}
+      #builds .bd-milelist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.28rem}
+      #builds .bd-mile{display:flex;gap:.5rem;align-items:flex-start;padding:.34rem .45rem;border:1px solid var(--border);border-radius:8px;background:var(--bg-1);opacity:.55}
+      #builds .bd-mile.ok{opacity:1;border-color:rgba(75,208,122,.4);background:linear-gradient(90deg,rgba(75,208,122,.08),transparent)}
+      #builds .bd-mile.next{opacity:1;border-color:var(--gold);background:linear-gradient(90deg,var(--gold-dim),transparent)}
+      #builds .bd-milept{flex:0 0 auto;min-width:38px;font-size:.72rem;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.1}
+      #builds .bd-milept small{display:block;font-size:.52rem;font-weight:600;color:var(--ink-3);letter-spacing:.02em}
+      #builds .bd-mile.ok .bd-milept{color:var(--bamboo-light,#4bd07a)}
+      #builds .bd-mile.next .bd-milept{color:var(--gold)}
+      #builds .bd-miletxt{display:flex;flex-direction:column;gap:.05rem;min-width:0}
+      #builds .bd-miletxt b{font-size:.74rem;color:var(--ink);font-weight:700;line-height:1.25}
+      #builds .bd-miled{font-size:.68rem;color:var(--ink-2);line-height:1.3}
+      #builds .bd-milelvl{font-size:.62rem;color:var(--ink-3);margin-top:.1rem}
       #builds .bd-wgemtxt{font-size:.76rem;color:var(--ink-2);line-height:1.5;background:rgba(201,168,64,.08);border:1px solid rgba(201,168,64,.22);border-radius:8px;padding:.4rem .55rem}
       #builds .bd-wgemtxt b{color:var(--ink)}
       @media(max-width:560px){#builds .bd-wheelwrap{justify-content:center}#builds .bd-wheelsvg,#builds .bd-wheelimg{max-width:320px}}
@@ -5004,6 +5020,41 @@ PlayerName (Leader)
       var stages=domPts.map(stg), flat=0; stages.forEach(function(s){flat+=W.revDmg[s]||0;});
       return {pts:pts,domPts:domPts,stages:stages,flat:flat,total:P,cap:W.total,prim:PRIM,sec:SEC};
     }
+    /* Marcos da Roda do Destino — o que cada quantidade de pontos de promoção libera (fonte: TibiaWiki / CIP). Pontos = nível − 50 (a partir do 51). */
+    var TP_MILESTONES=[
+      {p:250,  t:'1º Revelation Perk (Estágio 1)', d:'+4 de Dano &amp; Cura no domínio'},
+      {p:500,  t:'Revelation Perk Estágio 2', d:'+9 de Dano &amp; Cura'},
+      {p:575,  t:'1º Conviction Perk (fatia externa)', d:'melhorias fortes de spell — ex: −2s de CD do Death Echo (6s→4s)'},
+      {p:750,  t:'Estágio 2 + Estágio 1 (ou três Estágio 1)', d:'segundo domínio ofensivo entra'},
+      {p:825,  t:'Est. 2 + Est. 1 oposto + Conviction', d:'dois lados + perk de spell'},
+      {p:1000, t:'Dois Estágio 2 · ou um Estágio 3', d:'+20 de D&amp;H no Estágio 3'},
+      {p:1075, t:'Dois Estágio 2 opostos + Conviction', d:''},
+      {p:1150, t:'Dois Est. 2 opostos + os dois Conviction', d:''},
+      {p:1250, t:'Dois Est. 2 + Est. 1 · ou Est. 3 + Est. 1', d:''},
+      {p:1500, t:'Estágio 3 + Estágio 2', d:''},
+      {p:1675, t:'Três Estágio 2 + três Conviction', d:'roda "completa"'}
+    ];
+    function tpMilestonesHtml(pts, level){
+      pts=+pts||0;
+      var reached=TP_MILESTONES.filter(function(m){return pts>=m.p;});
+      var nextM=TP_MILESTONES.filter(function(m){return pts<m.p;})[0];
+      // mostra: os já atingidos + o próximo + o seguinte (pra dar contexto), sem inundar
+      var idxNext=nextM?TP_MILESTONES.indexOf(nextM):TP_MILESTONES.length;
+      var show=TP_MILESTONES.slice(0, Math.min(TP_MILESTONES.length, idxNext+2));
+      var rows=show.map(function(m){
+        var ok=pts>=m.p, isNext=nextM&&m.p===nextM.p;
+        var lvl=m.p+50, faltam=m.p-pts;
+        return '<li class="bd-mile'+(ok?' ok':'')+(isNext?' next':'')+'">'
+          +'<span class="bd-milept">'+m.p+'<small>pts</small></span>'
+          +'<span class="bd-miletxt"><b>'+m.t+'</b>'+(m.d?'<span class="bd-miled">'+m.d+'</span>':'')
+          +'<span class="bd-milelvl">nível '+lvl+(ok?' · ✓ liberado':(isNext?(' · faltam '+faltam+' pts'):' · bloqueado'))+'</span></span></li>';
+      }).join('');
+      var head='Com <b>'+pts+' pts</b>'+(level?(' (nível '+level+')'):'')+': '
+        +(reached.length?('<b>'+reached[reached.length-1].t.replace(/ \(.*/,'')+'</b> é o marco mais alto que dá pra montar.'):'ainda abaixo do 1º marco (250 pts / nível 300).')
+        +(nextM?(' Próximo em <b>'+nextM.p+' pts</b> (nível '+(nextM.p+50)+').'):' Roda no teto de marcos.');
+      return '<div class="bd-wmiles"><div class="bd-waugh">Marcos da Roda <span class="bd-mileq" title="Pontos de promoção = nível − 50 (a partir do 51). Cada marco libera combinações da roda — revelação (Estágios 1/2/3 = +4/+9/+20 D&amp;H) e Conviction Perks (melhoram spells).">?</span></div>'
+        +'<div class="bd-milehead">'+head+'</div><ul class="bd-milelist">'+rows+'</ul></div>';
+    }
     function tpWheelSVG(voc,level,id,mode){
       var W=TP_WHEEL[voc]; if(!W)return '';
       var A=tpWheelAlloc(voc,level,mode); if(!A)return '';
@@ -5061,7 +5112,7 @@ PlayerName (Leader)
       }
       var gemHtml='<div class="bd-wgems"><div class="bd-waugh">Gemas</div><div class="bd-wgemtxt">'+_gemTxt+'</div></div>';
       var side='<div class="bd-wside"><div class="bd-wpts">'+A.total+' <span>pontos de promoção</span></div>'
-        +flatLine+'<div class="bd-wdoms">'+rows+'</div>'+augHtml+gemHtml+'<div class="bd-wtip">'+tip+'</div>'
+        +flatLine+'<div class="bd-wdoms">'+rows+'</div>'+augHtml+gemHtml+tpMilestonesHtml(A.total,level)+'<div class="bd-wtip">'+tip+'</div>'
         +'<div class="bd-wcap">Roda desenhada a partir da alocação: caminhos até os augments das habilidades principais (não enche a fatia). Limiares 250/500/1000 = revelação +4/+9/+20; augment com as 2 cópias = Estágio II. Mecânica exata do jogo; a escolha das casas é do jogador.</div></div>';
       return '<div class="bd-wheelwrap">'+svg+side+'</div>';
     }
