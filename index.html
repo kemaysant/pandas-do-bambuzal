@@ -5163,8 +5163,8 @@ PlayerName (Leader)
       var slices=W.slots.map(function(s){
         var d=W.domains[s.dom], pv=Math.max(0,Math.min(+pts[s.i]||0,s.max)), frac=s.max?pv/s.max:0, on=pv>0;
         var fill,op,stroke,sop,sw,extra='';
-        if(on){ fill=d.bright||d.color; op=(0.50+0.50*frac).toFixed(2); stroke=d.bright||d.color; sop='0.95'; sw='1.1'; extra=' filter="url(#'+uid+'g)"'; }
-        else { fill=d.color; op='0.05'; stroke='#0a0d13'; sop='0.55'; sw='1'; }
+        if(on){ fill=d.bright||d.color; op=(0.55+0.45*frac).toFixed(2); stroke=d.bright||d.color; sop='0.95'; sw='1.2'; extra=' filter="url(#'+uid+'g)"'; }
+        else { fill=d.color; op='0.17'; stroke='#0b0e15'; sop='0.7'; sw='1'; }
         var ev=interactive?(' style="cursor:pointer" onclick="tpBEwheelPt('+s.i+',25,event)" oncontextmenu="return tpBEwheelPt('+s.i+',-25,event)"'):'';
         return '<path class="wsl'+(on?' on':'')+'" d="'+s.d+'" fill="'+fill+'" fill-opacity="'+op+'" stroke="'+stroke+'" stroke-opacity="'+sop+'" stroke-width="'+sw+'"'+extra+ev+'><title>'+E(d.name)+' · '+pv+'/'+s.max+'</title></path>';
       }).join('');
@@ -5758,11 +5758,21 @@ PlayerName (Leader)
       var b=BE.data.b; b.wheelPts=b.wheelPts||{};
       var cur=+b.wheelPts[i]||0, nv=cur+delta;
       if(nv<0)nv=0; if(nv>slot.max)nv=slot.max;
+      if(nv>cur && slot.ring>0){ var _ok=(slot.par||[]).some(function(pi){ return (+b.wheelPts[pi]||0)>0; }); if(!_ok){ if(window.tpToast) tpToast('A roda enche de dentro pra fora — preencha uma fatia conectada antes.','info'); return false; } }
       if(nv>cur){ var budget=_beWheelBudget(), used=_beWheelUsed(); var avail=budget-(used-cur); if(avail<cur)avail=cur; if(nv>avail){ nv=Math.max(cur,avail); if(nv===cur){ if(window.tpToast) tpToast('Sem pontos disponíveis — suba o nível ou tire de outra fatia.','info'); } } }
       if(nv<=0) delete b.wheelPts[i]; else b.wheelPts[i]=nv;
+      _beWheelCascade();
       tpBERender();
       return false;
     };
+    /* remove fatias órfãs (sem pai preenchido) — mantém a roda contígua */
+    function _beWheelCascade(){
+      var BE=window.__BE; if(!BE) return; var W=TP_WHEEL[_beVoc()]; if(!W) return;
+      var wp=BE.data.b.wheelPts||{}, changed=true, guard=0;
+      while(changed && guard++<60){ changed=false;
+        W.slots.forEach(function(s){ if(s.ring===0) return; if(!((+wp[s.i]||0)>0)) return; var ok=(s.par||[]).some(function(pi){ return (+wp[pi]||0)>0; }); if(!ok){ delete wp[s.i]; changed=true; } });
+      }
+    }
     window.tpBEwheelAuto=function(){
       var BE=window.__BE; if(!BE) return; tpBECapture();
       var voc=_beVoc(); var el=document.getElementById('be2-level'); var lv=el?parseInt(el.value,10):((BE.data.inp||{}).level||0); lv=+lv||0;
