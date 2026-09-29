@@ -5076,7 +5076,7 @@ PlayerName (Leader)
       var A=tpWheelAlloc(voc,level,mode); if(!A)return '';
       /* roda = ARTE REAL do renderizador da calculadora (screenshot por build/alocação), como o usuário pediu ("está perfeita") */
       var imgFile=(voc==='sorcerer'&&mode==='thunder')?(id+'-thunder.webp'):(id+'.webp');
-      var svg='<img class="bd-wheelimg" src="assets/builds-wheel/'+imgFile+'" alt="Roda do Destino" loading="lazy" onerror="this.style.display=\'none\'">';
+      var svg='<img class="bd-wheelimg" src="assets/builds-wheel/'+imgFile+'?v='+(window.TP_WHEELVER||'2')+'" alt="Roda do Destino" loading="lazy" onerror="this.style.display=\'none\'">';
       var rows=[3,0,2,1].map(function(dm){
         var d=W.domains[dm], stgN=A.stages[dm], p=A.domPts[dm];
         var tag=(dm===A.prim?' <em>· ofensivo primário</em>':(dm===A.sec?' <em>· ofensivo secundário</em>':(dm===2?' <em>· sobrevivência</em>':(dm===0?' <em>· avatar</em>':''))));
