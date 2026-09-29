@@ -4724,6 +4724,10 @@ PlayerName (Leader)
       #builds .bld-vname{font-size:.7rem;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--bamboo-light)}
       #builds .bld-wname{font-size:.92rem;font-weight:700;color:var(--ink);line-height:1.15}
       #builds .bld-lvl{margin-left:auto;font-size:.72rem;font-weight:700;color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-dim);padding:.18rem .5rem;border-radius:7px;white-space:nowrap}
+      #builds .bd-dmgrow{display:flex;flex-wrap:wrap;gap:.5rem;align-items:stretch}
+      #builds .bld-lvlbig{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:.45rem .85rem;background:linear-gradient(160deg,var(--gold-dim),transparent);border:1px solid var(--gold);border-radius:10px;min-width:74px}
+      #builds .bld-lvlbig b{font-size:1.35rem;font-weight:800;color:var(--gold);line-height:1;font-variant-numeric:tabular-nums}
+      #builds .bld-lvlbig span{font-size:.6rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em;margin-top:.15rem}
       #builds .bld-dmg{display:flex;align-items:baseline;gap:.4rem;padding:.55rem .7rem;background:var(--bg-1);border:1px solid var(--border);border-radius:10px}
       #builds .bld-dmg b{font-size:1.25rem;color:var(--ink);font-variant-numeric:tabular-nums}
       #builds .bld-dmg span{font-size:.68rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em}
@@ -4769,6 +4773,8 @@ PlayerName (Leader)
       #builds .bd-sect h4{font-size:.74rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--bamboo-light);margin:0 0 .55rem;display:flex;align-items:center;gap:.4rem}
       #builds .bd-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:.5rem}
       #builds .bd-stat{background:var(--bg-1);border:1px solid var(--border);border-radius:9px;padding:.5rem .6rem}
+      #builds .bd-stat-info{cursor:help}
+      #builds .bd-statq{display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px;border-radius:50%;background:var(--bg-2);border:1px solid var(--border);color:var(--ink-3);font-size:.55rem;font-style:normal;vertical-align:middle}
       #builds .bd-stat b{display:block;font-size:1.05rem;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.1}
       #builds .bd-stat span{font-size:.63rem;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em}
       #builds .bd-perks{display:flex;flex-direction:column;gap:.3rem}#builds .bd-ptree{display:flex;flex-direction:column;gap:.4rem}#builds .bd-plevel{display:flex;gap:.55rem;align-items:flex-start}#builds .bd-plv{flex:0 0 auto;font-size:.6rem;font-weight:800;color:var(--gold);background:var(--gold-dim);border-radius:5px;padding:.28rem .4rem;margin-top:.1rem;letter-spacing:.02em;min-width:36px;text-align:center}#builds .bd-popts{display:flex;flex-wrap:wrap;gap:.3rem;flex:1;min-width:0}#builds .bd-popt{font-size:.74rem;color:var(--ink-3);background:var(--bg-1);border:1px solid var(--border);border-radius:7px;padding:.3rem .5rem;opacity:.5}#builds .bd-popt.sel{color:var(--ink);border-color:var(--bamboo);background:var(--bamboo-dim);opacity:1;font-weight:600}#builds .bd-popt.shaped{color:var(--gold);border-color:var(--gold);background:var(--gold-dim);opacity:1;font-weight:600}
@@ -4789,7 +4795,7 @@ PlayerName (Leader)
       #builds .bd-eqi b{color:var(--ink-3);font-weight:600;text-transform:capitalize}
       #builds .bd-rspell[data-anim]{cursor:help}
       #builds .bd-rspell[data-anim] .bd-rsic::after{content:'';position:absolute;right:2px;bottom:2px;width:6px;height:6px;border-radius:50%;background:var(--bamboo-light);box-shadow:0 0 4px var(--bamboo-light)}
-      .bd-animpop{position:fixed;z-index:99999;width:150px;height:150px;padding:5px;background:#0d0c12;border:1px solid var(--gold,#c9a840);border-radius:10px;box-shadow:0 14px 40px -8px rgba(0,0,0,.85);pointer-events:none;display:flex;align-items:center;justify-content:center}
+      .bd-animpop{position:fixed;z-index:99999;width:180px;height:180px;padding:5px;background:#0d0c12;border:1px solid var(--gold,#c9a840);border-radius:10px;box-shadow:0 14px 40px -8px rgba(0,0,0,.85);pointer-events:none;display:flex;align-items:center;justify-content:center}
       .bd-animpop img{display:block;width:100%;height:100%;object-fit:contain;border-radius:6px;image-rendering:pixelated}
       #builds .bd-note{margin-top:1.2rem;font-size:.73rem;color:var(--ink-3);line-height:1.5}
       #builds .bd-wsect{margin:.2rem 0 1.15rem}
@@ -4982,7 +4988,7 @@ PlayerName (Leader)
       document.addEventListener('mouseover', function(e){ var t=e.target.closest&&e.target.closest('.bd-rspell[data-anim]'); if(!t)return; var p=ensure(); var img=p.querySelector('img'); var src=t.getAttribute('data-anim'); if(img.getAttribute('src')!==src){img.setAttribute('src',src);} p.style.display='block'; place(p,t); });
       document.addEventListener('mousemove', function(e){ if(pop&&pop.style.display==='block'){ var t=e.target.closest&&e.target.closest('.bd-rspell[data-anim]'); if(t)place(pop,t); } });
       document.addEventListener('mouseout', function(e){ var t=e.target.closest&&e.target.closest('.bd-rspell[data-anim]'); if(!t)return; var to=e.relatedTarget; if(to&&to.closest&&to.closest('.bd-rspell[data-anim]')===t)return; if(pop)pop.style.display='none'; });
-      function place(p,t){ var r=t.getBoundingClientRect(); var pw=160, ph=(p.offsetHeight||162); var left=r.left+r.width/2-pw/2; left=Math.max(8,Math.min(left,window.innerWidth-pw-8)); var top=r.top-ph-12; if(top<8){ top=Math.max(8,Math.min(r.top+r.height/2-ph/2,window.innerHeight-ph-8)); left=(r.right+pw+12<=window.innerWidth-8)?r.right+12:Math.max(8,r.left-pw-12); } p.style.left=Math.round(left)+'px'; p.style.top=Math.round(top)+'px'; }
+      function place(p,t){ var r=t.getBoundingClientRect(); var pw=190, ph=(p.offsetHeight||192); var left=r.left+r.width/2-pw/2; left=Math.max(8,Math.min(left,window.innerWidth-pw-8)); var top=r.top-ph-12; if(top<8){ /* sem espaço acima: joga pro lado pra não cobrir a rotação */ top=Math.max(8,Math.min(r.top+r.height/2-ph/2,window.innerHeight-ph-8)); left=(r.right+pw+12<=window.innerWidth-8)?r.right+12:Math.max(8,r.left-pw-12); } p.style.left=Math.round(left)+'px'; p.style.top=Math.round(top)+'px'; }
     })();
     function tpWheelAlloc(voc,level,mode){
       var W=TP_WHEEL[voc]; if(!W)return null;
@@ -5083,9 +5089,9 @@ PlayerName (Leader)
           ? 'Estratégia (energia): prioriza <b>Beam Mastery</b> (o lado do feixe) para ativar as <b>retas laterais do Great Energy Beam</b> (vis lux) — é o buff que a rotação de energia precisa. '+(A.stages[3]>0?('Beam Mastery já está no <b>Estágio '+TP_WROMAN[A.stages[3]]+'</b>.'):'')+' Em seguida <b>Lord of Destruction</b> (Aug. Death Echo do outro lado).'
           : 'Abaixo de 250 pts o feixe ainda não ganha as retas laterais; o 1º estágio de Beam Mastery abre no nível 300.';
       }
-      else if(voc==='sorcerer') tip='Roda otimizada p/ <b>dano por turno</b>: só os <b>2 domínios ofensivos</b> — <b>Beam Mastery</b> (NE) e <b>Lord of Destruction</b> (SW). Ativa o <b>Aug. Death Echo</b> dos dois lados (+12% base), que no caminho já acende <b>Aug. Focus Spells</b> (Hell\'s Core) e <b>Aug. Great Fire Wave</b>, e sobe os estágios de revelação. <b>Gift of Life e Avatar ficam de fora</b> (sobrevivência/boss, sem ganho de dano na caçada).'+(nhit>1?(' Aqui já são <b>'+nhit+' revelações</b> ativas.'):'');
-      else if(A.total>=250) tip='Roda que <b>prioriza as habilidades principais</b>: em vez de encher a fatia, faz <b>caminhos até os slots dos augments</b> das magias — cada augment tem 2 cópias, e encher as duas destrava o <b>Estágio II</b> (o dano %). Depois completa até o limiar de revelação com Dedication barata. <b>'+esc(W.domains[1].name)+'</b> (SW) e <b>'+esc(W.domains[3].name)+'</b> (NE) são os 2 lados ofensivos; <b>Gift of Life e Avatar ficam de fora</b> (sobrevivência/boss).';
-      else tip='Abaixo de 250 pts nenhum lado abre estágio de revelação ainda — o foco vai pros <b>augments</b> (acender as habilidades) e, sem poder maximizar, as <b>gemas</b> entram como reforço (ver abaixo).';
+      else if(voc==='sorcerer') tip='Foco em <b>dano por turno</b>: os 2 domínios ofensivos (<b>Beam Mastery</b> + <b>Lord of Destruction</b>) com <b>Aug. Death Echo</b> dos dois lados. Gift of Life e Avatar ficam de fora.'+(nhit>1?(' <b>'+nhit+' revelações</b> ativas.'):'');
+      else if(A.total>=250) tip='Prioriza os <b>augments das habilidades principais</b> — <b>'+esc(W.domains[1].name)+'</b> e <b>'+esc(W.domains[3].name)+'</b> são os lados ofensivos. Gift of Life e Avatar ficam de fora.';
+      else tip='Abaixo de 250 pts a roda ainda não abre revelação — o foco vai pros <b>augments</b> e nas <b>gemas</b> como reforço.';
       var _augList=TP_AUG[voc]||[]; var _byId={}; W.slots.forEach(function(s){_byId[s.i]=s;});
       var augHtml='';
       if(_augList.length){
@@ -5104,16 +5110,14 @@ PlayerName (Leader)
       var _extraSup=(voc==='knight'||voc==='monk')?'Life Leech':'Crit Extra Damage';
       var _gemTxt;
       if(_canMax){
-        _gemTxt='<b>Pega o vessel de Greater gem (lv 3) do lado principal assim que puder</b> — sobe a revelação até o tier que abre a Greater. '
-          +'Lado principal: Greater com <b>'+esc(_GEMSUP[voc])+'</b> (Base Damage) + '+_extraSup+', com <b>Vessel Resonance ×3</b> pra ativar os 3 mods. '
-          +'Outro lado: <b>Revelation Mastery ('+esc(_RMSUP[voc])+')</b> — dá +150→225 pontos-fantasma e sobe aquela revelação de graça. Pra boss, gema de <b>Avatar</b> (buffa o Ultimate).';
+        _gemTxt='<b>Greater gem (lv 3)</b> no lado principal com <b>'+esc(_GEMSUP[voc])+'</b> + '+_extraSup+' (Vessel Resonance ×3). Outro lado: <b>Revelation Mastery</b>. Pra boss, <b>Avatar</b>.';
       } else {
-        _gemTxt='Ainda não dá pra maximizar nem abrir uma Greater — enquanto isso use '+(_mage?'<b>gemas de vida</b> (mago)':'<b>gemas de mitigação</b>'+(voc==='monk'?' (ou de vida lvl 1)':''))+'. Assim que abrir um lado, migra pras ofensivas (Greater + Rev. Mastery).';
+        _gemTxt='Ainda sem Greater — use '+(_mage?'<b>gemas de vida</b>':'<b>gemas de mitigação</b>'+(voc==='monk'?' (ou vida lv 1)':''))+' por enquanto.';
       }
       var gemHtml='<div class="bd-wgems"><div class="bd-waugh">Gemas</div><div class="bd-wgemtxt">'+_gemTxt+'</div></div>';
       var side='<div class="bd-wside"><div class="bd-wpts">'+A.total+' <span>pontos de promoção</span></div>'
         +flatLine+'<div class="bd-wdoms">'+rows+'</div>'+augHtml+gemHtml+tpMilestonesHtml(A.total,level)+'<div class="bd-wtip">'+tip+'</div>'
-        +'<div class="bd-wcap">Roda desenhada a partir da alocação: caminhos até os augments das habilidades principais (não enche a fatia). Limiares 250/500/1000 = revelação +4/+9/+20; augment com as 2 cópias = Estágio II. Mecânica exata do jogo; a escolha das casas é do jogador.</div></div>';
+        +'</div>';
       return '<div class="bd-wheelwrap">'+svg+side+'</div>';
     }
 
@@ -5127,15 +5131,16 @@ PlayerName (Leader)
       var _M=_modes?_modes[_curMode]:null;
       var voc=VOCS[b.vocation]||{label:b.vocation,emoji:'🐼'};
       var ic=WIC[w.icon], el=b.element||w.damageType||'', elc=ELCOL[el]||'var(--gold)';
-      var _cd={}; for(var _ck in d){ if(_ck!=='guide') _cd[_ck]=d[_ck]; }
+      var _cd={}; for(var _ck in d){ if(_ck!=='guide') _cd[_ck]=d[_ck]; } /* guia é só p/ exibição — fora do código pra ficar curto */
       var code=encodeBuild(_cd);
       var st=det.stats||{};
       var _isMage=(b.vocation==='druid'||b.vocation==='sorcerer');
+      var _critTip='Valor padrão da calculadora (10% de chance de crit · +90% de dano no crit). NÃO é medido do personagem — o crit real vem das gemas e itens dele. Se souber os valores exatos, ajuste na calculadora.';
       var statTiles=[['Nível',st.level],['Magic Level',st.ml]]
         .concat(_isMage?[]:[['Skill',st.skill]])
-        .concat([['Crit %',st.critc!=null?st.critc+'%':null],['Crit dmg',st.critd!=null?st.critd+'%':null]])
+        .concat([['Crit %',st.critc!=null?st.critc+'%':null,_critTip],['Crit dmg',st.critd!=null?st.critd+'%':null,_critTip]])
         .filter(function(x){return x[1]!=null && x[1]!=='';})
-        .map(function(x){return '<div class="bd-stat"><b>'+esc(x[1])+'</b><span>'+esc(x[0])+'</span></div>';}).join('');
+        .map(function(x){return '<div class="bd-stat'+(x[2]?' bd-stat-info':'')+'"'+(x[2]?' title="'+esc(x[2])+'"':'')+'><b>'+esc(x[1])+'</b><span>'+esc(x[0])+(x[2]?' <i class="bd-statq">?</i>':'')+'</span></div>';}).join('');
       function profPct(t){ var m=String(t||'').match(/^\+([\d.]+%?)/); return m?('+'+m[1]):''; }
       var _wprof=bb.wprof||{}, _tree=TP_PTREE[(w&&w.profClass)||''];
       var perks='';
@@ -5217,10 +5222,11 @@ PlayerName (Leader)
         +'<div class="bd-hero"><div class="bld-wic">'+(ic?'<img src="'+ic+'" alt="">':'⚔️')+'</div>'
         +'<div class="bd-htext"><div class="bld-vname">'+voc.emoji+' '+esc(voc.label)+(inp.level?' · Nível '+esc(inp.level):'')+'</div>'
         +'<div class="bd-wname">'+esc(w.name||'—')+'</div>'+gHeroSum+'</div></div>'
-        +'<div class="bld-dmg" style="max-width:260px"><b>'+fmtNum(_M?_M.dano:b.dano)+'</b><span>dano / turno</span></div>'
+        +'<div class="bd-dmgrow">'+((inp.level||st.level)?'<div class="bld-lvlbig"><b>'+esc(inp.level||st.level)+'</b><span>nível</span></div>':'')+'<div class="bld-dmg"><b>'+fmtNum(_M?_M.dano:b.dano)+'</b><span>dano / turno</span></div></div>'
         +'<div class="bld-meta" style="margin-top:.5rem">'+tags.join('')+'</div>'
         +'<div class="bd-acts">'
           +'<button class="bd-open" onclick="tpOpenBuildInCalc(\''+code+'\')">⚔️ Abrir na Calculadora</button>'
+          +'<button class="bd-ghost" data-bid="'+esc(id)+'" onclick="tpCopyLink(this)">🔗 Copiar link</button>'
           +'<button class="bd-ghost" data-code="'+code+'" onclick="tpCopyBuild(this)">📋 Copiar código da build</button>'
         +'</div>'
         +gRotSec+gPrioSec
@@ -5239,13 +5245,37 @@ PlayerName (Leader)
       var host=document.getElementById('bld-detail'); host.innerHTML=html;
       document.getElementById('builds').classList.add('detail');
       var ln=document.getElementById('bld-listnote'); if(ln)ln.style.display='none';
+      try{ window.__tpSupHash=true; history.replaceState(null,'',location.pathname+location.search+'#build='+id); }catch(e){}
       window.scrollTo({top:0,behavior:'smooth'});
+    };
+    window.tpCopyLink=function(btn){
+      var id=btn.getAttribute('data-bid');
+      var url=location.origin+location.pathname+location.search+'#build='+id;
+      var done=function(){ var o=btn.textContent; btn.textContent='✅ Link copiado!'; setTimeout(function(){btn.textContent=o;},1600); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done,function(){window.prompt('Copie o link:',url);}); }
+      else { window.prompt('Copie o link:',url); }
     };
     window.tpCloseBuild=function(){
       document.getElementById('builds').classList.remove('detail');
       var ln=document.getElementById('bld-listnote'); if(ln)ln.style.display='';
+      try{ window.__tpSupHash=true; history.replaceState(null,'',location.pathname+location.search+'#builds'); }catch(e){}
       window.scrollTo({top:0,behavior:'smooth'});
     };
+    (function(){
+      function handleBuildHash(){
+        var m=(location.hash||'').match(/^#build=(.+)$/); if(!m) return;
+        var id=decodeURIComponent(m[1]);
+        try{ showPage('builds'); }catch(e){}
+        if(window.tpBuildsInit) window.tpBuildsInit();
+        var tries=0;
+        (function wait(){ tries++;
+          if(window.tpOpenBuild && window.__tpBuildsReady){ try{ window.tpOpenBuild(id); }catch(e){} return; }
+          if(tries<40) setTimeout(wait,200);
+        })();
+      }
+      window.addEventListener('hashchange', function(){ if(/^#build=/.test(location.hash||'')) handleBuildHash(); });
+      if(/^#build=/.test(location.hash||'')){ if(document.readyState!=='loading') setTimeout(handleBuildHash,600); else document.addEventListener('DOMContentLoaded',function(){ setTimeout(handleBuildHash,600); }); }
+    })();
     window.tpOpenBuildInCalc=function(code){
       showPage('dmgcalc');
       var nb=document.querySelector('.nav-btn[onclick*="dmgcalc"]');
@@ -5272,7 +5302,7 @@ PlayerName (Leader)
       var url=PANDA_SB_URL+'/rest/v1/builds?status=eq.approved&select=id,name,vocation,dano,ml,element,data&order=vocation.asc';
       fetch(url,{headers:_pandaHeaders()}).then(function(r){return r.json();}).then(function(rows){
         all=(rows||[]).sort(sortBuilds); byId={}; all.forEach(function(b){byId[b.id]=b;});
-        renderFilters(); render();
+        renderFilters(); render(); window.__tpBuildsReady=true;
       }).catch(function(){ var g=document.getElementById('bld-grid'); if(g)g.innerHTML='<div class="bld-empty">Não foi possível carregar as builds agora. Tente de novo em instantes.</div>'; });
     };
   })();
