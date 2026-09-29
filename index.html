@@ -4771,6 +4771,7 @@ PlayerName (Leader)
       #builds .bd-ghost{background:var(--bg-2);color:var(--ink-2)}
       #builds .bd-ghost:hover{border-color:var(--gold)!important;color:var(--gold)}
       #builds .bd-ghost.done{border-color:#5bd18a!important;color:#5bd18a}
+      #builds .bd-savebtn.on{border-color:#c9a840!important;color:#f0c040!important;background:rgba(201,168,64,.12)}
       #builds .bd-sect{margin-bottom:1rem;background:linear-gradient(180deg,rgba(255,255,255,.024),rgba(255,255,255,.006));border:1px solid var(--border);border-radius:14px;padding:1rem 1.15rem}
       #builds .bd-grid>div>.bd-sect:last-child{margin-bottom:0}
       #builds .bd-sect.bd-wsect{background:none;border:0;padding:0;margin:.2rem 0 1rem}
@@ -5242,6 +5243,7 @@ PlayerName (Leader)
         +'<div class="bd-acts">'
           +'<button class="bd-open" onclick="tpOpenBuildInCalc(\''+code+'\')">⚔️ Abrir na Calculadora</button>'
           +'<button class="bd-ghost" data-bid="'+esc(id)+'" onclick="tpCopyLink(this)">🔗 Copiar link</button>'
+          +'<button class="bd-ghost bd-savebtn'+((window.__tpSavedBuilds&&window.__tpSavedBuilds[id])?' on':'')+'" data-bid="'+esc(id)+'" onclick="tpToggleSaveBuild(this)">'+((window.__tpSavedBuilds&&window.__tpSavedBuilds[id])?'✓ Salva':'⭐ Salvar')+'</button>'
         +'</div>'
         +gRotSec+gPrioSec
         +(wheelHtml?'<div class="bd-sect bd-wsect"><h4><svg class="bd-h4ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-3a5 5 0 100-10 5 5 0 000 10zm0-3a2 2 0 100-4 2 2 0 000 4z"/></svg> <span class="bd-wvoc">'+voc.emoji+' '+esc(voc.label)+'</span> <span class="bd-wsep">·</span> Roda do Destino</h4><div class="bd-wsub">'+((guide&&guide.wheelHi)?gmd(guide.wheelHi):((guide&&guide.styleTitle)?esc(guide.styleTitle.replace(/^Estilo:\s*/i,'')):'pontos e revelação no nível da build'))+'</div>'+wheelHtml+'</div>':'')
@@ -5258,6 +5260,7 @@ PlayerName (Leader)
         +gInsSec;
       var host=document.getElementById('bld-detail'); host.innerHTML=html;
       document.getElementById('builds').classList.add('detail');
+      if(window.tpLoadSavedBuilds) tpLoadSavedBuilds();
       var ln=document.getElementById('bld-listnote'); if(ln)ln.style.display='none';
       try{ window.__tpSupHash=true; history.replaceState(null,'',location.pathname+location.search+'#build='+id); }catch(e){}
       window.scrollTo({top:0,behavior:'smooth'});
@@ -5268,6 +5271,29 @@ PlayerName (Leader)
       var done=function(){ var o=btn.textContent; btn.textContent='✅ Link copiado!'; setTimeout(function(){btn.textContent=o;},1600); };
       if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done,function(){window.prompt('Copie o link:',url);}); }
       else { window.prompt('Copie o link:',url); }
+    };
+    function _sbURL(){ return (typeof PANDA_SB_URL!=='undefined'&&PANDA_SB_URL)?PANDA_SB_URL:(window.PANDA_SB_URL||''); }
+    window.__tpSavedBuilds=window.__tpSavedBuilds||{};
+    window.tpLoadSavedBuilds=async function(){
+      try{ if(!(window.TP_AUTH&&window.TP_AUTH.user)) return;
+        var r=await (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/rpc/tp_my_builds',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+        var rows=await r.json().catch(function(){return[];}); if(!Array.isArray(rows)) rows=[];
+        var m={}; rows.forEach(function(b){ m[b.build_id]=1; }); window.__tpSavedBuilds=m;
+        document.querySelectorAll('.bd-savebtn').forEach(function(btn){ var on=!!m[btn.getAttribute('data-bid')]; btn.classList.toggle('on',on); btn.textContent=on?'✓ Salva':'⭐ Salvar'; });
+      }catch(e){}
+    };
+    window.tpToggleSaveBuild=async function(btn){
+      if(!(window.TP_AUTH&&window.TP_AUTH.user)){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
+      var id=btn.getAttribute('data-bid'); if(!id) return; btn.disabled=true;
+      try{
+        var r=await (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/rpc/tp_toggle_save_build',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({p_build:id})});
+        var saved=await r.json();
+        window.__tpSavedBuilds=window.__tpSavedBuilds||{}; if(saved){ window.__tpSavedBuilds[id]=1; } else { delete window.__tpSavedBuilds[id]; }
+        document.querySelectorAll('.bd-savebtn[data-bid="'+id+'"]').forEach(function(b){ b.classList.toggle('on',!!saved); b.textContent=saved?'✓ Salva':'⭐ Salvar'; });
+        if(window.tpToast) tpToast(saved?'Build salva no seu perfil ⭐':'Removida das salvas','success');
+        if(window.tpRenderMyBuilds) tpRenderMyBuilds();
+      }catch(e){}
+      btn.disabled=false;
     };
     window.tpCloseBuild=function(){
       document.getElementById('builds').classList.remove('detail');
@@ -14202,6 +14228,40 @@ function ewEnsureTcInput() {
       host.innerHTML=chips.map(function(c){ return '<div class="pf-stat"><div class="v">'+c[0]+'</div><div class="l">'+c[1]+'</div></div>'; }).join('') || '<div style="font-size:.75rem;color:var(--muted)">Sem dados ainda.</div>';
     }
     if(window.tpRenderMiniFriends) tpRenderMiniFriends();
+    if(window.tpRenderMyBuilds) tpRenderMyBuilds();
+  };
+  var MB_VOCIC={druid:'🌿',sorcerer:'🔥',knight:'🗡️',paladin:'🏹',monk:'👊'};
+  window.tpRenderMyBuilds=async function(){
+    try{
+      var main=document.querySelector('#profile .pf-panel[data-panel="visao"] .pf-home-main'); if(!main) return;
+      var esc=window.esc||function(s){return String(s==null?'':s);};
+      if(!document.getElementById('mb-css')){ var st=document.createElement('style'); st.id='mb-css'; st.textContent=
+        '#profile .mb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.7rem}'
+        +'#profile .mb-card{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:12px;padding:.7rem .75rem;display:flex;flex-direction:column;gap:.5rem;cursor:pointer;transition:.15s;text-align:left}'
+        +'#profile .mb-card:hover{border-color:var(--bamboo,#8b5cf6);transform:translateY(-2px)}'
+        +'#profile .mb-top{display:flex;align-items:center;gap:.5rem}'
+        +'#profile .mb-ic{width:34px;height:34px;border-radius:9px;background:#12111a;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex:none}'
+        +'#profile .mb-voc{font-size:.58rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--bamboo-light,#a78bfa)}'
+        +'#profile .mb-nm{font-size:.86rem;font-weight:800;line-height:1.15}'
+        +'#profile .mb-row{display:flex;align-items:center;gap:.35rem;flex-wrap:wrap}'
+        +'#profile .mb-pill{font-size:.6rem;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--surface,#17161f);border:1px solid var(--rule);color:var(--ink-3,#b7b4c4)}'
+        +'#profile .mb-dmg{margin-left:auto;font-size:.78rem;font-weight:800;color:#4bd07a}#profile .mb-dmg small{color:var(--muted);font-weight:600;font-size:.6rem}'
+        +'#profile .mb-empty{font-size:.82rem;color:var(--muted);padding:.5rem 0}';
+        document.head.appendChild(st); }
+      var card=document.getElementById('mb-card-host');
+      if(!card){ card=document.createElement('div'); card.className='card'; card.id='mb-card-host';
+        card.innerHTML='<div class="tool-title" style="font-size:1.05rem;margin-bottom:.3rem;display:flex;align-items:center;gap:.4rem">🎽 Minhas Builds <span id="mb-count" style="font-size:.72rem;font-weight:700;color:var(--muted);background:var(--bg-2);border:1px solid var(--rule);border-radius:999px;padding:1px 8px"></span><a class="pf-side-more" style="margin-left:auto;width:auto" onclick="showPage(\'builds\')">Ver builds →</a></div><div id="mb-body"><div class="mb-empty">Carregando…</div></div>';
+        main.insertBefore(card, main.firstChild); }
+      var r=await (window.tpAuthFetch||fetch)(SB+'/rest/v1/rpc/tp_my_builds',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+      var rows=await r.json().catch(function(){return[];}); if(!Array.isArray(rows)) rows=[];
+      var cc=document.getElementById('mb-count'); if(cc) cc.textContent=rows.length;
+      var body=document.getElementById('mb-body'); if(!body) return;
+      if(!rows.length){ body.innerHTML='<div class="mb-empty">Você ainda não salvou nenhuma build. Abra uma build e toque em <b>⭐ Salvar</b>.</div>'; return; }
+      body.innerHTML='<div class="mb-grid">'+rows.map(function(b){
+        var chips=(b.chips||[]).slice(0,3).map(function(c){return '<span class="mb-pill">'+esc(c)+'</span>';}).join('');
+        return '<div class="mb-card" onclick="location.hash=\'#build='+b.build_id+'\'"><div class="mb-top"><div class="mb-ic">'+(MB_VOCIC[b.vocation]||'⚔️')+'</div><div><div class="mb-voc">'+esc(b.vocation)+'</div><div class="mb-nm">'+esc(b.name)+'</div></div></div><div class="mb-row">'+chips+'<span class="mb-dmg">'+(b.dano?Number(b.dano).toLocaleString('pt-BR'):'—')+'<small> d/t</small></span></div></div>';
+      }).join('')+'</div>';
+    }catch(e){}
   };
   window.tpSyncPrivLabels=function(){
     ['full_name','phone','country','bio','twitch','youtube','discord'].forEach(function(k){
