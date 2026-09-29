@@ -2046,6 +2046,20 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
   // deep-link: #b=<código> aplica a build ao abrir
   (function(){ var m=(location.hash||'').match(/[#&]b=([^&]+)/); if(m){ var o=decodeBuild(decodeURIComponent(m[1])); if(o)applyBuild(o); } })();
   renderBuilds();
+  /* ===== Ponte pro editor de build (quando embutida em iframe): devolve estado + dano e a própria altura ===== */
+  (function(){
+    function _h(){ try{ return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight, 900); }catch(e){ return 1600; } }
+    function _sendH(){ try{ if(window.parent && window.parent!==window) window.parent.postMessage({type:'tp-calc-height', h:_h()}, '*'); }catch(e){} }
+    window.addEventListener('message', function(ev){
+      var d=ev.data||{}; var tgt=ev.source||window.parent;
+      if(d.type==='tp-get-build'){
+        try{ var o=captureBuild(); var tv=computeTurnValue(); tgt.postMessage({type:'tp-build', o:o, dano:Math.round((tv&&tv.turn)||0), ml:(g('ml')&&+g('ml').value)||0}, '*'); }
+        catch(e){ tgt.postMessage({type:'tp-build-err', err:String(e&&e.message||e)}, '*'); }
+      } else if(d.type==='tp-req-height'){ _sendH(); }
+      else if(d.type==='tp-load-build' && d.o){ try{ applyBuild(d.o); setTimeout(_sendH,300); }catch(e){} }
+    });
+    if(window.self!==window.top){ setTimeout(_sendH,400); setTimeout(_sendH,1200); setInterval(_sendH,2000); }
+  })();
 })();
 
 (function(){try{if(window.self===window.top){var o=document.createElement('div');o.style.cssText='position:fixed;inset:0;z-index:2147483647;background:#131210;color:#f1ece0;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;font-family:system-ui,-apple-system,sans-serif';o.innerHTML='<div style="max-width:440px"><div style="font-size:2.6rem">\ud83d\udc3c\u2694\ufe0f</div><h2 style="margin:.6rem 0;font-size:1.4rem">Calculadora de Dano</h2><p style="color:#b7ad97;line-height:1.65">Essa ferramenta faz parte do <b>Tibia Panda</b> e precisa de login. Abra pelo site pra usar.</p><a href="https://tibiapanda.com.br/#dmgcalc" style="display:inline-block;margin-top:1.1rem;background:#8b5cf6;color:#fff;text-decoration:none;padding:.75rem 1.5rem;border-radius:10px;font-weight:700">Abrir no Tibia Panda \u2192</a></div>';(document.body||document.documentElement).appendChild(o);}}catch(e){}})();

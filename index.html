@@ -5507,71 +5507,49 @@ PlayerName (Leader)
       var BE=window.__BE; if(!BE) return;
       var g=function(k){ var e=document.getElementById(k); return e?e.value:null; };
       var lines=function(k){ var v=g(k); return v==null?null:v.split('\n').map(function(x){return x.trim();}).filter(Boolean); };
-      var row=BE.row, d=BE.data, b=d.b||(d.b={}), inp=d.inp||(d.inp={}), guide=d.guide||(d.guide={});
+      var row=BE.row, d=BE.data, guide=d.guide||(d.guide={});
       var S=function(o,k,v){ if(v!=null) o[k]=v; };
-      S(row,'name',g('be2-name')); S(row,'element',g('be2-el')); if(g('be2-dano')!=null) row.dano=parseInt(g('be2-dano'),10)||0; S(row,'status',g('be2-status'));
-      S(inp,'level',g('be2-level')); S(inp,'ml',g('be2-ml')); S(inp,'critc',g('be2-critc')); S(inp,'critd',g('be2-critd')); if(g('be2-skill')!=null) inp.skill=g('be2-skill');
-      if(g('be2-onsl')!=null) b.onslaught=parseInt(g('be2-onsl'),10)||0; if(g('be2-tr')!=null) b.transcendence=parseInt(g('be2-tr'),10)||0;
+      S(row,'name',g('be2-name')); S(row,'element',g('be2-el')); S(row,'status',g('be2-status'));
       S(guide,'summary',g('be2-summary')); S(guide,'styleTitle',g('be2-styletitle')); S(guide,'wheelHi',g('be2-wheelhi'));
       var ch=g('be2-chips'); if(ch!=null) guide.chips=ch.split(',').map(function(x){return x.trim();}).filter(Boolean);
       var rot=lines('be2-rotation'); if(rot!=null) guide.rotation=rot;
       var ins=lines('be2-insights'); if(ins!=null) guide.insights=ins;
-      var wn=g('be2-wname'); if(wn!=null){ b.weapon=b.weapon||{}; b.weapon.name=wn; } var wd=g('be2-wdmg'); if(wd!=null){ b.weapon=b.weapon||{}; b.weapon.damageType=wd; }
-      d.b=b; d.inp=inp; d.guide=guide;
+      d.guide=guide;
     };
+    /* ponte com a calculadora embutida: ajusta a altura do iframe conforme o conteúdo */
+    function _beCalcBridge(){
+      if(window.__beCalcListener) return; window.__beCalcListener=true;
+      window.addEventListener('message', function(ev){
+        var m=ev.data||{};
+        if(m.type==='tp-calc-height'){ var f=document.getElementById('be2-calc'); if(f && m.h && m.h>400){ f.style.height=(m.h+20)+'px'; } }
+      });
+    }
     window.tpBERender=function(){
       _beCss2(); var BE=window.__BE; if(!BE) return;
-      var row=BE.row, d=BE.data, b=d.b||(d.b={}), inp=d.inp||(d.inp={}), guide=d.guide||(d.guide={});
+      var row=BE.row, d=BE.data, guide=d.guide||(d.guide={});
       var E=window.esc||function(s){return String(s==null?'':s);};
-      var isMage=(row.vocation==='druid'||row.vocation==='sorcerer');
       function F(lbl,inner){ return '<label class="be2f"><span>'+lbl+'</span>'+inner+'</label>'; }
       function I(id,val,type){ return '<input id="'+id+'"'+(type?' type="'+type+'"':'')+' value="'+E(val==null?'':val)+'">'; }
       function TA(id,val,rows){ return '<textarea id="'+id+'" rows="'+(rows||3)+'">'+E(Array.isArray(val)?val.join('\n'):(val||''))+'</textarea>'; }
-      var bar='<div class="be2bar"><b>Editando build</b><span style="color:var(--muted);font-size:.8rem">'+E(row.vocation)+'</span><button class="be2cancel" onclick="tpBECancel()">✖ Cancelar</button><button class="be2save" onclick="tpBESave()">💾 Salvar</button></div>';
+      var bar='<div class="be2bar"><b>Editando build</b><span style="color:var(--muted);font-size:.8rem">'+E(row.vocation)+'</span><button class="be2cancel" onclick="tpBECancel()">✖ Cancelar</button><button class="be2save" id="be2-savebtn" onclick="tpBESave()">💾 Salvar</button></div>';
       var meta='<div class="be2sec"><h4>Metadados</h4><div class="be2grid">'
         +F('Nome',I('be2-name',row.name))+F('Elemento',I('be2-el',row.element))
-        +F('Dano/turno',I('be2-dano',row.dano,'number'))
         +F('Status','<select id="be2-status"><option value="approved"'+(row.status==='approved'?' selected':'')+'>Pública</option><option value="hidden"'+(row.status==='hidden'?' selected':'')+'>Oculta</option></select>')
         +'</div></div>';
-      var mods='<div class="be2sec"><h4>⚙️ Modificadores (calculadora)</h4><div class="be2grid">'
-        +F('Nível',I('be2-level',inp.level,'number'))+F('Magic Level',I('be2-ml',inp.ml,'number'))
-        +F('Crit %',I('be2-critc',inp.critc,'number'))+F('Crit dmg %',I('be2-critd',inp.critd,'number'))
-        +(isMage?'':F('Skill',I('be2-skill',inp.skill,'number')))
-        +F('Onslaught (0/1)',I('be2-onsl',b.onslaught!=null?b.onslaught:0,'number'))
-        +F('Transcendence (0/1)',I('be2-tr',b.transcendence!=null?b.transcendence:0,'number'))
-        +'</div></div>';
-      var w=b.weapon||{}, tree=(typeof TP_PTREE!=='undefined'?TP_PTREE:{})[w.profClass||''], PIC=(typeof TP_PICON!=='undefined'?TP_PICON:{});
-      var profHtml;
-      if(tree&&tree.length){ var wprof=b.wprof||(b.wprof={});
-        profHtml='<div class="bd-ptgrid">'+tree.map(function(opts,li){
-          var tiles=opts.map(function(o,oi){ var on=(+wprof[li]===oi); var pic=PIC[o.bi], pov=o.ovi?PIC[o.ovi]:null; var pm=String(o.text||'').match(/^\+([\d.]+%?)/);
-            return '<div class="bd-pti'+(on?' on':'')+(o.bonus?'':' sit')+'" title="'+E(o.text)+'" onclick="tpBEprof('+li+','+oi+')">'+(pic?'<img class="bd-ptic" src="'+pic+'" alt="">':'<span class="bd-ptic bd-ptic-x">?</span>')+(pov?'<img class="bd-ptov" src="'+pov+'" alt="">':'')+(pm?'<span class="bd-ptpct">+'+E(pm[1])+'</span>':'')+'</div>'; }).join('');
-          return '<div class="bd-ptcol"><div class="bd-ptch">★'+(li+1)+'</div>'+tiles+'</div>'; }).join('')+'</div>';
-      } else { profHtml='<div class="be2soon">Sem árvore de proficiência pra esta arma ('+E(w.name||'—')+').</div>'; }
-      var prof='<div class="be2sec"><h4>🎖️ Proficiência de arma <span style="font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0">— clique pra marcar/desmarcar</span></h4>'+profHtml+'</div>';
       var gsec='<div class="be2sec"><h4>📝 Guia</h4>'
         +F('Resumo',TA('be2-summary',guide.summary,3))+F('Estilo — título',I('be2-styletitle',guide.styleTitle))
         +F('O que a roda ativa',I('be2-wheelhi',guide.wheelHi))+F('Chips (vírgula)',I('be2-chips',(guide.chips||[]).join(', ')))
         +F('Rotação (1/linha)',TA('be2-rotation',guide.rotation,4))+F('Insights (1/linha)',TA('be2-insights',guide.insights,4))
         +'</div>';
-      // ---- Editor de Set (catálogo real do appearances.dat) ----
-      var CAT=window.__TPITEMS||{}, BYS=window.__TPITEMSBYSLUG||{}, equip=b.equip||(b.equip={});
-      var EQ=[['helmet','Elmo','helmet'],['amulet','Amuleto','amulet'],['armor','Armadura','armor'],['legs','Pernas','legs'],['boots','Botas','boots'],['ring','Anel','ring'],['right','Off-hand (livro/escudo)','shield']];
-      var usedCS={}; EQ.forEach(function(e){usedCS[e[2]]=1;});
-      var dls=Object.keys(usedCS).map(function(cs){ return '<datalist id="tpil-'+cs+'">'+((CAT[cs]||[]).map(function(it){return '<option value="'+E(it.n)+'">'+(it.l?'lvl '+it.l:'')+'</option>';}).join(''))+'</datalist>'; }).join('');
-      var eqfields=EQ.map(function(e){ var cur=equip[e[0]]||''; var curName=BYS[cur]||cur||''; return '<label class="be2f"><span>'+e[1]+'</span><input list="tpil-'+e[2]+'" id="be2eq-'+e[0]+'" value="'+E(curName)+'" placeholder="buscar item…" oninput="tpBEequip(\''+e[0]+'\',this.value)"></label>'; }).join('');
-      var presets=((d.guide||{}).sets)||[];
-      var presetHtml=presets.length?('<div style="display:flex;gap:.5rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:.9rem"><label class="be2f" style="margin:0;min-width:180px"><span>Preset por nível (TibiaWiki)</span><select id="be2-preset">'+presets.map(function(s,i){ return '<option value="'+i+'">Nível '+E((String(s).split('|')[0]||('#'+(i+1))).trim())+'</option>'; }).join('')+'</select></label><button class="be2cancel" type="button" onclick="tpBEpreset()">Aplicar preset nos slots</button></div>'):'';
-      var wname=(b.weapon&&b.weapon.name)||'—';
-      var setsec='<div class="be2sec"><h4>🎒 Set / Equipamentos <span style="font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0">— catálogo real do jogo · digite pra buscar</span></h4>'
-        +presetHtml
-        +'<div class="be2grid">'+eqfields+'</div>'
-        +'<div class="be2soon" style="margin-top:.6rem">🗡️ Arma atual: <b>'+E(wname)+'</b> — a troca de arma fica na seção <b>Arma</b> acima (muda a árvore de proficiência).</div>'
-        +dls+'</div>';
-      var weaponSec=_beWeaponHtml();
-      var wheelSec=_beWheelHtml();
+      // ---- Editor mecânico = CALCULADORA REAL embutida (roda + set + proficiência + modificadores) ----
+      var _cd={}; for(var k in d){ if(k!=='guide') _cd[k]=d[k]; }
+      var code=encodeBuild(_cd);
+      var frame='<div class="be2sec be2calcsec"><h4>🧮 Build — roda, set, proficiência e modificadores <span style="font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0">— a calculadora de verdade</span></h4>'
+        +'<div class="be2soon" style="margin-bottom:.7rem">Edite tudo aqui exatamente como na calculadora (roda com gemas/revelação, picker de itens com ícones, proficiência, modificadores). O <b>dano é recalculado automaticamente</b> quando você salva.</div>'
+        +'<iframe id="be2-calc" class="be2calcframe" src="/calculadora-dano.html#b='+encodeURIComponent(code)+'" title="Editor da build" style="width:100%;height:1600px;border:1px solid var(--rule);border-radius:12px;background:#0d0c12"></iframe></div>';
       var host=document.getElementById('bld-detail'); if(!host) return;
-      host.innerHTML='<div class="be2">'+bar+meta+mods+weaponSec+prof+setsec+wheelSec+gsec+'</div>';
+      host.innerHTML='<div class="be2">'+bar+meta+frame+gsec+'</div>';
+      _beCalcBridge();
     };
     window.tpBEprof=function(li,oi){ tpBECapture(); var b=window.__BE.data.b; b.wprof=b.wprof||{}; if(+b.wprof[li]===oi) delete b.wprof[li]; else b.wprof[li]=oi; tpBERender(); };
     /* ===== Fatia 3 — Editor da Roda do Destino (pontos + gemas) + troca de arma ===== */
@@ -5713,16 +5691,33 @@ PlayerName (Leader)
     window.tpBEequip=function(eqkey,name){ tpBECapture(); var b=window.__BE.data.b; b.equip=b.equip||{}; var s=_tpSlug(name); if(s) b.equip[eqkey]=s; else delete b.equip[eqkey]; };
     window.tpBEpreset=function(){ var sel=document.getElementById('be2-preset'); if(!sel) return; var presets=((window.__BE.data.guide||{}).sets)||[]; var row=presets[+sel.value]; if(!row) return; tpBECapture(); var p=String(row).split('|').map(function(x){return x.trim();}); var b=window.__BE.data.b; b.equip=b.equip||{}; [['amulet',1],['ring',3],['helmet',4],['armor',5],['legs',6],['boots',7],['right',8]].forEach(function(m){ var nm=p[m[1]]; if(nm&&nm!=='—'&&nm!=='·'&&nm!=='-') b.equip[m[0]]=_tpSlug(nm); }); tpBERender(); if(window.tpToast) tpToast('Preset aplicado nos slots.','success'); };
     window.tpBECancel=function(){ var id=window.__BE&&window.__BE.id; window.__BE=null; if(id&&window.tpOpenBuild) tpOpenBuild(id); };
+    function _beGetCalcBuild(timeoutMs){
+      return new Promise(function(resolve){
+        var f=document.getElementById('be2-calc'); if(!f||!f.contentWindow){ resolve(null); return; }
+        var done=false;
+        function onMsg(ev){ var m=ev.data||{}; if(m.type==='tp-build'){ done=true; window.removeEventListener('message',onMsg); resolve(m); } else if(m.type==='tp-build-err'){ done=true; window.removeEventListener('message',onMsg); resolve({err:m.err}); } }
+        window.addEventListener('message',onMsg);
+        try{ f.contentWindow.postMessage({type:'tp-get-build'}, '*'); }catch(e){}
+        setTimeout(function(){ if(!done){ window.removeEventListener('message',onMsg); resolve(null); } }, timeoutMs||4000);
+      });
+    }
     window.tpBESave=async function(){
       var BE=window.__BE; if(!BE) return; tpBECapture();
-      var row=BE.row, d=BE.data;
-      var payload={ name:row.name, element:row.element, dano:row.dano||0, ml:parseInt((d.inp||{}).ml,10)||(row.ml||0), status:row.status, data:d, updated_at:new Date().toISOString() };
-      var btn=document.querySelector('#builds .be2save'); if(btn){btn.disabled=true;btn.textContent='Salvando…';}
+      var row=BE.row, guide=BE.data.guide||{};
+      var btn=document.getElementById('be2-savebtn')||document.querySelector('#builds .be2save'); if(btn){btn.disabled=true;btn.textContent='Calculando…';}
+      var res=await _beGetCalcBuild(5000);
+      if(!res || res.err || !res.o || !res.o.b){ if(window.tpToast) tpToast('Não consegui ler a build da calculadora — tente de novo.','error'); if(btn){btn.disabled=false;btn.textContent='💾 Salvar';} return; }
+      if(btn) btn.textContent='Salvando…';
+      var o=res.o; // {fmt,voc,inp,b,tg,ut,ex}
+      var newData={ fmt:o.fmt||1, voc:o.voc||row.vocation, inp:o.inp||{}, b:o.b||{}, tg:o.tg||[], ut:!!o.ut, ex:!!o.ex, guide:guide };
+      var dano=Math.round(res.dano||0);
+      var ml=parseInt((o.inp||{}).ml,10)||row.ml||0;
+      var payload={ name:row.name, element:row.element, dano:dano, ml:ml, status:row.status, data:newData, updated_at:new Date().toISOString() };
       try{
         var r=await (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/builds?id=eq.'+BE.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(payload)});
         if(!r.ok) throw new Error('PATCH '+r.status);
-        if(window.tpToast) tpToast('Build salva! ✅','success'); window.__BE=null;
-        setTimeout(function(){ location.reload(); },600);
+        if(window.tpToast) tpToast('Build salva! Dano recalculado: '+dano.toLocaleString('pt-BR')+' ✅','success'); window.__BE=null;
+        setTimeout(function(){ location.reload(); },800);
       }catch(e){ if(window.tpToast) tpToast('Não consegui salvar (confirme que você é admin).','error'); if(btn){btn.disabled=false;btn.textContent='💾 Salvar';} }
     };
     window.tpCloseBuild=function(){
