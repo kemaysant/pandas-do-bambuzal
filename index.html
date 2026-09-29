@@ -5154,6 +5154,58 @@ PlayerName (Leader)
       return '<div class="bd-wheelwrap">'+svg+side+'</div>';
     }
 
+    /* ===== Fatia 4 — render da roda SALVA (data.b.wheelPts) na página pública ===== */
+    function tpWheelStats(voc,pts){
+      var W=TP_WHEEL[voc]; if(!W) return null; pts=pts||{};
+      var dom=[0,0,0,0];
+      W.slots.forEach(function(s){ dom[s.dom]+=Math.max(0,Math.min(+pts[s.i]||0,s.max)); });
+      function stg(p){ var s=0; W.stageAt.forEach(function(th){ if(p>=th)s++; }); return s; }
+      var stages=dom.map(stg), flat=0; stages.forEach(function(s){ flat+=W.revDmg[s]||0; });
+      var used=0; Object.keys(pts).forEach(function(k){ used+=+pts[k]||0; });
+      return {W:W,domPts:dom,stages:stages,flat:flat,used:used};
+    }
+    var _WGEMTIER=['','lesser','regular','greater'], _WGEMLBL={lesser:'Lesser',regular:'Regular',greater:'Greater'};
+    function _wheelGem(g){ if(g==null) return null; if(typeof g==='number'){ var t=_WGEMTIER[g]; return t?{tier:t}:null; } if(typeof g==='object'){ return g.tier?g:null; } return null; }
+    function tpWheelRenderPts(voc,pts,gems,level){
+      var S=tpWheelStats(voc,pts); if(!S) return ''; pts=pts||{}; gems=gems||{};
+      var W=S.W, E=window.esc||function(s){return String(s==null?'':s);};
+      var paths=W.slots.map(function(s){
+        var d=W.domains[s.dom], pv=Math.max(0,Math.min(+pts[s.i]||0,s.max)), frac=s.max?pv/s.max:0;
+        var op=(pv>0)?(0.30+0.70*frac):0.10, col=(pv>0)?(d.bright||d.color):d.color;
+        return '<path d="'+s.d+'" fill="'+col+'" fill-opacity="'+op.toFixed(2)+'" stroke="#0d1117" stroke-width="1.4"><title>'+E(d.name)+' · '+pv+'/'+s.max+'</title></path>';
+      }).join('');
+      var svg='<svg class="bewheel-svg ro" viewBox="0 0 522 522" width="320" height="320" role="img" aria-label="Roda do Destino">'+paths
+        +'<circle cx="261" cy="261" r="52" fill="#0d1117" stroke="#2a2f3a" stroke-width="1.5"/>'
+        +'<text x="261" y="256" text-anchor="middle" fill="#e6edf3" font-size="30" font-weight="800">'+S.used+'</text>'
+        +'<text x="261" y="278" text-anchor="middle" fill="#7d8590" font-size="12">pontos</text></svg>';
+      var rows=[3,0,2,1].map(function(dm){
+        var d=W.domains[dm], stgN=S.stages[dm], p=S.domPts[dm], next=W.stageAt.filter(function(th){return p<th;})[0];
+        return '<div class="bewheel-dom'+(stgN>0?' hit':'')+'"><span class="bewheel-dot" style="background:'+d.color+'"></span>'
+          +'<span class="bewheel-dn">'+E(d.name)+'</span><span class="bewheel-dp">'+p+'<small>/1000</small></span>'
+          +'<span class="bewheel-ds'+(stgN>0?' on':'')+'">'+(stgN>0?'Estágio '+TP_WROMAN[stgN]:(next?('faltam '+(next-p)):'—'))+'</span></div>';
+      }).join('');
+      var byId={}; W.slots.forEach(function(s){byId[s.i]=s;});
+      var augList=TP_AUG[voc]||[];
+      var augHtml=augList.length?('<div class="bewheel-augs"><div class="bewheel-subh">Augments ativos</div>'+augList.map(function(a){
+        var st=a.s.filter(function(si){return (+pts[si]||0)>=(byId[si]?byId[si].max:9999);}).length, on=st>0;
+        return '<div class="bewheel-aug'+(on?' on':'')+'"><span class="bewheel-adot'+(on?' on':'')+'"></span><span>'+E(a.n)+'</span><b>'+(on?'Aug. '+TP_WROMAN[st]:'—')+'</b></div>';
+      }).join('')+'</div>'):'';
+      var vgimg=(typeof TP_VOCGEM!=='undefined'?(TP_VOCGEM[voc]||''):'');
+      var gemRows=[3,0,2,1].map(function(dm){ var g=_wheelGem(gems[dm]); if(!g) return ''; var d=W.domains[dm];
+        return '<div class="bewheel-vessel on"><span class="bewheel-dot" style="background:'+d.color+'"></span><span class="bewheel-vn">'+E(d.name)+'</span>'
+          +(vgimg?'<img class="bewheel-gemimg" src="'+vgimg+'" alt="gema">':'')+'<b style="text-transform:capitalize">'+E(_WGEMLBL[g.tier]||g.tier)+'</b>'+(g.mod?'<small style="color:var(--muted)"> · '+E(g.mod)+'</small>':'')+'</div>';
+      }).join('');
+      var gemsHtml=gemRows?('<div class="bewheel-gems"><div class="bewheel-subh">💎 Gemas / Vessels</div>'+gemRows+'</div>'):'';
+      var flatLine=(S.flat>0)?('<div class="bewheel-flat">Dano &amp; Cura da roda: <b>+'+S.flat+'</b> de revelação</div>')
+        :('<div class="bewheel-flat off">Sem estágio de revelação (Est. I = '+W.stageAt[0]+' pts)</div>');
+      var miles=(typeof tpMilestonesHtml==='function')?tpMilestonesHtml(S.used,level):'';
+      return '<div class="bewheel-wrap bewheel-ro">'
+        +'<div class="bewheel-left">'+svg+flatLine+'</div>'
+        +'<div class="bewheel-right"><div class="bewheel-doms">'+rows+'</div>'+augHtml+gemsHtml+'</div>'
+        +'</div>'+(miles?('<div class="bewheel-miles">'+miles+'</div>'):'');
+    }
+    function _wheelHasPts(pts){ if(!pts||typeof pts!=='object') return false; for(var k in pts){ if((+pts[k]||0)>0) return true; } return false; }
+
     /* ---------- detail ---------- */
     window.tpOpenBuild=function(id,mode){
       var b=byId[id]; if(!b)return;
@@ -5234,7 +5286,10 @@ PlayerName (Leader)
       if(_M) tags.push('<span class="bld-tag">'+esc(_M.lbl)+' ('+esc(_M.sub)+')</span>');
       else if(bb.stance&&bb.stance!=='none') tags.push('<span class="bld-tag">'+esc(STANCE_LBL[bb.stance]||bb.stance)+'</span>');
 
-      var wheelHtml=tpWheelSVG(b.vocation,(inp.level||st.level||0),id,_curMode);
+      var _wlvl=(inp.level||st.level||0);
+      var _savedWP=_wheelHasPts(bb.wheelPts)?bb.wheelPts:null;
+      if(_savedWP)_beCss2();
+      var wheelHtml=_savedWP?tpWheelRenderPts(b.vocation,_savedWP,bb.gems,_wlvl):tpWheelSVG(b.vocation,_wlvl,id,_curMode);
       /* GUIA estilo Blitz (opcional por build em d.guide): resumo, rotação-passos, prioridades, insights/forças/fraquezas */
       var guide=(d.guide&&typeof d.guide==='object')?d.guide:null;
       var _spRe=(function(){ try{ var ks=Object.keys(TP_SPELLICON).sort(function(a,b){return b.length-a.length;}).map(function(k){return k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}); return new RegExp('('+ks.join('|')+')','g'); }catch(e){ return null; } })();
@@ -5400,7 +5455,7 @@ PlayerName (Leader)
       +'.bewheel-flat{font-size:.85rem;color:var(--ink);background:rgba(201,168,64,.08);border:1px solid rgba(201,168,64,.25);border-radius:8px;padding:.5rem .6rem}.bewheel-flat.off{color:var(--muted);background:transparent;border-color:var(--rule)}.bewheel-flat b{color:var(--gold,#c9a840)}.bewheel-over{font-size:.82rem;color:#e0554b;background:rgba(224,85,75,.1);border:1px solid rgba(224,85,75,.35);border-radius:8px;padding:.45rem .6rem;margin-bottom:.4rem}'
       +'.bewheel-doms{display:flex;flex-direction:column;gap:.35rem}.bewheel-dom{display:grid;grid-template-columns:auto 1fr auto;gap:.5rem;align-items:center;padding:.4rem .55rem;border:1px solid var(--rule);border-radius:8px;font-size:.82rem}.bewheel-dom.hit{border-color:rgba(201,168,64,.4);background:rgba(201,168,64,.05)}.bewheel-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}.bewheel-dn{font-weight:600;color:var(--ink)}.bewheel-dp{color:var(--ink);font-variant-numeric:tabular-nums;text-align:right}.bewheel-dp small{color:var(--muted)}.bewheel-ds{font-size:.72rem;color:var(--muted);grid-column:2/-1;justify-self:start}.bewheel-ds.on{color:var(--gold,#c9a840);font-weight:700}.bewheel-df{display:none}'
       +'.bewheel-subh{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:.9rem 0 .5rem;font-weight:700}.bewheel-augs{margin-top:.8rem}.bewheel-aug{display:flex;gap:.5rem;align-items:center;font-size:.8rem;padding:.3rem .5rem;color:var(--muted)}.bewheel-aug.on{color:var(--ink)}.bewheel-aug b{margin-left:auto;font-size:.72rem}.bewheel-aug.on b{color:var(--gold,#c9a840)}.bewheel-adot{width:8px;height:8px;border-radius:50%;background:var(--rule)}.bewheel-adot.on{background:var(--gold,#c9a840)}'
-      +'.bewheel-gems{margin-top:1rem}.bewheel-vessel{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;padding:.5rem .6rem;border:1px solid var(--rule);border-radius:8px;margin-bottom:.45rem;font-size:.82rem}.bewheel-vessel.on{border-color:rgba(201,168,64,.4);background:rgba(201,168,64,.05)}.bewheel-vessel.off{opacity:.55}.bewheel-vn{font-weight:600;color:var(--ink);min-width:120px}.bewheel-vn small{color:var(--muted);font-weight:400}.bewheel-vlock{color:var(--muted);font-size:.78rem;font-style:italic}.bewheel-gemimg{width:20px;height:20px;image-rendering:pixelated}.bewheel-tier{width:120px}.bewheel-modin{flex:1;min-width:150px}.bewheel-tier,.bewheel-modin{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .5rem;font:inherit;font-size:.82rem}';
+      +'.bewheel-gems{margin-top:1rem}.bewheel-vessel{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;padding:.5rem .6rem;border:1px solid var(--rule);border-radius:8px;margin-bottom:.45rem;font-size:.82rem}.bewheel-vessel.on{border-color:rgba(201,168,64,.4);background:rgba(201,168,64,.05)}.bewheel-vessel.off{opacity:.55}.bewheel-vn{font-weight:600;color:var(--ink);min-width:120px}.bewheel-vn small{color:var(--muted);font-weight:400}.bewheel-vlock{color:var(--muted);font-size:.78rem;font-style:italic}.bewheel-gemimg{width:20px;height:20px;image-rendering:pixelated}.bewheel-tier{width:120px}.bewheel-modin{flex:1;min-width:150px}.bewheel-tier,.bewheel-modin{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .5rem;font:inherit;font-size:.82rem}.bewheel-miles{margin-top:1rem}.bewheel-svg.ro path{cursor:default}.bewheel-ro .bewheel-left{flex:0 0 auto}';
       document.head.appendChild(s); }
     window.tpBuildEditor=async function(id){
       if(!id) return;
