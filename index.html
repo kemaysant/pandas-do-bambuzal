@@ -3377,11 +3377,12 @@ PlayerName (Leader)
   <!-- ─── MEU PERFIL ─── -->
   <section class="page-section" id="profile">
     <style>
-      #profile .pf-header{display:flex;gap:0;align-items:stretch;flex-wrap:wrap;margin-bottom:1.1rem;padding:0;overflow:hidden}
+      #profile .pf-header{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-bottom:1.1rem;padding:16px;overflow:visible}
+      @media(max-width:640px){#profile .pf-hero-stage{width:100%!important;height:260px!important}}
       #profile .pf-avatar{width:92px;height:92px;border-radius:16px;background:radial-gradient(120% 90% at 50% 20%,var(--bg-3,#26243a),#12111a);border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;position:relative}
       #profile .pf-avatar canvas{image-rendering:pixelated;width:76px;height:76px}
       #profile .pf-avatar .pf-init{font-size:2rem;font-weight:800;color:var(--bamboo,#8b5cf6)}
-      #profile .pf-id{flex:1;min-width:240px;padding:1.15rem 1.3rem;display:flex;flex-direction:column;justify-content:center;gap:.15rem}
+      #profile .pf-id{flex:1;min-width:240px;padding:0;display:flex;flex-direction:column;justify-content:center;gap:.15rem}
       #profile .pf-username{font-size:1.35rem;font-weight:800;line-height:1.1;display:flex;align-items:center;gap:.55rem;flex-wrap:wrap}
       #profile .pf-lvlbadge{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;padding:3px 10px;border-radius:999px;background:rgba(139,92,246,.16);border:1px solid rgba(139,92,246,.42);color:var(--bamboo-light,#a78bfa)}
       #profile .pf-mainchar{font-size:.85rem;color:var(--muted);margin:.15rem 0 .6rem}
@@ -3623,6 +3624,9 @@ PlayerName (Leader)
       #profile .vit-kpi{flex:1;min-width:120px;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:12px;padding:.7rem .9rem}
       #profile .vit-kpi .v{font-size:1.3rem;font-weight:800;color:var(--ink,#eae8f2)}
       #profile .vit-kpi .k{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+      #profile .vit-kpi.gd .v{color:var(--gold,#c9a840)}
+      #profile .vit-kpi.g .v{color:var(--green,#4bd07a)}
+      #profile .vit-kpi.b .v{color:var(--blue,#5aa9e8)}
       #profile .vit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:.6rem}
       #profile .vit-item{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-left-width:3px;border-radius:10px;padding:.6rem .75rem;transition:transform .12s,border-color .15s}
       #profile .vit-item:hover{transform:translateY(-2px)}
@@ -3653,8 +3657,8 @@ PlayerName (Leader)
       #profile .vit-hint{font-size:.63rem;color:var(--bamboo-light,#a78bfa);margin-top:.35rem;opacity:0;transition:opacity .12s}
       #profile .vit-item:hover .vit-hint{opacity:.85}
       #profile .pf-hero-card{display:flex;gap:0;flex-wrap:wrap;align-items:stretch;padding:0;overflow:hidden;margin-bottom:1rem}
-      #profile .pf-hero-stage{position:relative;width:210px;flex:none;min-height:210px;display:flex;align-items:center;justify-content:center;image-rendering:pixelated;background-size:56px 56px;background-color:#3a3a44;box-shadow:inset 0 0 0 1px var(--rule),inset 0 0 50px rgba(0,0,0,.55)}
-      #profile .pf-hero-stage canvas{image-rendering:pixelated;width:104px;height:104px;position:relative;z-index:1;filter:drop-shadow(0 5px 4px rgba(0,0,0,.55))}
+      #profile .pf-hero-stage{position:relative;width:240px;height:240px;flex:none;align-self:center;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;image-rendering:pixelated;background-size:56px 56px;background-color:#3a3a44;box-shadow:inset 0 0 0 1px var(--rule),inset 0 0 50px rgba(0,0,0,.55),0 10px 26px rgba(0,0,0,.45)}
+      #profile .pf-hero-stage canvas{image-rendering:pixelated;width:150px;height:150px;position:relative;z-index:1;filter:drop-shadow(0 6px 6px rgba(0,0,0,.55))}
       #profile .pf-hero-animbtn{position:absolute;bottom:9px;right:9px;z-index:2;background:rgba(20,19,28,.82);border:1px solid var(--rule);color:var(--ink,#eae8f2);border-radius:8px;padding:.32rem .62rem;cursor:pointer;font-size:.72rem;font-weight:700}
       #profile .pf-hero-animbtn.on{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6);color:#fff}
       #profile .pf-hero-info{flex:1;min-width:230px;padding:1.15rem 1.25rem;display:flex;flex-direction:column;gap:.55rem}
@@ -3755,6 +3759,10 @@ PlayerName (Leader)
             <div class="tool-title" style="font-size:1.05rem;margin-bottom:.3rem">🏆 Vitrine de Conquistas</div>
             <div style="font-size:.76rem;color:var(--muted);margin-bottom:.9rem">Conquistas do seu <b>personagem principal</b>. Deixe públicas no Tibia.com (Characters → Edit → "Show Achievements").</div>
             <div id="pf-vit-body"><div class="api-loading"><div class="spinner"></div> Carregando conquistas...</div></div>
+          </div>
+          <div class="card">
+            <div class="tool-title" style="font-size:1.05rem;margin-bottom:.3rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem">🐾 Bestiary <button onclick="var b=document.querySelector('.nav-btn[onclick*=bestiary]');if(b)b.click()" style="background:none;border:0;color:var(--bamboo-light,#a78bfa);font-size:.78rem;cursor:pointer;font-weight:700">Ver bestiário →</button></div>
+            <div id="pf-best-body"><div class="api-loading"><div class="spinner"></div> Carregando bestiary...</div></div>
           </div>
           <div class="card">
             <div class="tool-title" style="font-size:1.05rem;margin-bottom:.3rem">💬 Comentários <span id="pf-depo-badge" class="pf-tabbadge" style="display:none">0</span></div>
@@ -14284,15 +14292,13 @@ function ewEnsureTcInput() {
   function vitBestBlock(bs){
     if(!bs) return '';
     var pct=bs.total?Math.round(bs.discovered/bs.total*100):0;
-    return '<div style="margin:.2rem 0 1.1rem">'
-      +'<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem"><span style="font-size:.95rem">🐾</span><b style="color:var(--ink,#eae8f2)">Bestiary</b>'
-        +'<button onclick="var b=document.querySelector(\'.nav-btn[onclick*=bestiary]\');if(b)b.click()" style="margin-left:auto;background:none;border:0;color:var(--bamboo-light,#a78bfa);font-size:.75rem;cursor:pointer">Ver bestiário completo →</button></div>'
-      +'<div class="vit-summary">'
-        +'<div class="vit-kpi"><div class="v">'+bs.discovered+' / '+bs.total+'</div><div class="k">Descobertas ('+pct+'%)</div></div>'
-        +'<div class="vit-kpi"><div class="v">'+bs.done+' / '+bs.total+'</div><div class="k">Completas (charm)</div></div>'
-        +'<div class="vit-kpi"><div class="v">'+bs.charmGot.toLocaleString('pt-BR')+' / '+bs.charmTotal.toLocaleString('pt-BR')+'</div><div class="k">Charm points</div></div>'
-      +'</div></div>';
+    return '<div class="vit-summary">'
+        +'<div class="vit-kpi b"><div class="v">'+bs.discovered+' / '+bs.total+'</div><div class="k">Descobertas ('+pct+'%)</div></div>'
+        +'<div class="vit-kpi g"><div class="v">'+bs.done+' / '+bs.total+'</div><div class="k">Completas (charm)</div></div>'
+        +'<div class="vit-kpi gd"><div class="v">'+bs.charmGot.toLocaleString('pt-BR')+' / '+bs.charmTotal.toLocaleString('pt-BR')+'</div><div class="k">Charm points</div></div>'
+      +'</div>';
   }
+  function tpRenderBest(html){ var b=g('pf-best-body'); if(b) b.innerHTML=html||'<div style="font-size:.78rem;color:var(--muted)">Sem dados do bestiary ainda. Salve uma sessão de hunt pra começar. 🐾</div>'; }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   window.__VIT_CACHE=window.__VIT_CACHE||{};
   // expõe helpers pra outros blocos (ex.: perfil de amigo visitável)
@@ -14301,13 +14307,13 @@ function ewEnsureTcInput() {
     var body=g('pf-vit-body'); if(!body||!AUTH) return;
     var prof=AUTH.profile||{};
     var feat=pfFeatured(window.__tpChars||[], prof.main_char);
-    if(!feat){ var bb=''; try{ if(window.tpBestSummary){ bb=vitBestBlock(await window.tpBestSummary()); } }catch(e){}
-      body.innerHTML=bb+'<div class="vit-empty">Defina um <b>personagem principal verificado</b> na aba Personagens pra ver a vitrine de conquistas dele aqui. 🐼</div>'; return; }
+    if(!feat){ var bb=''; try{ if(window.tpBestSummary){ bb=vitBestBlock(await window.tpBestSummary()); } }catch(e){} tpRenderBest(bb);
+      body.innerHTML='<div class="vit-empty">Defina um <b>personagem principal verificado</b> na aba Personagens pra ver a vitrine de conquistas dele aqui. 🐼</div>'; return; }
     // cache: revisita é instantânea e não refaz a chamada lenta ao TibiaData
     if(!force && window.__VIT_CACHE[feat.name]){ window.__VIT=window.__VIT_CACHE[feat.name]; tpVitRender(); return; }
     // guarda contra chamadas concorrentes (showPage + aba) que deixavam o "Carregando" preso
     if(window.__VIT_LOADING===feat.name) return; window.__VIT_LOADING=feat.name;
-    var bestBlock=''; try{ if(window.tpBestSummary){ bestBlock=vitBestBlock(await window.tpBestSummary()); } }catch(e){}
+    var bestBlock=''; try{ if(window.tpBestSummary){ bestBlock=vitBestBlock(await window.tpBestSummary()); } }catch(e){} tpRenderBest(bestBlock);
     body.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando conquistas de '+feat.name+'...</div>';
     try{
       var cat=await vitCatalog();
@@ -14325,19 +14331,19 @@ function ewEnsureTcInput() {
       }).sort(function(x,y){ var o={'lendário':5,lendario:5,'épico':4,epico:4,raro:3,incomum:2,comum:1}; return (o[(y.rarity||'').toLowerCase()]||0)-(o[(x.rarity||'').toLowerCase()]||0) || (y.points-x.points); });
       var epleg=(rarCount['lendário']||0)+(rarCount.lendario||0)+(rarCount['épico']||0)+(rarCount.epico||0);
       var kpis='<div class="vit-summary">'
-        +'<div class="vit-kpi"><div class="v">'+pts+'</div><div class="k">Pontos (main)</div></div>'
+        +'<div class="vit-kpi gd"><div class="v">'+pts+'</div><div class="k">Pontos (main)</div></div>'
         +'<div class="vit-kpi"><div class="v">'+achs.length+'</div><div class="k">Conquistas públicas</div></div>'
-        +'<div class="vit-kpi"><div class="v">'+epleg+'</div><div class="k">Épicas + Lendárias</div></div>'
+        +'<div class="vit-kpi g"><div class="v">'+epleg+'</div><div class="k">Épicas + Lendárias</div></div>'
         +'</div>';
       if(!achs.length){
-        body.innerHTML=kpis+bestBlock+'<div class="vit-empty">'+feat.name+' tem <b>'+pts+' pontos</b> de achievement, mas a lista está <b>privada</b> no Tibia.com.<br><br>Ative em <em>tibia.com → sua conta → Characters → Edit → marque "Show Achievements"</em> pra montar sua vitrine aqui. 🐼</div>';
+        body.innerHTML=kpis+'<div class="vit-empty">'+feat.name+' tem <b>'+pts+' pontos</b> de achievement, mas a lista está <b>privada</b> no Tibia.com.<br><br>Ative em <em>tibia.com → sua conta → Characters → Edit → marque "Show Achievements"</em> pra montar sua vitrine aqui. 🐼</div>';
         return;
       }
       // cacheia tudo pra re-render local (toggle mostra/oculta) sem refazer a chamada ao TibiaData
       window.__VIT={feat:feat, enriched:enriched, kpis:kpis, bestBlock:bestBlock};
       window.__VIT_CACHE[feat.name]=window.__VIT;
       tpVitRender();
-    }catch(e){ body.innerHTML=bestBlock+'<div class="vit-empty">Não foi possível carregar as conquistas agora. Tente de novo em instantes.</div>'; }
+    }catch(e){ body.innerHTML='<div class="vit-empty">Não foi possível carregar as conquistas agora. Tente de novo em instantes.</div>'; }
     finally{ window.__VIT_LOADING=null; }
   };
   // showcase = lista de nomes OCULTOS no perfil (vazio = mostra todas as públicas)
@@ -14357,7 +14363,8 @@ function ewEnsureTcInput() {
       +'<a href="https://www.tibia.com/account/?subtopic=characters" target="_blank" rel="noopener" style="background:none;border:1px solid var(--rule);border-radius:8px;color:var(--bamboo-light,#a78bfa);font-size:.74rem;padding:.3rem .7rem;cursor:pointer;text-decoration:none">✏️ Escolher no Tibia.com ↗</a></div>';
     var grid='<div class="vit-grid">'+V.enriched.map(cardHtml).join('')+'</div>';
     var note='<div style="font-size:.72rem;color:var(--muted);margin-top:.7rem;line-height:1.5">👁 mostra/oculta a conquista no <b>seu perfil</b> (dá pra deixar menos que 5). O Tibia.com só nos deixa <b>ver</b> as que você marcou como públicas lá — pra trocar quais são visíveis, edite em <i>Tibia.com → Characters → '+esc(V.feat.name)+' → Edit Character → "Display Character Achievements"</i>. Clique numa conquista pra ver como consegui-la.</div>';
-    body.innerHTML=V.kpis+V.bestBlock+hdr+grid+note;
+    tpRenderBest(V.bestBlock);
+    body.innerHTML=V.kpis+hdr+grid+note;
   }
   window.tpVitToggleHide=async function(i){
     var V=window.__VIT; if(!V||!V.enriched[i]||!AUTH) return;
@@ -16699,7 +16706,7 @@ window.tpLoadJornada=async function(){
   .depo-pend{border-color:var(--gold,#c9a840)}
   .depo-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem;gap:.5rem}
   .depo-who{display:flex;align-items:center;gap:.5rem;min-width:0}
-  .depo-av{width:36px;height:36px;flex:0 0 36px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg-3,#232130);border:1px solid var(--rule,#2b2938);font-size:1.05rem;line-height:1}
+  .depo-av{width:36px;height:36px;flex:0 0 36px;border-radius:9px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg-3,#232130);border:1px solid var(--rule,#2b2938);font-size:1.05rem;line-height:1}
   .depo-av canvas{max-width:100%;max-height:100%;image-rendering:pixelated}
   .depo-hd b{color:var(--ink,#eae8f2);font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .depo-date{font-size:.7rem;color:var(--muted)}
