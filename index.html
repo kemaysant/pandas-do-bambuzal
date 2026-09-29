@@ -18444,6 +18444,54 @@ window.tpLoadJornada=async function(){
   </script>
 
   <script>
+  /* Abrir menus/páginas/perfil em NOVA ABA (middle-click / ctrl-click): navegação em JS vira links reais (#page) que o roteador de hash já entende. */
+  (function(){
+    try{
+      var st=document.createElement('style');
+      st.textContent='#tp-topnav a.tp-tn-item,#tp-topnav a.tp-tn-logo{text-decoration:none;color:inherit}#tp-usermenu a{text-decoration:none;color:inherit}.nav-btn[href]{text-decoration:none}';
+      document.head.appendChild(st);
+    }catch(e){}
+    function toAnchor(el, href){
+      try{
+        if(!el) return el;
+        if(el.tagName==='A'){ if(href && !el.getAttribute('href')) el.setAttribute('href',href); return el; }
+        var a=document.createElement('a'); if(href) a.setAttribute('href',href);
+        Array.prototype.slice.call(el.attributes).forEach(function(at){ if(at.name!=='href') a.setAttribute(at.name,at.value); });
+        a.innerHTML=el.innerHTML;
+        if(el.parentNode) el.parentNode.replaceChild(a,el);
+        return a;
+      }catch(e){ return el; }
+    }
+    function linkify(){
+      try{
+        // 1) itens de nav do topo com data-page
+        document.querySelectorAll('#tp-topnav [data-page]').forEach(function(el){ var p=el.getAttribute('data-page'); if(p) toAnchor(el,'#'+p); });
+        // 2) itens do menu de perfil (onclick tpUserGo('x'))
+        document.querySelectorAll('#tp-usermenu button[onclick*="tpUserGo"]').forEach(function(el){
+          var m=(el.getAttribute('onclick')||'').match(/tpUserGo\(\s*'([^']+)'\s*\)/); if(!m) return;
+          var pg=m[1]; toAnchor(el, /dados/.test(pg)?'#profile':('#'+pg));
+        });
+        // 3) botões da sidebar (onclick showPage('x'...))
+        document.querySelectorAll('.sidebar .nav-btn[onclick*="showPage("]').forEach(function(el){
+          var m=(el.getAttribute('onclick')||'').match(/showPage\(\s*'([^']+)'/); if(!m) return;
+          toAnchor(el, '#'+m[1]);
+        });
+      }catch(e){}
+    }
+    // ctrl/cmd/shift-click num link de hash: deixa o browser abrir nova aba (corta o handler SPA antes do preventDefault)
+    document.addEventListener('click', function(e){
+      if(!(e.metaKey||e.ctrlKey||e.shiftKey)) return;
+      var a=e.target && e.target.closest && e.target.closest('a[href^="#"]');
+      if(a){ var h=a.getAttribute('href'); if(h && h.length>1){ e.stopImmediatePropagation(); } }
+    }, true);
+    if(document.readyState!=='loading') linkify(); else document.addEventListener('DOMContentLoaded', linkify);
+    [400,1000,2000].forEach(function(t){ setTimeout(linkify,t); });
+    // re-linkifica quando a área de conta (chip+menu) é reconstruída no login/logout
+    try{ var ao=document.getElementById('tp-auth-area'); if(ao && window.MutationObserver){ new MutationObserver(function(){ setTimeout(linkify,60); }).observe(ao,{childList:true,subtree:true}); } }catch(e){}
+  })();
+  </script>
+
+  <script>
   (function(){
     var homes=null;
     function E(){
