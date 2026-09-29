@@ -4807,7 +4807,7 @@ PlayerName (Leader)
       #builds .bd-perks{display:flex;flex-direction:column;gap:.3rem}#builds .bd-ptree{display:flex;flex-direction:column;gap:.4rem}#builds .bd-plevel{display:flex;gap:.55rem;align-items:flex-start}#builds .bd-plv{flex:0 0 auto;font-size:.6rem;font-weight:800;color:var(--gold);background:var(--gold-dim);border-radius:5px;padding:.28rem .4rem;margin-top:.1rem;letter-spacing:.02em;min-width:36px;text-align:center}#builds .bd-popts{display:flex;flex-wrap:wrap;gap:.3rem;flex:1;min-width:0}#builds .bd-popt{font-size:.74rem;color:var(--ink-3);background:var(--bg-1);border:1px solid var(--border);border-radius:7px;padding:.3rem .5rem;opacity:.5}#builds .bd-popt.sel{color:var(--ink);border-color:var(--bamboo);background:var(--bamboo-dim);opacity:1;font-weight:600}#builds .bd-popt.shaped{color:var(--gold);border-color:var(--gold);background:var(--gold-dim);opacity:1;font-weight:600}
       #builds .bd-ptgrid{display:flex;gap:.4rem;overflow-x:auto;padding-bottom:.3rem}#builds .bd-ptcol{flex:1;min-width:50px;display:flex;flex-direction:column;align-items:center;gap:.35rem}#builds .bd-ptch{font-size:.66rem;font-weight:800;color:var(--gold)}#builds .bd-pti{position:relative;width:100%;max-width:58px;aspect-ratio:1;background:var(--bg-1);border:2px solid var(--border);border-radius:9px;cursor:default;display:flex;align-items:center;justify-content:center;padding:2px}#builds .bd-pti.sit{opacity:.42}#builds .bd-pti.on{border-color:var(--bamboo);box-shadow:0 0 0 2px var(--bamboo-dim),inset 0 0 12px rgba(139,92,246,.28)}#builds .bd-pti.sit.on{opacity:.9}
       #builds .bd-pti:not(.on){filter:grayscale(.85);opacity:.5}
-      #builds .bd-pti.on{filter:none;opacity:1}#builds .bd-pti .bd-ptic{width:100%;height:100%;object-fit:contain;image-rendering:auto}#builds .bd-pti .bd-ptic-x{color:var(--ink-3);font-size:1rem;display:flex;align-items:center;justify-content:center}#builds .bd-pti .bd-ptov{position:absolute;top:-3px;right:-3px;width:15px;height:15px}#builds .bd-pti .bd-ptpct{position:absolute;bottom:-2px;right:1px;font-size:.58rem;font-weight:800;color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000;padding:0 1px}#builds .bd-ptsels{display:flex;flex-direction:column;gap:.25rem;margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--border)}#builds .bd-ptsel{font-size:.72rem;color:var(--ink-2);line-height:1.35}#builds .bd-ptsel .bd-ptsl{display:inline-block;min-width:26px;color:var(--gold);font-weight:800;font-size:.62rem}
+      #builds .bd-pti.on{filter:none;opacity:1}#builds .bd-pti .bd-ptic{width:100%;height:100%;object-fit:contain;image-rendering:auto}#builds .bd-pti .bd-ptic-x{color:var(--ink-3);font-size:1rem;display:flex;align-items:center;justify-content:center}#builds .bd-pti .bd-ptov{position:absolute;top:-3px;right:-3px;width:15px;height:15px}#builds .bd-pti .bd-ptpct{position:absolute;bottom:-2px;right:1px;font-size:.58rem;font-weight:800;color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000;padding:0 1px}#builds .bd-ptsels{display:flex;flex-direction:column;gap:.25rem;margin-top:.7rem;padding-top:.6rem;border-top:1px solid var(--border)}#builds .bd-ptsel{font-size:.72rem;color:var(--ink-2);line-height:1.35}#builds .bd-ptsel .bd-ptsl{display:inline-block;min-width:26px;color:var(--gold);font-weight:800;font-size:.62rem}#builds .bd-shapes{margin-top:.5rem}#builds .bd-shhead{font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;color:var(--bamboo,#8b5cf6);font-weight:800;margin-bottom:.3rem}#builds .bd-shsel{display:flex;align-items:center;gap:.35rem}#builds .bd-shic{width:16px;height:16px;object-fit:contain;image-rendering:auto;vertical-align:middle}#builds .bd-shr{color:var(--ink-3);font-size:.6rem}
       #builds .bd-perk{display:flex;gap:.55rem;align-items:baseline;background:var(--bg-1);border:1px solid var(--border);border-radius:8px;padding:.4rem .6rem;font-size:.82rem;color:var(--ink-2)}
       #builds .bd-perk i{flex:0 0 auto;font-style:normal;font-size:.64rem;font-weight:800;color:var(--gold);background:var(--gold-dim);border-radius:5px;padding:.1rem .4rem;letter-spacing:.02em}
       #builds .bd-perk.shape i{color:var(--bamboo-light);background:var(--bamboo-dim)}
@@ -5233,21 +5233,25 @@ PlayerName (Leader)
     /* ---------- detail ---------- */
     window.tpOpenBuild=function(id,mode){
       var b=byId[id]; if(!b)return;
+      window.__tpCurBuild=id;
+      if(!window.__DC && window.tpLoadCatalog){ tpLoadCatalog().then(function(){ if(window.__tpCurBuild===id) window.tpOpenBuild(id,mode); }); }
       var d=b.data||{}, bb=d.b||{}, w=bb.weapon||{}, inp=d.inp||{};
       var det=BDET[id]||{};
       var _modes=det.modes||null, _mkeys=_modes?['decay','flames','thunder']:[];
       var _curMode=_modes?(_modes[mode]?mode:(det.defMode||'decay')):null;
       var _M=_modes?_modes[_curMode]:null;
       var voc=VOCS[b.vocation]||{label:b.vocation,emoji:'🐼'};
-      var ic=WIC[w.icon], el=b.element||w.damageType||'', elc=ELCOL[el]||'var(--gold)';
+      var _DC=window.__DC||{}, _DCI=_DC.icons||{}, _DCE=_DC.equip||{}, _DCAL=_DC.aliases||{}, _DCW=_DC.weapons||{}, _DCS=_DC.spells||{};
+      var ic=_DCI[w.icon]||WIC[w.icon], el=b.element||w.damageType||'', elc=ELCOL[el]||'var(--gold)';
       var _cd={}; for(var _ck in d){ if(_ck!=='guide') _cd[_ck]=d[_ck]; } /* guia é só p/ exibição — fora do código pra ficar curto */
       var code=encodeBuild(_cd);
       var st=det.stats||{};
+      function _sv(k){ var v=inp[k]; return (v!=null&&v!=='')?v:st[k]; }
       var _isMage=(b.vocation==='druid'||b.vocation==='sorcerer');
       var _critTip='Valor padrão da calculadora (10% de chance de crit · +90% de dano no crit). NÃO é medido do personagem — o crit real vem das gemas e itens dele. Se souber os valores exatos, ajuste na calculadora.';
-      var statTiles=[['Nível',st.level],['Magic Level',st.ml]]
-        .concat(_isMage?[]:[['Skill',st.skill]])
-        .concat([['Crit %',st.critc!=null?st.critc+'%':null,_critTip],['Crit dmg',st.critd!=null?st.critd+'%':null,_critTip]])
+      var statTiles=[['Nível',_sv('level')],['Magic Level',_sv('ml')]]
+        .concat(_isMage?[]:[['Skill',_sv('skill')]])
+        .concat([['Crit %',_sv('critc')!=null?_sv('critc')+'%':null,_critTip],['Crit dmg',_sv('critd')!=null?_sv('critd')+'%':null,_critTip]])
         .filter(function(x){return x[1]!=null && x[1]!=='';})
         .map(function(x){return '<div class="bd-stat'+(x[2]?' bd-stat-info':'')+'"'+(x[2]?' title="'+esc(x[2])+'"':'')+'><b>'+esc(x[1])+'</b><span>'+esc(x[0])+(x[2]?' <i class="bd-statq">?</i>':'')+'</span></div>';}).join('');
       function profPct(t){ var m=String(t||'').match(/^\+([\d.]+%?)/); return m?('+'+m[1]):''; }
@@ -5271,8 +5275,24 @@ PlayerName (Leader)
         perks='<div class="bd-ptgrid">'+_cols+'</div>'+(_sels?'<div class="bd-ptsels">'+_sels+'</div>':'');
       }
       var shapes='';
+      (function(){
+        var _sh=bb.shapes||{}, _sk=Object.keys(_sh);
+        if(!_sk.length || !_DC.shapeOpts) return;
+        var SO=_DC.shapeOpts, SIC=_DC.shapeIcons||{};
+        var rows=_sk.map(function(li){ var sh=_sh[li]||{}; if(!sh.n) return '';
+          var opt=SO.filter(function(o){ return o.n===sh.n && (o.voc===sh.voc||o.voc==='all'||!sh.voc); })[0];
+          var val=opt?Math.round((opt.r0+(opt.r10-opt.r0)*(+sh.rank||0)/10)*100)/100:null;
+          var icd=opt?SIC[opt.ic]:null;
+          return '<div class="bd-ptsel bd-shsel"><span class="bd-ptsl">★'+((+li)+1)+'</span> '+(icd?'<img class="bd-shic" src="'+icd+'" alt="">':'✦ ')+esc(sh.n)+(val!=null?' +'+val+'%':'')+' <span class="bd-shr">shape r'+(+sh.rank||0)+'</span></div>';
+        }).filter(Boolean).join('');
+        if(rows) shapes='<div class="bd-ptsels bd-shapes"><div class="bd-shhead">✦ Shapes (modificadores)</div>'+rows+'</div>';
+      })();
       function rotRow(r){var isAA=/^auto.?attack/i.test(stripQ(r.n));var badge=isAA?'<span class="bd-rbadge aa">Auto-attack</span>':(r.focus?'<span class="bd-rbadge ult">★ Ultimate</span>':'<span class="bd-rbadge rot">Rotação</span>');var nm=isAA?'Auto-attack':esc(r.n);var right=(r.tg?r.tg+' alvo(s)':'')+(r.focus?' · finalizador':'');return '<div class="bd-rline"><span class="bd-rname"><b>'+nm+'</b>'+badge+'</span><span>'+right+'</span></div>';}
-      var _rotSrc=_M?_M.rot:(det.rot||[]);
+      var _rotSrc;
+      if(bb.rotation && bb.rotation.length && Object.keys(_DCS).length){
+        _rotSrc=bb.rotation.map(function(r){ var sp=_DCS[String(r.id)]||{}; var nm=sp.dn||String(sp.n||('#'+r.id)).replace(/\s*\([^)]*\)\s*$/,''); return {n:nm, tg:r.targets, focus:false, el:sp.el}; });
+        if(_rotSrc.length) _rotSrc[_rotSrc.length-1].focus=true; /* último = finalizador */
+      } else { _rotSrc=_M?_M.rot:(det.rot||[]); }
       var _rs=_rotSrc.filter(function(r){return !r.focus;}),_ru=_rotSrc.filter(function(r){return r.focus;});
       function stripQ(n){ return String(n||'').replace(/\s*\([^)]*\)\s*$/,'').trim(); }
       function rspell(r,idx){
@@ -5288,25 +5308,23 @@ PlayerName (Leader)
       var seq=_seqArr.map(function(r,i){ return (i>0?'<div class="bd-rsarrow">›</div>':'')+rspell(r,i+1); }).join('');
       var seqHtml=seq?'<div class="bd-rotseq">'+seq+'</div>':'';
       var rot=seqHtml+_rs.map(rotRow).join('')+_ru.map(rotRow).join('');
-      var _eqby={}; (det.equip2||[]).forEach(function(it){ _eqby[it.slot]=it; });
-      /* Fatia 5: prefere o set salvo ao vivo (data.b.equip / data.b.weapon) sobre o snapshot */
+      var _eqby={};
+      /* Set/arma ao vivo (data.b.equip / data.b.weapon) + ícones reais do catálogo (BDET = fallback) */
       (function(){
         var eqp=bb.equip||{}, BYS=window.__TPITEMSBYSLUG||{};
-        var hasEq=eqp && Object.keys(eqp).length>0, hasW=!!(w&&w.name);
-        if(!hasEq && !hasW) return;
-        function nm(slug){ if(!slug) return ''; if(BYS[slug]) return BYS[slug]; return String(slug).replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}); }
-        function ico(slug){ var n=BYS[slug]||nm(slug); return '/'+n.replace(/'/g,'').replace(/\s+/g,'_')+'.gif'; }
-        _eqby={};
-        if(hasEq) Object.keys(eqp).forEach(function(k){ var s=eqp[k]; if(s) _eqby[k]={slot:k,name:nm(s),icon:ico(s)}; });
-        if(hasW) _eqby.weapon={slot:'weapon',name:w.name,icon:w.icon||('/'+String(w.name).replace(/'/g,'').replace(/\s+/g,'_')+'.gif')};
+        (det.equip2||[]).forEach(function(it){ _eqby[it.slot]={name:it.name, ic:WIC[it.icon]||null}; });
+        function pretty(slug){ return String(slug||'').replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}); }
+        function _resolve(slug){ if(!slug) return null; var id=(_DCE[slug]?slug:(_DCAL[slug]||slug)); var it=_DCE[id]; var name=it?it.n:(BYS[slug]||pretty(slug)); var icd=(it&&it.ic&&_DCI[it.ic])?_DCI[it.ic]:null; return {name:name, ic:icd}; }
+        Object.keys(eqp).forEach(function(k){ var r=_resolve(eqp[k]); if(r) _eqby[k]=r; });
+        if(w&&w.name){ var wid=(w.id!=null)?String(w.id):null; var wm=wid?_DCW[wid]:null; var wicd=_DCI[w.icon]||(wm&&wm.ic&&_DCI[wm.ic])||null; _eqby.weapon={name:w.name, ic:wicd}; }
       })();
       function eqCell(slotKey,label){
         var it=_eqby[slotKey];
-        if(it){ var ic=WIC[it.icon]; return '<div class="bd-eqsock filled" title="'+esc(it.name||'')+'">'+(ic?'<img class="bd-eqi" src="'+ic+'" alt="">':'<span class="bd-eqab">'+esc((it.name||'?').slice(0,2))+'</span>')+'<span class="bd-eqsl">'+esc(it.name||'')+'</span></div>'; }
+        if(it){ return '<div class="bd-eqsock filled" title="'+esc(it.name||'')+'">'+(it.ic?'<img class="bd-eqi" src="'+it.ic+'" alt="">':'<span class="bd-eqab">'+esc((it.name||'?').slice(0,2))+'</span>')+'<span class="bd-eqsl">'+esc(it.name||'')+'</span></div>'; }
         return '<div class="bd-eqsock" title="'+esc(label)+'"><span class="bd-eqplus">+</span><span class="bd-eqsl">'+esc(label)+'</span></div>';
       }
       function eqLock(label){ return '<div class="bd-eqsock lock"><span class="bd-eqplus">🔒</span><span class="bd-eqsl">'+esc(label)+'</span></div>'; }
-      function eqWeapon(){ var it=_eqby.weapon; if(it){ var ci=WIC[it.icon]; return '<div class="bd-eqsock filled" title="'+esc(it.name||'')+'">'+(ci?'<img class="bd-eqi" src="'+ci+'" alt="">':'<span class="bd-eqab">🗡️</span>')+'<span class="bd-eqsl">'+esc(it.name||'')+'</span></div>'; } return '<div class="bd-eqsock"><span class="bd-eqplus">🗡️</span><span class="bd-eqsl">Arma</span></div>'; }
+      function eqWeapon(){ var it=_eqby.weapon; if(it){ return '<div class="bd-eqsock filled" title="'+esc(it.name||'')+'">'+(it.ic?'<img class="bd-eqi" src="'+it.ic+'" alt="">':'<span class="bd-eqab">🗡️</span>')+'<span class="bd-eqsl">'+esc(it.name||'')+'</span></div>'; } return '<div class="bd-eqsock"><span class="bd-eqplus">🗡️</span><span class="bd-eqsl">Arma</span></div>'; }
       function eqRight(){ if(b.vocation==='monk') return '<div class="bd-eqsock lock"><span class="bd-eqplus">✕</span><span class="bd-eqsl">Off-hand</span></div>'; var lbl=(b.vocation==='knight')?'Escudo':(b.vocation==='paladin')?'Aljava':'Livro'; return eqCell('right',lbl); }
       var eq='<div class="bd-eqslots">'
         +eqCell('amulet','Amuleto')+eqCell('helmet','Elmo')+eqLock('Bag')
@@ -5315,10 +5333,14 @@ PlayerName (Leader)
         +'<div class="bd-eqsock spacer"></div>'+eqCell('boots','Botas')+'<div class="bd-eqsock spacer"></div>'
         +'</div>';
       var tags=[];
+      /* postura (mastery) → elemento + rótulo, derivado do catálogo */
+      var _stEl=null,_stLbl=null;
+      (function(){ if(!bb.stance||bb.stance==='none') return; var STm=_DC.stances||{}; var _ml=(b.vocation==='sorcerer'?STm.list:STm[b.vocation])||[]; var _m=(_ml||[]).filter(function(x){return x.id===bb.stance;})[0]; if(_m){ _stEl=_m.element; _stLbl=_m.label; } })();
       if(_M){ var _me=_M.el; var _mc=ELCOL[_me]||'var(--gold)'; tags.push('<span class="bld-tag" style="background:'+_mc+'22;border-color:'+_mc+'55;color:'+_mc+'">'+(ELPT[_me]||_me)+'</span>'); tags.push('<span class="bld-tag" style="opacity:.65;font-style:italic">adapta à criatura</span>'); }
-      else { (VOC_ELEMS[b.vocation]||(el?[el]:[])).forEach(function(e){var ec=ELCOL[e]||'var(--gold)';tags.push('<span class="bld-tag" style="background:'+ec+'22;border-color:'+ec+'55;color:'+ec+'">'+(ELPT[e]||e)+'</span>');});if(b.vocation==='druid'||b.vocation==='sorcerer')tags.push('<span class="bld-tag" style="opacity:.65;font-style:italic">adapta à criatura</span>'); }
+      else { var _els=_stEl?[_stEl]:(VOC_ELEMS[b.vocation]||(el?[el]:[])); _els.forEach(function(e){var ec=ELCOL[e]||'var(--gold)';tags.push('<span class="bld-tag" style="background:'+ec+'22;border-color:'+ec+'55;color:'+ec+'">'+(ELPT[e]||e)+'</span>');});if(b.vocation==='druid'||b.vocation==='sorcerer')tags.push('<span class="bld-tag" style="opacity:.65;font-style:italic">adapta à criatura</span>'); }
       if(b.ml) tags.push('<span class="bld-tag">ML '+esc(b.ml)+'</span>');
       if(_M) tags.push('<span class="bld-tag">'+esc(_M.lbl)+' ('+esc(_M.sub)+')</span>');
+      else if(_stLbl) tags.push('<span class="bld-tag">'+esc(_stLbl)+'</span>');
       else if(bb.stance&&bb.stance!=='none') tags.push('<span class="bld-tag">'+esc(STANCE_LBL[bb.stance]||bb.stance)+'</span>');
 
       var _wlvl=(inp.level||st.level||0);
@@ -5687,6 +5709,13 @@ PlayerName (Leader)
     }
     window.__TPITEMS=window.__TPITEMS||null; window.__TPITEMSBYSLUG=window.__TPITEMSBYSLUG||{};
     async function tpLoadItemCat(){ if(window.__TPITEMS) return; try{ var r=await fetch('assets/data/tibia-items.json'); var j=await r.json(); window.__TPITEMS=j; var idx={}; Object.keys(j).forEach(function(sl){ (j[sl]||[]).forEach(function(it){ idx[it.s]=it.n; }); }); window.__TPITEMSBYSLUG=idx; }catch(e){ window.__TPITEMS={}; } }
+    /* catálogo compartilhado (itens/armas/spells/shapes/stances + ícones reais, extraído do DC_DATA da calculadora) */
+    window.tpLoadCatalog=function(){
+      if(window.__DC) return Promise.resolve(window.__DC);
+      if(window.__DCp) return window.__DCp;
+      window.__DCp=fetch('assets/data/dc-catalog.json').then(function(r){return r.json();}).then(function(j){ window.__DC=j; return j; }).catch(function(){ window.__DC={equip:{},weapons:{},spells:{},icons:{},aliases:{},shapeOpts:[],shapeIcons:{},stances:{}}; return window.__DC; });
+      return window.__DCp;
+    };
     function _tpSlug(n){ return String(n||'').toLowerCase().replace(/['’]/g,'').replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''); }
     window.tpBEequip=function(eqkey,name){ tpBECapture(); var b=window.__BE.data.b; b.equip=b.equip||{}; var s=_tpSlug(name); if(s) b.equip[eqkey]=s; else delete b.equip[eqkey]; };
     window.tpBEpreset=function(){ var sel=document.getElementById('be2-preset'); if(!sel) return; var presets=((window.__BE.data.guide||{}).sets)||[]; var row=presets[+sel.value]; if(!row) return; tpBECapture(); var p=String(row).split('|').map(function(x){return x.trim();}); var b=window.__BE.data.b; b.equip=b.equip||{}; [['amulet',1],['ring',3],['helmet',4],['armor',5],['legs',6],['boots',7],['right',8]].forEach(function(m){ var nm=p[m[1]]; if(nm&&nm!=='—'&&nm!=='·'&&nm!=='-') b.equip[m[0]]=_tpSlug(nm); }); tpBERender(); if(window.tpToast) tpToast('Preset aplicado nos slots.','success'); };
@@ -5764,6 +5793,7 @@ PlayerName (Leader)
     }
     window.tpBuildsInit=function(){
       if(loaded)return; loaded=true;
+      if(window.tpLoadCatalog) tpLoadCatalog();
       var url=PANDA_SB_URL+'/rest/v1/builds?status=eq.approved&select=id,name,vocation,dano,ml,element,data&order=vocation.asc';
       fetch(url,{headers:_pandaHeaders()}).then(function(r){return r.json();}).then(function(rows){
         all=(rows||[]).sort(sortBuilds); byId={}; all.forEach(function(b){byId[b.id]=b;});
