@@ -15772,8 +15772,22 @@ window.tpToast=function(msg,type){
   };
   function profRenderDepos(arr){ var host=document.getElementById('tp-prof-depo'); if(!host) return;
     var appr=(arr||[]).filter(function(t){return t.status==='approved';});
-    host.innerHTML=appr.length? appr.map(function(t){ return '<div class="depo"><div class="depo-hd"><b>'+window.esc(t.author_name||t.author_char||'Amigo')+'</b><span class="depo-date">'+profRel(t.created_at)+'</span></div><div class="depo-body">'+window.esc(t.body)+'</div></div>'; }).join('') : '<div class="soc-empty">Nenhum comentário ainda. Seja o primeiro! ✍️</div>';
+    host.innerHTML=appr.length? appr.map(function(t){ return '<div class="depo"><div class="depo-hd"><span class="depo-who"><span class="depo-av" id="depoav-'+t.id+'">🐼</span><b>'+window.esc(t.author_name||t.author_char||'Amigo')+'</b></span><span class="depo-date">'+profRel(t.created_at)+'</span></div><div class="depo-body">'+window.esc(t.body)+'</div></div>'; }).join('') : '<div class="soc-empty">Nenhum comentário ainda. Seja o primeiro! ✍️</div>';
+    if(window.tpRenderDepoAvatars) window.tpRenderDepoAvatars(appr);
   }
+  window.tpRenderDepoAvatars=function(arr){
+    if(!window.tpGetOutfitter) return;
+    var withOut=(arr||[]).filter(function(t){ return t.author_outfit && t.author_outfit.outfit_id!=null; });
+    if(!withOut.length) return;
+    window.tpGetOutfitter().then(function(of){
+      withOut.forEach(function(t){
+        var box=document.getElementById('depoav-'+t.id); if(!box) return;
+        var o=t.author_outfit; var cv=document.createElement('canvas');
+        of.render({outfit:+o.outfit_id,head:+o.head||0,body:+o.body||0,legs:+o.legs||0,feet:+o.feet||0,addons:+o.addons||0,dir:2,mount:0},cv,1)
+          .then(function(){ box.innerHTML=''; box.appendChild(cv); }).catch(function(){});
+      });
+    }).catch(function(){});
+  };
   window.tpProfSubmitDepo=async function(fid){ var ta=document.getElementById('tp-prof-depo-in'); if(!ta) return; var b=(ta.value||'').trim(); if(!b){ ta.focus(); return; }
     try{ var r=await af(SB+'/rest/v1/profile_testimonials',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({profile_id:fid,author:profMe(),body:b})});
       if(r.ok){ if(window.tpToast) tpToast('Comentário enviado! Aguardando aprovação. ✍️','success'); ta.value=''; }
@@ -16683,8 +16697,11 @@ window.tpLoadJornada=async function(){
   .fr-chat:hover,.fr-depo:hover{border-color:var(--bamboo,#8b5cf6)}
   .depo{border:1px solid var(--rule,#2b2938);border-radius:10px;padding:.7rem .8rem;margin-bottom:.6rem;background:var(--bg-2,#1b1a25)}
   .depo-pend{border-color:var(--gold,#c9a840)}
-  .depo-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem}
-  .depo-hd b{color:var(--ink,#eae8f2);font-size:.85rem}
+  .depo-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem;gap:.5rem}
+  .depo-who{display:flex;align-items:center;gap:.5rem;min-width:0}
+  .depo-av{width:36px;height:36px;flex:0 0 36px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg-3,#232130);border:1px solid var(--rule,#2b2938);font-size:1.05rem;line-height:1}
+  .depo-av canvas{max-width:100%;max-height:100%;image-rendering:pixelated}
+  .depo-hd b{color:var(--ink,#eae8f2);font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .depo-date{font-size:.7rem;color:var(--muted)}
   .depo-body{font-size:.85rem;color:var(--ink,#eae8f2);line-height:1.5;white-space:pre-wrap}
   .depo-actions{display:flex;gap:.4rem;margin-top:.5rem}
@@ -17013,10 +17030,11 @@ window.tpLoadJornada=async function(){
     var pb=document.getElementById('pf-depo-badge'); if(pb){ pb.textContent=pend.length; pb.style.display=pend.length?'':'none'; }
     var h='';
     if(pend.length){ h+='<div style="margin-bottom:1rem"><div class="tool-title" style="font-size:.95rem;margin-bottom:.5rem">⏳ Aguardando sua aprovação ('+pend.length+')</div>'+pend.map(function(t){
-      return '<div class="depo depo-pend"><div class="depo-hd"><b>'+esc(t.author_name||t.author_char||'Amigo')+'</b><span class="depo-date">'+rel(t.created_at)+'</span></div><div class="depo-body">'+esc(t.body)+'</div><div class="depo-actions"><button class="fr-acc" onclick="tpDepoApprove(\''+t.id+'\')">✓ Aprovar</button><button class="fr-dec" onclick="tpDepoDelete(\''+t.id+'\')">Recusar</button></div></div>'; }).join('')+'</div>'; }
+      return '<div class="depo depo-pend"><div class="depo-hd"><span class="depo-who"><span class="depo-av" id="depoav-'+t.id+'">🐼</span><b>'+esc(t.author_name||t.author_char||'Amigo')+'</b></span><span class="depo-date">'+rel(t.created_at)+'</span></div><div class="depo-body">'+esc(t.body)+'</div><div class="depo-actions"><button class="fr-acc" onclick="tpDepoApprove(\''+t.id+'\')">✓ Aprovar</button><button class="fr-dec" onclick="tpDepoDelete(\''+t.id+'\')">Recusar</button></div></div>'; }).join('')+'</div>'; }
     h+='<div class="tool-title" style="font-size:.95rem;margin-bottom:.5rem">Depoimentos aprovados ('+appr.length+')</div>';
-    h+=appr.length? appr.map(function(t){ return '<div class="depo"><div class="depo-hd"><b>'+esc(t.author_name||t.author_char||'Amigo')+'</b><span class="depo-date">'+rel(t.created_at)+'</span></div><div class="depo-body">'+esc(t.body)+'</div><div class="depo-actions"><button class="fr-rm" onclick="tpDepoDelete(\''+t.id+'\')">Remover</button></div></div>'; }).join(''):'<div class="soc-empty">Nenhum depoimento aprovado ainda.</div>';
-    host.innerHTML=h; };
+    h+=appr.length? appr.map(function(t){ return '<div class="depo"><div class="depo-hd"><span class="depo-who"><span class="depo-av" id="depoav-'+t.id+'">🐼</span><b>'+esc(t.author_name||t.author_char||'Amigo')+'</b></span><span class="depo-date">'+rel(t.created_at)+'</span></div><div class="depo-body">'+esc(t.body)+'</div><div class="depo-actions"><button class="fr-rm" onclick="tpDepoDelete(\''+t.id+'\')">Remover</button></div></div>'; }).join(''):'<div class="soc-empty">Nenhum depoimento aprovado ainda.</div>';
+    host.innerHTML=h;
+    if(window.tpRenderDepoAvatars) window.tpRenderDepoAvatars(arr); };
   window.tpDepoApprove=async function(id){ try{ await af()(SB+'/rest/v1/profile_testimonials?id=eq.'+id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({status:'approved'})}); toast('Depoimento aprovado! 💬','success'); }catch(e){} tpDepoLoad(); };
   window.tpDepoDelete=async function(id){ try{ await af()(SB+'/rest/v1/profile_testimonials?id=eq.'+id,{method:'DELETE',headers:{Prefer:'return=minimal'}}); }catch(e){} tpDepoLoad(); };
 
