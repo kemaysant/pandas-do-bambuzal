@@ -18508,7 +18508,9 @@ window.tpLoadJornada=async function(){
   (function(){
     try{
       var st=document.createElement('style');
-      st.textContent='#tp-topnav a.tp-tn-item,#tp-topnav a.tp-tn-logo{text-decoration:none;color:inherit}#tp-usermenu a{text-decoration:none;color:inherit}.nav-btn[href]{text-decoration:none}';
+      st.textContent='#tp-topnav a.tp-tn-item,#tp-topnav a.tp-tn-logo{text-decoration:none;color:inherit}.nav-btn[href]{text-decoration:none}'
+        +'#tp-usermenu a{display:flex;align-items:center;gap:.6rem;width:100%;box-sizing:border-box;background:none;border:0;border-radius:8px;padding:.55rem .7rem;font:inherit;font-size:.82rem;color:var(--ink-2);cursor:pointer;text-align:left;text-decoration:none}'
+        +'#tp-usermenu a:hover{background:var(--bg-3);color:var(--ink)}';
       document.head.appendChild(st);
     }catch(e){}
     function toAnchor(el, href){
