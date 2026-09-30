@@ -80,6 +80,7 @@ Objetivo: transformar a página de builds no "Blitz.gg do Tibia" — dados reais
 
 ### 2d. Sistema de gemas completo (Atelier de Gemas) — parcial
 - ✅ **Tier liberado agora vem do CODEC real** (`vesselLevels`): depende da **forma** da alocação, não só do total (ex.: Beam com 3 vessels = greater; Lord com 1 = lesser). O editor recalcula ao editar/importar e ajusta o dropdown; o gating por estágio (errado) foi aposentado.
+- ✅ **Ícones reais das gemas (30/09)**: 15 imagens oficiais da wiki (lesser/regular/greater × Mystic/Sage/Marksman/Guardian/Spiritualist) em `assets/data/gem-icons.json` (WEBP data-URI, keyed `tier_vocação`), carregadas sob demanda (`tpLoadGemIcons`) e resolvidas por `_tpGemIcon(voc,tier)`. Editor e display da roda mostram a gema certa por vessel; fallback pro ícone único antigo.
 - ⏳ **Falta os mods básicos** (a UI ainda só tem o mod **supremo** no greater):
   - Gema **menor**: 1 mod **básico**.
   - Gema **média**: 2 mods **básicos**.
