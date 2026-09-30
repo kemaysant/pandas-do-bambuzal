@@ -2854,6 +2854,31 @@ async function tibiaFetch(path) {
 
   <!-- ─── DELIVERY TASKS ─── -->
   <section class="page-section" id="delivery">
+    <style>
+      #delivery .dt-tbtn{font-size:.74rem;font-weight:600;color:var(--ink-3);background:var(--bg-2,rgba(255,255,255,.03));border:1px solid var(--rule);border-radius:999px;padding:.32rem .8rem;cursor:pointer;transition:.15s}
+      #delivery .dt-tbtn:hover{border-color:var(--tc,var(--gold))}
+      #delivery .dt-tbtn.active{color:#fff;background:var(--tc,var(--gold));border-color:var(--tc,var(--gold))}
+      #delivery .dt-npc-card{border:1px solid var(--rule);border-radius:12px;background:var(--card-bg,rgba(255,255,255,.02));margin-bottom:1rem;overflow:hidden}
+      #delivery .dt-npc-sum{list-style:none;cursor:pointer;display:flex;align-items:center;gap:.8rem;padding:.85rem 1rem}
+      #delivery .dt-npc-sum::-webkit-details-marker{display:none}
+      #delivery .dt-npc-sum::after{content:'⌄';margin-left:auto;font-size:1.1rem;color:var(--muted);transition:transform .2s}
+      #delivery details[open] .dt-npc-sum::after{transform:rotate(180deg)}
+      #delivery .dt-npc-ic{width:46px;height:46px;image-rendering:pixelated;flex-shrink:0;object-fit:contain}
+      #delivery .dt-npc-info{min-width:0}
+      #delivery .dt-npc-name{font-weight:700;font-size:1rem;color:var(--ink)}
+      #delivery .dt-npc-loc{font-size:.76rem;color:var(--ink-3);margin-top:1px}
+      #delivery .dt-npc-quest{font-size:.72rem;color:var(--gold);margin-top:1px}
+      #delivery .dt-npc-count{font-size:.78rem;color:var(--muted);white-space:nowrap;padding-left:.5rem}
+      #delivery details[open] .dt-npc-sum::after{}
+      #delivery .dt-item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:.5rem;padding:.2rem .8rem 1rem}
+      #delivery .dt-item{display:flex;align-items:center;gap:.6rem;padding:.5rem .6rem;border:1px solid var(--rule);border-radius:9px;background:var(--bg-2,rgba(255,255,255,.02));cursor:pointer;transition:.12s}
+      #delivery .dt-item:hover{border-color:rgba(201,168,64,.45);background:rgba(201,168,64,.05)}
+      #delivery .dt-item-ic{width:34px;height:34px;image-rendering:pixelated;flex-shrink:0;opacity:0;transition:opacity .2s}
+      #delivery .dt-item-main{min-width:0;flex:1}
+      #delivery .dt-item-name{font-size:.84rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      #delivery .dt-item-meta{font-size:.74rem;color:var(--ink-3);font-family:'DM Mono',monospace;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      #delivery .dt-item-adv{font-size:.62rem;font-weight:700;border:1px solid;border-radius:7px;padding:2px 6px;white-space:nowrap;flex-shrink:0}
+    </style>
     <h2 class="sec-title">Task Delivery</h2>
     <p class="sec-sub">Itens de entrega (task) — quem compra, quanto vale e se compensa guardar pro market. Clique num item pra tentar o preço ao vivo.</p>
 
@@ -2914,17 +2939,32 @@ async function tibiaFetch(path) {
         </select>
       </div>
       <div>
-        <label class="input-label" style="display:block;margin-bottom:4px;font-size:.68rem">Ordenar</label>
+        <label class="input-label" style="display:block;margin-bottom:4px;font-size:.68rem">Ordenar (dentro do NPC)</label>
         <select class="tool-select" id="dt-sort" onchange="filterDelivery()">
-          <option value="npc">Agrupar por NPC</option>
-          <option value="name">Nome (A-Z)</option>
           <option value="value_desc">Valor (maior)</option>
           <option value="value_asc">Valor (menor)</option>
-          <option value="group">Grupo</option>
+          <option value="name">Nome (A-Z)</option>
         </select>
       </div>
       <div style="margin-top:18px">
         <span id="dt-count" style="font-size:.78rem;color:var(--muted);font-weight:300">450 itens</span>
+      </div>
+    </div>
+
+    <!-- Filtro por faixa de valor + legenda -->
+    <div style="display:flex;gap:.9rem;flex-wrap:wrap;align-items:center;margin-bottom:1.2rem">
+      <div style="display:flex;gap:.35rem;flex-wrap:wrap" id="dt-tierfilter">
+        <button class="dt-tbtn active" data-tier="" onclick="dtSetTier(this,'')">Todos</button>
+        <button class="dt-tbtn" data-tier="Muito Alto" onclick="dtSetTier(this,'Muito Alto')" style="--tc:#a855f7">Muito Alto</button>
+        <button class="dt-tbtn" data-tier="Alto" onclick="dtSetTier(this,'Alto')" style="--tc:#3b82f6">Alto</button>
+        <button class="dt-tbtn" data-tier="Médio" onclick="dtSetTier(this,'Médio')" style="--tc:#eab308">Médio</button>
+        <button class="dt-tbtn" data-tier="Baixo" onclick="dtSetTier(this,'Baixo')" style="--tc:#22c55e">Baixo</button>
+      </div>
+      <div style="font-size:.68rem;color:var(--muted);display:flex;gap:.7rem;flex-wrap:wrap">
+        <span><span style="color:#a855f7">●</span> Guarde pro Market</span>
+        <span><span style="color:#3b82f6">●</span> Considere guardar</span>
+        <span><span style="color:#eab308">●</span> Situacional</span>
+        <span><span style="color:#22c55e">●</span> Vende ao NPC</span>
       </div>
     </div>
 
@@ -2941,22 +2981,9 @@ async function tibiaFetch(path) {
       <div style="font-size:.68rem;color:var(--muted);font-weight:300;margin-top:.5rem">Fonte: <b>Tibia Market Tracker</b> (tibiamarket.top) · cai na estimativa quando o item não tem oferta no seu mundo.</div>
     </div>
 
-    <!-- Table -->
-    <div class="table-wrap">
-      <table class="member-table" id="dt-table">
-        <thead>
-          <tr>
-            <th style="width:32px">#</th>
-            <th>Item</th>
-            <th>Grupo</th>
-            <th>Qtd. Entrega</th>
-            <th>Valor (ao vivo / est.)</th>
-            <th>Principais Drops</th>
-          </tr>
-        </thead>
-        <tbody id="dt-body"></tbody>
-      </table>
-    </div>
+    <!-- Cards por NPC -->
+    <div id="dt-cards"></div>
+    <div id="dt-empty" style="display:none;font-size:.85rem;color:var(--muted);text-align:center;padding:2rem;border:1px dashed var(--rule);border-radius:10px">Nenhum item com esses filtros.</div>
   </section>
 
   <script>window.DT_MARKET_IDS={"Afflicted Strider Head":36789,"Afflicted Strider Worms":36790,"Alloy Legs":21168,"Amber Souvenir":48508,"Ancient Belt Buckle":24384,"Ancient Stone":9632,"Angelic Axe":7436,"Badger Boots":22086,"Banana Sash":11511,"Basalt Crumbs":43858,"Basalt Fetish":17856,"Basalt Figurine":17857,"Bashmu Fang":36820,"Bashmu Feather":36823,"Bashmu Tongue":36821,"Battle Shield":3413,"Black Shield":3429,"Blemished Spawn Abdomen":36779,"Blemished Spawn Head":36778,"Blemished Spawn Tail":36780,"Bloated Maggot":43856,"Blood Amulet":51473,"Blood Hood":51480,"Blood Preservation":11449,"Blood Tincture In A Vial":18928,"Bloodshot Giant Eye":51482,"Blue Goanna Scale":31559,"Boar Man Hoof":40584,"Boggy Dreads":9667,"Bola":17809,"Bone Club":3337,"Bone Fetish":17831,"Bone Fibula":51485,"Bone Rattle":51478,"Bone Shoulderplate":10404,"Bone Toothpick":24380,"Bonebreaker":7428,"Bonecarving Knife":17830,"Bony Tail":10277,"Book Of Necromantic Rituals":10320,"Book Page":28569,"Book With A Dragon":51423,"Book With An Hourglass":51425,"Bowl Of Terror Sweat":20204,"Brigadeiro":48252,"Brinebrute Claw":50056,"Broadsword":3301,"Broken Draken Mail":11660,"Broken Gladiator Shield":9656,"Broken Halberd":10418,"Broken Mitmah Necklace":44438,"Broken Slicer":11661,"Broken Throwing Axe":17851,"Broodrider Saddle":50058,"Buckle":17829,"Bulltaur Armor Scrap":44738,"Bulltaur Hoof":44737,"Bulltaur Horn":44736,"Bundle Of Cursed Straw":9688,"Carnisylvan Bark":36806,"Carnisylvan Finger":36805,"Carnivostrich Feather":40586,"Cat'S Paw":5479,"Cave Devourer Eyes":27599,"Cave Devourer Legs":27601,"Cave Devourer Maw":27600,"Centipede Leg":10301,"Chain Leash":51472,"Chaos Mace":7427,"Chasm Spawn Abdomen":27603,"Chasm Spawn Head":27602,"Chasm Spawn Tail":27604,"Cheese Cutter":17817,"Cheesy Figurine":17818,"Cluster Of Crystallized Death":52720,"Cobra Crest":31678,"Colourful Feather":11514,"Colourful Snail Shell":25696,"Combat Knife":3292,"Compound Eye":14083,"Cookbook":3234,"Coral Branch":39406,"Cowbell":21204,"Crab Man Claws":40582,"Cracked Alabaster Vase":24385,"Crawler'S Essence":33982,"Cry-Stal":39394,"Crystal Bone":23521,"Crystal Crossbow":16163,"Crystal Mace":3333,"Crystal Of The Mitmah":44439,"Crystal Sword":7449,"Crystalline Armor":8050,"Crystalline Spikes":16138,"Crystalline Sword":16160,"Crystallized Death":52719,"Cuirass Plate":52663,"Curious Matter":23511,"Cursed Shoulder Spikes":10410,"Damaged Armor Plates":28822,"Damselfly Eye":17463,"Dandelion Seeds":25695,"Dangerous Proto Matter":23515,"Dark Obsidian Splinter":43850,"Dark Rosary":10303,"Dark Shield":3421,"Darklight Basalt Chunk":43852,"Darklight Core":43853,"Darklight Matter":43851,"Dead Weight":20202,"Deadly Fangs":52718,"Decayed Finger Bone":43846,"Deepling Breaktime Snack":14011,"Deepling Claw":14044,"Deepling Guard Belt Buckle":14010,"Deepling Ridge":14041,"Deepling Scales":14017,"Deeptags":14013,"Deepworm Jaws":27594,"Deepworm Spike Roots":27593,"Deepworm Spikes":27592,"Demon Root":48510,"Demonic Matter":49894,"Diamond Sceptre":7387,"Diremaw Brainpan":27597,"Diremaw Legs":27598,"Dirty Turban":11456,"Double Axe":3275,"Dowser":19110,"Dragolisk Eye":44746,"Dragolisk Poison Gland":44747,"Dragon Hammer":3322,"Dragon Priest'S Wandtip":10444,"Dragon Slayer":7402,"Dragon Tongue":24938,"Dragon'S Tail":11457,"Draken Wristbands":11659,"Dream Essence Egg":30005,"Dung Ball":14225,"Earflap":17819,"Elder Bonelord Tentacle":10276,"Elven Astral Observer":11465,"Emerald Tortoise Shell":39379,"Empty Honey Glass":31331,"Encrypted Notes":44739,"Energy Ball":23523,"Ensouled Essence":32698,"Essence Of A Bad Dream":10306,"Exalted Core":37110,"Execowtioner Mask":21201,"Eye Of A Deepling":12730,"Eye Of A Weeper":16132,"Eye Of Corruption":11671,"Eyeless Devourer Legs":36776,"Eyeless Devourer Maw":36775,"Eyeless Devourer Tongue":36777,"Fafnar Symbol":31443,"Falcon Crest":28823,"Fig Leaf":25742,"Fir Cone":19111,"Fire Axe":3320,"Flask Of Demonic Blood":6558,"Flotsam":39407,"Focus Cape":8043,"Fox Paw":27462,"Frazzle Tongue":20198,"Frozen Lightning":23519,"Fur Armor":22085,"Gauze Bandage":9649,"Ghastly Dragon Head":10449,"Giant Pacifier":21199,"Giant Tusk":52707,"Girlish Hair Decoration":11443,"Girtablilu Warrior Carapace":36971,"Glacier Mask":829,"Glacier Robe":824,"Glacier Shoes":819,"Glob Of Acid Slime":9054,"Glob Of Glooth":21182,"Glob Of Tar":9055,"Glooth Axe":21180,"Glooth Blade":21179,"Glooth Cape":21164,"Glooth Club":21178,"Glooth Injection Tube":21103,"Glorious Axe":7454,"Glowing Rune":28570,"Goanna Claw":31561,"Goanna Meat":31560,"Golden Legs":3364,"Golden Lotus Brooch":21974,"Golden Sickle":3306,"Golden Sun Coin":43734,"Gore Horn":39377,"Gorerilla Mane":39392,"Gorerilla Tail":39393,"Gorger Antlers":50059,"Grappling Hook":35588,"Green Bandage":25697,"Guardian Shield":3415,"Halberd":3269,"Half-Digested Stones":27369,"Half-Eaten Brain":9659,"Harpy Feathers":40585,"Headpecker Beak":39387,"Headpecker Feather":39388,"Heart Amphora":51484,"Heavy Machete":3330,"Heavy Trident":12683,"Hellhound Slobber":9637,"Hemp Rope":20206,"Hibiscus Dress":8045,"Hideous Chunk":16140,"High Guard Flag":10415,"High Guard Shoulderplates":10416,"Holy Ash":17850,"Horoscope":18926,"Human Teeth":36807,"Humongous Chunk":16139,"Hydra Head":10282,"Hydrophytes":39410,"Ice Flower":30058,"Idol Of The Forge":44742,"Inkwell":3509,"Instable Proto Matter":23516,"Ivory Carving":33945,"Key To The Drowned Library":14009,"Knife":3291,"Knight Axe":3318,"Knight Legs":3371,"Kongra'S Shoulderpad":11471,"Lamassu Hoof":31441,"Lamassu Horn":31442,"Lancer Beetle Shell":10455,"Lancet":18925,"Lavafungus Head":36785,"Lavafungus Ring":36786,"Lavaworm Jaws":36771,"Lavaworm Spike Roots":36769,"Lavaworm Spikes":36770,"Lightning Boots":820,"Lightning Headband":828,"Lightning Robe":825,"Lime Tart":48255,"Liodile Fang":40583,"Lion Cloak Patch":34162,"Lion Crest":34160,"Lost Basher'S Spike":17826,"Lost Bracers":17853,"Luminous Orb":11454,"Lump Of Earth":10305,"Mad Froth":17854,"Magma Boots":818,"Magma Clump":16130,"Magma Coat":826,"Magma Monocle":827,"Makara Fin":39401,"Makara Tongue":39402,"Mammoth Tusk":10321,"Mammoth Whopper":7381,"Manticore Ear":31440,"Manticore Tail":31439,"Mantosaurus Jaw":39386,"Mega Dragon Heart":44745,"Mercenary Sword":7386,"Mercurial Wing":39395,"Metal Bat":21171,"Metal Jaw":21193,"Metal Spats":21169,"Mino Lance":21174,"Mino Shield":21175,"Molten Dragon Essence":44744,"Mould Heart":34141,"Mouldy Powder":35596,"Mummified Demon Finger":49908,"Mutated Bat Ear":9662,"Mutated Flesh":10308,"Mutated Rat Tail":9668,"Naga Archer Scales":39413,"Naga Armring":39411,"Naga Earring":39412,"Naga Warrior Scales":39414,"Necromantic Core":52705,"Necromantic Rust":21196,"Night Harpy Feathers":52633,"Nighthunter Wing":39381,"Nimmersatt'S Seal":44743,"Odd Organ":23510,"Ogre Ear Stud":22188,"Old Girtablilu Carapace":36972,"Orcish Axe":3316,"Orcish Gear":11477,"Orcish Toothbrush":51477,"Ornate Crossbow":14247,"Pair Of Hellflayer Horns":22729,"Paper Boat":51420,"Paper Plane":51419,"Piece Of Draconian Steel":5889,"Piece Of Frozen Night":51474,"Piece Of Hell Steel":5888,"Piece Of Warrior Armor":11482,"Pirat'S Tail":35573,"Pirate Coin":35572,"Plasma Pearls":23506,"Plasmatic Lightning":23520,"Plate Legs":3557,"Poisoned Fang":21195,"Pool Of Chitinous Glue":20207,"Pot Of Orcish Warpaint":51476,"Prehemoth Claw":39383,"Prehemoth Horns":39382,"Pressed Flower":51428,"Pulverized Ore":16133,"Quara Bone":11491,"Quara Eye":11488,"Quara Pincers":11490,"Quara Tentacle":11487,"Ratana":17812,"Raw Meat":22186,"Red Goanna Scale":31558,"Red Hair Dye":17855,"Relic Sword":7383,"Resin Parasite":48511,"Resinous Fish Fin":48509,"Rhindeer Antlers":40587,"Ripper Lance":3346,"Ripptor Claw":39389,"Ripptor Scales":39391,"Ritual Bone Knife":51475,"Ritual Tooth":40528,"Roots":33938,"Rotten Feather":40527,"Rotten Piece Of Cloth":10291,"Rotten Roots":43849,"Rubber Cap":21165,"Sabretooth Fur":39378,"Sandcrawler Shell":10456,"Scale Of Corruption":11673,"Scarab Pincers":9631,"Scimitar":3307,"Scorpion Charm":36822,"Scroll Of Heroic Deeds":11510,"Scythe Leg":10312,"Sealing Wax":51426,"Shaggy Tail":10407,"Shamanic Talisman":22184,"Shark Fins":35574,"Shimmering Beetles":25693,"Shiny Stone":10310,"Silencer Resonating Chamber":20201,"Silken Bookmark":28566,"Silver Moon Coin":43732,"Silver Poniard":52662,"Sineater Wing":50057,"Single Human Eye":25701,"Skull Fetish":22191,"Skullcracker Armor":8061,"Slimy Leaf Tentacle":21197,"Sliver":37109,"Small Flask Of Eyedrops":11512,"Small Notebook":11450,"Small Treasure Chest":35571,"Small Tropical Fish":39408,"Spark Sphere":23518,"Sparkion Claw":23502,"Sparkion Legs":23504,"Sparkion Stings":23505,"Sparkion Tail":23503,"Spellbook Of Mind Control":8074,"Spellsinger'S Seal":14008,"Spellweaver'S Robe":10438,"Sphinx Tiara":31438,"Spiked Bracers":51479,"Spiked Gorget":51486,"Spiked Iron Ball":10408,"Spiky Club":17859,"Spitter Nose":14078,"Staff Piece":44741,"Stag Parchment":52664,"Stalking Seeds":39384,"Stampor Talons":12313,"Star Ink":51422,"Stone Wing":10278,"Stonerefiner's Skull":27606,"Strange Helmet":3373,"Strange Substance":44740,"Streaked Devourer Eyes":36772,"Streaked Devourer Legs":36774,"Streaked Devourer Maw":36773,"Striped Fur":10293,"Sulphider Shell":39375,"Sulphur Powder":39376,"Sulphurous Stone":10315,"Swampling Club":17824,"Swarmer Antenna":14076,"Tail Of Corruption":11672,"Taurus Mace":7425,"Telescope Eye":33934,"Terra Boots":813,"Terra Hood":830,"Terra Mantle":811,"Terramite Legs":10454,"Thorn":9643,"Titan Axe":7413,"Toe Nails":52706,"Tooth File":18924,"Torn Page":51427,"Trapped Bad Dream Monster":20203,"Tunnel Tyrant Head":27595,"Tunnel Tyrant Shell":27596,"Two-Headed Turtle Heads":39409,"Undertaker Fangs":39380,"Unholy Bone":10316,"Vampire'S Cape Chain":18927,"Vein Of Ore":16135,"Venison":18995,"Vile Axe":7388,"Volatile Proto Matter":23514,"War Axe":3342,"Wardragon Claw":44748,"Wardragon Tooth":44749,"Waspoid Claw":14080,"Weaver'S Wandtip":10397,"Werebadger Claws":22051,"Werebadger Skull":22055,"Werebear Fur":22057,"Werebear Skull":22056,"Wereboar Loincloth":22087,"Wereboar Tusks":22054,"Werecrocodile Tongue":43729,"Werefox Tail":27463,"Werehyaena Nose":33943,"Werehyaena Talisman":33944,"Werepanther Claw":43731,"Weretiger Tooth":43730,"Werewolf Fur":10317,"Widow'S Mandibles":10411,"Wild Flowers":25691,"Wimp Tooth Chain":17847,"Winged Tail":10313,"Witch Broom":9652,"Wood Cape":3575,"Wooden Spellbook":25699,"Worm Sponge":43848,"Yapunac Dagger":44440,"Zaoan Armor":10384,"Zaoan Robe":10439,"Zaoan Shoes":10386,"Zaogun Flag":10413,"Zaogun Shoulderplates":10414};</script>
@@ -12574,6 +12601,27 @@ const DT_NPC_PRICE = {
 // valor do item: usa a estimativa do dataset; se 0, cai no preço NPC conhecido.
 function dtValue(item){ return (item && item.v) ? item.v : (DT_NPC_PRICE[(item&&item.n||'').toLowerCase()] || 0); }
 
+// Miniaturas dos NPCs (tibiawiki.com.br Special:FilePath, direto).
+const DT_NPC_IMG = {
+  'Rashid': 'Rashid', 'Yasir': 'Yasir', 'Djinns': 'Alesar', 'Telas': 'Telas',
+  'Gladys': 'Gladys', 'Esrik / Pompan': 'Esrik', 'Flint': 'Flint'
+};
+function dtNpcImg(npc){ const f = DT_NPC_IMG[npc]; return f ? ('https://www.tibiawiki.com.br/wiki/Special:FilePath/'+encodeURIComponent(f+'.gif')) : ''; }
+
+// Motor "vende no Market ou pro NPC": com preço ao vivo carregado, compara a
+// maior oferta de compra do market (c.sell = por quanto você vende) com o preço
+// do NPC. Sem preço ao vivo, cai na faixa estática pelo valor.
+function dtAdvice(item){
+  const npcP = dtValue(item);
+  const c = dtPriceCache[item.n];
+  if (c && c.sell > 0) {
+    if (c.sell >= npcP * 1.1 && c.sell > 0) return {label:'Market', advice:'Vale mais no Market', color:'#a855f7', live:true, mkt:c.sell, npc:npcP};
+    return {label:'NPC', advice:'Melhor vender ao NPC', color:'#22c55e', live:true, mkt:c.sell, npc:npcP};
+  }
+  const t = dtTier(npcP);
+  return {label:t.label, advice:t.advice, color:t.color, live:false};
+}
+
 // Faixa de valor: guardar pro market vs vender pro NPC (base na estimativa em gp).
 function dtTier(v){
   v = +v || 0;
@@ -12584,38 +12632,30 @@ function dtTier(v){
 }
 
 let dtFiltered = [...DELIVERY_ITEMS];
+let dtTierFilter = '';
+window.dtSetTier = function(btn, tier){
+  dtTierFilter = tier || '';
+  document.querySelectorAll('#dt-tierfilter .dt-tbtn').forEach(b=>b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  filterDelivery();
+};
 
 function filterDelivery() {
   const search   = (document.getElementById('dt-search')?.value   || '').toLowerCase().trim();
-  const group    = document.getElementById('dt-group')?.value     || 'all';
   const creature = (document.getElementById('dt-creature')?.value || '').trim();
   const npc      = (document.getElementById('dt-npc')?.value      || '').trim();
-  const sort     = document.getElementById('dt-sort')?.value      || 'name';
 
   dtFiltered = DELIVERY_ITEMS.filter(item => {
     if (search   && !item.n.toLowerCase().includes(search))     return false;
-    if (group !== 'all' && item.g !== group)                    return false;
     if (creature && !item.drops.includes(creature)) return false;
     if (npc && dtNpcOf(item.n) !== npc) return false;
+    if (dtTierFilter && dtTier(dtValue(item)).label !== dtTierFilter) return false;
     return true;
   });
 
-  if (sort === 'name')       dtFiltered.sort((a,b) => a.n.localeCompare(b.n));
-  if (sort === 'value_desc') dtFiltered.sort((a,b) => b.v - a.v);
-  if (sort === 'value_asc')  dtFiltered.sort((a,b) => a.v - b.v);
-  if (sort === 'group')      dtFiltered.sort((a,b) => a.g.localeCompare(b.g));
-  if (sort === 'npc') {
-    const ord = {}; DT_NPC_ORDER.forEach((n,i)=>ord[n]=i);
-    dtFiltered.sort((a,b) => {
-      const na=dtNpcOf(a.n), nb=dtNpcOf(b.n);
-      if (na !== nb) return (ord[na]??99) - (ord[nb]??99);
-      return dtValue(b) - dtValue(a); // dentro do NPC, maior valor primeiro
-    });
-  }
-
   const count = document.getElementById('dt-count');
   if (count) count.textContent = `${dtFiltered.length} item${dtFiltered.length!==1?'s':''}`;
-  renderDeliveryTable(); initItemImgLazy('#dt-body');
+  renderDeliveryCards();
 }
 
 function renderDelivery() {
@@ -12660,67 +12700,73 @@ function renderDelivery() {
   const rtxt = document.getElementById('dt-rashid-txt');
   if (rtxt) { const r = dtRashidToday(); rtxt.innerHTML = `<b>${r.city}</b> — ${r.loc} <span style="color:var(--muted)">(${r.d})</span>`; }
 
-  // Render respeitando o filtro/ordenação padrão (Agrupar por NPC)
+  // Render inicial (cards por NPC)
   filterDelivery();
+
+  // Puxa o market ao vivo automaticamente na 1ª abertura (1 req por mundo).
+  if (!window.__dtAutoLive) { window.__dtAutoLive = true; setTimeout(() => { try { dtLoadLivePrices(); } catch(e){} }, 400); }
 }
 
-function renderDeliveryTable() {
-  const tbody = document.getElementById('dt-body');
-  if (!tbody) return;
-  const grouped = (document.getElementById('dt-sort')?.value === 'npc');
+// Render em cards por NPC (estilo tibiadozero, no nosso design system).
+function renderDeliveryCards() {
+  const host = document.getElementById('dt-cards');
+  const empty = document.getElementById('dt-empty');
+  if (!host) return;
   const esc = s => String(s==null?'':s).replace(/</g,'&lt;');
-  let prevNpc = null;
-  const rows = [];
+  const sort = document.getElementById('dt-sort')?.value || 'value_desc';
 
-  dtFiltered.forEach((item, i) => {
-    // Cabeçalho de grupo por NPC (só no modo "Agrupar por NPC")
-    if (grouped) {
-      const npc = dtNpcOf(item.n);
-      if (npc !== prevNpc) {
-        prevNpc = npc;
-        const meta = DT_NPC_META[npc] || {sub:'',quest:''};
-        let head = `<b style="font-size:.95rem;color:var(--gold)">${esc(npc)}</b>`;
-        if (meta.rashid) {
-          const r = dtRashidToday();
-          head += ` <span style="font-size:.75rem;color:var(--ink-3)">— hoje (${r.d}): <b style="color:var(--ink)">${esc(r.city)}</b>, ${esc(r.loc)}</span>`;
-        } else if (meta.sub) {
-          head += ` <span style="font-size:.75rem;color:var(--ink-3)">— ${esc(meta.sub)}</span>`;
-        }
-        if (meta.quest) head += ` <span style="font-size:.68rem;color:var(--muted)">· ${esc(meta.quest)}</span>`;
-        rows.push(`<tr class="dt-grouphdr"><td colspan="6" style="background:var(--bamboo-pale,rgba(139,92,246,.06));padding:.6rem .7rem;border-top:2px solid var(--gold,#c9a840)">${head}</td></tr>`);
-      }
-    }
-    const grp = DT_GROUPS[item.g] || {label:'?',min:0,max:0};
-    const groupLabel = grp.label;
-    const qtyMid = grp.min ? `${grp.min}–${grp.max}` : '?';
-    const isNPC = item.drops.includes('NPC') || item.drops.includes('Rashid');
-    const groupColor = {a:'#ef4444',b:'#f97316',c:'#eab308',d:'#22c55e',e:'#3b82f6',f:'#8b5cf6'}[item.g]||'#6b7280';
-    const t = dtTier(dtValue(item));
-    const tierBadge = `<span class="dt-tier" title="${t.advice}" style="display:inline-block;margin-top:3px;font-size:.62rem;font-weight:700;color:${t.color};background:${t.color}1e;border:1px solid ${t.color}55;padding:1px 6px;border-radius:8px;white-space:nowrap">${t.label} · ${t.advice}</span>`;
+  const byNpc = {};
+  dtFiltered.forEach(it => { const n = dtNpcOf(it.n); (byNpc[n] = byNpc[n] || []).push(it); });
+  const order = DT_NPC_ORDER.filter(n => byNpc[n] && byNpc[n].length);
+  if (!order.length) { host.innerHTML = ''; if (empty) empty.style.display = 'block'; return; }
+  if (empty) empty.style.display = 'none';
 
-    rows.push(`<tr style="cursor:pointer" onclick="lookupDeliveryPrice('${item.n.replace(/'/g,"\\'")}', this)">
-      <td style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace">${i+1}</td>
-      <td>
-        <div style="display:flex;align-items:center;gap:.5rem">
-          <img loading="lazy" decoding="async" data-lazy-item="${item.n}"
-               referrerpolicy="no-referrer"
-               alt="" style="width:32px;height:32px;image-rendering:pixelated;flex-shrink:0;opacity:0"
-               onload="this.style.opacity='1'"
-               onerror="tpItemImgErr(this)">
-          <span style="font-weight:500;font-size:.88rem;color:var(--ink)">${item.n}</span>
-          ${isNPC?'<span style="font-size:.6rem;background:var(--gold-pale);color:var(--gold);padding:1px 6px;border-radius:8px;font-weight:500;white-space:nowrap">NPC</span>':''}
+  const cmp = sort === 'name'      ? (a,b) => a.n.localeCompare(b.n)
+            : sort === 'value_asc' ? (a,b) => dtValue(a) - dtValue(b)
+            :                        (a,b) => dtValue(b) - dtValue(a);
+  let idx = 0;
+
+  host.innerHTML = order.map(npc => {
+    const items = byNpc[npc].slice().sort(cmp);
+    const meta = DT_NPC_META[npc] || {};
+    const img = dtNpcImg(npc);
+    let loc = '';
+    if (meta.rashid) { const r = dtRashidToday(); loc = `<b style="color:var(--ink)">Hoje (${r.d}):</b> ${esc(r.city)}, ${esc(r.loc)}`; }
+    else if (meta.sub) loc = esc(meta.sub);
+    const quest = meta.quest ? `<div class="dt-npc-quest">${esc(meta.quest)}</div>` : '';
+
+    const cards = items.map(it => {
+      const i = idx++;
+      const grp = DT_GROUPS[it.g] || {min:0,max:0};
+      const qty = grp.min ? `${grp.min}–${grp.max} un.` : '';
+      const a = dtAdvice(it);
+      return `<div class="dt-item" onclick="lookupDeliveryPrice('${it.n.replace(/'/g,"\\'")}', this)" title="Clique pra atualizar o preço ao vivo">
+        <img class="dt-item-ic" loading="lazy" decoding="async" data-lazy-item="${esc(it.n)}" referrerpolicy="no-referrer" alt="" onload="this.style.opacity='1'" onerror="tpItemImgErr(this)">
+        <div class="dt-item-main">
+          <div class="dt-item-name">${esc(it.n)}</div>
+          <div class="dt-item-meta"><span id="dt-price-${i}">${dtCellHtml(it)}</span>${qty?` · <span style="color:var(--muted)">${qty}</span>`:''}</div>
         </div>
-      </td>
-      <td>
-        <span style="font-size:.72rem;background:${groupColor}22;color:${groupColor};border:1px solid ${groupColor}44;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap">${item.g} · ${groupLabel}</span>
-      </td>
-      <td style="font-family:'DM Mono',monospace;font-size:.85rem;color:var(--ink-3)">${qtyMid} un.</td>
-      <td id="dt-price-${i}" style="font-family:'DM Mono',monospace;font-size:.85rem;color:var(--muted)">${dtCellHtml(item)}<br>${tierBadge}</td>
-      <td style="font-size:.78rem;color:var(--muted);font-weight:300;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.drops}</td>
-    </tr>`);
-  });
-  tbody.innerHTML = rows.join('');
+        <span class="dt-item-adv" title="${esc(a.advice)}" style="color:${a.color};background:${a.color}1e;border-color:${a.color}55">${esc(a.label)}</span>
+      </div>`;
+    }).join('');
+
+    return `<details class="dt-npc-card" open>
+      <summary class="dt-npc-sum">
+        <img class="dt-npc-ic" referrerpolicy="no-referrer" src="${img}" alt="" onerror="this.style.visibility='hidden'">
+        <div class="dt-npc-info">
+          <div class="dt-npc-name">${esc(npc)}</div>
+          ${loc ? `<div class="dt-npc-loc">📍 ${loc}</div>` : ''}
+          ${quest}
+        </div>
+        <span class="dt-npc-count">${items.length} itens</span>
+      </summary>
+      <div class="dt-item-grid">${cards}</div>
+    </details>`;
+  }).join('');
+  initItemImgLazy('#dt-cards');
 }
+// alias p/ os chamadores antigos (preços ao vivo / troca de mundo)
+function renderDeliveryTable(){ renderDeliveryCards(); }
 
 // Verificar loot: cola o log da sessão (Hunt Analyzer) e filtra só os itens de entrega.
 function dtCheckLoot(){
