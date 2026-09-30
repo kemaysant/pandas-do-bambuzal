@@ -62,9 +62,9 @@ Objetivo: transformar a página de builds no "Blitz.gg do Tibia" — dados reais
 - Fix aplicado: novo `assets/data/dc-proftrees.json` (443 árvores + 184 ícones), carregado sob demanda; o display resolve árvore e ícones no completo com fallback pro `TP_PTREE`/`TP_PICON`. Validado com a build Cobra Wand (8 tiles, ícones reais).
 - _Opcional:_ backfill de `weapon.pc` no save.
 
-**c) Algumas fatias ainda não liberam mesmo parecendo adjacentes.**
-- Paridade de índice `__DWH`↔`TP_WHEEL` confirmada OK (sorcerer) e `TP_ADJ` passou no teste de isomorfismo. Então: ou é fatia do mesmo domínio porém **não vizinha de fato** (comportamento correto), ou falta uma aresta específica em algum ponto.
-- Ação: reproduzir com o **id da build + qual fatia** trava; validar `TP_ADJ` naquele ponto; conferir se `_beWheelCascade` (flood-fill do centro) não removeu pontos ao abrir.
+**c) ✅ FEITO (30/09) — Fatias travadas mesmo com vizinha preenchida.**
+- Causa: o `TP_ADJ` vinha de uma derivação que **perdia as arestas laterais dentro do mesmo quadrante** (fatias consecutivas do mesmo anel). A regra real do jogo (confirmada no codec) é adjacência **visual**: radial (par nos dois sentidos) + vizinhas consecutivas do mesmo anel (cíclico, cruzando quadrantes).
+- Fix aplicado: `TP_ADJ` recalculado com a adjacência completa. Validado vs o codec (0 divergências em 112 checagens) e sem regressão no cascade/lateral. Fatia com vizinha do mesmo anel preenchida agora libera.
 
 ### 2b. Botão "＋ Criar nova build" na lista — BACKLOG (até validar tudo)
 - CTA "Criar nova" na página de Builds (admin) abrindo o editor nativo com build vazia. Segurar até o editor estar 100% validado.
