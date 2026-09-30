@@ -5231,12 +5231,15 @@ PlayerName (Leader)
         return '<div class="bewheel-aug'+(on?' on':'')+'"><span class="bewheel-adot'+(on?' on':'')+'"></span><span>'+E(a.n)+'</span><b>'+(on?'Aug. '+TP_WROMAN[st]:'—')+'</b></div>';
       }).join('')+'</div>'):'';
       var vgimg=(typeof TP_VOCGEM!=='undefined'?(TP_VOCGEM[voc]||''):'');
+      var _vesDH=0;
       var gemRows=[3,0,2,1].map(function(dm){ var g=_wheelGem(gems[dm]); if(!g) return ''; var d=W.domains[dm];
+        _vesDH += (g.tier==='greater'?2:1);
         return '<div class="bewheel-vessel on"><span class="bewheel-dot" style="background:'+d.color+'"></span><span class="bewheel-vn">'+E(d.name)+'</span>'
-          +(vgimg?'<img class="bewheel-gemimg" src="'+vgimg+'" alt="gema">':'')+'<b style="text-transform:capitalize">'+E(_WGEMLBL[g.tier]||g.tier)+'</b>'+(g.mod?'<small style="color:var(--muted)"> · '+E(g.mod)+'</small>':'')+'</div>';
+          +(vgimg?'<img class="bewheel-gemimg" src="'+vgimg+'" alt="gema">':'')+'<b style="text-transform:capitalize">'+E(_WGEMLBL[g.tier]||g.tier)+'</b>'+'<span class="bewheel-vdh on">+'+(g.tier==='greater'?2:1)+' D&amp;H</span>'+(g.mod?'<small style="color:var(--muted)"> · '+E(g.mod)+'</small>':'')+'</div>';
       }).join('');
       var gemsHtml=gemRows?('<div class="bewheel-gems"><div class="bewheel-subh">💎 Gemas / Vessels</div>'+gemRows+'</div>'):'';
-      var flatLine=(S.flat>0)?('<div class="bewheel-flat">Dano &amp; Cura da roda: <b>+'+S.flat+'</b> de revelação</div>')
+      var _dhT=(S.flat||0)+_vesDH;
+      var flatLine=(_dhT>0)?('<div class="bewheel-flat">Dano &amp; Cura da roda: <b>+'+_dhT+'</b> <span style="color:var(--ink-3);font-weight:400">('+(S.flat||0)+' revelação'+(_vesDH>0?' · '+_vesDH+' vessel':'')+')</span></div>')
         :('<div class="bewheel-flat off">Sem estágio de revelação (Est. I = '+W.stageAt[0]+' pts)</div>');
       var miles=(typeof tpMilestonesHtml==='function')?tpMilestonesHtml(S.used,level):'';
       return '<div class="bewheel-wrap bewheel-ro">'
@@ -5543,7 +5546,7 @@ PlayerName (Leader)
       +'.bewheel-flat{font-size:.85rem;color:var(--ink);background:rgba(201,168,64,.08);border:1px solid rgba(201,168,64,.25);border-radius:8px;padding:.5rem .6rem}.bewheel-flat.off{color:var(--muted);background:transparent;border-color:var(--rule)}.bewheel-flat b{color:var(--gold,#c9a840)}.bewheel-over{font-size:.82rem;color:#e0554b;background:rgba(224,85,75,.1);border:1px solid rgba(224,85,75,.35);border-radius:8px;padding:.45rem .6rem;margin-bottom:.4rem}'
       +'.bewheel-doms{display:flex;flex-direction:column;gap:.35rem}.bewheel-dom{display:grid;grid-template-columns:auto 1fr auto;gap:.5rem;align-items:center;padding:.4rem .55rem;border:1px solid var(--rule);border-radius:8px;font-size:.82rem}.bewheel-dom.hit{border-color:rgba(201,168,64,.4);background:rgba(201,168,64,.05)}.bewheel-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}.bewheel-dn{font-weight:600;color:var(--ink)}.bewheel-dp{color:var(--ink);font-variant-numeric:tabular-nums;text-align:right}.bewheel-dp small{color:var(--muted)}.bewheel-ds{font-size:.72rem;color:var(--muted);grid-column:2/-1;justify-self:start}.bewheel-ds.on{color:var(--gold,#c9a840);font-weight:700}.bewheel-df{display:none}'
       +'.bewheel-subh{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:.9rem 0 .5rem;font-weight:700}.bewheel-augs{margin-top:.8rem}.bewheel-aug{display:flex;gap:.5rem;align-items:center;font-size:.8rem;padding:.3rem .5rem;color:var(--muted)}.bewheel-aug.on{color:var(--ink)}.bewheel-aug b{margin-left:auto;font-size:.72rem}.bewheel-aug.on b{color:var(--gold,#c9a840)}.bewheel-adot{width:8px;height:8px;border-radius:50%;background:var(--rule)}.bewheel-adot.on{background:var(--gold,#c9a840)}'
-      +'.bewheel-gems{margin-top:1rem}.bewheel-vessel{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;padding:.5rem .6rem;border:1px solid var(--rule);border-radius:8px;margin-bottom:.45rem;font-size:.82rem}.bewheel-vessel.on{border-color:rgba(201,168,64,.4);background:rgba(201,168,64,.05)}.bewheel-vessel.off{opacity:.55}.bewheel-vn{font-weight:600;color:var(--ink);min-width:120px}.bewheel-vn small{color:var(--muted);font-weight:400}.bewheel-vlock{color:var(--muted);font-size:.78rem;font-style:italic}.bewheel-gemimg{width:20px;height:20px;image-rendering:pixelated}.bewheel-tier{width:120px}.bewheel-modin{flex:1;min-width:150px}.bewheel-tier,.bewheel-modin{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .5rem;font:inherit;font-size:.82rem}.bewheel-miles{margin-top:1rem}.bewheel-svg.ro path{cursor:default}.bewheel-ro .bewheel-left{flex:0 0 auto}.bewheel-svg .wsl.wsel{filter:drop-shadow(0 0 6px #f5e6a8)}'
+      +'.bewheel-gems{margin-top:1rem}.bewheel-vessel{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;padding:.5rem .6rem;border:1px solid var(--rule);border-radius:8px;margin-bottom:.45rem;font-size:.82rem}.bewheel-vessel.on{border-color:rgba(201,168,64,.4);background:rgba(201,168,64,.05)}.bewheel-vessel.off{opacity:.55}.bewheel-vn{font-weight:600;color:var(--ink);min-width:120px}.bewheel-vn small{color:var(--muted);font-weight:400}.bewheel-vlock{color:var(--muted);font-size:.78rem;font-style:italic}.bewheel-gemimg{width:20px;height:20px;image-rendering:pixelated}.bewheel-tier{width:150px}.bewheel-modin{flex:1;min-width:150px}.bewheel-modsel{flex:1;min-width:170px}.bewheel-tier,.bewheel-modin,.bewheel-modsel{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .5rem;font:inherit;font-size:.82rem}.bewheel-vdh{font-size:.72rem;font-weight:700;color:var(--ink-3);padding:.15rem .45rem;border:1px solid var(--rule);border-radius:999px;white-space:nowrap}.bewheel-vdh.on{color:#79b83f;border-color:rgba(121,184,63,.4);background:rgba(121,184,63,.08)}.bewheel-miles{margin-top:1rem}.bewheel-svg.ro path{cursor:default}.bewheel-ro .bewheel-left{flex:0 0 auto}.bewheel-svg .wsl.wsel{filter:drop-shadow(0 0 6px #f5e6a8)}'
       +'#builds .besl-wrap{margin:.6rem 0 .2rem}#builds .besl-empty{font-size:.8rem;color:var(--muted);font-style:italic;padding:.6rem .2rem;text-align:center;border:1px dashed var(--rule);border-radius:9px}'
       +'#builds .besl{border:1px solid var(--rule);border-radius:10px;padding:.6rem .7rem;background:var(--bg-1,#0f0e15)}#builds .besl.locked{opacity:.75}#builds .besl-h{display:flex;align-items:center;gap:.45rem;font-size:.82rem;font-weight:700;color:var(--ink)}#builds .besl-sw{width:11px;height:11px;border-radius:50%}#builds .besl-pts{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--gold,#c9a840);font-weight:800}'
       +'#builds .besl-btns{display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;margin-top:.4rem}#builds .besl-b{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .1rem;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;transition:border-color .1s}#builds .besl-b:hover:not(:disabled){border-color:var(--bamboo,#8b5cf6)}#builds .besl-b:disabled{opacity:.3;cursor:not-allowed}#builds .besl-lock{font-size:.72rem;color:var(--muted);font-style:italic;margin-top:.4rem}'
@@ -5855,6 +5858,18 @@ PlayerName (Leader)
       var stages=domPts.map(stg), flat=0; stages.forEach(function(s){ flat+=W.revDmg[s]||0; });
       return {W:W,voc:voc,wp:wp,domPts:domPts,stages:stages,flat:flat,used:_beWheelUsed(),budget:_beWheelBudget()};
     }
+    /* Adjacência real da roda (radial + lateral, inclusive cruzando quadrantes) —
+       derivada do codec oficial do jogo. A roda libera uma fatia quando QUALQUER
+       vizinha (dentro, fora, ou do lado) tem pontos — não só a "de dentro". */
+    var TP_ADJ={0:[4,5],1:[6,7],2:[8,9],3:[10,11],4:[0,11,12,13],5:[0,6,13,14],6:[1,5,15,16],7:[1,8,16,17],8:[2,7,18,19],9:[2,10,19,20],10:[3,9,21,22],11:[3,4,22,23],12:[4,23,24],13:[4,5,24,25],14:[5,15,25],15:[6,14,26],16:[6,7,26,27],17:[7,18,27],18:[8,17,28],19:[8,9,28,29],20:[9,21,29],21:[10,20,30],22:[10,11,30,31],23:[11,12,31],24:[12,13,32],25:[13,14,32],26:[15,16,33],27:[16,17,33],28:[18,19,34],29:[19,20,34],30:[21,22,35],31:[22,23,35],32:[24,25],33:[26,27],34:[28,29],35:[30,31]};
+    /* uma fatia está "liberada" se for do anel central (ring 0) ou tiver uma vizinha com pontos */
+    function _tpAdjOk(i, wp){
+      wp=wp||{};
+      var W=TP_WHEEL[_beVoc()]; if(!W) return true;
+      var slot=null; for(var k=0;k<W.slots.length;k++){ if(W.slots[k].i===i){ slot=W.slots[k]; break; } }
+      if(!slot) return true; if(slot.ring===0) return true;
+      return (TP_ADJ[i]||slot.par||[]).some(function(j){ return (+wp[j]||0)>0; });
+    }
     /* clique numa fatia = seleciona (não aloca direto); o ajuste fino vem dos botões */
     window.tpBEwheelSel=function(i,ev){ if(ev&&ev.preventDefault)ev.preventDefault(); var BE=window.__BE; if(!BE) return false; tpBECapture(); BE.wheelSel=(BE.wheelSel===i?null:i); tpBERender(); return false; };
     /* botões −máx −10 −1 +1 +10 +máx da fatia selecionada */
@@ -5869,7 +5884,7 @@ PlayerName (Leader)
       var b=BE.data.b; b.wheelPts=b.wheelPts||{};
       var cur=+b.wheelPts[i]||0, nv=cur+delta;
       if(nv<0)nv=0; if(nv>slot.max)nv=slot.max;
-      if(nv>cur && slot.ring>0){ var _ok=(slot.par||[]).some(function(pi){ return (+b.wheelPts[pi]||0)>0; }); if(!_ok){ if(window.tpToast) tpToast('A roda enche de dentro pra fora — preencha uma fatia conectada antes.','info'); return false; } }
+      if(nv>cur && slot.ring>0){ var _ok=_tpAdjOk(i,b.wheelPts); if(!_ok){ if(window.tpToast) tpToast('Fatia bloqueada — preencha uma fatia vizinha (do lado, de dentro ou de fora) antes.','info'); return false; } }
       if(nv>cur){ var budget=_beWheelBudget(), used=_beWheelUsed(); var avail=budget-(used-cur); if(avail<cur)avail=cur; if(nv>avail){ nv=Math.max(cur,avail); if(nv===cur){ if(window.tpToast) tpToast('Sem pontos disponíveis — suba o nível ou tire de outra fatia.','info'); } } }
       if(nv<=0) delete b.wheelPts[i]; else b.wheelPts[i]=nv;
       _beWheelCascade();
@@ -5879,10 +5894,13 @@ PlayerName (Leader)
     /* remove fatias órfãs (sem pai preenchido) — mantém a roda contígua */
     function _beWheelCascade(){
       var BE=window.__BE; if(!BE) return; var W=TP_WHEEL[_beVoc()]; if(!W) return;
-      var wp=BE.data.b.wheelPts||{}, changed=true, guard=0;
-      while(changed && guard++<60){ changed=false;
-        W.slots.forEach(function(s){ if(s.ring===0) return; if(!((+wp[s.i]||0)>0)) return; var ok=(s.par||[]).some(function(pi){ return (+wp[pi]||0)>0; }); if(!ok){ delete wp[s.i]; changed=true; } });
-      }
+      var wp=BE.data.b.wheelPts||{};
+      /* mantém só as fatias conectadas ao centro por uma cadeia de fatias preenchidas
+         (usa a adjacência real: radial + lateral). Remove "ilhas" soltas. */
+      var reach={}, queue=[];
+      W.slots.forEach(function(s){ if(s.ring===0 && (+wp[s.i]||0)>0){ reach[s.i]=1; queue.push(s.i); } });
+      while(queue.length){ var i=queue.shift(); (TP_ADJ[i]||[]).forEach(function(j){ if(!reach[j] && (+wp[j]||0)>0){ reach[j]=1; queue.push(j); } }); }
+      Object.keys(wp).forEach(function(k){ var i=+k; if((+wp[i]||0)>0 && !reach[i]) delete wp[i]; });
     }
     window.tpBEwheelAuto=function(){
       var BE=window.__BE; if(!BE) return; tpBECapture();
@@ -5933,7 +5951,7 @@ PlayerName (Leader)
     window.tpBEgem=function(dom,field,val){
       var BE=window.__BE; if(!BE) return; tpBECapture();
       var b=BE.data.b; b.gems=b.gems||{}; b.gems[dom]=b.gems[dom]||{};
-      if(field==='tier'){ if(!val) delete b.gems[dom]; else b.gems[dom].tier=val; }
+      if(field==='tier'){ if(!val) delete b.gems[dom]; else { b.gems[dom].tier=val; if(val!=='greater') delete b.gems[dom].mod; } }
       else { if(val==='') delete b.gems[dom][field]; else b.gems[dom][field]=val; }
       if(b.gems[dom] && !b.gems[dom].tier) delete b.gems[dom];
       tpBERender();
@@ -5961,8 +5979,8 @@ PlayerName (Leader)
         var i=BEsel, slot=null; if(i>=0){ for(var k=0;k<W.slots.length;k++){ if(W.slots[k].i===i){ slot=W.slots[k]; break; } } }
         if(!slot){ slicePanel='<div class="besl-empty">Clique numa fatia da roda pra alocar pontos aos poucos.</div>'; return; }
         var dm=W.domains[slot.dom], pv=Math.max(0,Math.min(+wp[i]||0,slot.max));
-        var parOk=(slot.ring===0)||((slot.par||[]).some(function(pi){return (+wp[pi]||0)>0;}));
-        var lock=(!parOk&&pv===0)?'<div class="besl-lock">🔒 Complete uma fatia interna conectada pra liberar esta.</div>':'';
+        var parOk=_tpAdjOk(i,wp);
+        var lock=(!parOk&&pv===0)?'<div class="besl-lock">🔒 Preencha uma fatia vizinha (do lado, de dentro ou de fora) pra liberar esta.</div>':'';
         var sfill=slot.max?Math.min(100,pv/slot.max*100):0, scol=dm.bright||dm.color;
         var btns=['-max','-10','-1','+1','+10','+max'].map(function(bt){ var plus=bt[0]==='+'; var dis=(plus&&!parOk&&pv===0)?' disabled':''; return '<button type="button" class="besl-b" onclick="tpBEwheelStep('+i+',\''+bt+'\')"'+dis+'>'+bt.replace('-','−')+'</button>'; }).join('');
         slicePanel='<div class="besl'+(parOk?'':' locked')+'">'
@@ -5992,25 +6010,34 @@ PlayerName (Leader)
       /* gemas / vessels por domínio, gated pelo estágio de revelação */
       var gems=window.__BE.data.b.gems||{};
       var vgimg=(typeof TP_VOCGEM!=='undefined'?(TP_VOCGEM[voc]||''):'');
-      var supList=(_BE_GEMSUP[voc]||[]).concat(_BE_RMSUP[voc]||[]);
-      var supDL='<datalist id="be2-gemsup">'+supList.map(function(x){return '<option value="'+E(x)+'">';}).join('')+'</datalist>';
+      /* lista oficial de mods supremos (greater) da vocação, vinda do dc-wheels.json */
+      var GG=((window.__DWH&&__DWH.vocs&&__DWH.vocs[voc]&&__DWH.vocs[voc].greaterGems)||[]);
+      var vesDH=0; /* Dano & Cura de vessel (Vessel Resonance): +1 lesser/regular, +2 greater */
       var vessels=[3,0,2,1].map(function(dm){
         var d=W.domains[dm], stgN=C.stages[dm];
         var maxTier=stgN>=3?'greater':(stgN>=2?'regular':(stgN>=1?'lesser':''));
         var g=gems[dm]||{};
+        if(g.tier){ vesDH += (g.tier==='greater'?2:1); }
         if(!maxTier){
           return '<div class="bewheel-vessel off"><span class="bewheel-dot" style="background:'+d.color+'"></span><span class="bewheel-vn">'+E(d.name)+'</span><span class="bewheel-vlock">🔒 sem revelação (Est. I = '+W.stageAt[0]+' pts)</span></div>';
         }
-        var tiers=[['','—']]; if(stgN>=1)tiers.push(['lesser','Lesser']); if(stgN>=2)tiers.push(['regular','Regular']); if(stgN>=3)tiers.push(['greater','Greater']);
+        var tiers=[['','—']]; if(stgN>=1)tiers.push(['lesser','Lesser (+1 D&H)']); if(stgN>=2)tiers.push(['regular','Regular (+1 D&H)']); if(stgN>=3)tiers.push(['greater','Greater (+2 D&H)']);
         var tierSel='<select class="bewheel-tier" onchange="tpBEgem('+dm+',\'tier\',this.value)">'+tiers.map(function(t){return '<option value="'+t[0]+'"'+(g.tier===t[0]?' selected':'')+'>'+t[1]+'</option>';}).join('')+'</select>';
-        var modInp='<input class="bewheel-modin" list="be2-gemsup" placeholder="modificador supremo…" value="'+E(g.mod||'')+'" oninput="tpBEgem('+dm+',\'mod\',this.value)">';
+        /* mod supremo: só no greater; select padrão com as runas corretas da vocação */
+        var modSel='';
+        if(g.tier==='greater'){
+          var opts='<option value="">— sem mod supremo —</option>'+(GG.length?GG.map(function(gm){return '<option value="'+E(gm.label)+'"'+(g.mod===gm.label?' selected':'')+'>'+E(gm.label)+'</option>';}).join(''):'');
+          modSel='<select class="bewheel-modsel" onchange="tpBEgem('+dm+',\'mod\',this.value)">'+opts+'</select>';
+        }
+        var dhTag='<span class="bewheel-vdh'+(g.tier?' on':'')+'">'+(g.tier?('+'+(g.tier==='greater'?2:1)+' D&amp;H'):'—')+'</span>';
         return '<div class="bewheel-vessel'+(g.tier?' on':'')+'">'
           +'<span class="bewheel-dot" style="background:'+d.color+'"></span>'
           +'<span class="bewheel-vn">'+E(d.name)+' <small>(vessel até '+_BE_TIERLBL[maxTier]+')</small></span>'
           +(g.tier&&vgimg?'<img class="bewheel-gemimg" src="'+vgimg+'" alt="gema">':'')
-          +tierSel+modInp+'</div>';
+          +tierSel+dhTag+modSel+'</div>';
       }).join('');
-      var flatLine=(C.flat>0)?('<div class="bewheel-flat">Dano &amp; Cura da roda: <b>+'+C.flat+'</b> de revelação'+(over?'':'')+'</div>')
+      var _dhTot=(C.flat||0)+vesDH;
+      var flatLine=(_dhTot>0)?('<div class="bewheel-flat">Dano &amp; Cura da roda: <b>+'+_dhTot+'</b> <span style="color:var(--ink-3);font-weight:400">('+(C.flat||0)+' revelação'+(vesDH>0?' · '+vesDH+' vessel':'')+')</span></div>')
         :('<div class="bewheel-flat off">Nenhum estágio de revelação ainda (Est. I = '+W.stageAt[0]+' pts / nível '+(W.stageAt[0]+50)+')</div>');
       var overWarn=over?('<div class="bewheel-over">⚠ '+C.used+' pts alocados, mas o nível só dá '+C.budget+'. Reduza ou suba o nível.</div>'):'';
       return '<div class="be2sec"><h4>🎡 Roda do Destino <span style="font-weight:600;color:var(--ink-3);text-transform:none;letter-spacing:0">— clique numa fatia: +25 · botão direito/Shift: −25</span></h4>'
@@ -6023,7 +6050,7 @@ PlayerName (Leader)
           +'</div>'
           +'<div class="bewheel-right"><div class="bewheel-doms">'+rows+'</div>'+augHtml+'</div>'
         +'</div>'
-        +'<div class="bewheel-gems"><div class="bewheel-subh">💎 Gemas / Vessels <span style="font-weight:400;color:var(--ink-3);text-transform:none">— desbloqueiam conforme o estágio de revelação de cada domínio</span></div>'+vessels+'</div>'+supDL
+        +'<div class="bewheel-gems"><div class="bewheel-subh">💎 Gemas / Vessels <span style="font-weight:400;color:var(--ink-3);text-transform:none">— desbloqueiam conforme o estágio de revelação de cada domínio · encaixar a gema soma Dano & Cura</span></div>'+vessels+'</div>'
         +'</div>';
     }
     function _beWeaponHtml(){
