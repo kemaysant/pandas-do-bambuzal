@@ -7161,11 +7161,14 @@ function _md5(str) {
 const _WIKIA_LOWER = new Set(['a','an','the','of','with','in','on','at','for','and','or','but','to','from','by','via','vs']);
 function _itemSlug(name){
   const words = (name || '').split(' ');
-  return words.map((w, i) =>
+  let s = words.map((w, i) =>
     (i > 0 && _WIKIA_LOWER.has(w.toLowerCase()))
       ? w.toLowerCase()
       : (w.charAt(0).toUpperCase() + w.slice(1))
   ).join('_') + '.gif';
+  // possessivos: o arquivo da wiki usa 's minúsculo (ex.: "Cat's Paw", "Spellweaver's Robe").
+  // nossos nomes vêm com "'S" maiúsculo — corrige a letra após o apóstrofo.
+  return s.replace(/'([A-Za-z])/g, (m, c) => "'" + c.toLowerCase());
 }
 // Miniatura do item. Fonte primária: tibiawiki.com.br Special:FilePath — resolve o
 // arquivo atual SEM hash e SEM proxy. (O antigo wsrv.nl+wikia parou de funcionar e
@@ -11224,21 +11227,21 @@ function triggerReveal() {
 // IntersectionObserver falha em containers com display:none (.page-section).
 // Carregamos em lotes de 30 a cada frame para não travar o render.
 function initItemImgLazy(selector) {
-  const imgs = Array.from(document.querySelectorAll(selector + ' [data-lazy-item]'));
+  const imgs = Array.from(document.querySelectorAll(selector + ' [data-lazy-item]')).filter(im => !im.getAttribute('src'));
   if (!imgs.length) return;
-  let i = 0;
-  function loadBatch() {
-    const end = Math.min(i + 30, imgs.length);
-    for (; i < end; i++) {
-      // img.src nunca é falsy (retorna URL absoluta da página) — checar atributo src
-      if (!imgs[i].getAttribute('src')) {
-        imgs[i].src = itemImgUrl(imgs[i].dataset.lazyItem);
-      }
-    }
-    if (i < imgs.length) setTimeout(loadBatch, 16);
+  const setSrc = im => { if (!im.getAttribute('src')) im.src = itemImgUrl(im.dataset.lazyItem); };
+  // Lote GENTIL (10/s) — evita estourar o rate-limit da wiki quando há centenas de itens.
+  const gentle = list => { let i = 0; (function b(){ const end = Math.min(i + 12, list.length); for (; i < end; i++) setSrc(list[i]); if (i < list.length) setTimeout(b, 120); })(); };
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(e => { if (e.isIntersecting) { setSrc(e.target); obs.unobserve(e.target); } });
+    }, { rootMargin: '400px 0px' });
+    imgs.forEach(im => io.observe(im));
+    // Se o container estava escondido (IO não dispara), carrega gentilmente depois de 1.2s.
+    setTimeout(() => { const pend = imgs.filter(im => !im.getAttribute('src')); if (pend.length === imgs.length) gentle(pend); }, 1200);
+  } else {
+    gentle(imgs);
   }
-  // Duplo rAF: garante que o container já está visível antes de carregar
-  requestAnimationFrame(() => requestAnimationFrame(loadBatch));
 }
 
 // ══════════════════════════════════════════════════
