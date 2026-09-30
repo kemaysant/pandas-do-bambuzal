@@ -46,8 +46,18 @@ Objetivo: transformar a página de builds no "Blitz.gg do Tibia" — dados reais
 
 ## 📋 Backlog (prioridade sugerida)
 
-### 0. 🗺️ MAP EDITOR — TOP PRIORIDADE
+### 0. 🗺️ MAP EDITOR — (o Kemay quer as ferramentas abaixo ANTES)
 - Priorizar o editor de mapa (`mapa_editor.html` + `mapper-pack`). Definir escopo (o que falta / o que melhorar) e executar.
+
+### 0b. 🛠️ Ferramentas do site — melhorar (inspiração tibiadozero) — ALTA
+O Kemay achou o tibiadozero.com.br e quer elevar as nossas ferramentas ao mesmo nível. Já temos as páginas (`delivery`, `bosses`, `imbuements`, `huntfinder`, charm calc, market) e já usamos a **TibiaData API** (21 refs) como fonte.
+
+- **Entregas / itens da weekly** (nossa: página `delivery`) — "muito simples e com **miniaturas quebradas**". Corrigir os ícones quebrados + enriquecer. Ref: https://tibiadozero.com.br/ferramentas/entregas — _candidato a quick win (bug visível)._
+- **Boss statistics por servidor** (nossa: `bosses`) — "muito fraca, ficou muito tempo fora das atualizações". Atualizar dados/rotação, estatísticas por servidor (o nosso é **Gentebra**). Ref: https://tibiadozero.com.br/ferramentas/boss-tracker/Gentebra
+- **Custo de imbuements** (nossa: `imbuements`) — melhorar (preços, materiais, cálculo). Ref: https://tibiadozero.com.br/ferramentas/custo-imbuements
+- **Hunts / Hunt Finder** (nossa: `huntfinder`) — ajustar com curadoria melhor (liga com o 2c: faixas coerentes, solo/PT). Ref: https://tibiadozero.com.br/hunts
+- **Market tracker** — "ferramenta magnífica" (aspiracional, maior). Preços/histórico do market. Ref: https://tibiadozero.com.br/ferramentas/market-tracker
+- **Calculadora de charms** (nossa: charm calc) — **backlog** (o próprio Kemay marcou). Ref: https://tibiadozero.com.br/ferramentas/calculadora-charms
 
 ### 1. Refinar o conteúdo das builds — EM FOCO (você)
 - Revisar set, roda, rotação e guia de cada build; padronizar copiar/colar entre builds.
