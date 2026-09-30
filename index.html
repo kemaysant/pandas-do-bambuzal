@@ -7101,17 +7101,34 @@ function _md5(str) {
 // Passa pelo wsrv.nl para evitar bloqueio por Referer quando vem do GitHub Pages
 // Slug: TitleCase com underscores, artigos/preposições em lowercase (ex: "Blood_Tincture_in_a_Vial")
 const _WIKIA_LOWER = new Set(['a','an','the','of','with','in','on','at','for','and','or','but','to','from','by','via','vs']);
-function itemImgUrl(name) {
+function _itemSlug(name){
   const words = (name || '').split(' ');
-  const slug = words.map((w, i) =>
+  return words.map((w, i) =>
     (i > 0 && _WIKIA_LOWER.has(w.toLowerCase()))
       ? w.toLowerCase()
       : (w.charAt(0).toUpperCase() + w.slice(1))
   ).join('_') + '.gif';
-  const h = _md5(slug);
-  const wikiaUrl = `https://static.wikia.nocookie.net/tibia/images/${h[0]}/${h.slice(0,2)}/${slug}/revision/latest?path-prefix=en`;
-  return `https://wsrv.nl/?url=${encodeURIComponent(wikiaUrl)}&output=png`;
 }
+// Miniatura do item. Fonte primária: tibiawiki.com.br Special:FilePath — resolve o
+// arquivo atual SEM hash e SEM proxy. (O antigo wsrv.nl+wikia parou de funcionar e
+// deixou todas as miniaturas quebradas.) Fallback (onerror) = wikia direto com hash.
+function itemImgUrl(name) {
+  return 'https://www.tibiawiki.com.br/wiki/Special:FilePath/' + _itemSlug(name);
+}
+// URL de fallback: wikia direto (com hash md5), sem proxy — usado no onerror.
+function itemImgUrlAlt(name) {
+  const slug = _itemSlug(name);
+  const h = _md5(slug);
+  return `https://static.wikia.nocookie.net/tibia/images/${h[0]}/${h.slice(0,2)}/${slug}/revision/latest?path-prefix=en`;
+}
+// onerror das miniaturas de item: tenta o fallback wikia uma vez, depois esconde.
+window.tpItemImgErr = function(img){
+  try{
+    var nm = img.getAttribute('data-item-name') || img.getAttribute('data-lazy-item') || '';
+    if(nm && !img.dataset.fbTried){ img.dataset.fbTried='1'; img.src = itemImgUrlAlt(nm); return; }
+  }catch(e){}
+  img.style.display='none';
+};
 
 function creatureImgUrl(creature) {
   // Mesmo padrão do Hunt Finder: TitleCase com hífens → cdn.tibiaroute.com/monsters/
@@ -8701,7 +8718,7 @@ function openHuntModal(idx) {
     return `<div class="${cls}" title="${name}${isTask ? ' · Weekly Task' : ''}${isImbu ? ' · Imbuement' : ''}">
       ${badge}
       <div class="hf-item-slot-img">
-        <img loading="lazy" decoding="async" src="${itemImgUrl(name)}" onerror="this.style.opacity='.1'">
+        <img loading="lazy" decoding="async" referrerpolicy="no-referrer" data-item-name="${name.replace(/"/g,'&quot;')}" src="${itemImgUrl(name)}" onerror="tpItemImgErr(this)">
       </div>
       <span class="hf-item-slot-lbl">${label}</span>
     </div>`;
@@ -12543,7 +12560,7 @@ function renderDeliveryTable() {
                referrerpolicy="no-referrer"
                alt="" style="width:32px;height:32px;image-rendering:pixelated;flex-shrink:0;opacity:0"
                onload="this.style.opacity='1'"
-               onerror="this.style.display='none'">
+               onerror="tpItemImgErr(this)">
           <span style="font-weight:500;font-size:.88rem;color:var(--ink)">${item.n}</span>
           ${isNPC?'<span style="font-size:.6rem;background:var(--gold-pale);color:var(--gold);padding:1px 6px;border-radius:8px;font-weight:500;white-space:nowrap">NPC</span>':''}
         </div>
