@@ -5237,8 +5237,11 @@ PlayerName (Leader)
       var gemRows=[3,0,2,1].map(function(dm){ var g=_wheelGem(gems[dm]); if(!g) return ''; var d=W.domains[dm];
         _vesDH += (g.tier==='greater'?2:1);
         var _gi=(typeof _tpGemIcon==='function')?_tpGemIcon(voc,g.tier):vgimg;
-        return '<div class="bewheel-vessel on"><span class="bewheel-dot" style="background:'+d.color+'"></span><span class="bewheel-vn">'+E(d.name)+'</span>'
-          +(_gi?'<img class="bewheel-gemimg" src="'+_gi+'" alt="gema">':'')+'<b style="text-transform:capitalize">'+E(_WGEMLBL[g.tier]||g.tier)+'</b>'+'<span class="bewheel-vdh on">+'+(g.tier==='greater'?2:1)+' D&amp;H</span>'+(g.mod?'<small style="color:var(--muted)"> · '+E(g.mod)+'</small>':'')+'</div>';
+        var _mods=[]; if(g.b1)_mods.push(g.b1); if(g.b2)_mods.push(g.b2);
+        var _modsHtml=_mods.length?('<div class="bewheel-vmods">'+_mods.map(function(m){return '<span class="bewheel-vmod">'+E(m)+'</span>';}).join('')+'</div>'):'';
+        var _supHtml=g.mod?('<div class="bewheel-vmods"><span class="bewheel-vmod sup">✦ '+E(g.mod)+'</span></div>'):'';
+        return '<div class="bewheel-vessel on"><div class="bewheel-vhead"><span class="bewheel-dot" style="background:'+d.color+'"></span><span class="bewheel-vn">'+E(d.name)+'</span>'
+          +(_gi?'<img class="bewheel-gemimg" src="'+_gi+'" alt="gema">':'')+'<b style="text-transform:capitalize">'+E(_WGEMLBL[g.tier]||g.tier)+'</b>'+'<span class="bewheel-vdh on">+'+(g.tier==='greater'?2:1)+' D&amp;H</span></div>'+_modsHtml+_supHtml+'</div>';
       }).join('');
       var gemsHtml=gemRows?('<div class="bewheel-gems"><div class="bewheel-subh">💎 Gemas / Vessels</div>'+gemRows+'</div>'):'';
       var _dhT=(S.flat||0)+_vesDH;
@@ -5568,7 +5571,7 @@ PlayerName (Leader)
       +'.bewheel-flat{font-size:.85rem;color:var(--ink);background:rgba(201,168,64,.08);border:1px solid rgba(201,168,64,.25);border-radius:8px;padding:.5rem .6rem}.bewheel-flat.off{color:var(--muted);background:transparent;border-color:var(--rule)}.bewheel-flat b{color:var(--gold,#c9a840)}.bewheel-over{font-size:.82rem;color:#e0554b;background:rgba(224,85,75,.1);border:1px solid rgba(224,85,75,.35);border-radius:8px;padding:.45rem .6rem;margin-bottom:.4rem}'
       +'.bewheel-doms{display:flex;flex-direction:column;gap:.35rem}.bewheel-dom{display:grid;grid-template-columns:auto 1fr auto;gap:.5rem;align-items:center;padding:.4rem .55rem;border:1px solid var(--rule);border-radius:8px;font-size:.82rem}.bewheel-dom.hit{border-color:rgba(201,168,64,.4);background:rgba(201,168,64,.05)}.bewheel-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}.bewheel-dn{font-weight:600;color:var(--ink)}.bewheel-dp{color:var(--ink);font-variant-numeric:tabular-nums;text-align:right}.bewheel-dp small{color:var(--muted)}.bewheel-ds{font-size:.72rem;color:var(--muted);grid-column:2/-1;justify-self:start}.bewheel-ds.on{color:var(--gold,#c9a840);font-weight:700}.bewheel-df{display:none}'
       +'.bewheel-subh{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:.9rem 0 .5rem;font-weight:700}.bewheel-augs{margin-top:.8rem}.bewheel-aug{display:flex;gap:.5rem;align-items:center;font-size:.8rem;padding:.3rem .5rem;color:var(--muted)}.bewheel-aug.on{color:var(--ink)}.bewheel-aug b{margin-left:auto;font-size:.72rem}.bewheel-aug.on b{color:var(--gold,#c9a840)}.bewheel-adot{width:8px;height:8px;border-radius:50%;background:var(--rule)}.bewheel-adot.on{background:var(--gold,#c9a840)}'
-      +'.bewheel-gems{margin-top:1rem}.bewheel-vessel{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;padding:.5rem .6rem;border:1px solid var(--rule);border-radius:8px;margin-bottom:.45rem;font-size:.82rem}.bewheel-vessel.on{border-color:rgba(201,168,64,.4);background:rgba(201,168,64,.05)}.bewheel-vessel.off{opacity:.55}.bewheel-vn{font-weight:600;color:var(--ink);min-width:120px}.bewheel-vn small{color:var(--muted);font-weight:400}.bewheel-vlock{color:var(--muted);font-size:.78rem;font-style:italic}.bewheel-gemimg{width:20px;height:20px;image-rendering:pixelated}.bewheel-tier{width:150px}.bewheel-modin{flex:1;min-width:150px}.bewheel-modsel{flex:1;min-width:170px}.bewheel-tier,.bewheel-modin,.bewheel-modsel{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .5rem;font:inherit;font-size:.82rem}.bewheel-vdh{font-size:.72rem;font-weight:700;color:var(--ink-3);padding:.15rem .45rem;border:1px solid var(--rule);border-radius:999px;white-space:nowrap}.bewheel-vdh.on{color:#79b83f;border-color:rgba(121,184,63,.4);background:rgba(121,184,63,.08)}.bewheel-miles{margin-top:1rem}.bewheel-svg.ro path{cursor:default}.bewheel-ro .bewheel-left{flex:0 0 auto}.bewheel-svg .wsl.wsel{filter:drop-shadow(0 0 6px #f5e6a8)}'
+      +'.bewheel-gems{margin-top:1rem}.bewheel-vessel{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;padding:.5rem .6rem;border:1px solid var(--rule);border-radius:8px;margin-bottom:.45rem;font-size:.82rem}.bewheel-vessel.on{border-color:rgba(201,168,64,.4);background:rgba(201,168,64,.05)}.bewheel-vessel.off{opacity:.55}.bewheel-vn{font-weight:600;color:var(--ink);min-width:120px}.bewheel-vn small{color:var(--muted);font-weight:400}.bewheel-vlock{color:var(--muted);font-size:.78rem;font-style:italic}.bewheel-gemimg{width:20px;height:20px;image-rendering:pixelated}.bewheel-tier{width:150px}.bewheel-modin{flex:1;min-width:150px}.bewheel-modsel{flex:1;min-width:170px}.bewheel-tier,.bewheel-modin,.bewheel-modsel{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .5rem;font:inherit;font-size:.82rem}.bewheel-vdh{font-size:.72rem;font-weight:700;color:var(--ink-3);padding:.15rem .45rem;border:1px solid var(--rule);border-radius:999px;white-space:nowrap}.bewheel-vdh.on{color:#79b83f;border-color:rgba(121,184,63,.4);background:rgba(121,184,63,.08)}.bewheel-miles{margin-top:1rem}.bewheel-svg.ro path{cursor:default}.bewheel-ro .bewheel-left{flex:0 0 auto}.bewheel-svg .wsl.wsel{filter:drop-shadow(0 0 6px #f5e6a8)}.bewheel-vhead{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;flex-basis:100%}.bewheel-mods{flex-basis:100%;display:flex;flex-direction:column;gap:.35rem;margin-top:.2rem;padding-left:.2rem}.bewheel-modrow{display:flex;gap:.5rem;align-items:center}.bewheel-modlbl{font-size:.72rem;color:var(--muted);min-width:92px}.bewheel-modrow.sup .bewheel-modlbl{color:#c9a840}.bewheel-vmods{flex-basis:100%;display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.3rem}.bewheel-vmod{font-size:.72rem;color:var(--ink);background:rgba(255,255,255,.04);border:1px solid var(--rule);border-radius:999px;padding:.12rem .5rem}.bewheel-vmod.sup{color:#c9a840;border-color:rgba(201,168,64,.45);background:rgba(201,168,64,.08)}'
       +'#builds .besl-wrap{margin:.6rem 0 .2rem}#builds .besl-empty{font-size:.8rem;color:var(--muted);font-style:italic;padding:.6rem .2rem;text-align:center;border:1px dashed var(--rule);border-radius:9px}'
       +'#builds .besl{border:1px solid var(--rule);border-radius:10px;padding:.6rem .7rem;background:var(--bg-1,#0f0e15)}#builds .besl.locked{opacity:.75}#builds .besl-h{display:flex;align-items:center;gap:.45rem;font-size:.82rem;font-weight:700;color:var(--ink)}#builds .besl-sw{width:11px;height:11px;border-radius:50%}#builds .besl-pts{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--gold,#c9a840);font-weight:800}'
       +'#builds .besl-btns{display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;margin-top:.4rem}#builds .besl-b{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .1rem;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;transition:border-color .1s}#builds .besl-b:hover:not(:disabled){border-color:var(--bamboo,#8b5cf6)}#builds .besl-b:disabled{opacity:.3;cursor:not-allowed}#builds .besl-lock{font-size:.72rem;color:var(--muted);font-style:italic;margin-top:.4rem}'
@@ -6012,7 +6015,7 @@ PlayerName (Leader)
     window.tpBEgem=function(dom,field,val){
       var BE=window.__BE; if(!BE) return; tpBECapture();
       var b=BE.data.b; b.gems=b.gems||{}; b.gems[dom]=b.gems[dom]||{};
-      if(field==='tier'){ if(!val) delete b.gems[dom]; else { b.gems[dom].tier=val; if(val!=='greater') delete b.gems[dom].mod; } }
+      if(field==='tier'){ if(!val) delete b.gems[dom]; else { b.gems[dom].tier=val; if(val!=='greater') delete b.gems[dom].mod; if(val==='lesser') delete b.gems[dom].b2; } }
       else { if(val==='') delete b.gems[dom][field]; else b.gems[dom][field]=val; }
       if(b.gems[dom] && !b.gems[dom].tier) delete b.gems[dom];
       tpBERender();
@@ -6074,6 +6077,9 @@ PlayerName (Leader)
       var vgimg=(typeof TP_VOCGEM!=='undefined'?(TP_VOCGEM[voc]||''):'');
       /* lista oficial de mods supremos (greater) da vocação, vinda do dc-wheels.json */
       var GG=((window.__DWH&&__DWH.vocs&&__DWH.vocs[voc]&&__DWH.vocs[voc].greaterGems)||[]);
+      /* mods básicos oficiais (pos1 = 1º slot; pos2 = 2º slot) — dados do codec do jogo + TibiaWiki */
+      var B1=((window.__DWH&&__DWH.vocs&&__DWH.vocs[voc]&&__DWH.vocs[voc].basicPos1)||[]);
+      var B2=((window.__DWH&&__DWH.vocs&&__DWH.vocs[voc]&&__DWH.vocs[voc].basicPos2)||[]);
       var vesDH=0; /* Dano & Cura de vessel (Vessel Resonance): +1 lesser/regular, +2 greater */
       var vessels=[3,0,2,1].map(function(dm){
         var d=W.domains[dm], stgN=C.stages[dm];
@@ -6088,18 +6094,34 @@ PlayerName (Leader)
         }
         var tiers=[['','—']]; if(_vl>=1)tiers.push(['lesser','Lesser (+1 D&H)']); if(_vl>=2)tiers.push(['regular','Regular (+1 D&H)']); if(_vl>=3)tiers.push(['greater','Greater (+2 D&H)']);
         var tierSel='<select class="bewheel-tier" onchange="tpBEgem('+dm+',\'tier\',this.value)">'+tiers.map(function(t){return '<option value="'+t[0]+'"'+(g.tier===t[0]?' selected':'')+'>'+t[1]+'</option>';}).join('')+'</select>';
-        /* mod supremo: só no greater; select padrão com as runas corretas da vocação */
-        var modSel='';
-        if(g.tier==='greater'){
-          var opts='<option value="">— sem mod supremo —</option>'+(GG.length?GG.map(function(gm){return '<option value="'+E(gm.label)+'"'+(g.mod===gm.label?' selected':'')+'>'+E(gm.label)+'</option>';}).join(''):'');
-          modSel='<select class="bewheel-modsel" onchange="tpBEgem('+dm+',\'mod\',this.value)">'+opts+'</select>';
+        /* ── mods das gemas ──────────────────────────────────────────────
+           lesser = 1 mod básico · regular = 2 básicos · greater = 2 básicos + 1 supremo */
+        var _mkSel=function(field,cur,pool,ph){
+          var opts='<option value="">'+ph+'</option>'+(pool.length?pool.map(function(m){return '<option value="'+E(m.label)+'"'+(cur===m.label?' selected':'')+'>'+E(m.label)+'</option>';}).join(''):'');
+          return '<select class="bewheel-modsel" onchange="tpBEgem('+dm+',\''+field+'\',this.value)">'+opts+'</select>';
+        };
+        var modBlock='';
+        if(g.tier){
+          var rows='';
+          /* mod básico 1 (todas as gemas) */
+          rows+='<div class="bewheel-modrow"><span class="bewheel-modlbl">Mod básico 1</span>'+_mkSel('b1',g.b1,B1,'— escolher —')+'</div>';
+          /* mod básico 2 (regular e greater) — sem repetir o mod 1 */
+          if(g.tier==='regular'||g.tier==='greater'){
+            var B2f=B2.filter(function(m){return m.label!==g.b1;});
+            rows+='<div class="bewheel-modrow"><span class="bewheel-modlbl">Mod básico 2</span>'+_mkSel('b2',g.b2,B2f,'— escolher —')+'</div>';
+          }
+          /* mod supremo (só greater) */
+          if(g.tier==='greater'){
+            rows+='<div class="bewheel-modrow sup"><span class="bewheel-modlbl">Mod supremo</span>'+_mkSel('mod',g.mod,GG,'— sem mod supremo —')+'</div>';
+          }
+          modBlock='<div class="bewheel-mods">'+rows+'</div>';
         }
         var dhTag='<span class="bewheel-vdh'+(g.tier?' on':'')+'">'+(g.tier?('+'+(g.tier==='greater'?2:1)+' D&amp;H'):'—')+'</span>';
         return '<div class="bewheel-vessel'+(g.tier?' on':'')+'">'
           +'<span class="bewheel-dot" style="background:'+d.color+'"></span>'
           +'<span class="bewheel-vn">'+E(d.name)+' <small>(vessel até '+_BE_TIERLBL[maxTier]+')</small></span>'
           +(function(){var _gi=g.tier?((typeof _tpGemIcon==='function')?_tpGemIcon(voc,g.tier):vgimg):''; return _gi?'<img class="bewheel-gemimg" src="'+_gi+'" alt="gema">':'';})()
-          +tierSel+dhTag+modSel+'</div>';
+          +tierSel+dhTag+modBlock+'</div>';
       }).join('');
       var _dhTot=(C.flat||0)+vesDH;
       var flatLine=(_dhTot>0)?('<div class="bewheel-flat">Dano &amp; Cura da roda: <b>+'+_dhTot+'</b> <span style="color:var(--ink-3);font-weight:400">('+(C.flat||0)+' revelação'+(vesDH>0?' · '+vesDH+' vessel':'')+')</span></div>')
