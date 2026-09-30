@@ -2882,16 +2882,6 @@ async function tibiaFetch(path) {
     <h2 class="sec-title">Task Delivery</h2>
     <p class="sec-sub">Itens de entrega (task) — quem compra, quanto vale e se compensa guardar pro market. Clique num item pra tentar o preço ao vivo.</p>
 
-    <!-- Rashid do dia -->
-    <div id="dt-rashid" class="card" style="margin-bottom:1.2rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;background:var(--gold-pale,rgba(201,168,64,.08));border-color:rgba(201,168,64,.3)">
-      <span style="font-size:1.4rem">🧳</span>
-      <div style="flex:1;min-width:220px">
-        <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600">Rashid hoje</div>
-        <div id="dt-rashid-txt" style="font-size:.92rem;color:var(--ink);font-weight:500">—</div>
-      </div>
-      <div style="font-size:.68rem;color:var(--muted);max-width:240px">Muda no server save (10:00 do horário do servidor). Precisa da <b>Travelling Trader Quest</b>.</div>
-    </div>
-
     <!-- Verificar loot -->
     <details id="dt-loot" class="card" style="margin-bottom:1.2rem">
       <summary style="cursor:pointer;font-weight:600;font-size:.9rem;color:var(--ink)">🔎 Verificar loot — cole o log da sessão pra ver só os itens de entrega</summary>
@@ -2968,17 +2958,10 @@ async function tibiaFetch(path) {
       </div>
     </div>
 
-    <!-- Market price lookup -->
-    <div class="card" style="margin-bottom:1.5rem;background:var(--bamboo-pale);border-color:rgba(139,92,246,.2)">
-      <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
-        <span style="font-size:1rem">💰</span>
-        <div style="flex:1;min-width:200px">
-          <div style="font-size:.85rem;font-weight:500;color:var(--bamboo)">Preços de market ao vivo — <span id="dt-live-world">Gentebra</span></div>
-          <div style="font-size:.75rem;color:var(--muted);font-weight:300" id="dt-live-status">A coluna mostra a <b>estimativa base</b>. Carregue os preços ao vivo pra ver <b>venda</b> (maior oferta de compra) e <b>compra</b> (menor oferta de venda) do market do seu mundo.</div>
-        </div>
-        <button class="filter-btn active" id="dt-live-btn" onclick="dtLoadLivePrices()" style="white-space:nowrap">⚡ Preços ao vivo</button>
-      </div>
-      <div style="font-size:.68rem;color:var(--muted);font-weight:300;margin-top:.5rem">Fonte: <b>Tibia Market Tracker</b> (tibiamarket.top) · cai na estimativa quando o item não tem oferta no seu mundo.</div>
+    <!-- Status do preço ao vivo (carrega automático ao abrir) -->
+    <div style="font-size:.72rem;color:var(--muted);margin-bottom:1rem;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap">
+      <span>💰 <span id="dt-live-status">Carregando preços ao vivo de <b id="dt-live-world">Gentebra</b>…</span></span>
+      <a href="#" id="dt-live-btn" onclick="dtLoadLivePrices();return false;" style="color:var(--bamboo);text-decoration:none;font-weight:600;white-space:nowrap">↻ atualizar</a>
     </div>
 
     <!-- Cards por NPC -->
@@ -12732,11 +12715,7 @@ function renderDelivery() {
     });
   }
 
-  // Banner do Rashid do dia
-  const rtxt = document.getElementById('dt-rashid-txt');
-  if (rtxt) { const r = dtRashidToday(); rtxt.innerHTML = `<b>${r.city}</b> — ${r.loc} <span style="color:var(--muted)">(${r.d})</span>`; }
-
-  // Render inicial (cards por NPC)
+  // Render inicial (cards por NPC — o Rashid do dia já aparece no cabeçalho do card dele)
   filterDelivery();
 
   // Puxa o market ao vivo automaticamente na 1ª abertura (1 req por mundo).
