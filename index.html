@@ -5244,11 +5244,24 @@ PlayerName (Leader)
       var flatLine=(_dhT>0)?('<div class="bewheel-flat">Dano &amp; Cura da roda: <b>+'+_dhT+'</b> <span style="color:var(--ink-3);font-weight:400">('+(S.flat||0)+' revelação'+(_vesDH>0?' · '+_vesDH+' vessel':'')+')</span></div>')
         :('<div class="bewheel-flat off">Sem estágio de revelação (Est. I = '+W.stageAt[0]+' pts)</div>');
       var miles=(typeof tpMilestonesHtml==='function')?tpMilestonesHtml(S.used,level):'';
+      /* guarda a roda atual pro botão "copiar pro jogo" do display (read-only) */
+      try{ window.__tpDispWheel={voc:voc, pts:pts}; }catch(_){ }
+      var copyBtn=_wheelHasPts(pts)?'<button type="button" class="bd-wheelcopy" onclick="tpDisplayCopyCode(this)">📤 Copiar código pro jogo</button>':'';
       return '<div class="bewheel-wrap bewheel-ro">'
-        +'<div class="bewheel-left">'+svg+flatLine+'</div>'
+        +'<div class="bewheel-left">'+svg+flatLine+copyBtn+'</div>'
         +'<div class="bewheel-right"><div class="bewheel-doms">'+rows+'</div>'+augHtml+gemsHtml+'</div>'
         +'</div>'+(miles?('<div class="bewheel-miles">'+miles+'</div>'):'');
     }
+    /* botão do display: gera o código oficial a partir da roda salva e copia */
+    window.tpDisplayCopyCode=function(btn){
+      var d=window.__tpDispWheel; if(!d||!d.pts){ return; }
+      if(typeof window.tpWheelCodecLoad!=='function'){ return; }
+      var _t=btn?btn.textContent:''; if(btn){ btn.disabled=true; btn.textContent='Gerando…'; }
+      window.tpWheelCodecLoad().then(function(m){ return m.copiarProJogo(d.pts, d.voc); }).then(function(r){
+        var done=function(ok){ if(btn){ btn.disabled=false; btn.textContent=_t; } if(window.tpToast) tpToast((ok?'Código copiado! Cole no Tibia.':'Código gerado — copie: ')+(ok?'':r.code),ok?'success':'info'); };
+        if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(r.code).then(function(){done(true);},function(){done(false);}); } else { done(false); }
+      }).catch(function(e){ if(btn){ btn.disabled=false; btn.textContent=_t; } if(window.tpToast) tpToast('Erro ao gerar código: '+(e&&e.message||e),'error'); });
+    };
     function _wheelHasPts(pts){ if(!pts||typeof pts!=='object') return false; for(var k in pts){ if((+pts[k]||0)>0) return true; } return false; }
 
     /* ---------- detail ---------- */
@@ -5557,7 +5570,7 @@ PlayerName (Leader)
       +'#builds .besl-wrap{margin:.6rem 0 .2rem}#builds .besl-empty{font-size:.8rem;color:var(--muted);font-style:italic;padding:.6rem .2rem;text-align:center;border:1px dashed var(--rule);border-radius:9px}'
       +'#builds .besl{border:1px solid var(--rule);border-radius:10px;padding:.6rem .7rem;background:var(--bg-1,#0f0e15)}#builds .besl.locked{opacity:.75}#builds .besl-h{display:flex;align-items:center;gap:.45rem;font-size:.82rem;font-weight:700;color:var(--ink)}#builds .besl-sw{width:11px;height:11px;border-radius:50%}#builds .besl-pts{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--gold,#c9a840);font-weight:800}'
       +'#builds .besl-btns{display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;margin-top:.4rem}#builds .besl-b{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .1rem;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;transition:border-color .1s}#builds .besl-b:hover:not(:disabled){border-color:var(--bamboo,#8b5cf6)}#builds .besl-b:disabled{opacity:.3;cursor:not-allowed}#builds .besl-lock{font-size:.72rem;color:var(--muted);font-style:italic;margin-top:.4rem}'
-      +'#builds .be-richwrap{position:relative;max-width:420px}#builds .be-richwheel .dw-slice,#builds .be-richwheel path[style*="cursor"]{transition:none}#builds .be-richpts{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;background:rgba(8,10,16,.82);border:1px solid #2a2f3a;border-radius:50%;width:74px;height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.35rem;font-weight:800;color:#e6edf3;line-height:1}#builds .be-richpts span{font-size:.6rem;font-weight:600;color:#7d8590}#builds .be-wheelhdr{display:flex;gap:.4rem;align-items:baseline;justify-content:center;max-width:420px;margin:0 auto .5rem;padding:.3rem .7rem;border-radius:10px;background:rgba(8,10,16,.5);border:1px solid var(--rule,#2a2f3a)}#builds .be-wheelhdr b{font-size:1.4rem;font-weight:800;color:var(--ink,#e6edf3);line-height:1}#builds .be-wheelhdr span{font-size:.72rem;font-weight:600;color:var(--ink-3,#7d8590)}#builds .be-wheelhdr.over b{color:#e0554b}';
+      +'#builds .be-richwrap{position:relative;max-width:420px}#builds .be-richwheel .dw-slice,#builds .be-richwheel path[style*="cursor"]{transition:none}#builds .be-richpts{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;background:rgba(8,10,16,.82);border:1px solid #2a2f3a;border-radius:50%;width:74px;height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.35rem;font-weight:800;color:#e6edf3;line-height:1}#builds .be-richpts span{font-size:.6rem;font-weight:600;color:#7d8590}#builds .be-wheelhdr{display:flex;gap:.4rem;align-items:baseline;justify-content:center;max-width:420px;margin:0 auto .5rem;padding:.3rem .7rem;border-radius:10px;background:rgba(8,10,16,.5);border:1px solid var(--rule,#2a2f3a)}#builds .be-wheelhdr b{font-size:1.4rem;font-weight:800;color:var(--ink,#e6edf3);line-height:1}#builds .be-wheelhdr span{font-size:.72rem;font-weight:600;color:var(--ink-3,#7d8590)}#builds .be-wheelhdr.over b{color:#e0554b}#builds .bd-wheelcopy{display:block;width:100%;max-width:420px;margin:.6rem auto 0;padding:.55rem .8rem;border-radius:10px;border:1px solid rgba(139,107,242,.5);background:linear-gradient(135deg,rgba(139,107,242,.25),rgba(139,107,242,.12));color:var(--ink,#e6edf3);font:inherit;font-weight:700;font-size:.9rem;cursor:pointer;transition:filter .12s}#builds .bd-wheelcopy:hover{filter:brightness(1.15)}#builds .bd-wheelcopy:disabled{opacity:.6;cursor:default}';
       document.head.appendChild(s); }
     window.tpBuildEditor=async function(id){
       if(!id) return;
@@ -5572,7 +5585,7 @@ PlayerName (Leader)
       var host0=document.getElementById('bld-detail'); if(host0) host0.innerHTML='<div class="be2"><div class="be2sec"><div class="be2soon">Carregando catálogo do editor…</div></div></div>';
       if(window.tpLoadEditorCat){ await tpLoadEditorCat(); }
       if(window.tpLoadWheels){ tpLoadWheels(); }
-      tpBERender(); window.scrollTo({top:0,behavior:'smooth'});
+      tpBERender(); if(window.tpBEUpdateVessels) tpBEUpdateVessels(); window.scrollTo({top:0,behavior:'smooth'});
     };
     window.tpBECapture=function(){
       var BE=window.__BE; if(!BE) return;
@@ -5905,6 +5918,7 @@ PlayerName (Leader)
       if(nv<=0) delete b.wheelPts[i]; else b.wheelPts[i]=nv;
       _beWheelCascade();
       tpBERender();
+      if(window.tpBEUpdateVessels) tpBEUpdateVessels();
       return false;
     };
     /* remove fatias órfãs (sem pai preenchido) — mantém a roda contígua */
@@ -5925,9 +5939,9 @@ PlayerName (Leader)
       var A=tpWheelAlloc(voc,lv,mode);
       if(!A){ if(window.tpToast) tpToast('Não consegui montar a roda automática pra esse nível.','error'); return; }
       BE.data.b.wheelPts={}; Object.keys(A.pts).forEach(function(i){ if(A.pts[i]>0) BE.data.b.wheelPts[i]=A.pts[i]; });
-      tpBERender(); if(window.tpToast) tpToast('Roda preenchida pelo nível '+(lv||'?')+' — ajuste como quiser.','success');
+      tpBERender(); if(window.tpBEUpdateVessels) tpBEUpdateVessels(); if(window.tpToast) tpToast('Roda preenchida pelo nível '+(lv||'?')+' — ajuste como quiser.','success');
     };
-    window.tpBEwheelClear=function(){ var BE=window.__BE; if(!BE) return; tpBECapture(); BE.data.b.wheelPts={}; BE.wheelCode=''; tpBERender(); };
+    window.tpBEwheelClear=function(){ var BE=window.__BE; if(!BE) return; tpBECapture(); BE.data.b.wheelPts={}; BE.wheelCode=''; BE.vlev={0:0,1:0,2:0,3:0}; tpBERender(); };
     /* ===== Import/Export do código oficial da Roda do Destino (codec WASM real) ===== */
     function tpWheelCodecLoad(){
       if(window.__tpWheelCodecP) return window.__tpWheelCodecP;
@@ -5935,6 +5949,25 @@ PlayerName (Leader)
         .catch(function(e){ window.__tpWheelCodecP=null; throw e; });
       return window.__tpWheelCodecP;
     }
+    window.tpWheelCodecLoad=tpWheelCodecLoad;
+    /* nível de vessel por domínio calculado pelo codec real (depende da forma da alocação,
+       não só do total) — usado pra liberar o tier de gema (lesser/regular/greater) certo. */
+    window.tpBEUpdateVessels=function(){
+      var BE=window.__BE; if(!BE) return;
+      clearTimeout(window.__tpVlevT);
+      window.__tpVlevT=setTimeout(function(){
+        var vBE=window.__BE; if(!vBE||vBE!==BE) return;
+        var voc=_beVoc(), wp=vBE.data.b.wheelPts||{};
+        tpWheelCodecLoad().then(function(m){ return m.vesselLevels(wp, voc); }).then(function(vl){
+          if(window.__BE!==vBE) return;
+          vBE.vlev=vl;
+          /* limpa gemas acima do tier liberado (ex.: domínio caiu de greater) */
+          var g=vBE.data.b.gems||{}, TIER={lesser:1,regular:2,greater:3};
+          Object.keys(g).forEach(function(dm){ var mx=vl[dm]||0; if(g[dm]&&g[dm].tier&&TIER[g[dm].tier]>mx){ if(mx<=0) delete g[dm]; else { g[dm].tier=['','lesser','regular','greater'][mx]; if(g[dm].tier!=='greater') delete g[dm].mod; } } });
+          tpBERender();
+        }).catch(function(){});
+      }, 120);
+    };
     window.tpBEwheelImport=function(){
       var BE=window.__BE; if(!BE) return;
       var el=document.getElementById('be2-wheelcode'); var code=el?String(el.value||'').trim():'';
@@ -5946,6 +5979,7 @@ PlayerName (Leader)
         BE.data.b.wheelPts={}; Object.keys(r.wheelPts).forEach(function(i){ if(r.wheelPts[i]>0) BE.data.b.wheelPts[i]=r.wheelPts[i]; });
         BE.wheelCode=code;
         tpBERender();
+        if(window.tpBEUpdateVessels) tpBEUpdateVessels();
         if(r.voc && voc && r.voc!==voc){ if(window.tpToast) tpToast('Código importado ('+r.spent+' pts) — atenção: o código é de '+r.voc+', mas a build é '+voc+'. Os pontos foram mantidos na mesma posição.','info'); }
         else if(window.tpToast) tpToast('Roda importada do Tibia: '+r.spent+' pts em '+Object.keys(r.wheelPts).length+' fatias.','success');
       }).catch(function(e){ if(window.tpToast) tpToast('Código inválido ou erro ao ler: '+(e&&e.message||e),'error'); });
@@ -6032,13 +6066,16 @@ PlayerName (Leader)
       var vesDH=0; /* Dano & Cura de vessel (Vessel Resonance): +1 lesser/regular, +2 greater */
       var vessels=[3,0,2,1].map(function(dm){
         var d=W.domains[dm], stgN=C.stages[dm];
-        var maxTier=stgN>=3?'greater':(stgN>=2?'regular':(stgN>=1?'lesser':''));
+        /* tier de vessel liberado = calculado pelo codec real (window.__BE.vlev), que depende
+           da FORMA da alocação — não só do total. Enquanto não computa, cai no estágio como aproximação. */
+        var _vl=(window.__BE.vlev&&window.__BE.vlev[dm]!=null)?window.__BE.vlev[dm]:(stgN>=3?3:(stgN>=2?2:(stgN>=1?1:0)));
+        var maxTier=['','lesser','regular','greater'][_vl]||'';
         var g=gems[dm]||{};
         if(g.tier){ vesDH += (g.tier==='greater'?2:1); }
         if(!maxTier){
-          return '<div class="bewheel-vessel off"><span class="bewheel-dot" style="background:'+d.color+'"></span><span class="bewheel-vn">'+E(d.name)+'</span><span class="bewheel-vlock">🔒 sem revelação (Est. I = '+W.stageAt[0]+' pts)</span></div>';
+          return '<div class="bewheel-vessel off"><span class="bewheel-dot" style="background:'+d.color+'"></span><span class="bewheel-vn">'+E(d.name)+'</span><span class="bewheel-vlock">🔒 vessel não liberado — aloque mais nesse domínio</span></div>';
         }
-        var tiers=[['','—']]; if(stgN>=1)tiers.push(['lesser','Lesser (+1 D&H)']); if(stgN>=2)tiers.push(['regular','Regular (+1 D&H)']); if(stgN>=3)tiers.push(['greater','Greater (+2 D&H)']);
+        var tiers=[['','—']]; if(_vl>=1)tiers.push(['lesser','Lesser (+1 D&H)']); if(_vl>=2)tiers.push(['regular','Regular (+1 D&H)']); if(_vl>=3)tiers.push(['greater','Greater (+2 D&H)']);
         var tierSel='<select class="bewheel-tier" onchange="tpBEgem('+dm+',\'tier\',this.value)">'+tiers.map(function(t){return '<option value="'+t[0]+'"'+(g.tier===t[0]?' selected':'')+'>'+t[1]+'</option>';}).join('')+'</select>';
         /* mod supremo: só no greater; select padrão com as runas corretas da vocação */
         var modSel='';

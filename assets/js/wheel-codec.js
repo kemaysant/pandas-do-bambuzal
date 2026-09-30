@@ -85,11 +85,45 @@ export async function copiarProJogo(wheelPts, voc) {
   } finally { if (P.delete) P.delete(); }
 }
 
+// corner.id (WASM) -> Panda domain index
+const CORNER_ID_TO_DOM = { 0: 2, 1: 3, 2: 1, 3: 0 };
+
+/**
+ * Nível de vessel por domínio Panda (0=nenhum, 1=lesser, 2=regular, 3=greater),
+ * calculado pelo codec real do jogo — depende da FORMA da alocação, não só do total.
+ * Retorna { 0:vl, 1:vl, 2:vl, 3:vl }.
+ */
+export async function vesselLevels(wheelPts, voc) {
+  voc = String(voc || '').toLowerCase();
+  const Mod = await _mod();
+  const P = new Mod.SkillwheelPlanner(Mod.EVocation[EVOC_NAME[voc] || 'Sorcerer']);
+  try {
+    const target = {};
+    for (const i in (wheelPts || {})) { const v = I2V[+i]; if (v === undefined) continue; const p = +wheelPts[i] || 0; if (p > 0) target[v] = p; }
+    const curOf = (v) => { const sp = P.getSkillParameters(); const x = sp.get(v).currentSkillPoints; if (sp.delete) sp.delete(); return x; };
+    let changed = true, guard = 0;
+    while (changed && guard < 200) {
+      changed = false; guard++;
+      for (const v in target) { const vv = +v; const need = target[v] - curOf(vv); if (need > 0) { const b = curOf(vv); P.addToSkill(Mod.EGridTile[TILE_NAME[vv]], need); if (curOf(vv) > b) changed = true; } }
+    }
+    const out = { 0: 0, 1: 0, 2: 0, 3: 0 };
+    const cp = P.getCornerParameters();
+    for (let k = 0; k < cp.size(); k++) {
+      const c = cp.get(k);
+      const id = (c.id && c.id.value !== undefined) ? c.id.value : c.id;
+      const dom = CORNER_ID_TO_DOM[id];
+      if (dom !== undefined) out[dom] = c.vesselLevel;
+    }
+    if (cp.delete) cp.delete();
+    return out;
+  } finally { if (P.delete) P.delete(); }
+}
+
 /** Warm up the WASM module (optional; call on editor open to avoid first-use latency). */
 export function ready() { return _mod().then(() => true); }
 
 if (typeof window !== 'undefined') {
-  window.TibiaWheelCodec = { importarDoTibia, copiarProJogo, ready };
+  window.TibiaWheelCodec = { importarDoTibia, copiarProJogo, vesselLevels, ready };
 }
 
-export default { importarDoTibia, copiarProJogo, ready };
+export default { importarDoTibia, copiarProJogo, vesselLevels, ready };
