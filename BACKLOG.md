@@ -78,17 +78,20 @@ Objetivo: transformar a página de builds no "Blitz.gg do Tibia" — dados reais
 - Antes de voltar, resolver: faixas de nível muito díspares; margens de erro grandes; não distingue **solo vs party**.
 - Ideia: **agregar ao Hunt Finder** com curadoria melhor (dados reais, faixas coerentes, solo/PT).
 
-### 2d. Sistema de gemas completo (Atelier de Gemas) — a fazer
-Hoje o editor só tem: tier (lesser/regular/greater) + **1 mod supremo** (só no greater) + D&H de presença. O modelo real do jogo é mais rico:
-- **Gema menor (lesser):** 1 mod **básico**.
-- **Gema média (regular):** 2 mods **básicos**.
-- **Gema maior (greater):** 2 mods **básicos** + 1 mod **supremo**.
-- Ref.: https://www.tibiabr.com/23347/atelier-de-gemas/
-- Precisa: trazer as listas de **mods básicos** (por vocação/domínio) — hoje só temos os supremos (`greaterGems` em `dc-wheels.json`). Montar a UI de seleção (1/2/2+1 conforme o tier) e refletir no dano.
-- Inclui o item "roda sem gema greater": o greater só abre no estágio III (1000 pts); confirmar que aparece e ganha os 2 básicos + 1 supremo.
+### 2d. Sistema de gemas completo (Atelier de Gemas) — parcial
+- ✅ **Tier liberado agora vem do CODEC real** (`vesselLevels`): depende da **forma** da alocação, não só do total (ex.: Beam com 3 vessels = greater; Lord com 1 = lesser). O editor recalcula ao editar/importar e ajusta o dropdown; o gating por estágio (errado) foi aposentado.
+- ⏳ **Falta os mods básicos** (a UI ainda só tem o mod **supremo** no greater):
+  - Gema **menor**: 1 mod **básico**.
+  - Gema **média**: 2 mods **básicos**.
+  - Gema **maior**: 2 mods **básicos** + 1 mod **supremo**.
+  - Precisa: trazer as **listas de mods básicos** (hoje só temos os supremos, `greaterGems`), montar a UI (1/2/2+1 conforme o tier) e refletir no dano.
+  - Refs: https://www.tibiabr.com/23347/atelier-de-gemas/ · simulador de revelar gemas (Tibia do Zero).
 
 ### 2e. ✅ FEITO (30/09) — Contador de pontos movido pra cima da roda
 - Estava sobreposto no centro da arte. Agora fica num cabeçalho acima da roda (editor: usados / limite do nível; display: pts na roda).
+
+### 2g. ✅ FEITO (30/09) — Botão "Copiar código pro jogo" na roda consolidada
+- O display read-only da build agora tem o botão pra gerar e copiar o código oficial (antes só existia no editor).
 
 ### 2f. Miniatura da roda "errada" — a confirmar
 - Precisa apontar **onde** (qual tela) a miniatura aparece errada e **o que** está errado (arte diferente do build / fills errados / imagem estática antiga). Candidatos: fallback `tpWheelSVG` (webp) pra builds **sem** `wheelPts` salvos; flash do webp antes do `__DWH` carregar. Confirmar com o Kemay.
