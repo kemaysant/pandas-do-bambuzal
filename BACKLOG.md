@@ -52,14 +52,15 @@ Objetivo: transformar a página de builds no "Blitz.gg do Tibia" — dados reais
 
 ### 2. Editor de builds — bugs mapeados (30/09, executar depois)
 
-**a) Roda não "salva" após editar (visual) + dúvida de cálculo.**
-- Causa provável: o display público mostra a roda de uma **imagem pré-renderizada** `assets/builds-wheel/{id}.webp` (não regenerada no save). A edição salva no banco (`data.b.wheelPts`, via `tpBESave` → PATCH), mas a imagem estática continua a antiga → parece que não salvou. O editor já renderiza ao vivo (`_beRichWheelSvg`).
-- Fix sugerido: renderizar a roda do display **ao vivo** de `data.b.wheelPts` (reusar `_beRichWheelSvg`) e aposentar o `.webp` — ou regenerar o webp no save.
-- Cálculo: confirmar que `_beCompDano` (iframe da calc) reflete a roda editada; a D&H de vessel hoje é **só display**, não entra no dano.
+**a) ✅ FEITO (30/09) — Roda "não salvava" (visual).**
+- Era a **imagem pré-renderizada** estática `assets/builds-wheel/{id}.webp` que o display usava e não era regenerada no save. O dado sempre salvou (`data.b.wheelPts` via `tpBESave` → PATCH).
+- Fix aplicado: o display agora renderiza a roda **ao vivo** de `data.b.wheelPts` (`_beRichWheelSvg` readonly) — edições aparecem na hora e o webp estático foi aposentado.
+- _Pendente (menor):_ confirmar o **cálculo de dano** no save (`_beCompDano` via iframe) reflete a roda; a D&H de vessel hoje é só display, não entra no dano.
 
-**b) Proficiência de arma não aparece em algumas builds** (ex.: `f8f445af`, Cobra Wand).
-- Causa: o display (≈linha 5277) resolve a árvore por **`TP_PTREE`** (índice pequeno embutido) em vez do `__DC.profTrees` completo (443 árvores). "Cobra 1H Wand" existe no completo, não no `TP_PTREE` → árvore vazia. (O editor já usa o completo com fallback.) A build também tem `weapon.pc = null`.
-- Fix: no display, resolver `profTrees` do `__DC` (completo) com fallback pro `TP_PTREE`, igual ao editor; backfill de `weapon.pc` no save ajuda.
+**b) ✅ FEITO (30/09) — Proficiência não aparecia (ex.: Cobra Wand).**
+- Era o display resolvendo a árvore pelo `TP_PTREE` pequeno em vez do índice completo.
+- Fix aplicado: novo `assets/data/dc-proftrees.json` (443 árvores + 184 ícones), carregado sob demanda; o display resolve árvore e ícones no completo com fallback pro `TP_PTREE`/`TP_PICON`. Validado com a build Cobra Wand (8 tiles, ícones reais).
+- _Opcional:_ backfill de `weapon.pc` no save.
 
 **c) Algumas fatias ainda não liberam mesmo parecendo adjacentes.**
 - Paridade de índice `__DWH`↔`TP_WHEEL` confirmada OK (sorcerer) e `TP_ADJ` passou no teste de isomorfismo. Então: ou é fatia do mesmo domínio porém **não vizinha de fato** (comportamento correto), ou falta uma aresta específica em algum ponto.
