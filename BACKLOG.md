@@ -50,8 +50,29 @@ Objetivo: transformar a página de builds no "Blitz.gg do Tibia" — dados reais
 - Revisar set, roda, rotação e guia de cada build; padronizar copiar/colar entre builds.
 - (Base técnica pronta: editor nativo + dano 1:1 + import/export da roda.)
 
-### 2. Editor "redondo" — itens específicos (você vai listar)
-- Ajustes finais do editor de builds apontados no uso.
+### 2. Editor de builds — bugs mapeados (30/09, executar depois)
+
+**a) Roda não "salva" após editar (visual) + dúvida de cálculo.**
+- Causa provável: o display público mostra a roda de uma **imagem pré-renderizada** `assets/builds-wheel/{id}.webp` (não regenerada no save). A edição salva no banco (`data.b.wheelPts`, via `tpBESave` → PATCH), mas a imagem estática continua a antiga → parece que não salvou. O editor já renderiza ao vivo (`_beRichWheelSvg`).
+- Fix sugerido: renderizar a roda do display **ao vivo** de `data.b.wheelPts` (reusar `_beRichWheelSvg`) e aposentar o `.webp` — ou regenerar o webp no save.
+- Cálculo: confirmar que `_beCompDano` (iframe da calc) reflete a roda editada; a D&H de vessel hoje é **só display**, não entra no dano.
+
+**b) Proficiência de arma não aparece em algumas builds** (ex.: `f8f445af`, Cobra Wand).
+- Causa: o display (≈linha 5277) resolve a árvore por **`TP_PTREE`** (índice pequeno embutido) em vez do `__DC.profTrees` completo (443 árvores). "Cobra 1H Wand" existe no completo, não no `TP_PTREE` → árvore vazia. (O editor já usa o completo com fallback.) A build também tem `weapon.pc = null`.
+- Fix: no display, resolver `profTrees` do `__DC` (completo) com fallback pro `TP_PTREE`, igual ao editor; backfill de `weapon.pc` no save ajuda.
+
+**c) Algumas fatias ainda não liberam mesmo parecendo adjacentes.**
+- Paridade de índice `__DWH`↔`TP_WHEEL` confirmada OK (sorcerer) e `TP_ADJ` passou no teste de isomorfismo. Então: ou é fatia do mesmo domínio porém **não vizinha de fato** (comportamento correto), ou falta uma aresta específica em algum ponto.
+- Ação: reproduzir com o **id da build + qual fatia** trava; validar `TP_ADJ` naquele ponto; conferir se `_beWheelCascade` (flood-fill do centro) não removeu pontos ao abrir.
+
+### 2b. Botão "＋ Criar nova build" na lista — BACKLOG (até validar tudo)
+- CTA "Criar nova" na página de Builds (admin) abrindo o editor nativo com build vazia. Segurar até o editor estar 100% validado.
+
+### 2c. Meta de Hunts — retirada do ar (revisitar no futuro)
+- Retirada em 30/09: nav removida (bottom-nav + mega-menu) e rota `#huntmeta` redireciona pra home; a seção e `tpHuntMetaInit` **continuam no código** pra reuso.
+- Por que saiu: a página não tinha função clara.
+- Antes de voltar, resolver: faixas de nível muito díspares; margens de erro grandes; não distingue **solo vs party**.
+- Ideia: **agregar ao Hunt Finder** com curadoria melhor (dados reais, faixas coerentes, solo/PT).
 
 ### 3. Segurança — hardening (não urgente; nenhum buraco aberto hoje)
 Auditoria de 30/09: RLS ligado nas 41 tabelas, políticas da `builds` corretas (só dono edita/apaga), sem `service_role` no código/histórico, RPCs sensíveis checam `auth.uid()`. Itens de endurecimento:

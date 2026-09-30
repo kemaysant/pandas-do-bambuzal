@@ -1535,9 +1535,6 @@ async function tibiaFetch(path) {
 <button class="nav-btn" onclick="showPage('huntfinder',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Hunt Finder</span>
-      </button><button class="nav-btn" onclick="showPage('huntmeta',this);if(window.tpHuntMetaInit)tpHuntMetaInit()">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 3a1 1 0 000 2h.5v10H3a1 1 0 100 2h14a1 1 0 100-2h-.5V5H17a1 1 0 100-2H3zm3 4a1 1 0 011-1h1a1 1 0 011 1v7a1 1 0 01-1 1H7a1 1 0 01-1-1V7zm5-2a1 1 0 00-1 1v9a1 1 0 001 1h1a1 1 0 001-1V6a1 1 0 00-1-1h-1z" clip-rule="evenodd"/></svg>
-        <span class="nav-label">Meta de Hunts</span>
       </button><button class="nav-btn" onclick="showPage('partyfinder',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v1h8v-1zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-1a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v1h-3zM4.75 12.094A5.973 5.973 0 004 15v1H1v-1a3 3 0 013.75-2.906z"/></svg>
         <span class="nav-label">Party Finder</span>
@@ -1692,7 +1689,6 @@ async function tibiaFetch(path) {
           <div class="tp-mega-grid">
             <div class="tp-mega-col"><h5>Caçar</h5>
               <a class="tp-lnk" data-page="huntfinder">Hunt Finder</a>
-              <a class="tp-lnk" data-page="huntmeta" data-init="tpHuntMetaInit">Meta de Hunts</a>
               <a class="tp-lnk" data-page="partyfinder">Party Finder</a>
               <a class="tp-lnk" data-page="lootsplit">Loot Split</a>
               <a class="tp-lnk" data-page="bosses">Bosses</a>
@@ -10962,6 +10958,8 @@ window.tpToggleCharExpand=function(id){
 };
 
 function showPage(id, btn) {
+  /* "Meta de Hunts" fora do ar (ver BACKLOG) — redireciona qualquer acesso pra home */
+  if (id === 'huntmeta') { id = document.getElementById('home') ? 'home' : 'builds'; btn = null; }
   const _sec=document.getElementById(id); if(!_sec) return;
   if(typeof closeSidebar==='function') closeSidebar();
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
