@@ -5236,8 +5236,9 @@ PlayerName (Leader)
       var _vesDH=0;
       var gemRows=[3,0,2,1].map(function(dm){ var g=_wheelGem(gems[dm]); if(!g) return ''; var d=W.domains[dm];
         _vesDH += (g.tier==='greater'?2:1);
+        var _gi=(typeof _tpGemIcon==='function')?_tpGemIcon(voc,g.tier):vgimg;
         return '<div class="bewheel-vessel on"><span class="bewheel-dot" style="background:'+d.color+'"></span><span class="bewheel-vn">'+E(d.name)+'</span>'
-          +(vgimg?'<img class="bewheel-gemimg" src="'+vgimg+'" alt="gema">':'')+'<b style="text-transform:capitalize">'+E(_WGEMLBL[g.tier]||g.tier)+'</b>'+'<span class="bewheel-vdh on">+'+(g.tier==='greater'?2:1)+' D&amp;H</span>'+(g.mod?'<small style="color:var(--muted)"> · '+E(g.mod)+'</small>':'')+'</div>';
+          +(_gi?'<img class="bewheel-gemimg" src="'+_gi+'" alt="gema">':'')+'<b style="text-transform:capitalize">'+E(_WGEMLBL[g.tier]||g.tier)+'</b>'+'<span class="bewheel-vdh on">+'+(g.tier==='greater'?2:1)+' D&amp;H</span>'+(g.mod?'<small style="color:var(--muted)"> · '+E(g.mod)+'</small>':'')+'</div>';
       }).join('');
       var gemsHtml=gemRows?('<div class="bewheel-gems"><div class="bewheel-subh">💎 Gemas / Vessels</div>'+gemRows+'</div>'):'';
       var _dhT=(S.flat||0)+_vesDH;
@@ -5270,6 +5271,7 @@ PlayerName (Leader)
       window.__tpCurBuild=id;
       if(!window.__DC && window.tpLoadCatalog){ tpLoadCatalog().then(function(){ if(window.__tpCurBuild===id) window.tpOpenBuild(id,mode); }); }
       if(!window.__DWH && window.tpLoadWheels){ tpLoadWheels().then(function(){ if(window.__tpCurBuild===id) window.tpOpenBuild(id,mode); }); }
+      if(!window.__GEMIC && window.tpLoadGemIcons){ tpLoadGemIcons(); }
       var d=b.data||{}, bb=d.b||{}, w=bb.weapon||{}, inp=d.inp||{};
       /* 1:1 com o motor: quando a build tem dados AO VIVO (equip/arma/rotação/roda), o BDET baked
          é ignorado — nada de dano/postura/tags divergentes de versões antigas. BDET só entra como
@@ -5585,7 +5587,7 @@ PlayerName (Leader)
       var host0=document.getElementById('bld-detail'); if(host0) host0.innerHTML='<div class="be2"><div class="be2sec"><div class="be2soon">Carregando catálogo do editor…</div></div></div>';
       if(window.tpLoadEditorCat){ await tpLoadEditorCat(); }
       if(window.tpLoadWheels){ tpLoadWheels(); }
-      tpBERender(); if(window.tpBEUpdateVessels) tpBEUpdateVessels(); window.scrollTo({top:0,behavior:'smooth'});
+      tpBERender(); if(window.tpBEUpdateVessels) tpBEUpdateVessels(); if(window.tpLoadGemIcons) tpLoadGemIcons(); window.scrollTo({top:0,behavior:'smooth'});
     };
     window.tpBECapture=function(){
       var BE=window.__BE; if(!BE) return;
@@ -5634,6 +5636,15 @@ PlayerName (Leader)
       window.__DPTp=fetch('assets/data/dc-proftrees.json').then(function(r){return r.json();}).then(function(j){ window.__DPT=j; return j; }).catch(function(){ window.__DPT={profTrees:{},profIcons:{}}; return window.__DPT; });
       return window.__DPTp;
     };
+    /* ícones oficiais das gemas (lesser/regular/greater × vocação) — dados da wiki */
+    window.tpLoadGemIcons=function(){
+      if(window.__GEMIC) return Promise.resolve(window.__GEMIC);
+      if(window.__GEMICp) return window.__GEMICp;
+      window.__GEMICp=fetch('assets/data/gem-icons.json').then(function(r){return r.json();}).then(function(j){ window.__GEMIC=j; if(window.__BE&&window.tpBERender){try{tpBERender();}catch(e){}} else if(window.__tpCurBuild&&window.tpOpenBuild){try{tpOpenBuild(window.__tpCurBuild);}catch(e){}} return j; }).catch(function(){ window.__GEMIC={icons:{}}; return window.__GEMIC; });
+      return window.__GEMICp;
+    };
+    /* ícone da gema pelo tier+vocação (fallback pro ícone único antigo) */
+    function _tpGemIcon(voc,tier){ var m=(window.__GEMIC&&window.__GEMIC.icons)||null; if(m&&tier&&m[tier+'_'+voc]) return m[tier+'_'+voc]; return (typeof TP_VOCGEM!=='undefined'?(TP_VOCGEM[voc]||''):''); }
     /* SVG da roda com a ARTE real (fundo + preenchimento + ícones sprite + moldura).
        ro=true → sem camada de clique (usado no display público, só leitura). */
     function _beRichWheelSvg(voc, wp, sel, ro){
@@ -6087,7 +6098,7 @@ PlayerName (Leader)
         return '<div class="bewheel-vessel'+(g.tier?' on':'')+'">'
           +'<span class="bewheel-dot" style="background:'+d.color+'"></span>'
           +'<span class="bewheel-vn">'+E(d.name)+' <small>(vessel até '+_BE_TIERLBL[maxTier]+')</small></span>'
-          +(g.tier&&vgimg?'<img class="bewheel-gemimg" src="'+vgimg+'" alt="gema">':'')
+          +(function(){var _gi=g.tier?((typeof _tpGemIcon==='function')?_tpGemIcon(voc,g.tier):vgimg):''; return _gi?'<img class="bewheel-gemimg" src="'+_gi+'" alt="gema">':'';})()
           +tierSel+dhTag+modSel+'</div>';
       }).join('');
       var _dhTot=(C.flat||0)+vesDH;
