@@ -81,11 +81,8 @@ Objetivo: transformar a página de builds no "Blitz.gg do Tibia" — dados reais
 ### 2d. Sistema de gemas completo (Atelier de Gemas) — parcial
 - ✅ **Tier liberado agora vem do CODEC real** (`vesselLevels`): depende da **forma** da alocação, não só do total (ex.: Beam com 3 vessels = greater; Lord com 1 = lesser). O editor recalcula ao editar/importar e ajusta o dropdown; o gating por estágio (errado) foi aposentado.
 - ✅ **Ícones reais das gemas (30/09)**: 15 imagens oficiais da wiki (lesser/regular/greater × Mystic/Sage/Marksman/Guardian/Spiritualist) em `assets/data/gem-icons.json` (WEBP data-URI, keyed `tier_vocação`), carregadas sob demanda (`tpLoadGemIcons`) e resolvidas por `_tpGemIcon(voc,tier)`. Editor e display da roda mostram a gema certa por vessel; fallback pro ícone único antigo.
-- ⏳ **Falta os mods básicos** (a UI ainda só tem o mod **supremo** no greater):
-  - Gema **menor**: 1 mod **básico**.
-  - Gema **média**: 2 mods **básicos**.
-  - Gema **maior**: 2 mods **básicos** + 1 mod **supremo**.
-  - Precisa: trazer as **listas de mods básicos** (hoje só temos os supremos, `greaterGems`), montar a UI (1/2/2+1 conforme o tier) e refletir no dano.
+- ✅ **Mods básicos (30/09)**: menor = 1 básico · média = 2 básicos · maior = 2 básicos + 1 supremo. Dados **reais** — valores exatos do codec do jogo (`getAvailableBasicModsPos1/Pos2`) cruzados com os nomes da TibiaWiki (Basic Mod, 13.30), em `dc-wheels.json` (`basicPos1` 20 + `basicPos2` 30 por vocação, Grade IV). Editor mostra os selects conforme o tier (2º slot não repete o 1º); display lista os mods de cada vessel.
+  - **Dano**: os mods básicos são **defensivos** (resistências, HP/Mana/Capacidade, mitigação) — **não alteram o dano ofensivo**, então (corretamente) não entram no cálculo de dano. Só a D&H de vessel e o supremo de revelação tocam ofensiva; a D&H de vessel ainda é display (ver 2a).
   - Refs: https://www.tibiabr.com/23347/atelier-de-gemas/ · simulador de revelar gemas (Tibia do Zero).
 
 ### 2e. ✅ FEITO (30/09) — Contador de pontos movido pra cima da roda
