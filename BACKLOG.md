@@ -52,7 +52,9 @@ Objetivo: transformar a página de builds no "Blitz.gg do Tibia" — dados reais
 ### 0b. 🛠️ Ferramentas do site — melhorar (inspiração tibiadozero) — ALTA
 O Kemay achou o tibiadozero.com.br e quer elevar as nossas ferramentas ao mesmo nível. Já temos as páginas (`delivery`, `bosses`, `imbuements`, `huntfinder`, charm calc, market) e já usamos a **TibiaData API** (21 refs) como fonte.
 
-- **Entregas / itens da weekly** (nossa: página `delivery`) — "muito simples e com **miniaturas quebradas**". Corrigir os ícones quebrados + enriquecer. Ref: https://tibiadozero.com.br/ferramentas/entregas — _candidato a quick win (bug visível)._
+- **Entregas / itens da weekly** (nossa: página `delivery`):
+  - ✅ **Miniaturas quebradas — CORRIGIDO (30/09):** a causa era o proxy `wsrv.nl` ter parado de servir imagens do wikia (fandom). `itemImgUrl` agora usa `tibiawiki.com.br/wiki/Special:FilePath/` **direto** (sem proxy, sem hash), com fallback pro wikia direto. Corrigiu de uma vez Task Delivery, Imbuements e o loot do Hunt Finder.
+  - ⏳ **"Muito simples" — enriquecer:** falta decidir o quê. Candidatos: destacar a rotação da weekly atual, ordenar por lucro (preço×qtd), qual NPC compra, filtros melhores. Ref: https://tibiadozero.com.br/ferramentas/entregas
 - **Boss statistics por servidor** (nossa: `bosses`) — "muito fraca, ficou muito tempo fora das atualizações". Atualizar dados/rotação, estatísticas por servidor (o nosso é **Gentebra**). Ref: https://tibiadozero.com.br/ferramentas/boss-tracker/Gentebra
 - **Custo de imbuements** (nossa: `imbuements`) — melhorar (preços, materiais, cálculo). Ref: https://tibiadozero.com.br/ferramentas/custo-imbuements
 - **Hunts / Hunt Finder** (nossa: `huntfinder`) — ajustar com curadoria melhor (liga com o 2c: faixas coerentes, solo/PT). Ref: https://tibiadozero.com.br/hunts
