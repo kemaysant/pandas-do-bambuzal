@@ -46,6 +46,9 @@ Objetivo: transformar a página de builds no "Blitz.gg do Tibia" — dados reais
 
 ## 📋 Backlog (prioridade sugerida)
 
+### 0. 🗺️ MAP EDITOR — TOP PRIORIDADE
+- Priorizar o editor de mapa (`mapa_editor.html` + `mapper-pack`). Definir escopo (o que falta / o que melhorar) e executar.
+
 ### 1. Refinar o conteúdo das builds — EM FOCO (você)
 - Revisar set, roda, rotação e guia de cada build; padronizar copiar/colar entre builds.
 - (Base técnica pronta: editor nativo + dano 1:1 + import/export da roda.)
@@ -75,6 +78,21 @@ Objetivo: transformar a página de builds no "Blitz.gg do Tibia" — dados reais
 - Antes de voltar, resolver: faixas de nível muito díspares; margens de erro grandes; não distingue **solo vs party**.
 - Ideia: **agregar ao Hunt Finder** com curadoria melhor (dados reais, faixas coerentes, solo/PT).
 
+### 2d. Sistema de gemas completo (Atelier de Gemas) — a fazer
+Hoje o editor só tem: tier (lesser/regular/greater) + **1 mod supremo** (só no greater) + D&H de presença. O modelo real do jogo é mais rico:
+- **Gema menor (lesser):** 1 mod **básico**.
+- **Gema média (regular):** 2 mods **básicos**.
+- **Gema maior (greater):** 2 mods **básicos** + 1 mod **supremo**.
+- Ref.: https://www.tibiabr.com/23347/atelier-de-gemas/
+- Precisa: trazer as listas de **mods básicos** (por vocação/domínio) — hoje só temos os supremos (`greaterGems` em `dc-wheels.json`). Montar a UI de seleção (1/2/2+1 conforme o tier) e refletir no dano.
+- Inclui o item "roda sem gema greater": o greater só abre no estágio III (1000 pts); confirmar que aparece e ganha os 2 básicos + 1 supremo.
+
+### 2e. ✅ FEITO (30/09) — Contador de pontos movido pra cima da roda
+- Estava sobreposto no centro da arte. Agora fica num cabeçalho acima da roda (editor: usados / limite do nível; display: pts na roda).
+
+### 2f. Miniatura da roda "errada" — a confirmar
+- Precisa apontar **onde** (qual tela) a miniatura aparece errada e **o que** está errado (arte diferente do build / fills errados / imagem estática antiga). Candidatos: fallback `tpWheelSVG` (webp) pra builds **sem** `wheelPts` salvos; flash do webp antes do `__DWH` carregar. Confirmar com o Kemay.
+
 ### 3. Segurança — hardening (não urgente; nenhum buraco aberto hoje)
 Auditoria de 30/09: RLS ligado nas 41 tabelas, políticas da `builds` corretas (só dono edita/apaga), sem `service_role` no código/histórico, RPCs sensíveis checam `auth.uid()`. Itens de endurecimento:
 - **`SET search_path`** em `builds_touch` e nas funções `SECURITY DEFINER` (migração não-destrutiva; corrige o aviso do linter do Supabase).
@@ -99,6 +117,10 @@ Auditoria de 30/09: RLS ligado nas 41 tabelas, políticas da `builds` corretas (
 - Expandir de MS/ED para EK/RP/Monk quando o conteúdo amadurecer.
 
 ---
+
+## 🔗 Ferramentas de referência (inspiração)
+- **Simulador de revelar gemas** (Tibia do Zero): https://tibiadozero.com.br/ferramentas/simulador-revelar-gemas — referência forte pro sistema de gemas / Atelier (item 2d).
+- **Atelier de Gemas** (TibiaBR): https://www.tibiabr.com/23347/atelier-de-gemas/ — mecânica oficial dos mods básicos/supremos.
 
 ## Notas técnicas
 - Regra permanente: **sempre recalcular o dano** com o equipamento escolhido ao criar/editar (salvo em `builds.dano`).
