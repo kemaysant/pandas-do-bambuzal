@@ -2200,16 +2200,25 @@ async function tibiaFetch(path) {
         <label style="font-size:.72rem;color:var(--muted)">Ordenar:</label>
         <select class="tool-select" onchange="tpBossSetSort(this.value)" style="padding:.3rem .6rem;font-size:.78rem">
           <option value="seen">Último visto</option>
+          <option value="chance">Chance</option>
           <option value="today">Caçados agora</option>
           <option value="name">Nome (A-Z)</option>
         </select>
         <button onclick="loadBossSpawn()" style="margin-left:auto;background:none;border:1px solid var(--rule);border-radius:8px;padding:5px 14px;font-size:.75rem;color:var(--muted);cursor:pointer">↻ Atualizar</button>
       </div>
-      <div style="font-size:.7rem;color:var(--muted);margin-bottom:1rem;background:rgba(139,92,246,.05);border:1px solid var(--rule);border-radius:8px;padding:.5rem .75rem;line-height:1.5">💡 <b>"Visto há X dias"</b> vem do nosso histórico diário de kill statistics — começou a coletar agora e fica mais preciso a cada dia (a chance de spawn entra quando houver dados suficientes). <b>"Caçado hoje/semana"</b> é o kill statistics oficial ao vivo.</div>
+      <div style="font-size:.7rem;color:var(--muted);margin-bottom:1rem;background:rgba(139,92,246,.05);border:1px solid var(--rule);border-radius:8px;padding:.5rem .75rem;line-height:1.5">💡 <b>Chance</b> = estimativa do "visto há Xd" vs. o intervalo típico de spawn de cada boss (calibrado com a comunidade, refina com o nosso histórico). <b>"Caçado hoje/semana"</b> é o kill statistics oficial ao vivo.</div>
+      <style>
+        #boss-spawn-grid .bs-card{cursor:pointer;background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:.5rem .6rem;display:flex;align-items:center;gap:.55rem;transition:transform .12s,border-color .12s}
+        #boss-spawn-grid .bs-card:hover{transform:translateY(-1px);border-color:rgba(139,92,246,.4)}
+        #boss-spawn-grid .bs-ic{width:46px;height:46px;background:var(--paper);border:1px solid var(--rule);border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+      </style>
       <div id="boss-spawn-loading" class="api-loading"><div class="spinner"></div> Buscando dados de Gentebra...</div>
       <!-- ── Hot Bosses Banner ── -->
       <div id="boss-hot-banner" style="display:none;margin-bottom:1rem"></div>
-      <div id="boss-spawn-grid" style="display:none;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.6rem"></div>
+      <div style="display:flex;gap:1.1rem;align-items:flex-start">
+        <div id="boss-spawn-grid" style="flex:1;min-width:0;display:none;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.5rem"></div>
+        <aside id="boss-mortos" style="width:210px;flex-shrink:0"></aside>
+      </div>
     </div>
 
     <!-- ── ABA: Boss de Alavanca ── -->
@@ -11713,14 +11722,31 @@ function _bossVisto(b){
   return {t:'Sem registro recente', c:'var(--muted)'};
 }
 function _bossCatColor(cat){ return ({'Rookgaard':'#22c55e','Tribe Chiefs':'#f97316','Humans & Heroes':'#3b82f6','Inbred Beasts':'#a855f7','Vampire Lords':'#ef4444','Loyal Partners':'#eab308','Pits of Inferno Leaders':'#dc2626','Cultism Workshop':'#8b5cf6','Prison Rulers':'#06b6d4'})[cat]||'#6b7280'; }
+function _bossChance(daysSince, iv){
+  if(daysSince==null || !iv) return null;
+  return Math.max(0, Math.min(100, Math.round(100*daysSince/iv)));
+}
+function _bossDotsHtml(chance){
+  if(chance==null) return '';
+  const total=5, filled=Math.max(0, Math.min(total, Math.round(chance/20)));
+  let s='<span style="display:inline-flex;gap:3px;align-items:center;vertical-align:middle">';
+  for(let i=0;i<total;i++) s+='<span style="width:8px;height:8px;border-radius:50%;background:'+(i<filled?'#22c55e':'var(--rule)')+'"></span>';
+  return s+'</span>';
+}
 function _bossBuild(){
   return TP_BOSS_CATALOG.map(o=>{
     const key=o.n.toLowerCase();
     const live=bossLive[key]||{day:0,week:0};
     const act=bossActivity[key]||{};
     const daysSince=_bossDaysSince(act.last);
-    return {name:o.n, cat:o.c, key, killedToday:((act.today||0)>0||(live.day||0)>0), killedWeek:(live.week||0), today:(act.today||live.day||0), daysSince, pinned:pinnedBosses.includes(o.n)};
+    const chance=_bossChance(daysSince, TP_BOSS_IV[key]);
+    return {name:o.n, cat:o.c, key, killedToday:((act.today||0)>0||(live.day||0)>0), killedWeek:(live.week||0), today:(act.today||live.day||0), yday:(act.yday||0), daysSince, chance, pinned:pinnedBosses.includes(o.n)};
   });
+}
+// fallback de imagem de boss: exevopan (primário) → tibiawiki → emoji
+function _bossImgFallback(name){
+  const slug=name.split(' ').map((w,i)=>(i>0&&['of','the','a','an'].includes(w.toLowerCase()))?w.toLowerCase():(w.charAt(0).toUpperCase()+w.slice(1))).join('_')+'.gif';
+  return 'https://www.tibiawiki.com.br/wiki/Special:FilePath/'+encodeURIComponent(slug.replace(/'([A-Za-z])/g,(m,c)=>"'"+c.toLowerCase()));
 }
 window.tpBossSetCat=function(cat,btn){ bossCatFilter=cat||'all'; document.querySelectorAll('#boss-catfilter .bcf').forEach(b=>{b.style.background='none';b.style.color='var(--ink)';}); if(btn){btn.style.background='var(--ink)';btn.style.color='var(--bg)';} renderBossSpawnGrid(); };
 window.tpBossSetSort=function(s){ bossSort=s||'seen'; renderBossSpawnGrid(); };
@@ -11741,11 +11767,23 @@ function renderBossSpawnGrid(){
     } else banner.style.display='none';
   }
 
+  // Mortos ontem (sidebar) — sempre a lista completa, independente do filtro
+  const mortos = document.getElementById('boss-mortos');
+  if(mortos){
+    const y=_bossBuild().filter(b=>b.yday>0).sort((a,b)=>a.name.localeCompare(b.name));
+    mortos.innerHTML='<div style="border:1px solid var(--rule);border-radius:12px;background:var(--card-bg,rgba(255,255,255,.02));padding:.8rem .9rem">'
+      +'<div style="font-weight:700;font-size:.92rem;color:var(--ink);margin-bottom:.2rem">Mortos Ontem</div>'
+      +'<div style="font-size:.68rem;color:var(--muted);margin-bottom:.6rem">'+_bossEsc(tpBossWorld())+'</div>'
+      +(y.length?y.map(b=>'<div style="display:flex;align-items:center;gap:.5rem;padding:.25rem 0"><img loading="lazy" src="'+bossImgUrl(b.name)+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=&quot;'+_bossImgFallback(b.name).replace(/"/g,'&quot;')+'&quot;}else{this.style.visibility=&quot;hidden&quot;}" style="width:24px;height:24px;object-fit:contain;flex-shrink:0"><span style="font-size:.78rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_bossEsc(b.name)+'</span></div>').join(''):'<div style="font-size:.75rem;color:var(--muted)">Sem registro de ontem ainda.</div>')
+      +'</div>';
+  }
+
   if(bossCatFilter!=='all') list=list.filter(b=>b.cat===bossCatFilter);
   list.sort((a,b)=>{
     if(a.pinned!==b.pinned) return a.pinned?-1:1;
     if(bossSort==='name') return a.name.localeCompare(b.name);
     if(bossSort==='today'){ const av=(a.killedToday?1e7:0)+(a.killedWeek||0), bv=(b.killedToday?1e7:0)+(b.killedWeek||0); return bv-av; }
+    if(bossSort==='chance'){ const av=a.chance==null?-1:a.chance, bv=b.chance==null?-1:b.chance; return bv-av; }
     const av=a.daysSince==null?99999:a.daysSince, bv=b.daysSince==null?99999:b.daysSince; return av-bv;
   });
 
@@ -11757,21 +11795,21 @@ function _bossCard(b){
   const v=_bossVisto(b);
   const catColor=_bossCatColor(b.cat);
   const km=b.killedToday
-    ? '<span style="font-size:.66rem;font-weight:700;color:#e07040;background:rgba(224,112,64,.12);border:1px solid rgba(224,112,64,.25);border-radius:20px;padding:1px 7px">⚔️ '+(b.today>1?b.today+'x hoje':'caçado hoje')+'</span>'
+    ? '<span style="font-size:.62rem;font-weight:700;color:#e07040;background:rgba(224,112,64,.12);border:1px solid rgba(224,112,64,.25);border-radius:20px;padding:0 6px">⚔️ '+(b.today>1?b.today+'x hoje':'caçado hoje')+'</span>'
     : (b.killedWeek>0
-        ? '<span style="font-size:.66rem;font-weight:600;color:#a08060;background:rgba(160,128,96,.1);border:1px solid rgba(160,128,96,.2);border-radius:20px;padding:1px 7px">📅 '+b.killedWeek+'x esta semana</span>'
-        : '<span style="font-size:.66rem;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:1px 7px">💤 inativo</span>');
-  return '<div onclick="tpOpenBoss(\''+b.name.replace(/'/g,"\\'")+'\')" style="cursor:pointer;background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:.7rem .85rem;display:flex;align-items:center;gap:.7rem;transition:transform .12s" onmouseenter="this.style.transform=\'translateY(-1px)\'" onmouseleave="this.style.transform=\'none\'">'
-    +'<div style="width:56px;height:56px;background:var(--paper);border:1px solid var(--rule);border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">'
-    +'<img loading="lazy" decoding="async" src="'+bossImgUrl(b.name)+'" alt="'+_bossEsc(b.name)+'" style="width:100%;height:100%;object-fit:contain" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+creatureImgUrl(b.name)+'\'}else{this.parentNode.innerHTML=\'<span style=font-size:1.3rem>👹</span>\'}">'
-    +'</div>'
+        ? '<span style="font-size:.62rem;font-weight:600;color:#a08060;background:rgba(160,128,96,.1);border:1px solid rgba(160,128,96,.2);border-radius:20px;padding:0 6px">📅 '+b.killedWeek+'x semana</span>' : '');
+  const chanceHtml = b.chance!=null
+    ? '<div style="display:flex;align-items:center;gap:.4rem;margin-top:1px"><b style="font-size:.82rem;color:'+(b.chance>=80?'#22c55e':b.chance>=40?'#eab308':'#e07040')+'">'+b.chance+'%</b>'+_bossDotsHtml(b.chance)+'</div>'
+    : '<div style="font-size:.66rem;color:var(--muted);margin-top:1px">chance: coletando</div>';
+  return '<div onclick="tpOpenBoss(\''+b.name.replace(/'/g,"\\'")+'\')" class="bs-card">'
+    +'<div class="bs-ic"><img loading="lazy" decoding="async" src="'+bossImgUrl(b.name)+'" alt="'+_bossEsc(b.name)+'" style="width:100%;height:100%;object-fit:contain" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+_bossImgFallback(b.name)+'\'}else{this.parentNode.innerHTML=\'<span style=font-size:1.2rem>👹</span>\'}"></div>'
     +'<div style="flex:1;min-width:0">'
-    +'<div style="font-weight:600;font-size:.86rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_bossEsc(b.name)+'</div>'
-    +'<div style="display:flex;align-items:center;gap:.35rem;margin-top:2px"><span style="width:7px;height:7px;border-radius:50%;background:'+catColor+';flex-shrink:0"></span><span style="font-size:.68rem;color:var(--muted)">'+_bossEsc(b.cat)+'</span></div>'
-    +'<div style="font-size:.72rem;color:'+v.c+';margin-top:3px;font-weight:500">📍 '+v.t+'</div>'
-    +'<div style="margin-top:4px">'+km+'</div>'
+    +'<div style="font-weight:600;font-size:.83rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_bossEsc(b.name)+'</div>'
+    + chanceHtml
+    +'<div style="display:flex;align-items:center;gap:.3rem;margin-top:1px"><span style="width:6px;height:6px;border-radius:50%;background:'+catColor+';flex-shrink:0"></span><span style="font-size:.64rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_bossEsc(b.cat)+' · <span style="color:'+v.c+'">'+v.t+'</span></span></div>'
+    +(km?'<div style="margin-top:2px">'+km+'</div>':'')
     +'</div>'
-    +'<button onclick="event.stopPropagation();togglePin(\''+b.name.replace(/'/g,"\\'")+'\',this)" title="'+(b.pinned?'Desafixar':'Fixar')+'" style="background:none;border:none;cursor:pointer;font-size:.9rem;opacity:'+(b.pinned?'1':'0.25')+';padding:4px">📌</button>'
+    +'<button onclick="event.stopPropagation();togglePin(\''+b.name.replace(/'/g,"\\'")+'\',this)" title="'+(b.pinned?'Desafixar':'Fixar')+'" style="background:none;border:none;cursor:pointer;font-size:.85rem;opacity:'+(b.pinned?'1':'0.25')+';padding:2px;align-self:flex-start">📌</button>'
     +'</div>';
 }
 
@@ -11780,6 +11818,9 @@ const TP_BOSS_CATALOG = [
 {n:'Arthom The Hunter',c:'Humans & Heroes'},{n:'Dreadmaw',c:'Inbred Beasts'},{n:'Fleabringer',c:'Inbred Beasts'},{n:'Rottie the Rotworm',c:'Rookgaard'},{n:'The Voice Of Ruin',c:'Tribe Chiefs'},{n:'White Pale',c:'Inbred Beasts'},{n:'Apprentice Sheng',c:'Rookgaard'},{n:'Fernfang',c:'Humans & Heroes'},{n:'Rotrender',c:'Cultism Workshop'},{n:'Rukor Zad',c:'Humans & Heroes'},{n:'Tzumrah The Dazzler',c:'Humans & Heroes'},{n:'Zarabustor',c:'Humans & Heroes'},{n:'Battlemaster Zunzu',c:'Tribe Chiefs'},{n:'Hirintror',c:'Inbred Beasts'},{n:'Rotworm Queen',c:'Inbred Beasts'},{n:'Diblis the Fair',c:'Vampire Lords'},{n:'The Old Whopper',c:'Tribe Chiefs'},{n:'Tyrn',c:'Inbred Beasts'},{n:'Albino Dragon',c:'Loyal Partners'},{n:'The Imperor',c:'Pits of Inferno Leaders'},{n:'Dracola',c:'Pits of Inferno Leaders'},{n:'Foreman Kneebiter',c:'Tribe Chiefs'},{n:'Oodok Witchmaster',c:'Tribe Chiefs'},{n:'The Big Bad One',c:'Inbred Beasts'},{n:'The Evil Eye',c:'Tribe Chiefs'},{n:'The Plasmother',c:'Pits of Inferno Leaders'},{n:'Cublarc the Plunderer',c:'Tribe Chiefs'},{n:'Smuggler Baron Silvertoe',c:'Humans & Heroes'},{n:'Ocyakao',c:'Tribe Chiefs'},{n:'Shlorg',c:'Inbred Beasts'},{n:'Xenia',c:'Humans & Heroes'},{n:'Draptor',c:'Loyal Partners'},{n:'Chizzoron the Distorter',c:'Tribe Chiefs'},{n:'Zulazza the Corruptor',c:'Rookgaard'},{n:'Flamecaller Zazrak',c:'Tribe Chiefs'},{n:"Gaz'haragoth",c:'Prison Rulers'},{n:'Hatebreeder',c:'Inbred Beasts'},{n:'High Templar Cobrass',c:'Tribe Chiefs'},{n:'Munster',c:'Rookgaard'},{n:'The Welter',c:'Inbred Beasts'},{n:'Zushuka',c:'Humans & Heroes'},{n:'Dharalion',c:'Tribe Chiefs'},{n:'Grand Mother Foulscale',c:'Loyal Partners'},{n:'Grandfather Tridian',c:'Humans & Heroes'},{n:'Midnight Panther',c:'Loyal Partners'},{n:'Undead Cavebear',c:'Loyal Partners'},{n:'Zomba',c:'Inbred Beasts'},{n:'Big Boss Trolliver',c:'Tribe Chiefs'},{n:'The Blightfather',c:'Inbred Beasts'},{n:'Captain Jones',c:'Humans & Heroes'},{n:'Hairman the Huge',c:'Inbred Beasts'},{n:'Sir Valorcrest',c:'Vampire Lords'},{n:'Yaga the Crone',c:'Humans & Heroes'},{n:'Barbaria',c:'Humans & Heroes'},{n:'Omrafir',c:'Prison Rulers'},{n:'Warlord Ruzad',c:'Tribe Chiefs'},{n:'Willi Wasp',c:'Inbred Beasts'},{n:'Arachir the Ancient One',c:'Vampire Lords'},{n:'General Murius',c:'Tribe Chiefs'},{n:'The Pale Count',c:'Vampire Lords'},{n:'Zevelon Duskbringer',c:'Vampire Lords'},{n:'Gravelord Oshuran',c:'Tribe Chiefs'},{n:'The Frog Prince',c:'Inbred Beasts'},{n:'Massacre',c:'Pits of Inferno Leaders'},{n:'Countess Sorrow',c:'Pits of Inferno Leaders'},{n:'Mr. Punish',c:'Pits of Inferno Leaders'},{n:'The Handmaiden',c:'Pits of Inferno Leaders'},{n:'Man in the Cave',c:'Humans & Heroes'},{n:'Yeti',c:'Inbred Beasts'},{n:'Ghazbaran',c:'Cultism Workshop'},{n:'Morgaroth',c:'Cultism Workshop'},{n:'The Abomination',c:'Cultism Workshop'},{n:'Ferumbras',c:'Cultism Workshop'},{n:'Morshabaal',c:'Cultism Workshop'},{n:'Orshabaal',c:'Cultism Workshop'},{n:'Burster',c:'Inbred Beasts'},{n:'Chopper',c:'Inbred Beasts'},{n:'Crustacea Gigantica',c:'Inbred Beasts'},{n:'Dreadful Disruptor',c:'Tribe Chiefs'},{n:'Elvira Hammerthrust',c:'Humans & Heroes'},{n:'Feroxa',c:'Inbred Beasts'},{n:'Furyosa',c:'Humans & Heroes'},{n:'Groam',c:'Tribe Chiefs'},{n:'Grorlam',c:'Inbred Beasts'},{n:'Jesse the Wicked',c:'Humans & Heroes'},{n:'Mahatheb',c:'Cultism Workshop'},{n:'Maw',c:'Inbred Beasts'},{n:'Mindmasher',c:'Inbred Beasts'},{n:'Mornenion',c:'Cultism Workshop'},{n:'Robby the Reckless',c:'Humans & Heroes'},{n:'Rotspit',c:'Inbred Beasts'},{n:'Shadowstalker',c:'Inbred Beasts'},{n:'Sir Leopold',c:'Humans & Heroes'},{n:'Teleskor',c:'Rookgaard'},{n:'The Hungerer',c:'Inbred Beasts'},{n:'The Manhunter',c:'Humans & Heroes'},{n:'The Mean Masher',c:'Inbred Beasts'},{n:'Yakchal',c:'Inbred Beasts'}
 ];
 const TP_BOSS_CAT_ORDER = ['Rookgaard','Tribe Chiefs','Humans & Heroes','Inbred Beasts','Vampire Lords','Loyal Partners','Pits of Inferno Leaders','Cultism Workshop','Prison Rulers'];
+// Intervalo de spawn estimado (dias) por boss — calibrado 1x da comunidade (tibiadozero)
+// e usado pra computar a chance AO VIVO pelo nosso "visto há Xd". Refina com o histórico.
+const TP_BOSS_IV = {"arthom the hunter":4,"dreadmaw":34,"fleabringer":3,"rottie the rotworm":33,"the voice of ruin":10,"white pale":19,"apprentice sheng":12,"fernfang":33,"rotrender":338,"rukor zad":14,"tzumrah the dazzler":48,"zarabustor":13,"battlemaster zunzu":6,"hirintror":18,"rotworm queen":12,"diblis the fair":28,"the old whopper":16,"tyrn":4,"albino dragon":3,"the imperor":54,"dracola":68,"foreman kneebiter":12,"oodok witchmaster":4,"the big bad one":28,"the evil eye":32,"the plasmother":68,"cublarc the plunderer":15,"smuggler baron silvertoe":50,"ocyakao":120,"shlorg":154,"xenia":49,"draptor":16,"chizzoron the distorter":91,"zulazza the corruptor":91,"gaz'haragoth":14,"hatebreeder":6,"high templar cobrass":6,"munster":2,"the welter":16,"zushuka":19,"dharalion":6,"grand mother foulscale":5,"grandfather tridian":6,"midnight panther":3,"undead cavebear":3,"zomba":3,"big boss trolliver":4,"the blightfather":5,"captain jones":6,"hairman the huge":6,"sir valorcrest":5,"yaga the crone":5,"barbaria":8,"omrafir":14,"warlord ruzad":6,"willi wasp":6,"arachir the ancient one":7,"general murius":7,"the pale count":16,"zevelon duskbringer":7,"gravelord oshuran":8,"the frog prince":12,"massacre":14,"countess sorrow":14,"mr. punish":14,"the handmaiden":14,"man in the cave":14,"yeti":19,"ghazbaran":162,"morgaroth":168,"the abomination":154,"ferumbras":162,"morshabaal":154,"orshabaal":154};
 var bossLive = {};      // race(lower) -> {day, week}
 var bossActivity = {};  // race(lower) -> {last, today, d7, d30, seen}
 var bossCatFilter = 'all';
