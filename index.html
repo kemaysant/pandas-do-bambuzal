@@ -2855,7 +2855,31 @@ async function tibiaFetch(path) {
   <!-- ─── DELIVERY TASKS ─── -->
   <section class="page-section" id="delivery">
     <h2 class="sec-title">Task Delivery</h2>
-    <p class="sec-sub">Itens de entrega (task) — quantidade, criaturas que dropam e valor estimado. Clique num item pra tentar o market ao vivo.</p>
+    <p class="sec-sub">Itens de entrega (task) — quem compra, quanto vale e se compensa guardar pro market. Clique num item pra tentar o preço ao vivo.</p>
+
+    <!-- Rashid do dia -->
+    <div id="dt-rashid" class="card" style="margin-bottom:1.2rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;background:var(--gold-pale,rgba(201,168,64,.08));border-color:rgba(201,168,64,.3)">
+      <span style="font-size:1.4rem">🧳</span>
+      <div style="flex:1;min-width:220px">
+        <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600">Rashid hoje</div>
+        <div id="dt-rashid-txt" style="font-size:.92rem;color:var(--ink);font-weight:500">—</div>
+      </div>
+      <div style="font-size:.68rem;color:var(--muted);max-width:240px">Muda no server save (10:00 do horário do servidor). Precisa da <b>Travelling Trader Quest</b>.</div>
+    </div>
+
+    <!-- Verificar loot -->
+    <details id="dt-loot" class="card" style="margin-bottom:1.2rem">
+      <summary style="cursor:pointer;font-weight:600;font-size:.9rem;color:var(--ink)">🔎 Verificar loot — cole o log da sessão pra ver só os itens de entrega</summary>
+      <div style="margin-top:.8rem">
+        <textarea id="dt-loot-in" placeholder="Cole aqui o 'Loot' do Hunt Analyzer (ou do Party Hunt). Ex.:&#10;Loot: 3x a fire sword, 12x a demonic essence, 1x an angelic axe"
+                  style="width:100%;min-height:90px;background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:8px;padding:.6rem;font:inherit;font-size:.82rem;resize:vertical"></textarea>
+        <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+          <button class="filter-btn active" onclick="dtCheckLoot()">Verificar</button>
+          <button class="filter-btn" onclick="document.getElementById('dt-loot-in').value='';document.getElementById('dt-loot-out').innerHTML='';">Limpar</button>
+        </div>
+        <div id="dt-loot-out" style="margin-top:.8rem"></div>
+      </div>
+    </details>
 
     <!-- Filters -->
     <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:flex-end">
@@ -2878,6 +2902,12 @@ async function tibiaFetch(path) {
         </select>
       </div>
       <div>
+        <label class="input-label" style="display:block;margin-bottom:4px;font-size:.68rem">NPC comprador</label>
+        <select class="tool-select" id="dt-npc" onchange="filterDelivery()" style="min-width:150px">
+          <option value="">Todos os NPCs</option>
+        </select>
+      </div>
+      <div>
         <label class="input-label" style="display:block;margin-bottom:4px;font-size:.68rem">Criatura</label>
         <select class="tool-select" id="dt-creature" onchange="filterDelivery()" style="min-width:180px">
           <option value="">Todas as criaturas</option>
@@ -2886,6 +2916,7 @@ async function tibiaFetch(path) {
       <div>
         <label class="input-label" style="display:block;margin-bottom:4px;font-size:.68rem">Ordenar</label>
         <select class="tool-select" id="dt-sort" onchange="filterDelivery()">
+          <option value="npc">Agrupar por NPC</option>
           <option value="name">Nome (A-Z)</option>
           <option value="value_desc">Valor (maior)</option>
           <option value="value_asc">Valor (menor)</option>
@@ -12481,18 +12512,91 @@ const DELIVERY_ITEMS = [
   {n:'Zaogun Flag',g:'c',v:600,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'},
   {n:'Zaogun Shoulderplates',g:'d',v:150,drops:'Lizard Zaogun · Battlemaster Zunzu · Fazzrah'},
 ];
+
+// ── NPC que compra cada item de task (mecânica do jogo) ───────────────────
+// Chaves em minúsculo pra casar sem depender de capitalização. Quem não estiver
+// em nenhuma lista abaixo cai no Yasir (o comprador semanal da maioria dos loots).
+const DT_NPC_LISTS = {
+  'Rashid': ['golden legs','dragon slayer','zaoan robe','lightning robe','buckle','hibiscus dress','crystal crossbow','vile axe','skullcracker armor','crystalline armor','lightning boots','mammoth whopper','ornate crossbow','war axe','wooden spellbook','chaos mace','glacier mask','lightning headband','taurus mace','dark shield','double axe','plate legs','battle shield','heavy machete','relic sword','spellbook of mind control','crystal mace','mercenary sword',"spellweaver's robe",'glacier robe','magma coat','terra mantle','focus cape','wood cape','diamond sceptre','glacier shoes','magma boots','magma monocle','terra boots','terra hood',"cat's paw",'heavy trident','blood hood','golden sickle','crystal sword','halberd','orcish axe'],
+  'Djinns': ['bonebreaker','strange helmet','dragon hammer','black shield','scimitar','fire axe','angelic axe','knight legs','titan axe','glorious axe','guardian shield','knight axe','broadsword'],
+  'Telas': ['piece of draconian steel','crystalline spikes','vein of ore','magma clump','shiny stone','pulverized ore','ancient stone','broken gladiator shield','piece of hell steel','sulphurous stone'],
+  'Gladys': ['wereboar loincloth','weretiger tooth','werebear skull','werebear fur','werecrocodile tongue','werewolf fur','werehyaena talisman','werefox tail','werebadger skull','wereboar tusks','werebadger claws','fox paw','badger boots','fur armor','werepanther claw','werehyaena nose'],
+  'Esrik / Pompan': ['zaogun flag','high guard flag','draken wristbands','broken draken mail','cursed shoulder spikes','zaogun shoulderplates','broken slicer','broken halberd','bone shoulderplate','high guard shoulderplates','zaoan armor','zaoan shoes','spiked iron ball'],
+  'Flint': ['alloy legs','metal bat','glooth cape','metal spats','mino lance','rubber cap','glooth injection tube','mino shield','glooth axe','glooth blade','glooth club','glob of glooth']
+};
+const DT_NPC_META = {
+  'Rashid': {sub:'Compra os itens raros de equipamento — muda de cidade todo dia.', quest:'The Travelling Trader Quest', rashid:true},
+  'Yasir': {sub:'Compra a maioria dos produtos de criatura. Fica no barco viajante (Yasir\'s ship).', quest:''},
+  'Djinns': {sub:"Alesar (verde) / Nah'Bob (azul) — nas Djinn Fortresses.", quest:'The Djinn War Quest'},
+  'Telas': {sub:'Yalahar (Magic Quarter) — minérios e pedras de craft.', quest:'Shadows of Yalahar Quest'},
+  'Gladys': {sub:'Edron — itens de lycanthropo (were-).', quest:''},
+  'Esrik / Pompan': {sub:'Farmine — itens de Zao e draken.', quest:'Tomes of Knowledge Quest'},
+  'Flint': {sub:'Rathleton — itens glooth.', quest:'Rathleton Quest (Inhabitant)'}
+};
+const DT_NPC_ORDER = ['Rashid','Yasir','Djinns','Telas','Gladys','Esrik / Pompan','Flint'];
+// Rotação diária do Rashid (índice = getDay(): 0=Dom … 6=Sáb). Fonte: TibiaWiki.
+const RASHID_ROT = [
+  {d:'Domingo', city:'Carlin',      loc:'no primeiro andar do depot'},
+  {d:'Segunda', city:'Svargrond',   loc:'taverna de Dankwart, ao sul do templo'},
+  {d:'Terça',   city:'Liberty Bay', loc:'taverna de Lyonel, a oeste do depot'},
+  {d:'Quarta',  city:'Port Hope',   loc:'taverna de Clyde, ao norte do barco'},
+  {d:'Quinta',  city:'Ankrahmun',   loc:'taverna de Arito, acima do post office'},
+  {d:'Sexta',   city:'Darashia',    loc:'taverna de Miraia, a oeste do barco'},
+  {d:'Sábado',  city:'Edron',       loc:'taverna de Mirabell, acima do depot'}
+];
+const DT_NPC_OF = {};
+for (const npc in DT_NPC_LISTS) DT_NPC_LISTS[npc].forEach(n => { DT_NPC_OF[n] = npc; });
+function dtNpcOf(name){ return DT_NPC_OF[(name||'').toLowerCase()] || 'Yasir'; }
+// Rashid muda no server save (10:00 no horário do servidor, Europe/Berlin).
+function dtRashidToday(){
+  try{
+    const nowB = new Date(new Date().toLocaleString('en-US',{timeZone:'Europe/Berlin'}));
+    nowB.setHours(nowB.getHours()-10); // antes das 10:00 ainda conta como o dia anterior
+    return RASHID_ROT[nowB.getDay()];
+  }catch(e){ return RASHID_ROT[new Date().getDay()]; }
+}
+// Preço NPC dos itens de equipamento (Rashid/Djinns/Telas/Gladys/Esrik/Flint) —
+// muitos vêm com v:0 no dataset (sem market). Fonte: preço dos NPCs no jogo.
+const DT_NPC_PRICE = {
+  // Rashid
+  'golden legs':30000,'dragon slayer':15000,'zaoan robe':12000,'lightning robe':11000,'buckle':7000,'hibiscus dress':3000,'crystal crossbow':35000,'vile axe':30000,'skullcracker armor':18000,'crystalline armor':16000,'lightning boots':2500,'mammoth whopper':300,'ornate crossbow':12000,'war axe':12000,'wooden spellbook':12000,'chaos mace':9000,'glacier mask':2500,'lightning headband':2500,'taurus mace':500,'dark shield':400,'double axe':260,'plate legs':115,'battle shield':95,'heavy machete':90,'relic sword':25000,'spellbook of mind control':13000,'crystal mace':12000,'mercenary sword':12000,"spellweaver's robe":12000,'glacier robe':11000,'magma coat':11000,'terra mantle':11000,'focus cape':6000,'wood cape':5000,'diamond sceptre':3000,'glacier shoes':2500,'magma boots':2500,'magma monocle':2500,'terra boots':2500,'terra hood':2500,"cat's paw":2000,'heavy trident':2000,'blood hood':1550,'golden sickle':1000,'crystal sword':600,'halberd':400,'orcish axe':350,
+  // Djinns
+  'bonebreaker':10000,'strange helmet':500,'dragon hammer':2000,'black shield':800,'scimitar':150,'fire axe':8000,'angelic axe':5000,'knight legs':5000,'titan axe':4000,'glorious axe':3000,'guardian shield':2000,'knight axe':2000,'broadsword':500,
+  // Telas
+  'piece of draconian steel':3000,'crystalline spikes':440,'vein of ore':330,'magma clump':570,'shiny stone':500,'pulverized ore':400,'ancient stone':200,'broken gladiator shield':190,'piece of hell steel':500,'sulphurous stone':100,
+  // Gladys
+  'wereboar loincloth':1500,'weretiger tooth':490,'werebear skull':195,'werebear fur':185,'werecrocodile tongue':570,'werewolf fur':380,'werehyaena talisman':350,'werefox tail':200,'werebadger skull':185,'wereboar tusks':165,'werebadger claws':160,'fox paw':100,'badger boots':7500,'fur armor':5000,'werepanther claw':280,'werehyaena nose':220,
+  // Esrik / Pompan
+  'zaogun flag':600,'high guard flag':550,'draken wristbands':430,'broken draken mail':340,'cursed shoulder spikes':320,'zaogun shoulderplates':150,'broken slicer':120,'broken halberd':100,'bone shoulderplate':150,'high guard shoulderplates':130,'zaoan armor':14000,'zaoan shoes':5000,'spiked iron ball':100,
+  // Flint
+  'alloy legs':11000,'metal bat':9000,'glooth cape':7000,'metal spats':2000,'mino lance':7000,'rubber cap':11000,'glooth injection tube':350,'mino shield':3000,'glooth axe':1500,'glooth blade':1500,'glooth club':1500,'glob of glooth':125
+};
+// valor do item: usa a estimativa do dataset; se 0, cai no preço NPC conhecido.
+function dtValue(item){ return (item && item.v) ? item.v : (DT_NPC_PRICE[(item&&item.n||'').toLowerCase()] || 0); }
+
+// Faixa de valor: guardar pro market vs vender pro NPC (base na estimativa em gp).
+function dtTier(v){
+  v = +v || 0;
+  if (v >= 1000) return {label:'Muito Alto', advice:'Guarde pro Market', color:'#a855f7'};
+  if (v >= 400)  return {label:'Alto',       advice:'Considere guardar', color:'#3b82f6'};
+  if (v >= 120)  return {label:'Médio',      advice:'Situacional',       color:'#eab308'};
+  return {label:'Baixo', advice:'Pode vender ao NPC', color:'#22c55e'};
+}
+
 let dtFiltered = [...DELIVERY_ITEMS];
 
 function filterDelivery() {
   const search   = (document.getElementById('dt-search')?.value   || '').toLowerCase().trim();
   const group    = document.getElementById('dt-group')?.value     || 'all';
   const creature = (document.getElementById('dt-creature')?.value || '').trim();
+  const npc      = (document.getElementById('dt-npc')?.value      || '').trim();
   const sort     = document.getElementById('dt-sort')?.value      || 'name';
 
   dtFiltered = DELIVERY_ITEMS.filter(item => {
     if (search   && !item.n.toLowerCase().includes(search))     return false;
     if (group !== 'all' && item.g !== group)                    return false;
     if (creature && !item.drops.includes(creature)) return false;
+    if (npc && dtNpcOf(item.n) !== npc) return false;
     return true;
   });
 
@@ -12500,6 +12604,14 @@ function filterDelivery() {
   if (sort === 'value_desc') dtFiltered.sort((a,b) => b.v - a.v);
   if (sort === 'value_asc')  dtFiltered.sort((a,b) => a.v - b.v);
   if (sort === 'group')      dtFiltered.sort((a,b) => a.g.localeCompare(b.g));
+  if (sort === 'npc') {
+    const ord = {}; DT_NPC_ORDER.forEach((n,i)=>ord[n]=i);
+    dtFiltered.sort((a,b) => {
+      const na=dtNpcOf(a.n), nb=dtNpcOf(b.n);
+      if (na !== nb) return (ord[na]??99) - (ord[nb]??99);
+      return dtValue(b) - dtValue(a); // dentro do NPC, maior valor primeiro
+    });
+  }
 
   const count = document.getElementById('dt-count');
   if (count) count.textContent = `${dtFiltered.length} item${dtFiltered.length!==1?'s':''}`;
@@ -12534,25 +12646,59 @@ function renderDelivery() {
     });
   }
 
-  dtFiltered = [...DELIVERY_ITEMS].sort((a,b) => a.n.localeCompare(b.n));
-  const count = document.getElementById('dt-count');
-  if (count) count.textContent = `${dtFiltered.length} itens`;
-  renderDeliveryTable(); initItemImgLazy('#dt-body');
+  // NPC dropdown (na ordem canônica)
+  const npcSel = document.getElementById('dt-npc');
+  if (npcSel && npcSel.options.length <= 1) {
+    DT_NPC_ORDER.forEach(n => {
+      const opt = document.createElement('option');
+      opt.value = n; opt.textContent = n;
+      npcSel.appendChild(opt);
+    });
+  }
+
+  // Banner do Rashid do dia
+  const rtxt = document.getElementById('dt-rashid-txt');
+  if (rtxt) { const r = dtRashidToday(); rtxt.innerHTML = `<b>${r.city}</b> — ${r.loc} <span style="color:var(--muted)">(${r.d})</span>`; }
+
+  // Render respeitando o filtro/ordenação padrão (Agrupar por NPC)
+  filterDelivery();
 }
 
 function renderDeliveryTable() {
   const tbody = document.getElementById('dt-body');
   if (!tbody) return;
+  const grouped = (document.getElementById('dt-sort')?.value === 'npc');
+  const esc = s => String(s==null?'':s).replace(/</g,'&lt;');
+  let prevNpc = null;
+  const rows = [];
 
-  tbody.innerHTML = dtFiltered.map((item, i) => {
+  dtFiltered.forEach((item, i) => {
+    // Cabeçalho de grupo por NPC (só no modo "Agrupar por NPC")
+    if (grouped) {
+      const npc = dtNpcOf(item.n);
+      if (npc !== prevNpc) {
+        prevNpc = npc;
+        const meta = DT_NPC_META[npc] || {sub:'',quest:''};
+        let head = `<b style="font-size:.95rem;color:var(--gold)">${esc(npc)}</b>`;
+        if (meta.rashid) {
+          const r = dtRashidToday();
+          head += ` <span style="font-size:.75rem;color:var(--ink-3)">— hoje (${r.d}): <b style="color:var(--ink)">${esc(r.city)}</b>, ${esc(r.loc)}</span>`;
+        } else if (meta.sub) {
+          head += ` <span style="font-size:.75rem;color:var(--ink-3)">— ${esc(meta.sub)}</span>`;
+        }
+        if (meta.quest) head += ` <span style="font-size:.68rem;color:var(--muted)">· ${esc(meta.quest)}</span>`;
+        rows.push(`<tr class="dt-grouphdr"><td colspan="6" style="background:var(--bamboo-pale,rgba(139,92,246,.06));padding:.6rem .7rem;border-top:2px solid var(--gold,#c9a840)">${head}</td></tr>`);
+      }
+    }
     const grp = DT_GROUPS[item.g] || {label:'?',min:0,max:0};
     const groupLabel = grp.label;
     const qtyMid = grp.min ? `${grp.min}–${grp.max}` : '?';
     const isNPC = item.drops.includes('NPC') || item.drops.includes('Rashid');
-    const valueStr = dtEstHtml(item.v||0);
     const groupColor = {a:'#ef4444',b:'#f97316',c:'#eab308',d:'#22c55e',e:'#3b82f6',f:'#8b5cf6'}[item.g]||'#6b7280';
+    const t = dtTier(dtValue(item));
+    const tierBadge = `<span class="dt-tier" title="${t.advice}" style="display:inline-block;margin-top:3px;font-size:.62rem;font-weight:700;color:${t.color};background:${t.color}1e;border:1px solid ${t.color}55;padding:1px 6px;border-radius:8px;white-space:nowrap">${t.label} · ${t.advice}</span>`;
 
-    return `<tr style="cursor:pointer" onclick="lookupDeliveryPrice('${item.n.replace(/'/g,"\\'")}', this)">
+    rows.push(`<tr style="cursor:pointer" onclick="lookupDeliveryPrice('${item.n.replace(/'/g,"\\'")}', this)">
       <td style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace">${i+1}</td>
       <td>
         <div style="display:flex;align-items:center;gap:.5rem">
@@ -12569,11 +12715,51 @@ function renderDeliveryTable() {
         <span style="font-size:.72rem;background:${groupColor}22;color:${groupColor};border:1px solid ${groupColor}44;padding:2px 8px;border-radius:10px;font-weight:600;white-space:nowrap">${item.g} · ${groupLabel}</span>
       </td>
       <td style="font-family:'DM Mono',monospace;font-size:.85rem;color:var(--ink-3)">${qtyMid} un.</td>
-      <td id="dt-price-${i}" style="font-family:'DM Mono',monospace;font-size:.85rem;color:var(--muted)">${dtCellHtml(item)}</td>
+      <td id="dt-price-${i}" style="font-family:'DM Mono',monospace;font-size:.85rem;color:var(--muted)">${dtCellHtml(item)}<br>${tierBadge}</td>
       <td style="font-size:.78rem;color:var(--muted);font-weight:300;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.drops}</td>
-    </tr>`;
-  }).join('');
+    </tr>`);
+  });
+  tbody.innerHTML = rows.join('');
 }
+
+// Verificar loot: cola o log da sessão (Hunt Analyzer) e filtra só os itens de entrega.
+function dtCheckLoot(){
+  const raw = (document.getElementById('dt-loot-in')?.value || '');
+  const out = document.getElementById('dt-loot-out');
+  if(!out) return;
+  if(!raw.trim()){ out.innerHTML='<div style="font-size:.8rem;color:var(--muted)">Cole o log primeiro.</div>'; return; }
+  const byName = {}; DELIVERY_ITEMS.forEach(it => { byName[it.n.toLowerCase()] = it; });
+  const match = (nm) => {
+    nm = nm.toLowerCase().trim().replace(/\.$/,'');
+    if(byName[nm]) return byName[nm];
+    if(nm.endsWith('es') && byName[nm.slice(0,-2)]) return byName[nm.slice(0,-2)]; // essences → essence
+    if(nm.endsWith('s')  && byName[nm.slice(0,-1)]) return byName[nm.slice(0,-1)]; // swords → sword
+    return null;
+  };
+  const body = raw.replace(/loot\s*:/ig,' , ');
+  const parts = body.split(/[,\n]/);
+  const found = {};
+  parts.forEach(p => {
+    const m = p.match(/(\d[\d.]*)\s*x?\s+(?:a |an |the )?(.+)/i);
+    if(!m) return;
+    const qty = parseInt(m[1].replace(/\./g,''),10) || 0;
+    if(!qty) return;
+    const it = match(m[2]);
+    if(it){ if(!found[it.n]) found[it.n]={item:it,qty:0}; found[it.n].qty += qty; }
+  });
+  const list = Object.values(found).sort((a,b) => (dtValue(b.item)*b.qty)-(dtValue(a.item)*a.qty));
+  if(!list.length){ out.innerHTML='<div style="font-size:.82rem;color:var(--muted)">Nenhum item de entrega encontrado no log. (Formato esperado: “3x a fire sword, 12x a demonic essence”.)</div>'; return; }
+  let total=0;
+  const rows = list.map(e => {
+    const sub=dtValue(e.item)*e.qty; total+=sub;
+    const npc=dtNpcOf(e.item.n), t=dtTier(dtValue(e.item));
+    return `<tr style="border-top:1px solid var(--rule)"><td style="padding:.3rem .5rem;font-family:'DM Mono',monospace">${e.qty}×</td><td style="padding:.3rem .5rem">${e.item.n} <span style="font-size:.62rem;color:${t.color}">${t.label}</span></td><td style="padding:.3rem .5rem;color:var(--ink-3)">${npc}</td><td style="padding:.3rem .5rem;text-align:right;font-family:'DM Mono',monospace">${sub.toLocaleString('pt-BR')} gp</td></tr>`;
+  }).join('');
+  out.innerHTML = `<div style="font-size:.82rem;color:var(--ink-3);margin-bottom:.4rem">${list.length} item(ns) de entrega no loot · estimativa total <b style="color:var(--gold)">${total.toLocaleString('pt-BR')} gp</b></div>
+    <table style="width:100%;font-size:.82rem;border-collapse:collapse"><thead><tr style="color:var(--muted);font-size:.7rem"><th style="text-align:left;padding:.2rem .5rem">Qtd</th><th style="text-align:left;padding:.2rem .5rem">Item</th><th style="text-align:left;padding:.2rem .5rem">Vende pra</th><th style="text-align:right;padding:.2rem .5rem">Estimado</th></tr></thead><tbody>${rows}</tbody></table>
+    <div style="font-size:.66rem;color:var(--muted);margin-top:.4rem">Valores = estimativa base. Abra os preços ao vivo na tabela pra comparar com o market do seu mundo.</div>`;
+}
+window.dtCheckLoot = dtCheckLoot;
 
 // Preços de market AO VIVO via Tibia Market Tracker (api.tibiamarket.top).
 // CORS liberado no browser (a API devolve access-control-allow-origin:* quando há Origin).
@@ -12583,7 +12769,7 @@ function renderDeliveryTable() {
 const TM_API = 'https://api.tibiamarket.top';
 const dtPriceCache = {};          // itemName -> {sell,buy,mavg,name}  (sell=venda, buy=compra)
 window.__DT_MKT = window.__DT_MKT || {}; // world -> { id -> {sell,buy,mavg} }
-function dtEstOf(itemName){ const it=DELIVERY_ITEMS.find(x=>x.n===itemName); return (it&&it.v)||0; }
+function dtEstOf(itemName){ const it=DELIVERY_ITEMS.find(x=>x.n===itemName); return it?dtValue(it):0; }
 function dtIdOf(itemName){ return (window.DT_MARKET_IDS||{})[itemName]||0; }
 function dtWorld(){ return (typeof CONFIG!=='undefined' && CONFIG.world) ? CONFIG.world : 'Gentebra'; }
 
@@ -12591,7 +12777,7 @@ function dtWorld(){ return (typeof CONFIG!=='undefined' && CONFIG.world) ? CONFI
 function dtCellHtml(item){
   const c = dtPriceCache[item.n];
   if (c && (c.sell>0 || c.buy>0)) return dtLiveHtml(c);
-  return dtEstHtml((item&&item.v)||0);
+  return dtEstHtml(dtValue(item));
 }
 function dtLiveHtml(c){
   return `<div style="line-height:1.4">` +
