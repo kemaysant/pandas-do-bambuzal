@@ -5206,14 +5206,20 @@ PlayerName (Leader)
       var S=tpWheelStats(voc,pts); if(!S) return ''; pts=pts||{}; gems=gems||{};
       var W=S.W, E=window.esc||function(s){return String(s==null?'':s);};
       /* prefere a arte webp (quando existe pra build) e cai pro SVG polido no onerror */
-      var hasWebp=!!id;
-      var svgMk=_wheelSvg(W,pts,{interactive:false,used:S.used,size:320,hidden:hasWebp});
-      var svg;
-      if(hasWebp){
-        var imgFile=(voc==='sorcerer'&&mode==='thunder')?(id+'-thunder.webp'):(id+'.webp');
-        svg='<div class="bewheel-gfx"><img class="bewheel-webp" src="assets/builds-wheel/'+imgFile+'?v='+(window.TP_WHEELVER||'2')+'" alt="Roda do Destino" loading="lazy" '
-          +'onerror="var s=this.parentNode.querySelector(\'svg\');if(s)s.style.display=\'\';this.style.display=\'none\'">'+svgMk+'</div>';
-      } else { svg=svgMk; }
+      /* prefere o render AO VIVO da arte real (sempre reflete data.b.wheelPts); cai pro
+         webp pré-renderizado / SVG polido só enquanto a arte (__DWH) não carregou */
+      var svg, _rich=(window.__DWH&&window.__DWH.vocs&&window.__DWH.vocs[voc])?_beRichWheelSvg(voc,pts,-1,true):null;
+      if(_rich){ svg='<div class="be-richwrap"><div class="be-richpts">'+S.used+' <span>pts</span></div>'+_rich+'</div>'; }
+      else {
+        if(window.tpLoadWheels) tpLoadWheels();
+        var hasWebp=!!id;
+        var svgMk=_wheelSvg(W,pts,{interactive:false,used:S.used,size:320,hidden:hasWebp});
+        if(hasWebp){
+          var imgFile=(voc==='sorcerer'&&mode==='thunder')?(id+'-thunder.webp'):(id+'.webp');
+          svg='<div class="bewheel-gfx"><img class="bewheel-webp" src="assets/builds-wheel/'+imgFile+'?v='+(window.TP_WHEELVER||'2')+'" alt="Roda do Destino" loading="lazy" '
+            +'onerror="var s=this.parentNode.querySelector(\'svg\');if(s)s.style.display=\'\';this.style.display=\'none\'">'+svgMk+'</div>';
+        } else { svg=svgMk; }
+      }
       var rows=[3,0,2,1].map(function(dm){
         var d=W.domains[dm], stgN=S.stages[dm], p=S.domPts[dm], next=W.stageAt.filter(function(th){return p<th;})[0];
         return '<div class="bewheel-dom'+(stgN>0?' hit':'')+'"><span class="bewheel-dot" style="background:'+d.color+'"></span>'
@@ -5250,6 +5256,7 @@ PlayerName (Leader)
       var b=byId[id]; if(!b)return;
       window.__tpCurBuild=id;
       if(!window.__DC && window.tpLoadCatalog){ tpLoadCatalog().then(function(){ if(window.__tpCurBuild===id) window.tpOpenBuild(id,mode); }); }
+      if(!window.__DWH && window.tpLoadWheels){ tpLoadWheels().then(function(){ if(window.__tpCurBuild===id) window.tpOpenBuild(id,mode); }); }
       var d=b.data||{}, bb=d.b||{}, w=bb.weapon||{}, inp=d.inp||{};
       /* 1:1 com o motor: quando a build tem dados AO VIVO (equip/arma/rotação/roda), o BDET baked
          é ignorado — nada de dano/postura/tags divergentes de versões antigas. BDET só entra como
@@ -5274,7 +5281,11 @@ PlayerName (Leader)
         .filter(function(x){return x[1]!=null && x[1]!=='';})
         .map(function(x){return '<div class="bd-stat'+(x[2]?' bd-stat-info':'')+'"'+(x[2]?' title="'+esc(x[2])+'"':'')+'><b>'+esc(x[1])+'</b><span>'+esc(x[0])+(x[2]?' <i class="bd-statq">?</i>':'')+'</span></div>';}).join('');
       function profPct(t){ var m=String(t||'').match(/^\+([\d.]+%?)/); return m?('+'+m[1]):''; }
-      var _wprof=bb.wprof||{}, _tree=TP_PTREE[(w&&w.profClass)||''];
+      var _pc=(w&&w.profClass)||'';
+      var _wprof=bb.wprof||{}, _tree=TP_PTREE[_pc]||((window.__DPT&&window.__DPT.profTrees)?window.__DPT.profTrees[_pc]:null);
+      /* se a arma usa uma árvore fora do índice pequeno, carrega o completo e re-renderiza */
+      if(!_tree && _pc && window.tpLoadProfTrees && !window.__DPT){ tpLoadProfTrees().then(function(){ if(window.__tpCurBuild===id) window.tpOpenBuild(id,mode); }); }
+      var _picon=function(n){ if(!n) return null; return TP_PICON[n]||((window.__DPT&&window.__DPT.profIcons)?window.__DPT.profIcons[n]:null)||null; };
       /* shapes resolvidos (li -> {n,rank,val,icd}) — o shape substitui o ícone do perk selecionado (igual à calculadora) */
       var _shp={};
       (function(){ var _sh=bb.shapes||{}, SO=_DC.shapeOpts||[], SIC=_DC.shapeIcons||{};
@@ -5289,7 +5300,7 @@ PlayerName (Leader)
           var _sh2=_shp[li];
           var _tiles=opts.map(function(o,oi){
             var on=(+_wprof[li]===oi), _st=on&&_sh2;
-            var pic=TP_PICON[o.bi], pov=o.ovi?TP_PICON[o.ovi]:null, pct=profPct(o.text);
+            var pic=_picon(o.bi), pov=o.ovi?_picon(o.ovi):null, pct=profPct(o.text);
             var icSrc=(_st&&_sh2.icd)?_sh2.icd:pic;
             var pctTxt=_st?(_sh2.val!=null?'+'+_sh2.val+'%':''):pct;
             var ttl=_st?(_sh2.n+(_sh2.val!=null?' +'+_sh2.val+'% (shape r'+_sh2.rank+')':'')):o.text;
@@ -5602,8 +5613,17 @@ PlayerName (Leader)
       window.__DWHp=fetch('assets/data/dc-wheels.json').then(function(r){return r.json();}).then(function(j){ window.__DWH=j; if(window.__BE&&window.tpBERender) try{tpBERender();}catch(e){} return j; }).catch(function(){ window.__DWH={shared:{},vocs:{}}; return window.__DWH; });
       return window.__DWHp;
     };
-    /* SVG da roda com a ARTE real (fundo + preenchimento + ícones sprite + moldura), interativo (clique seleciona) */
-    function _beRichWheelSvg(voc, wp, sel){
+    /* árvores de proficiência completas (443) + ícones (184) — sob demanda, só quando
+       uma build usa uma arma fora do índice pequeno embutido (TP_PTREE). */
+    window.tpLoadProfTrees=function(){
+      if(window.__DPT) return Promise.resolve(window.__DPT);
+      if(window.__DPTp) return window.__DPTp;
+      window.__DPTp=fetch('assets/data/dc-proftrees.json').then(function(r){return r.json();}).then(function(j){ window.__DPT=j; return j; }).catch(function(){ window.__DPT={profTrees:{},profIcons:{}}; return window.__DPT; });
+      return window.__DPTp;
+    };
+    /* SVG da roda com a ARTE real (fundo + preenchimento + ícones sprite + moldura).
+       ro=true → sem camada de clique (usado no display público, só leitura). */
+    function _beRichWheelSvg(voc, wp, sel, ro){
       var DWH=window.__DWH; if(!DWH||!DWH.vocs||!DWH.vocs[voc]) return null;
       var W=DWH.vocs[voc], SH=DWH.shared||{}, G=W.geo; if(!G||!W.slots) return null;
       wp=wp||{}; if(sel==null) sel=-1;
@@ -5620,7 +5640,7 @@ PlayerName (Leader)
       var sels=W.slots.map(function(s){ var on=(s.i===sel); return '<path d="'+s.d+'" fill="#fff" fill-opacity="'+(on?'0.14':'0')+'" stroke="#f5e6a8" stroke-width="'+(on?'2':'0')+'" opacity="'+(on?'1':'0')+'" pointer-events="none"/>'; }).join('');
       var iconsM=W.slots.map(function(s){ var pts=+wp[s.i]||0, op=pts>0?'1':(0.62); return '<g opacity="'+op+'" transform="translate('+(s.mcx-15)+','+(s.mcy-15)+')" pointer-events="none"><g clip-path="url(#beM'+U+')"><use href="#beMed'+U+'" x="'+(-s.mIdx*30)+'" y="0"/></g></g>'; }).join('');
       var iconsS=smlSheet?W.slots.map(function(s){ if(s.sIdx==null)return ''; var pts=+wp[s.i]||0, op=pts>0?'1':(0.62); return '<g opacity="'+op+'" transform="translate('+(s.scx-8)+','+(s.scy-8)+')" pointer-events="none"><g clip-path="url(#beS'+U+')"><use href="#beSml'+U+'" x="'+(-s.sIdx*16)+'" y="0"/></g></g>'; }).join(''):'';
-      var clicks=W.slots.map(function(s){return '<path d="'+s.d+'" fill="transparent" style="cursor:pointer" onclick="tpBEwheelSel('+s.i+',event)"><title>anel '+(s.ring+1)+' · '+(+wp[s.i]||0)+'/'+s.max+'</title></path>';}).join('');
+      var clicks=ro?'':W.slots.map(function(s){return '<path d="'+s.d+'" fill="transparent" style="cursor:pointer" onclick="tpBEwheelSel('+s.i+',event)"><title>anel '+(s.ring+1)+' · '+(+wp[s.i]||0)+'/'+s.max+'</title></path>';}).join('');
       /* moldura dos cantos (lbFrames) que evolui por estágio do domínio — brilho dinâmico */
       var CORN=[{d:2,x:0,y:0,r:'rotate(0 89 89)'},{d:3,x:344,y:0,r:'rotate(90 433 89)'},{d:1,x:0,y:344,r:'rotate(270 89 433)'},{d:0,x:344,y:344,r:'rotate(180 433 433)'}];
       var LBF=W.lbFrames||[];
