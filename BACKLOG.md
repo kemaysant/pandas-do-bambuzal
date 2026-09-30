@@ -12,64 +12,73 @@ Objetivo: transformar a página de builds no "Blitz.gg do Tibia" — dados reais
 - **Catálogo unificado** extraído do `DC_DATA` da calculadora:
   - `assets/data/dc-catalog.json` (~798KB) — display público: ícones de equip, armas usadas, spells, shapes, stances, aliases.
   - `assets/data/dc-editor.json` (~3,5MB) — editor (sob demanda): objetos completos de equip/arma, árvores de proficiência, ícones (1184 = equip + todas as armas), shapeOpts/shapeIcons, e mapas de alias `nid`/`nnm`.
-  - `assets/data/dc-wheels.json` (~976KB) — arte real da Roda do Destino (fundo + sprites + moldura), carregada só no editor.
+  - `assets/data/dc-wheels.json` (~1,0MB) — arte real da Roda do Destino (fundo + sprites + moldura) + `greaterGems` (mods supremos por vocação), carregada só no editor.
+
+### Roda do Destino — código oficial & editor (30/09)
+- **Import/Export do código oficial do jogo** (o "planner code" do Tibia): codec real extraído (WASM `SkillwheelPlanner`) e embutido localmente.
+  - `assets/js/wheel-codec-core.js` — módulo Emscripten auto-contido (codec compilado).
+  - `assets/js/wheel-codec.js` — API `importarDoTibia()` / `copiarProJogo()`.
+  - Editor: campo + botões "📥 Importar do Tibia" e "📤 Copiar pro jogo".
+  - Mapeamento fatia Panda ↔ `EGridTile` validado como isomorfismo de grafo (48 arestas). Round-trip exato (Node + headless HTTP).
+- **Bug de seleção de fatias corrigido**: a roda usa a **adjacência real do jogo** (radial + lateral, cruzando quadrantes), derivada do codec; cascade virou flood-fill do centro. Fatias com vizinha preenchida agora liberam.
+- **Gemas/vessels somam Dano & Cura** (Vessel Resonance): +1 lesser/regular, +2 greater; total na linha "Dano & Cura da roda" (editor e display).
+- **Dropdown de mod supremo** virou `<select>` no padrão dos demais, com a lista correta de runas por vocação (`greaterGems`).
 
 ### Display da build (1:1 com o motor)
 - Renderiza 100% dos dados **ao vivo** (`data.b`): atributos, proficiências + shapes, rotação, equipamento, roda, tags.
-- **Aposentadoria do BDET**: quando há dados ao vivo, o snapshot "baked" antigo é ignorado → dano/postura/tags não divergem mais (corrigido 4112→2706, "Morte"→"Fogo").
+- **Aposentadoria do BDET**: quando há dados ao vivo, o snapshot "baked" antigo é ignorado → dano/postura/tags não divergem mais.
 - **Dano 1:1** com a calculadora, validado headless (MS 2.706 · ED 4.224).
-- **Atributos** movido para baixo das Proficiências (alinha com Equipamentos).
-- **Shapes**: o perk selecionado mostra o **ícone real** do shape (igual à calculadora), com badge ✷ e o %.
-- **Roda do Destino**: imagem pré-renderizada 1:1 da calculadora (`assets/builds-wheel/{id}.webp`) para todas as builds MS aprovadas + a druida de referência; fallback SVG.
-- **Tags de elemento** automáticas: mago = elemento da **postura (Mastery)**; melee = elemento da **arma**; mago sem postura = adapta.
+- **Shapes**: o perk mostra o **ícone real** do shape, com badge ✷ e o %.
+- **Roda do Destino**: imagem pré-renderizada 1:1 da calculadora; fallback SVG.
+- **Tags de elemento** automáticas (postura/arma).
 
 ### Editor nativo (Fase 2)
-- Set com picker de itens + ícones reais (resolução por alias `nid`/`nnm` — todos os slots resolvem).
-- Arma com picker + ícone; ao salvar, **embute o ícone na build** (`b.weapon.icd`) → qualquer uma das 859 armas mostra certo no display/lista.
-- Proficiência dirigida pela arma; shapes editáveis com ícone real na fatia (máx 2).
-- **Roda do Destino** com a **arte real da calculadora**, interativa: clique seleciona a fatia + painel de ajuste fino (−máx −10 −1 +1 +10 +máx); contiguidade (enche de dentro pra fora) + trava de pontos pelo nível.
-- Postura → atualiza as tags de elemento.
-- **Rotação** editável: repetição de magias + reordenar (↑↓), miniaturas iguais à calculadora.
-- **Dano recalculado no save** via motor headless (iframe oculto da calculadora).
+- Set com picker de itens + ícones reais (alias `nid`/`nnm`).
+- Arma com picker + ícone; embute `b.weapon.icd` na build.
+- Proficiência dirigida pela arma; shapes editáveis com ícone real (máx 2).
+- Roda com arte real, interativa (clique + painel −máx…+máx), contiguidade e trava por nível; brilho dinâmico dos cantos/beads por estágio.
+- Postura → atualiza tags. Rotação editável (repetição + reordenar). Dano recalculado no save (iframe oculto da calc).
 
 ### Lista de builds
-- Ícone real da arma (catálogo compartilhado + re-render quando o catálogo carrega).
-- Tags de elemento pela postura/arma (não mais "todas").
+- Ícone real da arma; tags de elemento pela postura/arma.
 
 ---
 
 ## 📋 Backlog (prioridade sugerida)
 
-### 1. Código oficial da Roda do Destino do Tibia (import/export) — ALTO
-Permitir **copiar e colar a roda direto no char do Tibia** e vice-versa.
-- Formato: código do planner oficial (ex.: `K0Y2CAAm8waQSijBhQwX8kAAA`), aceito em
-  `tibia.com/community/?subtopic=wheelofdestinyplanner&code=...`.
-- Precisa: **engenharia reversa** do formato (parece base64-url compacto que codifica os pontos por fatia).
-  - **Import**: colar o código → decodifica → preenche `data.b.wheelPts` (roda real do char).
-  - **Export**: gerar o mesmo código a partir dos `wheelPts` da build → botão "copiar código da roda".
-- Ganho: a build deixa de ser só visual e vira **acionável no jogo** — diferencial forte vs. concorrentes.
-- Risco: formato não documentado; exige capturar exemplos conhecidos (pontos → código) pra validar o encoder 1:1.
-
-### 2. Refinar o conteúdo das builds — EM FOCO (você)
+### 1. Refinar o conteúdo das builds — EM FOCO (você)
 - Revisar set, roda, rotação e guia de cada build; padronizar copiar/colar entre builds.
-- (Base técnica já pronta: editor nativo + dano 1:1.)
+- (Base técnica pronta: editor nativo + dano 1:1 + import/export da roda.)
 
-### 3. Polish da roda no editor — MÉDIO
-- Arte já é a real; falta o **brilho dinâmico dos cantos/beads** por estágio de revelação (hoje a moldura é estática).
+### 2. Editor "redondo" — itens específicos (você vai listar)
+- Ajustes finais do editor de builds apontados no uso.
 
-### 4. Estrutura da página estilo Blitz.gg — MÉDIO
-- Pesquisar a hierarquia do Blitz e mapear × nossa página.
-- Candidatos: "tier/confiança" no topo, seção de **matchups / onde caçar**, variações por contexto (nível/hunt), decisão-primeiro.
+### 3. Segurança — hardening (não urgente; nenhum buraco aberto hoje)
+Auditoria de 30/09: RLS ligado nas 41 tabelas, políticas da `builds` corretas (só dono edita/apaga), sem `service_role` no código/histórico, RPCs sensíveis checam `auth.uid()`. Itens de endurecimento:
+- **`SET search_path`** em `builds_touch` e nas funções `SECURITY DEFINER` (migração não-destrutiva; corrige o aviso do linter do Supabase).
+- **Ativar proteção contra senha vazada** (HaveIBeenPwned) em Authentication → Policies no painel do Supabase.
+- **Confirmar visibilidade do repo** no GitHub (o site é público de qualquer forma; privado protege o histórico).
+- **Investigar a 2ª referência de projeto Supabase** no código (`buxgrdbsynsvajxonqhf`) — confirmar o que é / se deve sair.
+- (Opcional) Auditar caso a caso o corpo de cada RPC `SECURITY DEFINER`.
 
-### 5. "Prioridades & o porquê" a partir da rotação — MÉDIO
-- Hoje é texto curado no guia; puxar/derivar da rotação salva (marcar magia → miniatura + variação de elemento/padrão).
+### 4. Estrutura & manutenção do repo — ver `docs/REVISAO-ESTRUTURA.md`
+- **Alto valor / risco baixo (pode já):** `.gitattributes` + Git LFS pra binários novos; apagar `_to_delete/` (57MB, já ignorado); `git gc --aggressive`.
+- **Alto valor / decisão:** tirar assets pesados (GIFs de spell 38MB, outfits-pack 101MB, mapper-pack 18MB) do repo (assets repo / Release / CDN); otimizar GIFs → webp/mp4; reescrever histórico (`git filter-repo`/BFG) pra derrubar os 333MB de `.git`.
+- **Incremental:** extrair blocos de dados e JS inline do `index.html` (19k linhas) pra `assets/`.
+- Documentar/automatizar o script que gera os `dc-*.json` a partir do `DC_DATA` da calc.
 
-### 6. Cobertura de vocações — BAIXO
-- Hoje o grosso é Master Sorcerer + 1 Elder Druid. Expandir para EK/RP/Monk quando o conteúdo estiver maduro.
+### 5. Estrutura da página estilo Blitz.gg — MÉDIO
+- Hierarquia estilo Blitz: "tier/confiança" no topo, matchups / onde caçar, variações por contexto, decisão-primeiro.
+
+### 6. "Prioridades & o porquê" a partir da rotação — MÉDIO
+- Derivar da rotação salva (marcar magia → miniatura + variação de elemento/padrão).
+
+### 7. Cobertura de vocações — BAIXO
+- Expandir de MS/ED para EK/RP/Monk quando o conteúdo amadurecer.
 
 ---
 
 ## Notas técnicas
 - Regra permanente: **sempre recalcular o dano** com o equipamento escolhido ao criar/editar (salvo em `builds.dano`).
-- Índices das fatias da roda são **1:1** entre `TP_WHEEL` (site) e `D.wheelSorc/...` (calculadora) — validado, zero divergência.
+- Índices das fatias da roda são **1:1** entre `TP_WHEEL` (site) e a calculadora; a adjacência real (radial+lateral) e o mapa fatia↔`EGridTile` estão em `assets/js/wheel-codec.js`.
 - Deploy: repo `pandas-do-bambuzal` (GitHub Pages). Commits feitos no device; o push é manual.
