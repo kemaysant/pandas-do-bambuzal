@@ -5209,7 +5209,7 @@ PlayerName (Leader)
       /* prefere o render AO VIVO da arte real (sempre reflete data.b.wheelPts); cai pro
          webp pré-renderizado / SVG polido só enquanto a arte (__DWH) não carregou */
       var svg, _rich=(window.__DWH&&window.__DWH.vocs&&window.__DWH.vocs[voc])?_beRichWheelSvg(voc,pts,-1,true):null;
-      if(_rich){ svg='<div class="be-richwrap"><div class="be-richpts">'+S.used+' <span>pts</span></div>'+_rich+'</div>'; }
+      if(_rich){ svg='<div class="be-wheelhdr"><b>'+S.used+'</b><span>pts na roda</span></div><div class="be-richwrap">'+_rich+'</div>'; }
       else {
         if(window.tpLoadWheels) tpLoadWheels();
         var hasWebp=!!id;
@@ -5557,7 +5557,7 @@ PlayerName (Leader)
       +'#builds .besl-wrap{margin:.6rem 0 .2rem}#builds .besl-empty{font-size:.8rem;color:var(--muted);font-style:italic;padding:.6rem .2rem;text-align:center;border:1px dashed var(--rule);border-radius:9px}'
       +'#builds .besl{border:1px solid var(--rule);border-radius:10px;padding:.6rem .7rem;background:var(--bg-1,#0f0e15)}#builds .besl.locked{opacity:.75}#builds .besl-h{display:flex;align-items:center;gap:.45rem;font-size:.82rem;font-weight:700;color:var(--ink)}#builds .besl-sw{width:11px;height:11px;border-radius:50%}#builds .besl-pts{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--gold,#c9a840);font-weight:800}'
       +'#builds .besl-btns{display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;margin-top:.4rem}#builds .besl-b{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .1rem;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;transition:border-color .1s}#builds .besl-b:hover:not(:disabled){border-color:var(--bamboo,#8b5cf6)}#builds .besl-b:disabled{opacity:.3;cursor:not-allowed}#builds .besl-lock{font-size:.72rem;color:var(--muted);font-style:italic;margin-top:.4rem}'
-      +'#builds .be-richwrap{position:relative;max-width:420px}#builds .be-richwheel .dw-slice,#builds .be-richwheel path[style*="cursor"]{transition:none}#builds .be-richpts{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;background:rgba(8,10,16,.82);border:1px solid #2a2f3a;border-radius:50%;width:74px;height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.35rem;font-weight:800;color:#e6edf3;line-height:1}#builds .be-richpts span{font-size:.6rem;font-weight:600;color:#7d8590}';
+      +'#builds .be-richwrap{position:relative;max-width:420px}#builds .be-richwheel .dw-slice,#builds .be-richwheel path[style*="cursor"]{transition:none}#builds .be-richpts{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;background:rgba(8,10,16,.82);border:1px solid #2a2f3a;border-radius:50%;width:74px;height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.35rem;font-weight:800;color:#e6edf3;line-height:1}#builds .be-richpts span{font-size:.6rem;font-weight:600;color:#7d8590}#builds .be-wheelhdr{display:flex;gap:.4rem;align-items:baseline;justify-content:center;max-width:420px;margin:0 auto .5rem;padding:.3rem .7rem;border-radius:10px;background:rgba(8,10,16,.5);border:1px solid var(--rule,#2a2f3a)}#builds .be-wheelhdr b{font-size:1.4rem;font-weight:800;color:var(--ink,#e6edf3);line-height:1}#builds .be-wheelhdr span{font-size:.72rem;font-weight:600;color:var(--ink-3,#7d8590)}#builds .be-wheelhdr.over b{color:#e0554b}';
       document.head.appendChild(s); }
     window.tpBuildEditor=async function(id){
       if(!id) return;
@@ -5987,8 +5987,9 @@ PlayerName (Leader)
       var BEsel=(window.__BE&&window.__BE.wheelSel!=null)?window.__BE.wheelSel:-1;
       /* ARTE real da roda (igual à calculadora) quando carregada; senão o SVG polido como fallback */
       var svg=_beRichWheelSvg(voc,wp,BEsel);
-      if(svg){ svg='<div class="be-richwrap"><div class="be-richpts">'+C.used+' <span>/'+C.budget+' pts</span></div>'+svg+'</div>'; }
-      else { if(window.tpLoadWheels) tpLoadWheels(); svg=_wheelSvg(W,wp,{interactive:true,used:C.used,budget:C.budget,size:360,selName:'tpBEwheelSel',sel:BEsel}); }
+      var _ptshdr='<div class="be-wheelhdr'+(over?' over':'')+'"><b>'+C.used+'</b><span>/ '+C.budget+' pts do nível</span></div>';
+      if(svg){ svg=_ptshdr+'<div class="be-richwrap">'+svg+'</div>'; }
+      else { if(window.tpLoadWheels) tpLoadWheels(); svg=_ptshdr+_wheelSvg(W,wp,{interactive:true,used:C.used,budget:C.budget,size:360,selName:'tpBEwheelSel',sel:BEsel}); }
       /* painel de controle da fatia selecionada — igual à calculadora (−máx −10 −1 +1 +10 +máx) */
       var slicePanel='';
       (function(){
