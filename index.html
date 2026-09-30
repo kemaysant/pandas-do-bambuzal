@@ -4974,15 +4974,24 @@ PlayerName (Leader)
     function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
     function fmtNum(n){ n=+n||0; return n.toLocaleString('pt-BR'); }
 
+    /* elementos da build (tags): mago = elemento da POSTURA (mastery); melee = elemento da ARMA; mago sem postura = adapta */
+    function _tpBuildEls(b,bb,w,el){
+      var STm=(window.__DC&&window.__DC.stances)||{};
+      if(bb&&bb.stance&&bb.stance!=='none'){ var ml=(b.vocation==='sorcerer'?STm.list:STm[b.vocation])||[]; var m=(ml||[]).filter(function(x){return x.id===bb.stance;})[0]; if(m&&m.element) return [m.element]; }
+      var mage=(b.vocation==='druid'||b.vocation==='sorcerer');
+      if(!mage){ var we=(w&&(w.damageType||w.element)); if(we) return [we]; }
+      return (typeof VOC_ELEMS!=='undefined'&&VOC_ELEMS[b.vocation])||(el?[el]:[]);
+    }
+
     /* ---------- grid ---------- */
     function card(b){
       var d=b.data||{}, bb=d.b||{}, w=bb.weapon||{}, inp=d.inp||{};
       var voc=VOCS[b.vocation]||{label:b.vocation,emoji:'🐼'};
       var det=BDET[b.id]||{};
       var _DCIl=(window.__DC&&window.__DC.icons)||{};
-      var ic=_DCIl[w.icon]||WIC[w.icon], el=b.element||w.damageType||'', elc=ELCOL[el]||'var(--gold)';
+      var ic=w.icd||_DCIl[w.icon]||WIC[w.icon], el=b.element||w.damageType||'', elc=ELCOL[el]||'var(--gold)';
       var chips=[];
-      (VOC_ELEMS[b.vocation]||(el?[el]:[])).forEach(function(e){var ec=ELCOL[e]||'var(--gold)';chips.push('<span class="bld-tag" style="background:'+ec+'22;border-color:'+ec+'55;color:'+ec+'">'+(ELPT[e]||e)+'</span>');});
+      _tpBuildEls(b,bb,w,el).forEach(function(e){var ec=ELCOL[e]||'var(--gold)';chips.push('<span class="bld-tag" style="background:'+ec+'22;border-color:'+ec+'55;color:'+ec+'">'+(ELPT[e]||e)+'</span>');});
       if(b.ml) chips.push('<span class="bld-tag">ML '+esc(b.ml)+'</span>');
       if(bb.stance&&bb.stance!=='none') chips.push('<span class="bld-tag">'+esc(STANCE_LBL[bb.stance]||bb.stance)+'</span>');
       if(det.rot&&det.rot[0]&&det.rot[0].n) chips.push('<span class="bld-tag">'+esc(det.rot[0].n)+'</span>');
@@ -5253,7 +5262,7 @@ PlayerName (Leader)
       var _M=_modes?_modes[_curMode]:null;
       var voc=VOCS[b.vocation]||{label:b.vocation,emoji:'🐼'};
       var _DC=window.__DC||{}, _DCI=_DC.icons||{}, _DCE=_DC.equip||{}, _DCAL=_DC.aliases||{}, _DCW=_DC.weapons||{}, _DCS=_DC.spells||{};
-      var ic=_DCI[w.icon]||WIC[w.icon], el=b.element||w.damageType||'', elc=ELCOL[el]||'var(--gold)';
+      var ic=w.icd||_DCI[w.icon]||WIC[w.icon], el=b.element||w.damageType||'', elc=ELCOL[el]||'var(--gold)';
       var _cd={}; for(var _ck in d){ if(_ck!=='guide') _cd[_ck]=d[_ck]; } /* guia é só p/ exibição — fora do código pra ficar curto */
       var code=encodeBuild(_cd);
       var st=det.stats||{};
@@ -5338,7 +5347,7 @@ PlayerName (Leader)
         function pretty(slug){ return String(slug||'').replace(/-/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();}); }
         function _resolve(slug){ if(!slug) return null; var id=(_DCE[slug]?slug:(_DCAL[slug]||slug)); var it=_DCE[id]; var name=it?it.n:(BYS[slug]||pretty(slug)); var icd=(it&&it.ic&&_DCI[it.ic])?_DCI[it.ic]:null; return {name:name, ic:icd}; }
         Object.keys(eqp).forEach(function(k){ var r=_resolve(eqp[k]); if(r) _eqby[k]=r; });
-        if(w&&w.name){ var wid=(w.id!=null)?String(w.id):null; var wm=wid?_DCW[wid]:null; var wicd=_DCI[w.icon]||(wm&&wm.ic&&_DCI[wm.ic])||null; _eqby.weapon={name:w.name, ic:wicd}; }
+        if(w&&w.name){ var wid=(w.id!=null)?String(w.id):null; var wm=wid?_DCW[wid]:null; var wicd=w.icd||_DCI[w.icon]||(wm&&wm.ic&&_DCI[wm.ic])||null; _eqby.weapon={name:w.name, ic:wicd}; }
       })();
       function eqCell(slotKey,label){
         var it=_eqby[slotKey];
@@ -5359,7 +5368,7 @@ PlayerName (Leader)
       var _stEl=null,_stLbl=null;
       (function(){ if(!bb.stance||bb.stance==='none') return; var STm=_DC.stances||{}; var _ml=(b.vocation==='sorcerer'?STm.list:STm[b.vocation])||[]; var _m=(_ml||[]).filter(function(x){return x.id===bb.stance;})[0]; if(_m){ _stEl=_m.element; _stLbl=_m.label; } })();
       if(_M){ var _me=_M.el; var _mc=ELCOL[_me]||'var(--gold)'; tags.push('<span class="bld-tag" style="background:'+_mc+'22;border-color:'+_mc+'55;color:'+_mc+'">'+(ELPT[_me]||_me)+'</span>'); tags.push('<span class="bld-tag" style="opacity:.65;font-style:italic">adapta à criatura</span>'); }
-      else { var _els=_stEl?[_stEl]:(VOC_ELEMS[b.vocation]||(el?[el]:[])); _els.forEach(function(e){var ec=ELCOL[e]||'var(--gold)';tags.push('<span class="bld-tag" style="background:'+ec+'22;border-color:'+ec+'55;color:'+ec+'">'+(ELPT[e]||e)+'</span>');});if(b.vocation==='druid'||b.vocation==='sorcerer')tags.push('<span class="bld-tag" style="opacity:.65;font-style:italic">adapta à criatura</span>'); }
+      else { var _els=_tpBuildEls(b,bb,w,el); _els.forEach(function(e){var ec=ELCOL[e]||'var(--gold)';tags.push('<span class="bld-tag" style="background:'+ec+'22;border-color:'+ec+'55;color:'+ec+'">'+(ELPT[e]||e)+'</span>');}); var _mage=(b.vocation==='druid'||b.vocation==='sorcerer'); if(_mage && (!bb.stance||bb.stance==='none')) tags.push('<span class="bld-tag" style="opacity:.65;font-style:italic">adapta à criatura</span>'); }
       if(b.ml) tags.push('<span class="bld-tag">ML '+esc(b.ml)+'</span>');
       if(_M) tags.push('<span class="bld-tag">'+esc(_M.lbl)+' ('+esc(_M.sub)+')</span>');
       else if(_stLbl) tags.push('<span class="bld-tag">'+esc(_stLbl)+'</span>');
@@ -5537,7 +5546,8 @@ PlayerName (Leader)
       +'.bewheel-gems{margin-top:1rem}.bewheel-vessel{display:flex;gap:.55rem;align-items:center;flex-wrap:wrap;padding:.5rem .6rem;border:1px solid var(--rule);border-radius:8px;margin-bottom:.45rem;font-size:.82rem}.bewheel-vessel.on{border-color:rgba(201,168,64,.4);background:rgba(201,168,64,.05)}.bewheel-vessel.off{opacity:.55}.bewheel-vn{font-weight:600;color:var(--ink);min-width:120px}.bewheel-vn small{color:var(--muted);font-weight:400}.bewheel-vlock{color:var(--muted);font-size:.78rem;font-style:italic}.bewheel-gemimg{width:20px;height:20px;image-rendering:pixelated}.bewheel-tier{width:120px}.bewheel-modin{flex:1;min-width:150px}.bewheel-tier,.bewheel-modin{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .5rem;font:inherit;font-size:.82rem}.bewheel-miles{margin-top:1rem}.bewheel-svg.ro path{cursor:default}.bewheel-ro .bewheel-left{flex:0 0 auto}.bewheel-svg .wsl.wsel{filter:drop-shadow(0 0 6px #f5e6a8)}'
       +'#builds .besl-wrap{margin:.6rem 0 .2rem}#builds .besl-empty{font-size:.8rem;color:var(--muted);font-style:italic;padding:.6rem .2rem;text-align:center;border:1px dashed var(--rule);border-radius:9px}'
       +'#builds .besl{border:1px solid var(--rule);border-radius:10px;padding:.6rem .7rem;background:var(--bg-1,#0f0e15)}#builds .besl.locked{opacity:.75}#builds .besl-h{display:flex;align-items:center;gap:.45rem;font-size:.82rem;font-weight:700;color:var(--ink)}#builds .besl-sw{width:11px;height:11px;border-radius:50%}#builds .besl-pts{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--gold,#c9a840);font-weight:800}'
-      +'#builds .besl-btns{display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;margin-top:.4rem}#builds .besl-b{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .1rem;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;transition:border-color .1s}#builds .besl-b:hover:not(:disabled){border-color:var(--bamboo,#8b5cf6)}#builds .besl-b:disabled{opacity:.3;cursor:not-allowed}#builds .besl-lock{font-size:.72rem;color:var(--muted);font-style:italic;margin-top:.4rem}';
+      +'#builds .besl-btns{display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;margin-top:.4rem}#builds .besl-b{background:var(--bg-2,#16151f);border:1px solid var(--rule);color:var(--ink);border-radius:7px;padding:.4rem .1rem;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;transition:border-color .1s}#builds .besl-b:hover:not(:disabled){border-color:var(--bamboo,#8b5cf6)}#builds .besl-b:disabled{opacity:.3;cursor:not-allowed}#builds .besl-lock{font-size:.72rem;color:var(--muted);font-style:italic;margin-top:.4rem}'
+      +'#builds .be-richwrap{position:relative;max-width:420px}#builds .be-richwheel .dw-slice,#builds .be-richwheel path[style*="cursor"]{transition:none}#builds .be-richpts{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;background:rgba(8,10,16,.82);border:1px solid #2a2f3a;border-radius:50%;width:74px;height:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.35rem;font-weight:800;color:#e6edf3;line-height:1}#builds .be-richpts span{font-size:.6rem;font-weight:600;color:#7d8590}';
       document.head.appendChild(s); }
     window.tpBuildEditor=async function(id){
       if(!id) return;
@@ -5551,6 +5561,7 @@ PlayerName (Leader)
       if(window.tpLoadCatalog) tpLoadCatalog();
       var host0=document.getElementById('bld-detail'); if(host0) host0.innerHTML='<div class="be2"><div class="be2sec"><div class="be2soon">Carregando catálogo do editor…</div></div></div>';
       if(window.tpLoadEditorCat){ await tpLoadEditorCat(); }
+      if(window.tpLoadWheels){ tpLoadWheels(); }
       tpBERender(); window.scrollTo({top:0,behavior:'smooth'});
     };
     window.tpBECapture=function(){
@@ -5585,6 +5596,40 @@ PlayerName (Leader)
       window.__DCEp=fetch('assets/data/dc-editor.json').then(function(r){return r.json();}).then(function(j){ window.__DCE=j; return j; }).catch(function(){ window.__DCE={equip:{},weapons:{},spells:{},profTrees:{},profIcons:{},shapeOpts:[],shapeIcons:{},stances:{},icons:{}}; return window.__DCE; });
       return window.__DCEp;
     };
+    /* arte da Roda do Destino (fundo + sprites + moldura) — mesma da calculadora, carregada só no editor */
+    window.tpLoadWheels=function(){
+      if(window.__DWH) return Promise.resolve(window.__DWH);
+      if(window.__DWHp) return window.__DWHp;
+      window.__DWHp=fetch('assets/data/dc-wheels.json').then(function(r){return r.json();}).then(function(j){ window.__DWH=j; if(window.__BE&&window.tpBERender) try{tpBERender();}catch(e){} return j; }).catch(function(){ window.__DWH={shared:{},vocs:{}}; return window.__DWH; });
+      return window.__DWHp;
+    };
+    /* SVG da roda com a ARTE real (fundo + preenchimento + ícones sprite + moldura), interativo (clique seleciona) */
+    function _beRichWheelSvg(voc, wp, sel){
+      var DWH=window.__DWH; if(!DWH||!DWH.vocs||!DWH.vocs[voc]) return null;
+      var W=DWH.vocs[voc], SH=DWH.shared||{}, G=W.geo; if(!G||!W.slots) return null;
+      wp=wp||{}; if(sel==null) sel=-1;
+      var img=W.img||SH.img, medSheet=W.medSheet||SH.medSheet, smlSheet=W.smlSheet||SH.smlSheet, front=W.front;
+      var DBR={}; (W.domains||[]).forEach(function(dm){ DBR[dm.k]=dm.bright||dm.color; });
+      function sec(ring,cDeg,wDeg,r0,r1){ var cx=G.cx,cy=G.cy; function pol(r,dd){var a=dd*Math.PI/180;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];} var a0=cDeg-wDeg/2,a1=cDeg+wDeg/2,p1=pol(r1,a0),p2=pol(r1,a1),p3=pol(r0,a1),p4=pol(r0,a0); return 'M'+p1[0].toFixed(1)+' '+p1[1].toFixed(1)+' A'+r1+' '+r1+' 0 0 1 '+p2[0].toFixed(1)+' '+p2[1].toFixed(1)+' L'+p3[0].toFixed(1)+' '+p3[1].toFixed(1)+' A'+r0+' '+r0+' 0 0 0 '+p4[0].toFixed(1)+' '+p4[1].toFixed(1)+' Z'; }
+      var Wd=(W.view&&W.view[0])||522, H=(W.view&&W.view[1])||522, U='_be_'+voc;
+      var fills=W.slots.map(function(s){ var pts=Math.max(0,Math.min(+wp[s.i]||0,s.max)), frac=s.max?pts/s.max:0; if(frac<=0)return ''; var r0=G.rb[s.ring],r1=G.rb[s.ring+1],rF=r0+frac*(r1-r0),aw=(G.aw[String(s.ring)]||G.aw[s.ring]||30)-2; return '<path d="'+sec(s.ring,s.ang,aw,r0+1,rF)+'" fill="'+(DBR[s.dom]||'#ffffff')+'" fill-opacity="0.6" pointer-events="none"/>'; }).join('');
+      var borders=W.slots.map(function(s){return '<path d="'+s.d+'" fill="none" stroke="rgba(6,5,4,0.55)" stroke-width="1.1" pointer-events="none"/>';}).join('');
+      var sels=W.slots.map(function(s){ var on=(s.i===sel); return '<path d="'+s.d+'" fill="#fff" fill-opacity="'+(on?'0.14':'0')+'" stroke="#f5e6a8" stroke-width="'+(on?'2':'0')+'" opacity="'+(on?'1':'0')+'" pointer-events="none"/>'; }).join('');
+      var iconsM=W.slots.map(function(s){ var pts=+wp[s.i]||0, op=pts>0?'1':(0.62); return '<g opacity="'+op+'" transform="translate('+(s.mcx-15)+','+(s.mcy-15)+')" pointer-events="none"><g clip-path="url(#beM'+U+')"><use href="#beMed'+U+'" x="'+(-s.mIdx*30)+'" y="0"/></g></g>'; }).join('');
+      var iconsS=smlSheet?W.slots.map(function(s){ if(s.sIdx==null)return ''; var pts=+wp[s.i]||0, op=pts>0?'1':(0.62); return '<g opacity="'+op+'" transform="translate('+(s.scx-8)+','+(s.scy-8)+')" pointer-events="none"><g clip-path="url(#beS'+U+')"><use href="#beSml'+U+'" x="'+(-s.sIdx*16)+'" y="0"/></g></g>'; }).join(''):'';
+      var clicks=W.slots.map(function(s){return '<path d="'+s.d+'" fill="transparent" style="cursor:pointer" onclick="tpBEwheelSel('+s.i+',event)"><title>anel '+(s.ring+1)+' · '+(+wp[s.i]||0)+'/'+s.max+'</title></path>';}).join('');
+      return '<svg class="be-richwheel" viewBox="0 0 '+Wd+' '+H+'" style="width:100%;height:auto;display:block;max-width:420px;margin:0 auto">'
+        +'<defs><clipPath id="beclip'+U+'"><circle cx="'+G.cx+'" cy="'+G.cy+'" r="'+G.rmax+'"/></clipPath>'
+        +'<clipPath id="beM'+U+'"><rect width="30" height="30"/></clipPath><clipPath id="beS'+U+'"><rect width="16" height="16"/></clipPath>'
+        +'<image id="beMed'+U+'" width="1470" height="30" href="'+medSheet+'"/>'+(smlSheet?'<image id="beSml'+U+'" width="80" height="16" href="'+smlSheet+'"/>':'')+'</defs>'
+        +'<image href="'+img+'" width="'+Wd+'" height="'+H+'"/>'
+        +'<g clip-path="url(#beclip'+U+')">'+fills+'</g>'
+        +'<g clip-path="url(#beclip'+U+')">'+borders+'</g>'
+        +'<g>'+sels+'</g>'
+        +'<g>'+iconsM+iconsS+'</g>'
+        +(front?'<image href="'+front+'" width="'+Wd+'" height="'+H+'" pointer-events="none"/>':'')
+        +'<g>'+clicks+'</g></svg>';
+    }
     window.tpBEReflow=function(){ tpBECapture(); tpBERender(); };
     window.tpBEfilterList=function(listId,q){ q=(q||'').toLowerCase(); var el=document.getElementById(listId); if(!el)return; Array.prototype.forEach.call(el.children,function(c){ var n=(c.getAttribute('data-name')||'').toLowerCase(); c.style.display=(!q||n.indexOf(q)>=0)?'':'none'; }); };
     function _beDCE(){ return window.__DCE||{equip:{},weapons:{},spells:{},profTrees:{},profIcons:{},shapeOpts:[],shapeIcons:{},stances:{},icons:{}}; }
@@ -5726,7 +5771,7 @@ PlayerName (Leader)
     window.tpBEpickSlot=function(k){ tpBECapture(); window.__BE.pick=(window.__BE.pick===k?null:k); window.__BE.pickW=false; window.__BE.pickR=false; tpBERender(); };
     window.tpBEsetItem=function(slot,id){ tpBECapture(); var b=window.__BE.data.b; b.equip=b.equip||{}; if(id) b.equip[slot]=id; else delete b.equip[slot]; window.__BE.pick=null; tpBERender(); };
     window.tpBEpickWeapon=function(){ tpBECapture(); window.__BE.pickW=!window.__BE.pickW; window.__BE.pick=null; window.__BE.pickR=false; tpBERender(); };
-    window.tpBEsetWeapon=function(id){ tpBECapture(); var wm=(window.__DCE&&window.__DCE.weapons&&window.__DCE.weapons[id]); if(!wm)return; var b=window.__BE.data.b; b.weapon=JSON.parse(JSON.stringify(wm)); b.wprof={}; b.shapes={}; window.__BE.pickW=false; tpBERender(); };
+    window.tpBEsetWeapon=function(id){ tpBECapture(); var wm=(window.__DCE&&window.__DCE.weapons&&window.__DCE.weapons[id]); if(!wm)return; var b=window.__BE.data.b; b.weapon=JSON.parse(JSON.stringify(wm)); /* embute o data-URI do ícone: o catálogo público só tem armas usadas, então guarda-se o ícone real na build pra não quebrar no display/lista */ var _ic=(window.__DCE.icons&&window.__DCE.icons[wm.icon])||null; if(_ic) b.weapon.icd=_ic; b.wprof={}; b.shapes={}; window.__BE.pickW=false; tpBERender(); };
     window.tpBEshapeOpen=function(li){ tpBECapture(); window.__BE.shapeLi=(window.__BE.shapeLi===li?null:li); tpBERender(); };
     window.tpBEshapeSet=function(li){ var os=document.getElementById('be2-shopt'), rs=document.getElementById('be2-shrank'); if(!os)return; tpBECapture(); var b=window.__BE.data.b; b.shapes=b.shapes||{}; if(os.value===''){ delete b.shapes[li]; window.__BE.shapeLi=null; tpBERender(); return; } var voc=window.__BE.row.vocation; var SO=((window.__DCE||{}).shapeOpts||[]).filter(function(o){return o.voc===voc||o.voc==='all';}); var opt=SO[+os.value]; if(!opt)return; var existing=b.shapes[li]&&b.shapes[li].n; if(!existing && Object.keys(b.shapes).filter(function(k){return b.shapes[k]&&b.shapes[k].n;}).length>=2){ if(window.tpToast)tpToast('Máximo de 2 shapes.','info'); return; } b.shapes[li]={n:opt.n,voc:opt.voc,rank:+rs.value}; window.__BE.shapeLi=null; tpBERender(); };
     window.tpBEshapeClear=function(li){ tpBECapture(); var b=window.__BE.data.b; if(b.shapes) delete b.shapes[li]; tpBERender(); };
@@ -5856,8 +5901,10 @@ PlayerName (Leader)
       var W=C.W, voc=C.voc, wp=C.wp, E=window.esc||function(s){return String(s==null?'':s);};
       var over=C.used>C.budget;
       var BEsel=(window.__BE&&window.__BE.wheelSel!=null)?window.__BE.wheelSel:-1;
-      /* SVG interativo polido — geometria real do TP_WHEEL (clique seleciona a fatia; ajuste fino nos botões) */
-      var svg=_wheelSvg(W,wp,{interactive:true,used:C.used,budget:C.budget,size:360,selName:'tpBEwheelSel',sel:BEsel});
+      /* ARTE real da roda (igual à calculadora) quando carregada; senão o SVG polido como fallback */
+      var svg=_beRichWheelSvg(voc,wp,BEsel);
+      if(svg){ svg='<div class="be-richwrap"><div class="be-richpts">'+C.used+' <span>/'+C.budget+' pts</span></div>'+svg+'</div>'; }
+      else { if(window.tpLoadWheels) tpLoadWheels(); svg=_wheelSvg(W,wp,{interactive:true,used:C.used,budget:C.budget,size:360,selName:'tpBEwheelSel',sel:BEsel}); }
       /* painel de controle da fatia selecionada — igual à calculadora (−máx −10 −1 +1 +10 +máx) */
       var slicePanel='';
       (function(){
