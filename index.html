@@ -3970,6 +3970,20 @@ PlayerName (Leader)
       #about .ab-link{display:inline-flex;align-items:center;gap:.4rem;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:10px;padding:.55rem .9rem;color:var(--ink,#e8e6f0);font-size:.85rem;font-weight:600;cursor:pointer;text-decoration:none;transition:border-color .15s}
       #about .ab-link:hover{border-color:var(--bamboo,#8b5cf6)}
       #about .ab-note{font-size:.72rem;color:var(--muted);text-align:center;margin-top:1.5rem;opacity:.8}
+      #about .ab-support-intro{font-size:.92rem;line-height:1.65;color:var(--ink-2,#cfc9e6);margin:0 0 1.2rem}
+      #about .ab-ref{display:flex;gap:1rem;align-items:flex-start;background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(240,180,41,.08));border:1px solid var(--bamboo,#8b5cf6);border-radius:14px;padding:1.2rem 1.3rem;margin-bottom:1.4rem}
+      #about .ab-ref-ic{font-size:1.9rem;line-height:1;flex-shrink:0}
+      #about .ab-ref-title{font-weight:800;font-size:1.05rem;color:var(--ink,#e8e6f0);margin-bottom:.25rem}
+      #about .ab-ref-text{font-size:.88rem;color:var(--ink-2,#cfc9e6);line-height:1.6;margin-bottom:.9rem}
+      #about .ab-ref-btn{display:inline-flex;align-items:center;gap:.5rem;background:var(--bamboo,#8b5cf6);color:#fff;font-weight:700;font-size:.92rem;padding:.7rem 1.2rem;border-radius:10px;text-decoration:none;transition:filter .15s,transform .15s}
+      #about .ab-ref-btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+      #about .ab-ref-sub{font-size:.7rem;color:var(--muted);margin-top:.55rem}
+      #about .ab-support-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem}
+      #about .ab-support-card{background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:12px;padding:1.1rem}
+      #about .ab-support-ic{font-size:1.5rem;margin-bottom:.4rem}
+      #about .ab-support-h{font-weight:800;font-size:.98rem;margin-bottom:.35rem}
+      #about .ab-support-p{font-size:.82rem;color:var(--muted);line-height:1.55;margin-bottom:.8rem}
+      #about .ab-support-card .ab-link{font-size:.8rem}
     </style>
 
     <div class="ab-hero">
@@ -4008,8 +4022,59 @@ PlayerName (Leader)
       </div>
     </div>
 
+    <div class="card" id="apoie" style="margin-bottom:1.5rem">
+      <div class="ab-sec-title">Apoie o projeto</div>
+      <div class="ab-rule"></div>
+      <p class="ab-support-intro">O Tibia Panda é feito por hobby e vai continuar <b>100% gratuito</b> pra toda a comunidade — em qualquer mundo. Se as ferramentas te ajudam e você quer retribuir, tem jeitos simples (e de graça) de dar uma força:</p>
+
+      <div class="ab-ref">
+        <div class="ab-ref-ic">🎁</div>
+        <div class="ab-ref-body" style="min-width:0">
+          <div class="ab-ref-title">Vai criar uma conta nova no Tibia?</div>
+          <div class="ab-ref-text">Crie pelo <b>nosso link de indicação</b>. Não custa nada a mais pra você, você começa a jogar normalmente — e ainda ajuda a manter o Tibia Panda no ar. É a melhor forma de apoiar sem gastar nada. 🐼</div>
+          <a class="ab-ref-btn" href="https://www.tibia.com/mmorpg/free-multiplayer-online-role-playing-game.php?lpv=3&amp;taftoken=953d0343-0fa6-430e-9590-8b3a023d8398" target="_blank" rel="noopener">🎮 Criar conta com nosso link</a>
+          <div class="ab-ref-sub">Abre o site oficial do Tibia (tibia.com) com nossa indicação já aplicada.</div>
+        </div>
+      </div>
+
+      <div class="ab-support-grid">
+        <div class="ab-support-card">
+          <div class="ab-support-ic">📣</div>
+          <div class="ab-support-h">Compartilhe</div>
+          <div class="ab-support-p">Manda pros amigos, pra guild e pros grupos do seu mundo. Quanto mais gente usando, mais forte fica a comunidade.</div>
+          <button class="ab-link" onclick="tpAboutCopyLink(this)">🔗 Copiar link do site</button>
+        </div>
+        <div class="ab-support-card">
+          <div class="ab-support-ic">🎥</div>
+          <div class="ab-support-h">Divulgue</div>
+          <div class="ab-support-p">Joga em live ou faz vídeo de Tibia? Cita o Tibia Panda pra galera — alcança mais gente que pode curtir as ferramentas.</div>
+        </div>
+        <div class="ab-support-card">
+          <div class="ab-support-ic">🤝</div>
+          <div class="ab-support-h">Dá um feedback</div>
+          <div class="ab-support-p">Achou um bug ou tem ideia de ferramenta? Fala com a gente — o projeto cresce com a comunidade.</div>
+        </div>
+      </div>
+    </div>
+
     <div class="ab-note">Quando tiver o link do Discord da comunidade, me passa que eu coloco aqui. 🐼</div>
   </section>
+  <script>
+  // Apoie — copiar o link do site pra compartilhar
+  function tpAboutCopyLink(btn){
+    var url='https://tibiapanda.com.br';
+    var done=function(){ if(!btn) return; var o=btn.innerHTML; btn.innerHTML='✓ Link copiado!'; setTimeout(function(){ btn.innerHTML=o; }, 1800); };
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(done, function(){ tpAboutCopyFallback(url); done(); }); }
+      else { tpAboutCopyFallback(url); done(); }
+    }catch(e){ tpAboutCopyFallback(url); done(); }
+    if(window.tpToast) tpToast('Link do Tibia Panda copiado 🐼','success');
+  }
+  function tpAboutCopyFallback(url){
+    try{ var ta=document.createElement('textarea'); ta.value=url; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); }catch(e){}
+  }
+  window.tpAboutCopyLink=tpAboutCopyLink;
+  </script>
 
   <!-- ─── MEU PERFIL ─── -->
   <section class="page-section" id="profile">
