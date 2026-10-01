@@ -5992,6 +5992,8 @@ PlayerName (Leader)
     /* ---------- Roda do Destino (read-only) ---------- */
     var TP_WROMAN=['—','I','II','III'];
     var TP_SPELLANIM=new Set(["Hell's Core","Berserk","Chained Penance","Death Echo","Divine Caldera","Divine Missile","Energy Wave","Eternal Winter","Fierce Berserk","Flurry of Blows","Forked Glacier","Forked Thorns","Great Death Beam","Great Fire Wave","Great Energy Beam","Greater Flurry of Blows","Groundshaker","Sweeping Takedown","Ice Burst","Ice Wave","Terra Wave"]);
+    /* ícone real de magia via TibiaWiki (mesmo padrão das armas) — fallback quando não há miniatura embutida em TP_SPELLICON */
+    function _tpSpellWikiIc(name){ return 'https://www.tibiawiki.com.br/wiki/Special:FilePath/'+encodeURIComponent(String(name||'').replace(/\s*\([^)]*\)\s*$/,''))+'.gif'; }
     (function(){
       if(window.__tpAnimInit)return; window.__tpAnimInit=1;
       var pop=null;
@@ -6329,10 +6331,10 @@ PlayerName (Leader)
       var _rs=_rotSrc.filter(function(r){return !r.focus;}),_ru=_rotSrc.filter(function(r){return r.focus;});
       function stripQ(n){ return String(n||'').replace(/\s*\([^)]*\)\s*$/,'').trim(); }
       function rspell(r,idx){
-        var base=stripQ(r.n), isAA=/^auto.?attack$/i.test(base), url=isAA?null:TP_SPELLICON[base];
+        var base=stripQ(r.n), isAA=/^auto.?attack$/i.test(base), url=isAA?null:(TP_SPELLICON[base]||_tpSpellWikiIc(base));
         var emoji=isAA?'⚔️':(r.focus?'✦':'🔮');
         var cls=isAA?'aa':(r.focus?'ult':'rota'), nm=isAA?'Auto-attack':base;
-        var anim=(!isAA && TP_SPELLANIM.has(base)) ? (' data-anim="assets/spell-anim/'+base.replace(/'/g,'').replace(/ /g,'_')+'.gif"') : '';
+        var anim=(!isAA && TP_SPELLANIM.has(base)) ? (' data-anim="assets/spell-anim/'+base.replace(/'/g,'').replace(/ /g,'_')+'.webp"') : '';
         var inner='<span class="bd-rsnum">'+idx+'</span><span class="bd-rsemoji">'+emoji+'</span>'
           +(url?'<img src="'+url+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'');
         return '<div class="bd-rspell '+cls+'"'+anim+' title="'+esc(r.n)+'"><div class="bd-rsic">'+inner+'</div><div class="bd-rsnm">'+esc(nm)+'</div></div>';
@@ -6787,8 +6789,8 @@ PlayerName (Leader)
     function _beRotHtml(){
       var BE=window.__BE, b=BE.data.b, voc=BE.row.vocation, E=esc, DCE=_beDCE(), SP=DCE.spells||{}, rot=b.rotation||(b.rotation=[]);
       var SIC=(typeof TP_SPELLICON!=='undefined')?TP_SPELLICON:{};
-      var lines=rot.map(function(r,i){ var sp=SP[String(r.id)]||{}; var nm=sp.dn||String(sp.n||('#'+r.id)).replace(/\s*\([^)]*\)\s*$/,''); var icd=SIC[nm]||null;
-        return '<div class="be2rotline"><span class="be2rotnum">'+(i+1)+'</span>'+(icd?'<img class="be2roti" src="'+icd+'">':'<span class="be2rotemoji">🔮</span>')+'<span class="be2rotnm">'+E(nm)+(sp.el?' <small style="color:var(--muted);font-weight:400">'+E(sp.el)+'</small>':'')+'</span>'
+      var lines=rot.map(function(r,i){ var sp=SP[String(r.id)]||{}; var nm=sp.dn||String(sp.n||('#'+r.id)).replace(/\s*\([^)]*\)\s*$/,''); var isAA=/^auto.?attack$/i.test(nm); var icd=isAA?null:(SIC[nm]||_tpSpellWikiIc(nm));
+        return '<div class="be2rotline"><span class="be2rotnum">'+(i+1)+'</span>'+(icd?'<img class="be2roti" src="'+icd+'" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{className:\'be2rotemoji\',textContent:\'🔮\'}))">':'<span class="be2rotemoji">'+(isAA?'⚔️':'🔮')+'</span>')+'<span class="be2rotnm">'+E(nm)+(sp.el?' <small style="color:var(--muted);font-weight:400">'+E(sp.el)+'</small>':'')+'</span>'
           +'<label class="be2rotf">alvos<input type="number" min="1" value="'+(r.targets||1)+'" onchange="tpBErotField('+i+',\'targets\',this.value)"></label>'
           +'<label class="be2rotf">peso<input type="number" min="1" value="'+(r.ratio||1)+'" onchange="tpBErotField('+i+',\'ratio\',this.value)"></label>'
           +'<div class="be2rotmv"><button type="button" onclick="tpBErotMove('+i+',-1)"'+(i===0?' disabled':'')+' title="subir">↑</button><button type="button" onclick="tpBErotMove('+i+',1)"'+(i===rot.length-1?' disabled':'')+' title="descer">↓</button></div>'
@@ -6796,8 +6798,8 @@ PlayerName (Leader)
       var pick='';
       if(BE.pickR){
         var avail=Object.keys(SP).map(function(id){return {id:id,s:SP[id]};}).filter(function(x){var s=x.s; return s.vc&&s.vc.indexOf(voc)>=0 && s.sel!==false && s.vis!==false && s.st!=='homing-missile';}).sort(function(a,b){return String(a.s.n).localeCompare(b.s.n);});
-        var rows=avail.map(function(x){ var s=x.s, nm=s.dn||String(s.n).replace(/\s*\([^)]*\)\s*$/,''); var icd=SIC[nm];
-          return '<div class="be2pi" data-name="'+E(nm)+'" onclick="tpBErotAdd(\''+x.id+'\')">'+(icd?'<img src="'+icd+'">':'<span class="be2piemoji">🔮</span>')+'<span class="be2piname">'+E(nm)+'</span><span class="be2pimeta">'+E(s.el||'')+'</span></div>'; }).join('');
+        var rows=avail.map(function(x){ var s=x.s, nm=s.dn||String(s.n).replace(/\s*\([^)]*\)\s*$/,''); var isAA=/^auto.?attack$/i.test(nm); var icd=isAA?null:(SIC[nm]||_tpSpellWikiIc(nm));
+          return '<div class="be2pi" data-name="'+E(nm)+'" onclick="tpBErotAdd(\''+x.id+'\')">'+(icd?'<img src="'+icd+'" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{className:\'be2piemoji\',textContent:\'🔮\'}))">':'<span class="be2piemoji">'+(isAA?'⚔️':'🔮')+'</span>')+'<span class="be2piname">'+E(nm)+'</span><span class="be2pimeta">'+E(s.el||'')+'</span></div>'; }).join('');
         pick='<div class="be2picker"><div class="be2phead">Adicionar magia <span style="font-weight:400;color:var(--muted);font-size:.68rem">— pode repetir a mesma magia</span><button type="button" class="be2cancel" onclick="tpBErotPick()">Fechar</button></div><input class="be2psearch" placeholder="buscar magia…" oninput="tpBEfilterList(\'be2-rpl\',this.value)"><div class="be2pilist" id="be2-rpl">'+rows+'</div></div>';
       }
       return '<div class="be2sec"><h4>⚔️ Rotação de magias <span class="be2hint">— na ordem; repita magias e use ↑↓ pra ordenar; miniaturas iguais à calculadora</span></h4>'+(lines||'<div class="be2soon">Nenhuma magia ainda.</div>')+'<button type="button" class="be2cancel" style="margin-top:.55rem" onclick="tpBErotPick()">'+(BE.pickR?'Fechar':'+ Adicionar magia')+'</button>'+pick+'</div>';
