@@ -47,7 +47,7 @@
     return e;
   }
   function boot(){
-    add('link',{rel:'stylesheet',href:'https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap'});
+    add('link',{rel:'stylesheet',href:'https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap'});
     add('link',{rel:'stylesheet',href:'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css'});
     add('script',{src:'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js'}, function(){
       try{ if(window._hfMapCoords && document.getElementById('hf-leaflet-map') && window.initHfMiniMap){ var c=window._hfMapCoords; window.initHfMiniMap(c.x,c.y,c.floor); } }catch(e){}
@@ -432,13 +432,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .hero{padding:2.5rem 0 2rem;border-bottom:1px solid var(--border);margin-bottom:2rem}
 .hero-eyebrow{font-size:.65rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--bamboo);margin-bottom:1rem;display:flex;align-items:center;gap:10px}
 .hero-eyebrow::after{content:'';display:block;height:1px;width:40px;background:var(--bamboo);opacity:.4}
-.hero-headline{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(2rem,4vw,3.5rem);line-height:1.05;letter-spacing:-1px;margin-bottom:1rem;color:var(--ink);text-shadow:0 0 46px rgba(139,92,246,.22)}
-.hero-headline em{font-style:italic;color:var(--gold)}
+.hero-headline{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(2rem,4vw,3.4rem);line-height:1.02;letter-spacing:-1.5px;margin-bottom:1rem;color:var(--ink);text-shadow:0 0 46px rgba(139,92,246,.22)}
+.hero-headline em{font-style:normal;color:var(--gold)}
 .hero-desc{font-size:1rem;color:var(--ink-3);max-width:520px;line-height:1.75;margin-bottom:1.75rem;font-weight:300}
 .hero-stats{display:flex;gap:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface);max-width:420px}
 .stat-item{flex:1;padding:1rem 1.25rem;border-right:1px solid var(--border);text-align:center}
 .stat-item:last-child{border-right:none}
-.stat-num{font-family:'Cinzel',serif;font-size:1.75rem;font-weight:700;color:var(--ink);line-height:1}
+.stat-num{font-family:'Space Grotesk',sans-serif;font-size:1.7rem;font-weight:700;color:var(--ink);line-height:1;letter-spacing:-.5px}
 .stat-label{font-size:.6rem;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:4px}
 
 /* ══════════════════════════════════════
@@ -1873,7 +1873,7 @@ async function tibiaFetch(path) {
       <div class="hero-stats">
         <div class="stat-item"><div class="stat-num" id="stat-online">—</div><div class="stat-label">Online agora</div></div>
         <div class="stat-item"><div class="stat-num" id="stat-world">—</div><div class="stat-label">Servidor</div></div>
-        <div class="stat-item"><div class="stat-num">10+</div><div class="stat-label">Ferramentas</div></div>
+        <div class="stat-item"><div class="stat-num">14+</div><div class="stat-label">Ferramentas</div></div>
       </div>
     </div>
 
@@ -1886,17 +1886,59 @@ async function tibiaFetch(path) {
       <span class="world-record" id="wb-record"></span>
     </div>
 
-    <!-- BUILDS EM DESTAQUE -->
-    <div class="reveal" onclick="showPage('builds');if(window.tpBuildsInit)tpBuildsInit();if(window.tpTopnavSync)tpTopnavSync();window.scrollTo({top:0,behavior:'smooth'})" style="cursor:pointer;display:flex;align-items:center;gap:1rem;margin-bottom:1.6rem;padding:1.1rem 1.3rem;border-radius:16px;background:linear-gradient(100deg,var(--gold-dim),transparent 72%),var(--surface);border:1px solid var(--gold);transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 12px 32px -14px #c9a84055'" onmouseout="this.style.transform='';this.style.boxShadow=''">
-      <div style="width:52px;height:52px;flex:0 0 52px;border-radius:12px;background:var(--gold-dim);display:flex;align-items:center;justify-content:center">
-        <svg viewBox="0 0 20 20" fill="var(--gold)" style="width:26px;height:26px"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 5a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm7 0a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2h-3a2 2 0 01-2-2V5z"/></svg>
+    <style>
+      .hm-cat{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:center;gap:10px;margin:0 0 14px}
+      .hm-cat .l{flex:1;height:1px;background:var(--border)}
+      .hm-see{font-size:.78rem;font-weight:700;color:var(--gold);white-space:nowrap;cursor:pointer;text-decoration:none}
+      .hm-quick{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:1.8rem}
+      .hm-qbtn{display:flex;flex-direction:column;align-items:center;gap:9px;padding:17px 10px;border-radius:14px;background:var(--surface);border:1px solid var(--border);transition:.15s;cursor:pointer;text-align:center;font-family:inherit;color:var(--ink)}
+      .hm-qbtn:hover{transform:translateY(-3px);border-color:var(--bamboo);box-shadow:0 12px 30px -10px rgba(139,92,246,.4)}
+      .hm-qbtn.pri{background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(201,168,64,.08));border-color:var(--bamboo)}
+      .hm-qi{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:var(--bg-2);border:1px solid var(--border);color:var(--bamboo-light,#a78bfa)}
+      .hm-qi svg{width:24px;height:24px}
+      .hm-qbtn.pri .hm-qi{background:linear-gradient(135deg,var(--bamboo),var(--bamboo-light,#a78bfa));border-color:var(--bamboo);color:#fff}
+      .hm-qn{font-weight:700;font-size:.84rem}.hm-qs{font-size:.66rem;color:var(--ink-3)}
+      .hm-shelf{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:1.8rem}
+      .hm-bcard{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px;display:flex;flex-direction:column;gap:10px;transition:.15s;cursor:pointer;text-align:left;font-family:inherit;color:var(--ink)}
+      .hm-bcard:hover{border-color:var(--bamboo);transform:translateY(-3px)}
+      .hm-slot{aspect-ratio:1.1/1;border-radius:12px;display:grid;place-items:center;position:relative;border:1px solid var(--border);overflow:hidden;background:radial-gradient(130% 100% at 50% 16%,#241f3a,#0d1016)}
+      .hm-slot::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.028) 0 1px,transparent 1px 24px),repeating-linear-gradient(90deg,rgba(255,255,255,.028) 0 1px,transparent 1px 24px)}
+      .hm-slot img{width:52%;height:52%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 8px 16px rgba(0,0,0,.6));position:relative;z-index:1}
+      .hm-slot .fb{font-size:2rem;opacity:.4;position:relative;z-index:1}
+      .hm-voc{position:absolute;top:8px;left:8px;z-index:2;font-size:.58rem;font-weight:800;text-transform:uppercase;background:rgba(0,0,0,.6);border:1px solid var(--border);border-radius:20px;padding:3px 8px}
+      .hm-lv{position:absolute;top:8px;right:8px;z-index:2;font-size:.58rem;font-weight:800;color:var(--gold);background:rgba(0,0,0,.6);border:1px solid var(--border);border-radius:20px;padding:3px 8px}
+      .hm-el{position:absolute;bottom:8px;right:8px;z-index:2;font-size:.55rem;font-weight:700;background:rgba(0,0,0,.55);border-radius:20px;padding:2px 8px;color:var(--ink-2,#cfc9e6)}
+      .hm-bname{font-weight:700;font-size:.85rem;line-height:1.25}.hm-bweap{font-size:.7rem;color:var(--ink-3);margin-top:2px}
+      .hm-bstats{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:2px}
+      .hm-bst{background:var(--bg-2);border:1px solid var(--border);border-radius:9px;padding:6px 8px}
+      .hm-bst .k{font-size:.55rem;font-weight:700;text-transform:uppercase;color:var(--muted)}.hm-bst .v{font-size:.9rem;font-weight:800;margin-top:1px}.hm-bst .v.dmg{color:var(--bamboo-light,#a78bfa)}.hm-bst .v .u{font-size:.58rem;font-weight:600;color:var(--ink-3)}
+      .hm-tool .ti svg{width:20px;height:20px}
+      .hm-tool .ti{color:var(--bamboo-light,#a78bfa)}
+      .hm-acct{display:flex;align-items:center;gap:18px;background:linear-gradient(100deg,rgba(139,92,246,.13),transparent 70%),var(--surface);border:1px solid var(--bamboo);border-radius:16px;padding:18px 22px;flex-wrap:wrap}
+      .hm-acct .em{font-size:1.9rem;flex-shrink:0}
+      .hm-acct h3{font-size:1.08rem;font-weight:800;color:var(--ink)}.hm-acct p{font-size:.85rem;color:var(--ink-2,#cfc9e6);line-height:1.5;margin-top:3px;max-width:58ch}
+      .hm-acct .acts{margin-left:auto;display:flex;gap:9px;flex-shrink:0}
+      .hm-hi{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+      .hm-hi .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--bamboo),var(--bamboo-light,#a78bfa));display:grid;place-items:center;font-weight:800;color:#fff}.hm-hi b{color:var(--ink)}
+      @media(max-width:720px){.hm-quick,.hm-shelf{grid-template-columns:repeat(2,1fr)}.hm-acct .acts{margin-left:0;width:100%}}
+    </style>
+
+    <!-- ACESSO RÁPIDO -->
+    <div class="reveal">
+      <div class="hm-cat">Acesso rápido <span class="l"></span></div>
+      <div class="hm-quick">
+        <button class="hm-qbtn pri" onclick="showPage('builds');if(window.tpBuildsInit)tpBuildsInit();if(window.tpTopnavSync)tpTopnavSync();window.scrollTo({top:0,behavior:'smooth'})"><div class="hm-qi"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 2.4v5.1c0 4-2.8 7.4-7 8.5-4.2-1.1-7-4.5-7-8.5V5.4L12 3z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.5"/><path d="M12 8.2l2.3 2.2L12 15l-2.3-4.6L12 8.2z" fill="currentColor"/></svg></div><div class="hm-qn">Builds</div><div class="hm-qs">por vocação</div></button>
+        <button class="hm-qbtn" onclick="showPage('lootsplit',document.querySelector('[onclick*=lootsplit]'))"><div class="hm-qi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.3v15M7 20h10M5 7.6h14"/><path d="M5 7.6l-2.2 5a2.2 2.2 0 004.4 0L5 7.6zM19 7.6l-2.2 5a2.2 2.2 0 004.4 0L19 7.6z" fill="currentColor" fill-opacity=".16"/><circle cx="12" cy="4.1" r="1.3" fill="currentColor" stroke="none"/></svg></div><div class="hm-qn">Loot Split</div><div class="hm-qs">party</div></button>
+        <button class="hm-qbtn" onclick="showPage('bosses',document.querySelector('[onclick*=bosses]'))"><div class="hm-qi"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3c-4 0-7 2.9-7 6.8 0 2 .9 3.6 2 4.6v2.1c0 .8.6 1.4 1.4 1.4h7.2c.8 0 1.4-.6 1.4-1.4v-2.1c1.1-1 2-2.6 2-4.6C19 5.9 16 3 12 3z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.5"/><circle cx="9.1" cy="10.6" r="1.5" fill="currentColor"/><circle cx="14.9" cy="10.6" r="1.5" fill="currentColor"/><path d="M10.4 15.6h3.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="hm-qn">Bosses</div><div class="hm-qs">do servidor</div></button>
+        <button class="hm-qbtn" onclick="showPage('imbuements',document.querySelector('[onclick*=imbuements]'))"><div class="hm-qi"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l1.9 4.4L18 9.1l-4.1 1.7L12 15l-1.9-4.2L6 9.1l4.1-1.7L12 3z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M17.6 13.6l.7 1.7 1.7.7-1.7.7-.7 1.7-.7-1.7-1.7-.7 1.7-.7.7-1.7z" fill="currentColor"/></svg></div><div class="hm-qn">Imbuements</div><div class="hm-qs">custo real</div></button>
+        <button class="hm-qbtn" onclick="showPage('dmgcalc',document.querySelector('.nav-btn[onclick*=dmgcalc]'));if(window.tpDmgInit)tpDmgInit()"><div class="hm-qi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M13 3l-1.8 6.5H16L10 21l1.8-7.5H7L13 3z" fill="currentColor" fill-opacity=".2"/></svg></div><div class="hm-qn">Calc. de Dano</div><div class="hm-qs">simulador</div></button>
       </div>
-      <div style="flex:1;min-width:0">
-        <div style="font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gold)">★ Em destaque</div>
-        <div style="font-size:1.12rem;font-weight:800;color:var(--ink);line-height:1.15">Builds prontas por vocação</div>
-        <div style="font-size:.82rem;color:var(--ink-3);margin-top:.2rem">Validadas 1:1 — proficiências, rotação e equipamento. Copiar e colar ou abrir na calculadora.</div>
-      </div>
-      <div style="font-weight:700;color:var(--gold);white-space:nowrap;font-size:.9rem">Ver builds →</div>
+    </div>
+
+    <!-- BUILDS EM DESTAQUE (dinâmico) -->
+    <div class="reveal">
+      <div class="hm-cat">★ Builds prontas por vocação <span class="l"></span><a class="hm-see" onclick="showPage('builds');if(window.tpBuildsInit)tpBuildsInit();window.scrollTo({top:0,behavior:'smooth'});return false;">Ver todas →</a></div>
+      <div class="hm-shelf" id="home-builds"></div>
     </div>
 
     <!-- PRÓXIMOS EVENTOS DA COMUNIDADE -->
@@ -1908,36 +1950,102 @@ async function tibiaFetch(path) {
       <div id="home-events-body" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:.7rem"></div>
     </div>
 
-    <!-- GRID DE FERRAMENTAS -->
+    <!-- GRID DE FERRAMENTAS (reorganizado, sem repetir o acesso rápido) -->
     <div class="reveal">
-      <div class="tp-cat">Party &amp; Loot</div>
+      <div class="hm-cat">Caçar <span class="l"></span></div>
       <div class="tp-toolgrid">
-        <button class="tp-tool" onclick="showPage('lootsplit',document.querySelector('[onclick*=lootsplit]'))"><div class="ti">⚖️</div><div><div class="tn">Loot Split <span class="tp-tag hot">Popular</span></div><div class="td">Divisão igualitária da party + transferências prontas.</div></div></button>
-        <div class="tp-tool soon"><div class="ti">📊</div><div><div class="tn">Histórico de hunts <span class="tp-tag soon">Em breve</span></div><div class="td">Desempenho por personagem: profit, saldo, dano, cura.</div></div></div>
-        <button class="tp-tool" onclick="showPage('partyfinder',document.querySelector('[onclick*=partyfinder]'))"><div class="ti">🧑‍🤝‍🧑</div><div><div class="tn">Party Finder</div><div class="td">Jogadores online do seu mundo pra hunt e boss.</div></div></button>
+        <button class="tp-tool hm-tool" onclick="showPage('huntfinder',document.querySelector('[onclick*=huntfinder]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6" fill="currentColor" fill-opacity=".12"/><path d="M15 15l4.5 4.5"/></svg></div><div><div class="tn">Hunt Finder</div><div class="td">Melhores spots por nível e vocação, com mapa.</div></div></button>
+        <button class="tp-tool hm-tool" onclick="showPage('partyfinder',document.querySelector('[onclick*=partyfinder]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="9" cy="8" r="3.2" fill="currentColor" fill-opacity=".14"/><path d="M3.6 18.5a5.4 5.4 0 0110.8 0"/><path d="M16 5.6a3 3 0 010 5.8M17 14.6a5.4 5.4 0 013.4 3.9"/></svg></div><div><div class="tn">Party Finder</div><div class="td">Jogadores online do seu mundo pra hunt e boss.</div></div></button>
       </div>
 
-      <div class="tp-cat">Hunting</div>
+      <div class="hm-cat">Calculadoras <span class="l"></span></div>
       <div class="tp-toolgrid">
-        <button class="tp-tool" onclick="showPage('bosses',document.querySelector('[onclick*=bosses]'))"><div class="ti">👹</div><div><div class="tn">Bosses</div><div class="td">Atividade real dos bosses (mortes no servidor) + tracker.</div></div></button>
-        <button class="tp-tool" onclick="showPage('huntfinder',document.querySelector('[onclick*=huntfinder]'))"><div class="ti">🔎</div><div><div class="tn">Hunt Finder</div><div class="td">Melhores spots por nível e vocação, com mapa.</div></div></button>
-        <button class="tp-tool" onclick="showPage('delivery',document.querySelector('[onclick*=delivery]'))"><div class="ti">📦</div><div><div class="tn">Task Delivery <span class="tp-tag new">Novo</span></div><div class="td">Itens de entrega e preço de market ao vivo.</div></div></button>
+        <button class="tp-tool hm-tool" onclick="showPage('exercisecalc',document.querySelector('[onclick*=exercisecalc]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.4" fill="currentColor" fill-opacity=".14"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg></div><div><div class="tn">Exercise Weapons</div><div class="td">Quantas dummies e o custo pra subir skill.</div></div></button>
+        <button class="tp-tool hm-tool" onclick="showPage('quests',document.querySelector('[onclick*=quests]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h8a2 2 0 012 2v11a3 3 0 01-3 3H8a3 3 0 01-3-3V6" fill="currentColor" fill-opacity=".12"/><path d="M8.5 9h6M8.5 12.5h6M8.5 16h4"/></svg></div><div><div class="tn">Guia de Quests</div><div class="td">Quests essenciais por faixa de nível.</div></div></button>
       </div>
 
-      <div class="tp-cat">Calculadoras</div>
+      <div class="hm-cat">Mercado &amp; economia <span class="l"></span><span class="tp-tag new">2 novas</span></div>
       <div class="tp-toolgrid">
-        <button class="tp-tool" onclick="showPage('imbuements',document.querySelector('[onclick*=imbuements]'))"><div class="ti">🔮</div><div><div class="tn">Imbuements</div><div class="td">Custo e materiais de cada imbue, por tier.</div></div></button>
-        <button class="tp-tool" onclick="showPage('exercisecalc',document.querySelector('[onclick*=exercisecalc]'))"><div class="ti">🏋️</div><div><div class="tn">Exercise Weapons</div><div class="td">Quantas dummies e o custo pra subir skill.</div></div></button>
-        <button class="tp-tool" onclick="showPage(&#39;dmgcalc&#39;,document.querySelector(&#39;.nav-btn[onclick*=dmgcalc]&#39;));if(window.tpDmgInit)tpDmgInit()"><div class="ti">⚔️</div><div><div class="tn">Calculadora de Dano <span class="tp-tag new">Novo</span></div><div class="td">Dano por vocação, skill, crítico, wheel e comparador A/B. 🔒 requer login.</div></div></button>
-        <button class="tp-tool" onclick="showPage('quests',document.querySelector('[onclick*=quests]'))"><div class="ti">📜</div><div><div class="tn">Guia de Quests</div><div class="td">Quests essenciais por faixa de nível.</div></div></button>
+        <button class="tp-tool hm-tool" onclick="showPage('markettracker',document.querySelector('[onclick*=markettracker]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V4.5M4 20h16M7.3 15l3.2-3.5 2.3 1.9L18 7.5M14.4 7.5H18v3.4"/></svg></div><div><div class="tn">Market Tracker <span class="tp-tag new">Novo</span></div><div class="td">Preço do market ao vivo + histórico, por mundo.</div></div></button>
+        <button class="tp-tool hm-tool" onclick="showPage('servertransfer',document.querySelector('[onclick*=servertransfer]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5h13l-3.2-3.2M20 15.5H7l3.2 3.2"/></svg></div><div><div class="tn">Transferência <span class="tp-tag new">Novo</span></div><div class="td">Arbitragem de itens entre servidores.</div></div></button>
+        <button class="tp-tool hm-tool" onclick="showPage('delivery',document.querySelector('[onclick*=delivery]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3l8 4.2v8.6L12 20l-8-4.2V7.2L12 3z" fill="currentColor" fill-opacity=".15"/><path d="M4 7.3l8 4.2 8-4.2M12 11.5V20"/><path d="M8.7 14.4l2 1.9 3.3-3.5" stroke-linecap="round"/></svg></div><div><div class="tn">Task Delivery</div><div class="td">Itens de entrega e preço de market ao vivo.</div></div></button>
+        <div class="tp-tool hm-tool soon"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 4h7l9 9-7 7-9-9V4z" fill="currentColor" fill-opacity=".12"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/></svg></div><div><div class="tn">Bazar <span class="tp-tag soon">Em breve</span></div><div class="td">Filtro do char bazaar oficial: level, skills, preço.</div></div></div>
       </div>
 
-      <div class="tp-cat">Personagem &amp; Mercado</div>
-      <div class="tp-toolgrid">
-        <button class="tp-tool" onclick="tpOpenProfile()"><div class="ti">🪪</div><div><div class="tn">Meu Perfil <span class="tp-tag new">Novo</span></div><div class="td">Entre, registre seus chars e acompanhe seu desempenho.</div></div></button>
-        <div class="tp-tool soon"><div class="ti">💰</div><div><div class="tn">Bazar <span class="tp-tag soon">Em breve</span></div><div class="td">Filtro do char bazaar oficial: level, skills, preço.</div></div></div>
-      </div>
+      <!-- Conta / progresso — adapta a logado/deslogado -->
+      <div class="hm-cat">Progresso &amp; conta <span class="l"></span></div>
+      <div id="home-account"></div>
     </div>
+
+    <script>
+    (function(){
+      function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+      function fmt(n){ return (Math.round(n||0)).toLocaleString('pt-BR'); }
+      function wimg(name){ return 'https://www.tibiawiki.com.br/wiki/Special:FilePath/'+encodeURIComponent(name)+'.gif'; }
+      var VOCAB={druid:{s:'Druid',e:'🌿',g:'#163a44'},sorcerer:{s:'Sorc',e:'🔥',g:'#2a2440'},knight:{s:'Knight',e:'⚔️',g:'#2e2016'},paladin:{s:'Paladin',e:'🏹',g:'#143a2a'},monk:{s:'Monk',e:'👊',g:'#33240f'}};
+      function elLabel(e){ if(!e) return ''; e=String(e).toLowerCase(); var M={ice:'Ice',death:'Death',fire:'Fire',energy:'Energy',earth:'Earth',holy:'Holy',physical:'Físico'}; return M[e]||(e.charAt(0).toUpperCase()+e.slice(1)); }
+      function wheelSum(wp){ if(!wp||typeof wp!=='object') return 0; var s=0; for(var k in wp){ var v=parseInt(wp[k],10); if(!isNaN(v)) s+=v; } return s; }
+      function lvlOf(b){ try{ var d=b.data&&b.data.b; var L=(d&&d.inp&&d.inp.level)||(d&&d.level); if(L) return parseInt(L,10); }catch(e){}
+        try{ var m=String(b.name||'').match(/n[íi]vel\s*(\d+)/i); if(m) return parseInt(m[1],10); }catch(e){}
+        try{ var w=wheelSum(b.data.b.wheelPts); if(w) return w+50; }catch(e){} return 0; }
+
+      window.tpHomeBuilds=function(){
+        var host=document.getElementById('home-builds'); if(!host) return;
+        if(typeof PANDA_SB_URL==='undefined'||!PANDA_SB_URL||typeof _pandaHeaders!=='function'){ if(host.parentNode) host.parentNode.style.display='none'; return; }
+        var url=PANDA_SB_URL+'/rest/v1/builds?status=eq.approved&order=created_at.desc&limit=14&select=id,name,vocation,dano,element,data';
+        fetch(url,{headers:_pandaHeaders()}).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(rows){
+          if(!rows||!rows.length){ if(host.parentNode) host.parentNode.style.display='none'; return; }
+          // dedup: não repete builds iguais (mesmo nome+vocação) na vitrine
+          var seen={}, uniq=[];
+          rows.forEach(function(b){ var k=((b.name||'')+'|'+(b.vocation||'')).toLowerCase().replace(/\s+/g,' ').trim(); if(!seen[k]){ seen[k]=1; uniq.push(b); } });
+          rows=uniq.slice(0,5);
+          host.innerHTML=rows.map(function(b){
+            var voc=VOCAB[(b.vocation||'').toLowerCase()]||{s:(b.vocation||'—'),e:'🐼',g:'#241f3a'};
+            var weap=''; try{ weap=(b.data.b.weapon.name)||''; }catch(e){}
+            var lv=lvlOf(b), wpts=0; try{ wpts=wheelSum(b.data.b.wheelPts); }catch(e){}
+            var el=elLabel(b.element);
+            return '<button class="hm-bcard" onclick="tpHomeOpenBuild(\''+b.id+'\')">'
+              +'<div class="hm-slot" style="background:radial-gradient(130% 100% at 50% 16%,'+voc.g+',#0d1016)">'
+              +(weap?'<img src="'+esc(wimg(weap))+'" loading="lazy" onerror="this.style.display=\'none\';this.parentNode.insertAdjacentHTML(\'beforeend\',\'<span class=hm-fb>⚔️</span>\')">':'<span class="hm-fb">⚔️</span>')
+              +'<span class="hm-voc">'+voc.e+' '+esc(voc.s)+'</span>'+(lv?'<span class="hm-lv">Lv '+lv+'</span>':'')+(el?'<span class="hm-el">'+esc(el)+'</span>':'')+'</div>'
+              +'<div><div class="hm-bname">'+esc(b.name||'Build')+'</div>'+(weap?'<div class="hm-bweap">'+esc(weap)+'</div>':'<div class="hm-bweap">&nbsp;</div>')+'</div>'
+              +'<div class="hm-bstats"><div class="hm-bst"><div class="k">Dano/turno</div><div class="v dmg">'+(b.dano?fmt(b.dano):'—')+'</div></div><div class="hm-bst"><div class="k">Roda</div><div class="v">'+(wpts?(fmt(wpts)+' <span class="u">pts</span>'):'—')+'</div></div></div>'
+              +'</button>';
+          }).join('');
+        }).catch(function(){ if(host.parentNode) host.parentNode.style.display='none'; });
+      };
+      window.tpHomeOpenBuild=function(id){ try{ showPage('builds'); if(window.tpBuildsInit) tpBuildsInit(); setTimeout(function(){ try{ if(window.tpOpenBuild){ tpOpenBuild(id); return; } }catch(e){} try{ location.hash='#build='+id; }catch(e){} },220); window.scrollTo({top:0,behavior:'smooth'}); }catch(e){} };
+
+      var ICdash='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="7" height="7" rx="1.5" fill="currentColor" fill-opacity=".16"/><rect x="13" y="4" width="7" height="5" rx="1.5"/><rect x="13" y="11" width="7" height="9" rx="1.5" fill="currentColor" fill-opacity=".16"/><rect x="4" y="13" width="7" height="7" rx="1.5"/></svg>';
+      var IChist='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 20h16"/><rect x="5.5" y="11" width="3.2" height="7" rx="1" fill="currentColor" fill-opacity=".2"/><rect x="10.4" y="6.5" width="3.2" height="11.5" rx="1" fill="currentColor" fill-opacity=".2"/><rect x="15.3" y="13" width="3.2" height="5" rx="1" fill="currentColor" fill-opacity=".2"/></svg>';
+      var ICprof='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="9" r="3.4" fill="currentColor" fill-opacity=".16"/><path d="M5.5 19a6.5 6.5 0 0113 0" stroke-linecap="round"/></svg>';
+      var ICbook='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M5 4h10a2 2 0 012 2v14H7a2 2 0 01-2-2V4z" fill="currentColor" fill-opacity=".14"/><path d="M5 18a2 2 0 012-2h10"/></svg>';
+      function acard(onclick,icon,title,sub){ return '<button class="tp-tool hm-tool" onclick="'+onclick+'"><div class="ti">'+icon+'</div><div><div class="tn">'+title+'</div><div class="td">'+sub+'</div></div></button>'; }
+
+      window.tpHomeAccount=function(){
+        var host=document.getElementById('home-account'); if(!host) return;
+        var A=window.TP_AUTH||null, user=A&&A.user;
+        if(user){
+          var nm=(A.profile&&A.profile.display_name)||(user.email||'').split('@')[0];
+          var ini=((nm||'?').trim().charAt(0)||'?').toUpperCase();
+          host.innerHTML='<div class="hm-hi"><span class="av">'+esc(ini)+'</span><div>Olá, <b>'+esc(nm)+'</b> 🐼 — continue de onde parou:</div></div>'
+            +'<div class="tp-toolgrid">'
+            + acard("showPage('dashboard',document.querySelector('[onclick*=dashboard]'))",ICdash,'Visão geral','seu resumo')
+            + acard("showPage('pthistory',document.querySelector('[onclick*=pthistory]'))",IChist,'Histórico de hunts','profit, dano, cura')
+            + acard("tpOpenProfile()",ICprof,'Meu Perfil','chars &amp; outfit')
+            + acard("showPage('bestiary',document.querySelector('[onclick*=bestiary]'))",ICbook,'Bestiary','charms por char')
+            +'</div>';
+        } else {
+          host.innerHTML='<div class="hm-acct"><div class="em">🐼</div><div style="min-width:0"><h3>Crie sua conta grátis</h3><p>Acompanhe seu progresso: histórico de hunts, bestiary com contagem de charms, perfil com outfit e suas builds salvas — tudo por personagem.</p></div><div class="acts"><button class="tp-btn-ghost" onclick="tpOpenAuth(\'login\')">Entrar</button><button class="tp-btn-primary" onclick="tpOpenAuth(\'signup\')">Criar conta</button></div></div>';
+        }
+      };
+
+      function initHome(){ try{ tpHomeBuilds(); }catch(e){} try{ tpHomeAccount(); }catch(e){} }
+      if(document.readyState!=='loading') initHome(); else document.addEventListener('DOMContentLoaded', initHome);
+      // re-renderiza a seção de conta quando o login/logout muda (observa a área de auth do topo)
+      try{ var ao=document.getElementById('tp-auth-area'); if(ao && window.MutationObserver){ new MutationObserver(function(){ try{ tpHomeAccount(); }catch(e){} }).observe(ao,{childList:true}); } }catch(e){}
+    })();
+    </script>
 
     <!-- NOTÍCIAS & EVENTOS -->
     <div class="grid-2 reveal" style="margin-top:2.2rem">
