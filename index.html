@@ -634,6 +634,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 ══════════════════════════════════════ */
 footer{background:var(--bg-0);border-top:1px solid var(--border);color:var(--muted);text-align:center;padding:1.5rem;font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;font-weight:300;margin-top:3rem}
 footer strong{color:var(--ink-3);font-weight:500}
+footer .foot-links{display:flex;gap:.3rem 1.1rem;flex-wrap:wrap;justify-content:center;align-items:center;text-transform:none;letter-spacing:normal;font-size:.82rem;font-weight:500;margin-bottom:1.1rem}
+footer .foot-links a{color:var(--ink-3,#8f8ba0);text-decoration:none;transition:color .15s}
+footer .foot-links a:hover{color:var(--bamboo,#8b5cf6)}
+footer .foot-links .sep{opacity:.35;font-size:.7rem}
+footer .foot-brand{line-height:1.8}
 
 /* ══════════════════════════════════════
    REVEAL
@@ -1643,6 +1648,10 @@ async function tibiaFetch(path) {
       <button class="nav-btn nav-foot" onclick="showPage('about',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Sobre nós</span>
+      </button>
+      <button class="nav-btn nav-foot" onclick="showPage('privacy',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Privacidade</span>
       </button>
       </div>
 
@@ -4075,6 +4084,166 @@ PlayerName (Leader)
   }
   window.tpAboutCopyLink=tpAboutCopyLink;
   </script>
+
+
+  <!-- ─── PÁGINAS LEGAIS (Privacidade · Termos · Cookies) ─── -->
+  <style>
+    .legal{max-width:76ch;margin:0 auto}
+    .legal .legal-updated{font-size:.78rem;color:var(--muted);margin:-.3rem 0 1.6rem}
+    .legal h3{font-size:1.02rem;font-weight:800;margin:1.8rem 0 .5rem;color:var(--ink,#e8e6f0)}
+    .legal h3:first-of-type{margin-top:1rem}
+    .legal p{font-size:.92rem;line-height:1.7;color:var(--ink-2,#cfc9e6);margin:0 0 .9rem}
+    .legal ul{margin:.2rem 0 1rem;padding-left:1.2rem}
+    .legal li{font-size:.9rem;line-height:1.65;color:var(--ink-2,#cfc9e6);margin-bottom:.4rem}
+    .legal a{color:var(--bamboo,#8b5cf6);text-decoration:none}
+    .legal a:hover{text-decoration:underline}
+    .legal strong,.legal b{color:var(--ink,#e8e6f0)}
+    .legal .legal-contact{margin-top:2rem;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-left:3px solid var(--bamboo,#8b5cf6);border-radius:10px;padding:1rem 1.1rem}
+    .legal .legal-contact p{margin:0;font-size:.88rem}
+    .legal .legal-pending{font-size:.72rem;color:var(--gold,#f0b429);opacity:.9}
+    .legal .legal-crosslinks{margin-top:1.6rem;display:flex;gap:.6rem;flex-wrap:wrap}
+    .legal .legal-crosslinks a{font-size:.8rem;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:999px;padding:.4rem .85rem;font-weight:600}
+  </style>
+
+  <section class="page-section" id="privacy">
+    <div class="legal">
+      <h2 class="sec-title">Política de Privacidade</h2>
+      <p class="legal-updated">Última atualização: 1 de outubro de 2026</p>
+
+      <p>O <strong>Tibia&nbsp;Panda</strong> é um conjunto de ferramentas gratuitas feito pela e para a comunidade de Tibia. A gente leva a sua privacidade a sério e coleta o mínimo necessário pra as ferramentas funcionarem. Esta política explica, em bom português, quais dados tratamos, por quê, e quais são os seus direitos.</p>
+
+      <h3>Quem somos</h3>
+      <p>O Tibia Panda (<a href="https://tibiapanda.com.br" target="_blank" rel="noopener">tibiapanda.com.br</a>) é um projeto feito por fãs, <strong>sem vínculo com a CipSoft</strong>. Para qualquer assunto de privacidade, fale com a gente pelo contato no fim desta página.</p>
+
+      <h3>Quais dados coletamos</h3>
+      <ul>
+        <li><b>Conta:</b> ao criar uma conta, guardamos seu <b>e-mail</b> e uma <b>senha</b>. A senha é armazenada de forma segura e criptografada pelo nosso provedor de login (Supabase) — <b>nós não vemos a sua senha</b>.</li>
+        <li><b>Perfil:</b> seu <b>@apelido</b>, bio, outfit escolhido, personagem principal, os <b>personagens que você verificou</b> e as suas preferências de privacidade.</li>
+        <li><b>Verificação de personagem:</b> para confirmar que um personagem é seu, lemos dados <b>públicos</b> do seu personagem no site oficial <b>Tibia.com</b> (por exemplo, um código temporário no comment). Nunca pedimos a senha da sua conta do Tibia.</li>
+        <li><b>Histórico de hunts:</b> se você usa o histórico de party/sessões, guardamos as sessões que você registra.</li>
+        <li><b>Preferências locais:</b> tema (claro/escuro), mundo selecionado e rascunhos ficam <b>só no seu navegador</b> (armazenamento local) e não saem dele.</li>
+        <li><b>Dados técnicos:</b> como em qualquer site, ao carregar páginas, dados e imagens, servidores podem registrar o endereço IP e informações básicas do navegador (veja "Compartilhamento" abaixo).</li>
+      </ul>
+
+      <h3>Como usamos esses dados</h3>
+      <p>Usamos seus dados para manter sua conta e perfil, exibir seus personagens e rankings conforme as suas preferências, salvar seu histórico, e manter e melhorar as ferramentas. <b>Não usamos seus dados para publicidade</b> e <b>não exibimos anúncios de terceiros</b>.</p>
+
+      <h3>Base legal (LGPD)</h3>
+      <p>Tratamos seus dados com base na <b>execução do serviço</b> que você pediu ao criar a conta, no seu <b>consentimento</b> ao usar recursos que dependem de login, e no <b>legítimo interesse</b> de manter o site funcionando e melhor.</p>
+
+      <h3>Onde seus dados ficam</h3>
+      <p>Os dados da sua conta e do seu perfil ficam no <b>Supabase</b>, nosso provedor de banco de dados e autenticação, em servidores na <b>região do Brasil</b>.</p>
+
+      <h3>Compartilhamento</h3>
+      <p>Nós <b>não vendemos nem alugamos</b> os seus dados. Compartilhamos apenas com os provedores que fazem o site funcionar: o <b>Supabase</b> (banco de dados e login) e o <b>Google Fonts</b> (que carrega as fontes do site a partir do Google). Além disso, ao buscar informações e imagens de Tibia, o <b>seu navegador</b> contata fontes externas como TibiaData, TibiaWiki, tibiamarket.top, TibiaRoute, hunt-analyser, intibia e exevopan, que podem receber o seu IP — são os mesmos acessos que você faria ao visitar essas fontes diretamente. O seu perfil público (apelido, personagens, rankings) só aparece para outras pessoas <b>conforme as suas preferências de privacidade</b>.</p>
+
+      <h3>Cookies e armazenamento</h3>
+      <p>Não usamos cookies de publicidade nem rastreadores. Os detalhes do que guardamos no seu navegador estão na nossa <a href="#" onclick="showPage('cookies');return false;">Política de Cookies</a>.</p>
+
+      <h3>Por quanto tempo guardamos</h3>
+      <p>Guardamos os seus dados enquanto a sua conta existir. Você pode pedir a exclusão a qualquer momento.</p>
+
+      <h3>Seus direitos</h3>
+      <p>Pela LGPD, você pode <b>acessar, corrigir, excluir e exportar</b> seus dados, além de <b>revogar o consentimento</b>. Boa parte disso você mesmo ajusta no seu perfil, em "Dados, privacidade &amp; segurança". Para o que não der pra resolver por lá, é só falar com a gente.</p>
+
+      <h3>Menores</h3>
+      <p>O serviço não é direcionado a crianças. Se você é responsável e acredita que coletamos dados de uma criança indevidamente, entre em contato que resolvemos.</p>
+
+      <h3>Segurança</h3>
+      <p>Usamos provedores que aplicam criptografia e boas práticas de segurança. Ainda assim, nenhum sistema é 100% seguro — faça sua parte usando uma senha forte e exclusiva.</p>
+
+      <h3>Mudanças nesta política</h3>
+      <p>Podemos atualizar esta política de tempos em tempos. Quando isso acontecer, mudamos a data de "última atualização" no topo.</p>
+
+      <div class="legal-contact">
+        <p><b>Contato:</b> <a href="mailto:contato@tibiapanda.com.br">contato@tibiapanda.com.br</a> &nbsp;<span class="legal-pending">(canal de contato em configuração)</span></p>
+      </div>
+
+      <div class="legal-crosslinks">
+        <a href="#" onclick="showPage('terms');return false;">Termos de Uso</a>
+        <a href="#" onclick="showPage('cookies');return false;">Política de Cookies</a>
+        <a href="#" onclick="showPage('about');return false;">Sobre nós</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section" id="terms">
+    <div class="legal">
+      <h2 class="sec-title">Termos de Uso</h2>
+      <p class="legal-updated">Última atualização: 1 de outubro de 2026</p>
+
+      <p>Ao usar o <strong>Tibia&nbsp;Panda</strong>, você concorda com estes termos. Eles são curtos e diretos — a ideia é deixar claro o que o site é e o que esperar dele.</p>
+
+      <h3>O que é o serviço</h3>
+      <p>O Tibia Panda oferece <b>ferramentas gratuitas</b> (loot split, hunt finder, bosses, market tracker, calculadoras, perfil e mais) com fins informativos e de apoio a quem joga Tibia. É um projeto mantido por hobby, pela comunidade.</p>
+
+      <h3>Não afiliado à CipSoft</h3>
+      <p><b>Tibia®</b> é uma marca registrada da <b>CipSoft GmbH</b>. O Tibia Panda é um <b>projeto de fãs</b>, sem qualquer vínculo oficial com a CipSoft. Todo o conteúdo do jogo (nomes, imagens, dados) pertence à CipSoft e é usado apenas como referência para a comunidade.</p>
+
+      <h3>Sua conta</h3>
+      <p>Você é responsável por manter a sua senha segura e pelo que acontece na sua conta. Forneça informações verdadeiras e não se passe por outra pessoa.</p>
+
+      <h3>Uso aceitável</h3>
+      <p>Você concorda em <b>não</b>: usar o site para fins ilegais; tentar invadir, sobrecarregar ou burlar o site; fazer coleta automatizada (scraping) ou requisições em massa abusivas; nem publicar conteúdo ofensivo, ilegal ou que não seja seu nos campos de perfil.</p>
+
+      <h3>Seu conteúdo</h3>
+      <p>O que você preenche (apelido, bio, fotos de house, etc.) continua sendo seu. Ao publicar, você nos dá permissão para exibir esse conteúdo no site conforme as suas preferências — e pode editar ou remover quando quiser.</p>
+
+      <h3>Dados de terceiros são estimativas</h3>
+      <p>Muitos números do site — preços de market, XP/h, lucro, drops, intervalos de boss — vêm de <b>fontes externas</b> e de agregados da comunidade. Eles podem conter erros ou estar desatualizados e servem como <b>estimativa</b>. Confira antes de tomar decisões importantes no jogo.</p>
+
+      <h3>Sem garantias</h3>
+      <p>O site é fornecido <b>"como está"</b>, sem garantias de qualquer tipo. Não garantimos disponibilidade contínua, ausência de erros, nem exatidão dos dados.</p>
+
+      <h3>Limitação de responsabilidade</h3>
+      <p>Na máxima extensão permitida pela lei, o Tibia Panda não se responsabiliza por perdas no jogo ou por danos decorrentes do uso (ou da indisponibilidade) das ferramentas. Você usa por sua conta e risco.</p>
+
+      <h3>Mudanças</h3>
+      <p>Podemos alterar, adicionar ou descontinuar recursos, e atualizar estes termos. O uso contínuo do site após uma mudança significa que você concorda com a versão atualizada.</p>
+
+      <h3>Lei aplicável</h3>
+      <p>Estes termos são regidos pelas leis do <b>Brasil</b>.</p>
+
+      <div class="legal-contact">
+        <p><b>Contato:</b> <a href="mailto:contato@tibiapanda.com.br">contato@tibiapanda.com.br</a> &nbsp;<span class="legal-pending">(canal de contato em configuração)</span></p>
+      </div>
+
+      <div class="legal-crosslinks">
+        <a href="#" onclick="showPage('privacy');return false;">Política de Privacidade</a>
+        <a href="#" onclick="showPage('cookies');return false;">Política de Cookies</a>
+        <a href="#" onclick="showPage('about');return false;">Sobre nós</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section" id="cookies">
+    <div class="legal">
+      <h2 class="sec-title">Cookies &amp; Armazenamento</h2>
+      <p class="legal-updated">Última atualização: 1 de outubro de 2026</p>
+
+      <p>Transparência total sobre o que o Tibia Panda guarda no seu navegador. Resumo: <strong>não usamos cookies de publicidade nem rastreadores de terceiros</strong> — nada de Google Analytics, pixel de rede social ou coisa do tipo.</p>
+
+      <h3>O que usamos</h3>
+      <ul>
+        <li><b>Sessão de login (essencial):</b> quando você entra na sua conta, o nosso provedor de login (Supabase) guarda um <b>token de sessão</b> no seu navegador para te manter logado. Sem isso, a conta não funciona.</li>
+        <li><b>Armazenamento local (preferências):</b> guardamos coisas como o <b>tema</b> (claro/escuro), o <b>mundo</b> selecionado e <b>rascunhos</b> de ferramentas. Isso fica só no seu navegador e <b>não é enviado</b> para lugar nenhum.</li>
+        <li><b>Google Fonts:</b> as fontes do site são carregadas do <b>Google Fonts</b>, então o seu navegador faz uma requisição ao Google ao abrir o site.</li>
+      </ul>
+
+      <h3>Como controlar</h3>
+      <p>Você pode <b>limpar os dados do site</b> pelo seu navegador quando quiser — isso vai te deslogar e zerar as preferências. Fazer <b>logout</b> remove a sessão de login. Como não usamos cookies de rastreamento, não há nada a "recusar" em termos de publicidade.</p>
+
+      <div class="legal-contact">
+        <p><b>Contato:</b> <a href="mailto:contato@tibiapanda.com.br">contato@tibiapanda.com.br</a> &nbsp;<span class="legal-pending">(canal de contato em configuração)</span></p>
+      </div>
+
+      <div class="legal-crosslinks">
+        <a href="#" onclick="showPage('privacy');return false;">Política de Privacidade</a>
+        <a href="#" onclick="showPage('terms');return false;">Termos de Uso</a>
+        <a href="#" onclick="showPage('about');return false;">Sobre nós</a>
+      </div>
+    </div>
+  </section>
 
   <!-- ─── MEU PERFIL ─── -->
   <section class="page-section" id="profile">
@@ -6965,8 +7134,20 @@ PlayerName (Leader)
 
   </div><!-- /.main -->
   <footer>
-    <strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-31dp</span>
+    <div class="foot-links">
+      <a href="#" onclick="showPage('about');return false;">Sobre</a><span class="sep">·</span>
+      <a href="#" onclick="tpFooterApoie();return false;">Apoie o projeto</a><span class="sep">·</span>
+      <a href="#" onclick="showPage('privacy');return false;">Privacidade</a><span class="sep">·</span>
+      <a href="#" onclick="showPage('terms');return false;">Termos de Uso</a><span class="sep">·</span>
+      <a href="#" onclick="showPage('cookies');return false;">Cookies</a>
+    </div>
+    <div class="foot-brand"><strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-31dp</span></div>
   </footer>
+  <script>
+  // rodapé → "Apoie o projeto" abre a página Sobre e rola até a seção #apoie
+  function tpFooterApoie(){ try{ showPage('about'); setTimeout(function(){ var el=document.getElementById('apoie'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }, 140); }catch(e){} }
+  window.tpFooterApoie=tpFooterApoie;
+  </script>
 </div><!-- /.page-wrapper -->
 
 <script>
