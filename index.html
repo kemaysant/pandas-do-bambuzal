@@ -1600,9 +1600,6 @@ async function tibiaFetch(path) {
 <button class="nav-btn" onclick="showPage('rankings',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-.44 0-.87.038-1.29.111a1 1 0 00-.71.71A8.05 8.05 0 003 7c0 3.36 2.07 6.24 5 7.42V17a1 1 0 102 0v-2.58c2.93-1.18 5-4.06 5-7.42 0-.66-.08-1.31-.24-1.92a1 1 0 00-.71-.71A8.04 8.04 0 0014.5 4a7.968 7.968 0 00-3.5.804V3a1 1 0 10-2 0v1.804zM10 6a3 3 0 100 6 3 3 0 000-6z"/></svg>
         <span class="nav-label">Rankings</span>
-      </button><button class="nav-btn" onclick="showPage('events',this)">
-        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
-        <span class="nav-label">Eventos</span>
       </button><button class="nav-btn" onclick="showPage('agenda',this);if(window.tpAgendaLoad)tpAgendaLoad()">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Agenda</span>
@@ -1729,7 +1726,6 @@ async function tibiaFetch(path) {
       <div style="position:relative">
         <button class="tp-tn-item" data-tn="com" data-dd="com">Comunidade <span class="tp-tn-cav">▼</span></button>
         <div class="tp-pop tp-dd" id="tp-dd-com">
-          <a class="tp-lnk" data-page="events">Eventos</a>
           <a class="tp-lnk" data-page="agenda" data-init="tpAgendaLoad">Agenda</a>
           <a class="tp-lnk" data-page="creators" data-init="tpCreatorsLoad">Criadores</a>
         </div>
@@ -2778,7 +2774,11 @@ async function tibiaFetch(path) {
       .agchat-gate{text-align:center;padding:.9rem;background:var(--bg-2,#1b1a25);border-radius:10px;color:var(--muted);font-size:.82rem;margin-top:.7rem}
     </style>
     <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"/></svg> Agenda da Comunidade</h2>
-    <p class="sec-sub">Hunts, bosses, quests e eventos marcados pela comunidade. Confirme presença e adicione ao seu calendário. Crie os seus — públicos (do servidor), pra amigos, guild ou privados.</p>
+    <p class="sec-sub">Hunts, bosses, quests e eventos marcados pela comunidade. Confirme presença e adicione ao seu calendário.</p>
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;background:linear-gradient(100deg,rgba(139,92,246,.14),transparent 70%),var(--surface,#1a1922);border:1px solid var(--bamboo,#8b5cf6);border-radius:14px;padding:.9rem 1.1rem;margin-bottom:1.1rem">
+      <div style="flex:1;min-width:220px"><div style="font-weight:800;color:var(--ink,#eae8f2)">✋ Qualquer um pode criar um evento</div><div style="font-size:.82rem;color:var(--muted,#63607a);margin-top:.15rem">Acesso, quest, hunt ou boss — marque, defina as regras e chame a galera. Leva 1 minuto.</div></div>
+      <button class="ag-new" style="margin-left:0" onclick="if(window.tpAgendaNew)tpAgendaNew()">＋ Criar evento</button>
+    </div>
     <div class="ag-top">
       <div class="ag-seg" id="ag-scopebar">
         <button class="on" data-s="all" onclick="if(window.tpAgendaScope)tpAgendaScope('all',this)">Tudo</button>
@@ -20120,6 +20120,7 @@ window.tpLoadJornada=async function(){
       +'<div style="margin-bottom:.7rem"><label>Descrição (opcional)</label><textarea id="agm-desc" maxlength="2000">'+esc(ev.description||'')+'</textarea></div>'
       +'<div style="margin-bottom:.7rem"><label>Requisitos (opcional)</label><textarea id="agm-req" maxlength="2000" placeholder="Ex.: Level mínimo 250, vocação promovida…">'+esc(ev.requirements||'')+'</textarea></div>'
       +'<div style="margin-bottom:.7rem"><label>Quests e acessos necessários (opcional)</label><textarea id="agm-quests" maxlength="2000" placeholder="Ex.: Missão 06, acesso a Soul War…">'+esc(ev.quests_access||'')+'</textarea></div>'
+      +'<div style="margin-bottom:.7rem"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-weight:600"><input type="checkbox" id="agm-rules-on" onchange="tpAgendaRulesToggle()" style="width:auto;margin:0"'+(ev.rules_show?' checked':'')+'> 📋 Incluir regras de participação</label><div id="agm-rules-wrap" style="display:'+(ev.rules_show?'block':'none')+';margin-top:.5rem"><textarea id="agm-rules" maxlength="3000" rows="6" placeholder="Regras do evento…">'+esc(ev.rules||'')+'</textarea><div style="font-size:.7rem;color:var(--muted);margin-top:.3rem">Aparece na página do evento.</div></div></div>'
       +'<div style="font-size:.72rem;color:var(--muted);margin-bottom:.7rem">Visibilidade ('+(VISLBL[ev.visibility]||ev.visibility)+') e servidor ('+esc(ev.world||'')+') não mudam por aqui.</div>'
       +'<button class="tp-btn-primary" id="agm-submit" onclick="tpAgendaUpdate(\''+id+'\')">Salvar alterações</button>';
     modal.classList.add('open');
@@ -20128,7 +20129,8 @@ window.tpLoadJornada=async function(){
     var gv=function(x){ var e=document.getElementById(x); return e?(e.value||'').trim():''; };
     var title=gv('agm-title'); if(!title){ toast('Dê um título ao evento.','info'); return; }
     var startLocal=gv('agm-start'); if(!startLocal){ toast('Escolha a data e a hora.','info'); return; }
-    var patch={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc')||null, starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null, requirements:gv('agm-req')||null, quests_access:gv('agm-quests')||null, difficulty:gv('agm-diff')||'normal', updated_at:new Date().toISOString() };
+    var rulesOn=!!(document.getElementById('agm-rules-on')&&document.getElementById('agm-rules-on').checked); var rulesTxt=rulesOn?gv('agm-rules'):'';
+    var patch={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc')||null, starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null, requirements:gv('agm-req')||null, quests_access:gv('agm-quests')||null, difficulty:gv('agm-diff')||'normal', rules:(rulesOn&&rulesTxt)?rulesTxt:null, rules_show:!!(rulesOn&&rulesTxt), updated_at:new Date().toISOString() };
     var btn=document.getElementById('agm-submit'); if(btn){ btn.disabled=true; btn.textContent='Salvando…'; }
     try{
       var r=await af()(SB()+'/rest/v1/events?id=eq.'+id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(patch)});
@@ -20157,6 +20159,7 @@ window.tpLoadJornada=async function(){
         +'<div style="margin-bottom:.7rem"><label>Descrição (opcional)</label><textarea id="agm-desc" maxlength="2000" placeholder="Detalhes: o que levar, ponto de encontro…"></textarea></div>'
         +'<div style="margin-bottom:.7rem"><label>Requisitos (opcional)</label><textarea id="agm-req" maxlength="2000" placeholder="Ex.: Level mínimo 250, vocação promovida, set completo…"></textarea></div>'
         +'<div style="margin-bottom:.7rem"><label>Quests e acessos necessários (opcional)</label><textarea id="agm-quests" maxlength="2000" placeholder="Ex.: Missão 06 (The Demon Ungreez), acesso a Soul War, The Dream Courts…"></textarea></div>'
+        +'<div style="margin-bottom:.7rem"><label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-weight:600"><input type="checkbox" id="agm-rules-on" onchange="tpAgendaRulesToggle()" style="width:auto;margin:0"> 📋 Incluir regras de participação</label><div id="agm-rules-wrap" style="display:none;margin-top:.5rem"><textarea id="agm-rules" maxlength="3000" rows="6" placeholder="Regras do evento (waste, level mínimo, punições…)"></textarea><div style="font-size:.7rem;color:var(--muted);margin-top:.3rem">Aparece na página do evento. Começamos com um modelo — edite à vontade.</div></div></div>'
         +'<button class="tp-btn-primary" id="agm-submit" onclick="tpAgendaSubmit()">Criar evento</button>';
       tpAgendaVisHint();
     }).catch(function(){ body.innerHTML='<div class="agm-gate">Não consegui carregar o formulário.</div>'; });
@@ -20167,13 +20170,16 @@ window.tpLoadJornada=async function(){
       : v==='guild'?'Aparece pra todos da sua guild. Só líder e vice-líder podem criar (checamos o rank pela TibiaData).'
       : v==='private'?'Só quem tiver o link vê. Bom pra combinar hunt fechada.' : '';
   };
+  window.TP_RULES_TEMPLATE='• Level mínimo conforme combinado — chars abaixo do recomendado podem não ser aceitos.\n• Waste dividida igualmente entre os participantes.\n• Loot acima de 1kk: combinar a divisão antes de começar.\n• Respeite o time e quem está puxando.\n• Confirme presença de verdade — se não puder ir, avise com antecedência.';
+  window.tpAgendaRulesToggle=function(){ var on=document.getElementById('agm-rules-on'), wrap=document.getElementById('agm-rules-wrap'), ta=document.getElementById('agm-rules'); if(!on||!wrap) return; wrap.style.display=on.checked?'':'none'; if(on.checked && ta && !ta.value.trim()){ ta.value=window.TP_RULES_TEMPLATE; } };
   window.tpAgendaSubmit=async function(){
     var A=auth(); if(!A||!A.user) return;
     var gv=function(id){ var e=document.getElementById(id); return e?(e.value||'').trim():''; };
     var title=gv('agm-title'); if(!title){ toast('Dê um título ao evento.','info'); return; }
     var startLocal=gv('agm-start'); if(!startLocal){ toast('Escolha a data e a hora.','info'); return; }
     var vis=gv('agm-vis');
-    var payload={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc'), visibility:vis, world:world(), creator_char:gv('agm-char'), starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null, requirements:gv('agm-req')||null, quests_access:gv('agm-quests')||null, difficulty:gv('agm-diff')||'normal' };
+    var rulesOn=!!(document.getElementById('agm-rules-on')&&document.getElementById('agm-rules-on').checked); var rulesTxt=rulesOn?gv('agm-rules'):'';
+    var payload={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc'), visibility:vis, world:world(), creator_char:gv('agm-char'), starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null, requirements:gv('agm-req')||null, quests_access:gv('agm-quests')||null, difficulty:gv('agm-diff')||'normal', rules:(rulesOn&&rulesTxt)?rulesTxt:null, rules_show:!!(rulesOn&&rulesTxt) };
     var btn=document.getElementById('agm-submit'); if(btn){ btn.disabled=true; btn.textContent='Criando…'; }
     var restore=function(){ if(btn){ btn.disabled=false; btn.textContent='Criar evento'; } };
     try{
@@ -20406,7 +20412,11 @@ window.tpLoadJornada=async function(){
           +'</div>';
       }).join('')
       +'</div></div>';
-    body.innerHTML=head+info+voc+renderKanban(going, ev, can);
+    var rulesCard=(ev.rules_show&&ev.rules)
+      ? '<div class="evp-card" style="margin-bottom:1.1rem"><h3>📋 Regras de participação</h3><div class="evp-text" style="white-space:pre-wrap">'+esc(ev.rules)+'</div></div>'
+      : (can ? '<div class="evp-card" style="margin-bottom:1.1rem"><h3>📋 Regras de participação</h3><div class="evp-empty">Sem regras ainda — clique em ✏️ Editar pra adicionar (waste, level mínimo, punições…).</div></div>' : '');
+    var ctaCreate='<div class="evp-card" style="margin-top:1.1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border-color:var(--bamboo,#8b5cf6)"><div style="flex:1;min-width:200px"><div style="font-weight:800;color:var(--ink,#eae8f2)">Quer organizar o seu?</div><div style="font-size:.82rem;color:var(--muted,#63607a)">Qualquer jogador cria acessos, quests, hunts e bosses — leva 1 minuto.</div></div><button class="tp-btn-primary" onclick="if(window.tpAgendaNew)tpAgendaNew()">＋ Criar evento</button></div>';
+    body.innerHTML=head+info+rulesCard+voc+renderKanban(going, ev, can)+ctaCreate;
     if(can) wireKanbanDnD();
   }
   function maxTeamNo(going){ var mx=0; going.forEach(function(p){ if(p.team_no) mx=Math.max(mx,p.team_no); }); return mx; }
