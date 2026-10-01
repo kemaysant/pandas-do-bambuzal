@@ -6795,7 +6795,7 @@ PlayerName (Leader)
           +'<button type="button" class="be2rotx" onclick="tpBErotDel('+i+')" title="remover">✕</button></div>'; }).join('');
       var pick='';
       if(BE.pickR){
-        var avail=Object.keys(SP).map(function(id){return {id:id,s:SP[id]};}).filter(function(x){var s=x.s; return s.vc&&s.vc.indexOf(voc)>=0 && s.sel!==false && s.vis!==false && s.st!=='homing-missile' && s.st!=='auto';}).sort(function(a,b){return String(a.s.n).localeCompare(b.s.n);});
+        var avail=Object.keys(SP).map(function(id){return {id:id,s:SP[id]};}).filter(function(x){var s=x.s; return s.vc&&s.vc.indexOf(voc)>=0 && s.sel!==false && s.vis!==false && s.st!=='homing-missile';}).sort(function(a,b){return String(a.s.n).localeCompare(b.s.n);});
         var rows=avail.map(function(x){ var s=x.s, nm=s.dn||String(s.n).replace(/\s*\([^)]*\)\s*$/,''); var icd=SIC[nm];
           return '<div class="be2pi" data-name="'+E(nm)+'" onclick="tpBErotAdd(\''+x.id+'\')">'+(icd?'<img src="'+icd+'">':'<span class="be2piemoji">🔮</span>')+'<span class="be2piname">'+E(nm)+'</span><span class="be2pimeta">'+E(s.el||'')+'</span></div>'; }).join('');
         pick='<div class="be2picker"><div class="be2phead">Adicionar magia <span style="font-weight:400;color:var(--muted);font-size:.68rem">— pode repetir a mesma magia</span><button type="button" class="be2cancel" onclick="tpBErotPick()">Fechar</button></div><input class="be2psearch" placeholder="buscar magia…" oninput="tpBEfilterList(\'be2-rpl\',this.value)"><div class="be2pilist" id="be2-rpl">'+rows+'</div></div>';
