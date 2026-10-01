@@ -1562,6 +1562,9 @@ async function tibiaFetch(path) {
       </button><button class="nav-btn" onclick="showPage('markettracker',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/></svg>
         <span class="nav-label">Market Tracker</span>
+      </button><button class="nav-btn" onclick="showPage('servertransfer',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+        <span class="nav-label">Transferência</span>
       </button><button class="nav-btn" onclick="showPage('exercisecalc',this)">
         <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/></svg>
         <span class="nav-label">Exercise Weapons</span>
@@ -3314,6 +3317,254 @@ async function tibiaFetch(path) {
       if (sec && sec.classList.contains('active') && CUR) loadItem(CUR);
     };
 
+    if (document.readyState!=='loading') wire(); else document.addEventListener('DOMContentLoaded', wire);
+  })();
+  </script>
+
+  <!-- ─── TRANSFERÊNCIA DE SERVIDOR (arbitragem entre mundos) ─── -->
+  <section class="page-section" id="servertransfer">
+    <style>
+      #servertransfer .st-sub{max-width:68ch}
+      #servertransfer .st-form{display:flex;flex-wrap:wrap;gap:.9rem;align-items:flex-end;margin:1.4rem 0 .4rem}
+      #servertransfer .st-fld{display:flex;flex-direction:column;gap:.3rem}
+      #servertransfer .st-fld label{font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600}
+      #servertransfer select.st-in,#servertransfer input.st-in{box-sizing:border-box;padding:.6rem .7rem;font-size:.9rem;color:var(--ink);background:var(--card-bg,rgba(255,255,255,.03));border:1px solid var(--rule);border-radius:10px;outline:none;min-width:150px}
+      #servertransfer select.st-in:focus,#servertransfer input.st-in:focus{border-color:var(--bamboo)}
+      #servertransfer .st-swap{border:1px solid var(--rule);background:var(--card-bg,rgba(255,255,255,.03));color:var(--ink-3);border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:1.1rem;flex-shrink:0;transition:.15s}
+      #servertransfer .st-swap:hover{border-color:var(--bamboo);color:var(--bamboo)}
+      #servertransfer .st-go{padding:.62rem 1.3rem;font-size:.9rem;font-weight:700;color:#fff;background:var(--bamboo);border:0;border-radius:10px;cursor:pointer;transition:.15s}
+      #servertransfer .st-go:hover{filter:brightness(1.08)}
+      #servertransfer .st-go:disabled{opacity:.6;cursor:default}
+      #servertransfer .st-risk{display:flex;gap:.5rem;flex-wrap:wrap;margin:.3rem 0 .2rem}
+      #servertransfer .st-rbtn{font-size:.76rem;font-weight:600;color:var(--ink-3);background:var(--card-bg,rgba(255,255,255,.03));border:1px solid var(--rule);border-radius:999px;padding:.4rem .85rem;cursor:pointer;transition:.15s}
+      #servertransfer .st-rbtn:hover{border-color:var(--bamboo)}
+      #servertransfer .st-rbtn.active{color:#fff;background:var(--bamboo);border-color:var(--bamboo)}
+      #servertransfer .st-guide{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.7rem;margin:1.1rem 0}
+      #servertransfer .st-gcard{border:1px solid var(--rule);border-radius:12px;padding:.8rem .9rem;background:rgba(255,255,255,.015)}
+      #servertransfer .st-gcard h4{margin:0 0 .3rem;font-size:.82rem;display:flex;align-items:center;gap:.4rem}
+      #servertransfer .st-gcard p{margin:0;font-size:.74rem;color:var(--muted);line-height:1.4}
+      #servertransfer .st-dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex-shrink:0}
+      #servertransfer .st-summary{font-size:.86rem;color:var(--ink-2,var(--ink));margin:1.1rem 0 .5rem;padding:.7rem .9rem;border:1px solid var(--rule);border-radius:10px;background:rgba(139,92,246,.06)}
+      #servertransfer .st-summary b{color:var(--bamboo)}
+      #servertransfer .st-tablewrap{overflow-x:auto;border:1px solid var(--rule);border-radius:12px}
+      #servertransfer table.st-table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:720px}
+      #servertransfer table.st-table th{text-align:right;padding:.6rem .7rem;font-size:.66rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted);font-weight:600;border-bottom:1px solid var(--rule);white-space:nowrap;cursor:pointer;user-select:none}
+      #servertransfer table.st-table th.l{text-align:left}
+      #servertransfer table.st-table th:hover{color:var(--bamboo)}
+      #servertransfer table.st-table td{padding:.55rem .7rem;text-align:right;border-bottom:1px solid var(--rule);white-space:nowrap}
+      #servertransfer table.st-table tr:last-child td{border-bottom:0}
+      #servertransfer table.st-table tr:hover td{background:rgba(255,255,255,.02)}
+      #servertransfer .st-item{display:flex;align-items:center;gap:.5rem;text-align:left}
+      #servertransfer .st-item img{width:26px;height:26px;image-rendering:pixelated;object-fit:contain;flex-shrink:0}
+      #servertransfer .st-pos{color:var(--bamboo);font-weight:700}
+      #servertransfer .st-gold{color:var(--gold);font-weight:600}
+      #servertransfer .st-roi{font-weight:700}
+      #servertransfer .st-vol{color:var(--muted);font-size:.74rem}
+      #servertransfer .st-empty{font-size:.86rem;color:var(--muted);text-align:center;padding:2.4rem 1rem;border:1px dashed var(--rule);border-radius:12px;margin-top:1.1rem}
+      #servertransfer .st-note{font-size:.72rem;color:var(--muted);margin-top:.7rem;line-height:1.5;max-width:76ch}
+    </style>
+
+    <h2 class="sec-title">Transferência de Servidor</h2>
+    <p class="sec-sub st-sub">Arbitragem entre mundos: compre itens <b style="color:var(--bamboo)">baratos na origem</b>, transfira o personagem (que leva os itens junto) e <b style="color:var(--gold)">venda caro no destino</b>. Compara o market real dos dois mundos e lista as melhores oportunidades. Dados do Tibia Market Tracker.</p>
+
+    <div class="st-form">
+      <div class="st-fld"><label for="st-origin">Servidor de origem</label><select id="st-origin" class="st-in"></select></div>
+      <button class="st-swap" id="st-swap" title="Inverter origem/destino">⇄</button>
+      <div class="st-fld"><label for="st-dest">Servidor de destino</label><select id="st-dest" class="st-in"></select></div>
+      <div class="st-fld"><label for="st-budget">Tibia Coins para investir</label><input id="st-budget" class="st-in" type="number" min="0" step="50" value="1000"></div>
+      <button class="st-go" id="st-go">Comparar</button>
+    </div>
+
+    <div class="st-risk" id="st-risk">
+      <button class="st-rbtn active" data-risk="low">Sem risco</button>
+      <button class="st-rbtn" data-risk="mid">Risco moderado</button>
+      <button class="st-rbtn" data-risk="high">Risco alto</button>
+    </div>
+
+    <div class="st-guide">
+      <div class="st-gcard"><h4><span class="st-dot" style="background:#4ade80"></span>Sem risco</h4><p>Compra <b>instantânea</b> na origem (menor oferta de venda) e venda <b>instantânea</b> no destino (maior oferta de compra). Lucro menor, mas garantido na hora.</p></div>
+      <div class="st-gcard"><h4><span class="st-dot" style="background:#fbbf24"></span>Risco moderado</h4><p>Compra <b>instantânea</b> na origem e cria <b>oferta de venda</b> no destino, esperando o comprador. Mais lucro, alguma espera.</p></div>
+      <div class="st-gcard"><h4><span class="st-dot" style="background:#f87171"></span>Risco alto</h4><p>Cria <b>oferta de compra</b> na origem e <b>oferta de venda</b> no destino. Lucro máximo, exige paciência nas duas pontas.</p></div>
+    </div>
+
+    <div id="st-status" style="font-size:.82rem;color:var(--muted);min-height:1.2em"></div>
+    <div id="st-result"></div>
+    <div id="st-empty" class="st-empty">Escolha origem e destino e clique em <b>Comparar</b> pra ver as oportunidades.</div>
+
+    <p class="st-note">Só entram itens com <b>volume mínimo de 10 transações/mês</b> nos dois mundos (liquidez real). Preços = melhores ofertas atuais do market. A quantidade sugerida respeita o seu orçamento (convertido de Tibia Coins pra gold pela cotação da TC na origem) e o volume mensal do item. Uma transferência de personagem custa <b>750 Tibia Coins</b> e leva o inventário/depot junto — o lucro abaixo é por item, antes desse custo fixo. Lucro estimado, não garantido: o market muda.</p>
+  </section>
+
+  <script>
+  /* ══ Transferência de Servidor — arbitragem entre mundos (Tibia Panda) ══
+     Compara /market_values de dois mundos (api.tibiamarket.top) e lista itens
+     com lucro: compra barato na origem, transfere o char (leva os itens), vende
+     caro no destino. 3 estratégias de risco. Dados reais, nada inventado. */
+  (function(){
+    var ST_API = (typeof TM_API!=='undefined' && TM_API) ? TM_API : 'https://api.tibiamarket.top';
+    var TC_ID = 22118;              // Tibia Coins
+    var VOL_MIN = 10;               // volume mínimo/mês nas duas pontas
+    var WORLDMKT = {};              // world -> { id -> row }
+    var NAMES = null;               // id -> name (do índice do market tracker)
+    var RISK = 'low';
+    var LASTROWS = [];              // resultado atual (pra reordenar)
+    var SORT = {k:'total', dir:-1};
+    function g(id){ return document.getElementById(id); }
+    function stEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+    function fmt(n){ return (n==null||isNaN(n)) ? '—' : Math.round(n).toLocaleString('pt-BR'); }
+    function stImg(name){ try{ return itemImgUrl(name); }catch(e){ return ''; } }
+
+    // lista de mundos: reusa /v4/worlds (com fallback)
+    var WORLDS = ['Antica','Astera','Belobra','Bona','Calmera','Celebra','Gentebra','Harmonia','Havera','Menera','Monza','Nefera','Pacera','Peloria','Premia','Quelibra','Refugia','Secura','Solidera','Vunira','Wintera','Yubra','Zuna'];
+    function loadWorlds(){
+      return (typeof tibiaFetch==='function' ? tibiaFetch('/v4/worlds') : Promise.reject())
+        .then(function(d){ var a=(d&&d.worlds&&d.worlds.regular_worlds)||[]; if(a.length){ WORLDS=a.map(function(w){return w.name;}).filter(Boolean).sort(); } })
+        .catch(function(){})
+        .then(function(){ fillWorldSelects(); });
+    }
+    function fillWorldSelects(){
+      var o=g('st-origin'), d=g('st-dest'); if(!o||!d) return;
+      var cur = (typeof CONFIG!=='undefined' && CONFIG.world) ? CONFIG.world : 'Gentebra';
+      var opts = WORLDS.map(function(w){ return '<option value="'+stEsc(w)+'">'+stEsc(w)+'</option>'; }).join('');
+      o.innerHTML=opts; d.innerHTML=opts;
+      o.value = WORLDS.indexOf(cur)>=0 ? cur : WORLDS[0];
+      // destino default = primeiro mundo diferente da origem
+      var dft = WORLDS.find(function(w){ return w!==o.value; }) || WORLDS[0];
+      d.value = dft;
+    }
+
+    function loadItemNames(){
+      if (NAMES) return Promise.resolve(NAMES);
+      return fetch('assets/data/market-items.json',{headers:{'Accept':'application/json'}})
+        .then(function(r){ return r.json(); })
+        .then(function(dd){ NAMES={}; (dd.items||[]).forEach(function(x){ NAMES[x.i]=x.n; }); return NAMES; })
+        .catch(function(){ NAMES={}; return NAMES; });
+    }
+
+    function loadMarket(world){
+      if (WORLDMKT[world]) return Promise.resolve(WORLDMKT[world]);
+      var url = ST_API + '/market_values?server=' + encodeURIComponent(world) + '&limit=5000';
+      var ctrl=new AbortController(); var t=setTimeout(function(){ctrl.abort();},25000);
+      return fetch(url,{headers:{'Accept':'application/json'},signal:ctrl.signal})
+        .then(function(res){ if(res.status===429){ return new Promise(function(rz){setTimeout(rz,3500);}).then(function(){return fetch(url,{headers:{'Accept':'application/json'}});}); } return res; })
+        .then(function(res){ if(!res.ok) throw new Error('HTTP '+res.status); return res.json(); })
+        .then(function(arr){ var m={}; (Array.isArray(arr)?arr:[]).forEach(function(r){ m[r.id]=r; }); WORLDMKT[world]=m; return m; })
+        .finally(function(){ clearTimeout(t); });
+    }
+
+    // preços por estratégia. venda(dest)=maior oferta de compra(buy_offer);
+    // compra(origem)=menor oferta de venda(sell_offer). offer = usar a cotação de oferta.
+    function calcRow(o, d, risk){
+      var buy, sell, volO, volD;
+      if (risk==='low'){ buy=o.sell_offer; sell=d.buy_offer; volO=o.month_sold; volD=d.month_bought; }
+      else if (risk==='mid'){ buy=o.sell_offer; sell=d.sell_offer; volO=o.month_sold; volD=d.month_sold; }
+      else { buy=o.buy_offer; sell=d.sell_offer; volO=o.month_bought; volD=d.month_sold; }
+      return { buy:buy||0, sell:sell||0, volO:volO||0, volD:volD||0 };
+    }
+
+    function compute(){
+      var origin=g('st-origin').value, dest=g('st-dest').value;
+      var O=WORLDMKT[origin]||{}, D=WORLDMKT[dest]||{};
+      var budgetTC = Math.max(0, parseFloat(g('st-budget').value)||0);
+      // cotação da TC na origem (quanto de gold custa comprar 1 TC = sell_offer da TC)
+      var tcRow=O[TC_ID]; var tcGold = tcRow ? (tcRow.sell_offer||tcRow.buy_offer||0) : 0;
+      var budgetGold = (tcGold>0 && budgetTC>0) ? budgetTC*tcGold : 0;
+      var rows=[];
+      Object.keys(O).forEach(function(idk){
+        var id=+idk; var o=O[id], d=D[id]; if(!d) return;
+        if (id===TC_ID) return;                       // TC não "transfere" como item
+        var c=calcRow(o,d,RISK);
+        if (c.buy<=0 || c.sell<=0) return;
+        if (c.volO<VOL_MIN || c.volD<VOL_MIN) return; // liquidez real nas duas pontas
+        var profit=c.sell-c.buy; if (profit<=0) return;
+        var roi=profit/c.buy;
+        var liq=Math.min(c.volO, c.volD);             // throughput mensal limita o volume realista
+        var qty = budgetGold>0 ? Math.max(1, Math.min(liq, Math.floor(budgetGold/c.buy))) : liq;
+        var total=profit*qty;
+        rows.push({ id:id, name:(NAMES&&NAMES[id])||('#'+id), buy:c.buy, sell:c.sell, profit:profit, roi:roi, volO:c.volO, volD:c.volD, qty:qty, total:total });
+      });
+      return { rows:rows, origin:origin, dest:dest, budgetTC:budgetTC, budgetGold:budgetGold, tcGold:tcGold };
+    }
+
+    function sortRows(rows){
+      var k=SORT.k, dir=SORT.dir;
+      rows.sort(function(a,b){ var x=a[k], y=b[k]; if(typeof x==='string'){ return dir*x.localeCompare(y); } return dir*((x||0)-(y||0)); });
+      return rows;
+    }
+
+    function render(data){
+      var r=g('st-result'), em=g('st-empty'); if(em) em.style.display='none';
+      if(!r) return;
+      var rows=sortRows(data.rows.slice());
+      LASTROWS=data.rows;
+      if(!rows.length){
+        r.innerHTML='<div class="st-empty">Nenhuma oportunidade de <b>'+stEsc(riskLabel())+'</b> de <b>'+stEsc(data.origin)+'</b> pra <b>'+stEsc(data.dest)+'</b> com volume ≥ '+VOL_MIN+'/mês agora. Tente outra estratégia ou outro par de mundos.</div>';
+        return;
+      }
+      var top=rows.slice(0,60);
+      var totalAll=rows.reduce(function(s,x){return s+x.total;},0);
+      var sum='<div class="st-summary"><b>'+rows.length+'</b> oportunidades de '+stEsc(data.origin)+' → '+stEsc(data.dest)+' ('+stEsc(riskLabel())+'). ';
+      if(data.budgetGold>0){ sum+='Com <b>'+fmt(data.budgetTC)+' TC</b> (~'+fmt(data.budgetGold)+' gp na origem) o lucro total estimado é <b>'+fmt(totalAll)+' gp</b>. '; }
+      else { sum+='Informe seu saldo de Tibia Coins pra dimensionar quantidade e lucro total. '; }
+      sum+='Mostrando as '+top.length+' melhores.</div>';
+      var th=function(k,lbl,cls){ var ar = SORT.k===k ? (SORT.dir<0?' ↓':' ↑') : ''; return '<th class="'+(cls||'')+'" data-k="'+k+'">'+stEsc(lbl)+ar+'</th>'; };
+      var head='<tr>'+th('name','Item','l')+th('buy','Compra (origem)')+th('sell','Venda (destino)')+th('profit','Lucro/un')+th('roi','ROI')+th('qty','Qtd')+th('total','Lucro total')+th('volO','Vol')+'</tr>';
+      var body=top.map(function(x){
+        return '<tr>'+
+          '<td><div class="st-item"><img loading="lazy" src="'+stEsc(stImg(x.name))+'" data-item-name="'+stEsc(x.name)+'" onerror="window.tpItemImgErr&&window.tpItemImgErr(this)"><span>'+stEsc(x.name)+'</span></div></td>'+
+          '<td>'+fmt(x.buy)+'</td>'+
+          '<td class="st-gold">'+fmt(x.sell)+'</td>'+
+          '<td class="st-pos">+'+fmt(x.profit)+'</td>'+
+          '<td class="st-roi" style="color:'+roiColor(x.roi)+'">'+(x.roi*100).toFixed(0)+'%</td>'+
+          '<td>'+fmt(x.qty)+'</td>'+
+          '<td class="st-pos">+'+fmt(x.total)+'</td>'+
+          '<td class="st-vol">'+fmt(x.volO)+'/'+fmt(x.volD)+'</td>'+
+        '</tr>';
+      }).join('');
+      r.innerHTML=sum+'<div class="st-tablewrap"><table class="st-table"><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>';
+      // ordenação por clique no cabeçalho
+      [].forEach.call(r.querySelectorAll('th[data-k]'), function(thEl){
+        thEl.addEventListener('click', function(){
+          var k=thEl.getAttribute('data-k');
+          if(SORT.k===k) SORT.dir=-SORT.dir; else { SORT.k=k; SORT.dir=(k==='name'?1:-1); }
+          render({rows:LASTROWS, origin:data.origin, dest:data.dest, budgetTC:data.budgetTC, budgetGold:data.budgetGold, tcGold:data.tcGold});
+        });
+      });
+    }
+    function roiColor(roi){ return roi>=0.5?'#4ade80':(roi>=0.15?'#fbbf24':'var(--ink-2,var(--ink))'); }
+    function riskLabel(){ return RISK==='low'?'sem risco':(RISK==='mid'?'risco moderado':'risco alto'); }
+
+    function run(){
+      var origin=g('st-origin').value, dest=g('st-dest').value;
+      var status=g('st-status'), btn=g('st-go');
+      if(origin===dest){ status.innerHTML='<span style="color:#f87171">Escolha dois mundos diferentes.</span>'; return; }
+      SORT={k:'total',dir:-1};
+      if(btn){ btn.disabled=true; btn.textContent='Comparando…'; }
+      status.innerHTML='<span class="spinner" style="display:inline-block;width:12px;height:12px;border-width:1px;vertical-align:middle"></span> Carregando market de '+stEsc(origin)+' e '+stEsc(dest)+'… (pode levar alguns segundos)';
+      Promise.all([ loadItemNames(), loadMarket(origin), loadMarket(dest) ])
+        .then(function(){ var data=compute(); status.textContent=''; render(data); })
+        .catch(function(){ status.innerHTML='<span style="color:#f87171">Não consegui o market agora. Tente de novo em instantes.</span>'; })
+        .finally(function(){ if(btn){ btn.disabled=false; btn.textContent='Comparar'; } });
+    }
+
+    function wire(){
+      var go=g('st-go'); if(!go) return;
+      go.addEventListener('click', run);
+      g('st-swap').addEventListener('click', function(){ var o=g('st-origin'), d=g('st-dest'); var t=o.value; o.value=d.value; d.value=t; });
+      g('st-budget').addEventListener('keydown', function(e){ if(e.key==='Enter') run(); });
+      [].forEach.call(g('st-risk').querySelectorAll('.st-rbtn'), function(b){
+        b.addEventListener('click', function(){
+          RISK=b.getAttribute('data-risk');
+          [].forEach.call(g('st-risk').querySelectorAll('.st-rbtn'), function(x){ x.classList.toggle('active', x===b); });
+          // se já tem dados carregados dos dois mundos, recalcula na hora
+          var o=g('st-origin').value, d=g('st-dest').value;
+          if(WORLDMKT[o] && WORLDMKT[d] && o!==d){ SORT={k:'total',dir:-1}; render(compute()); }
+        });
+      });
+    }
+
+    window.tpTransferInit = function(){
+      if(!window.__stInit){ window.__stInit=true; loadWorlds(); loadItemNames(); }
+    };
     if (document.readyState!=='loading') wire(); else document.addEventListener('DOMContentLoaded', wire);
   })();
   </script>
@@ -11487,6 +11738,9 @@ function showPage(id, btn) {
   }
   if (id === 'markettracker' && window.tpMarketInit) {
     tpMarketInit();
+  }
+  if (id === 'servertransfer' && window.tpTransferInit) {
+    tpTransferInit();
   }
   if (id === 'partyfinder') {
     loadPartyFinder();
