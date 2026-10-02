@@ -5874,11 +5874,27 @@ PlayerName (Leader)
       #builds .bd-wgemtxt{font-size:.76rem;color:var(--ink-2);line-height:1.5;background:rgba(201,168,64,.08);border:1px solid rgba(201,168,64,.22);border-radius:8px;padding:.4rem .55rem}
       #builds .bd-wgemtxt b{color:var(--ink)}
       @media(max-width:560px){#builds .bd-wheelwrap{justify-content:center}#builds .bd-wheelsvg,#builds .bd-wheelimg{max-width:320px}}
+      #builds .bld-adminbar{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;margin:0 0 1rem;padding:.7rem .85rem;border:1px dashed var(--bamboo,#8b5cf6);border-radius:12px;background:rgba(139,92,246,.07)}
+      #builds .bld-newbtn{background:var(--bamboo,#8b5cf6);border:0;color:#fff;border-radius:9px;padding:.55rem 1rem;font:inherit;font-weight:800;cursor:pointer}
+      #builds .bld-newbtn:hover{filter:brightness(1.08)}
+      #builds .bld-adminhint{font-size:.74rem;color:var(--muted)}
+      #tp-bldnew .bn-card{max-width:460px;text-align:left}
+      #tp-bldnew .bn-title{font-size:1.1rem;margin:0 0 .25rem}
+      #tp-bldnew .bn-sub{font-size:.8rem;color:var(--muted);margin:0 0 1rem}
+      #tp-bldnew .bn-vocs{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+      #tp-bldnew .bn-voc{display:flex;align-items:center;gap:.6rem;background:var(--bg-2,#1b1a25);border:1px solid var(--rule,#2b2938);color:var(--ink,#eae8f2);border-radius:11px;padding:.7rem .8rem;font:inherit;font-weight:700;cursor:pointer;text-align:left;transition:border-color .12s,background .12s}
+      #tp-bldnew .bn-voc:hover{border-color:var(--bamboo,#8b5cf6);background:rgba(139,92,246,.1)}
+      #tp-bldnew .bn-voc .bn-emoji{font-size:1.4rem;line-height:1}
+      #tp-bldnew .bn-voc .bn-sk{display:block;font-size:.66rem;font-weight:600;color:var(--muted)}
+      #builds .be2status{background:var(--bg-2);border:1px solid var(--rule);border-radius:9px;padding:.5rem .9rem;font:inherit;font-weight:800;cursor:pointer}
+      #builds .be2status.pub{border-color:#3ecf8e;color:#5fdd9e}
+      #builds .be2status.draft{border-color:var(--gold,#c9a840);color:var(--gold,#c9a840)}
     </style>
     <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M3 5a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm7 0a2 2 0 012-2h3a2 2 0 012 2v10a2 2 0 01-2 2h-3a2 2 0 01-2-2V5z"/></svg> Builds prontas</h2>
     <p class="sec-sub bld-sub">Builds validadas 1:1 contra a calculadora — uma boa referência por vocação e faixa de nível. Clique numa build pra ver o detalhe completo, as proficiências, a rotação e abrir na calculadora. <span class="dc-conf" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--gold-dim);color:var(--gold)">dano conferido pelo motor</span></p>
 
     <div id="bld-list">
+      <div class="bld-adminonly" id="bld-adminbar" style="display:none"><button class="bld-newbtn" type="button" onclick="tpBuildCreateStart()">➕ Criar build</button><span class="bld-adminhint">Admin — crie e publique builds por vocação, sem depender de ninguém.</span></div>
       <div class="bld-filters" id="bld-filters"></div>
       <div class="bld-grid" id="bld-grid"><div class="bld-empty">Carregando builds…</div></div>
     </div>
@@ -5980,6 +5996,7 @@ PlayerName (Leader)
       var grid=document.getElementById('bld-grid'); if(!grid)return;
       var list=all.filter(function(b){return filter==='all'||b.vocation===filter;});
       grid.innerHTML=list.length?list.map(card).join(''):'<div class="bld-empty">Nenhuma build encontrada.</div>';
+      if(window.tpCheckBuildAdmin) tpCheckBuildAdmin();
     }
     function renderFilters(){
       var f=document.getElementById('bld-filters'); if(!f)return;
@@ -6481,7 +6498,7 @@ PlayerName (Leader)
     window.TP_IS_ADMIN=window.TP_IS_ADMIN||false; window.__tpAdminChecked=window.__tpAdminChecked||false;
     window.tpCheckBuildAdmin=function(){
       var A=window.TP_AUTH;
-      var reveal=function(){ if(window.TP_IS_ADMIN) document.querySelectorAll('.bd-editbtn').forEach(function(b){b.style.display='';}); };
+      var reveal=function(){ if(window.TP_IS_ADMIN){ document.querySelectorAll('.bd-editbtn').forEach(function(b){b.style.display='';}); document.querySelectorAll('.bld-adminonly').forEach(function(b){b.style.display='';}); } };
       if(!A||!A.user){ window.TP_IS_ADMIN=false; return; }
       if(window.__tpAdminChecked){ reveal(); return; }
       (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/user_roles?select=role&role=eq.admin&user_id=eq.'+A.user.id,{headers:{Accept:'application/json'}})
@@ -6857,7 +6874,7 @@ PlayerName (Leader)
       function F(lbl,inner){ return '<label class="be2f"><span>'+lbl+'</span>'+inner+'</label>'; }
       function I(id,val,type){ return '<input id="'+id+'"'+(type?' type="'+type+'"':'')+' value="'+E(val==null?'':val)+'">'; }
       function TA(id,val,rows){ return '<textarea id="'+id+'" rows="'+(rows||3)+'">'+E(Array.isArray(val)?val.join('\n'):(val||''))+'</textarea>'; }
-      var bar='<div class="be2bar"><b>Editando build</b><span style="color:var(--muted);font-size:.8rem">'+E(row.vocation)+'</span><button class="be2cancel" onclick="tpBECancel()">✖ Cancelar</button><button class="be2save" id="be2-savebtn" onclick="tpBESave()">💾 Salvar</button></div>';
+      var bar='<div class="be2bar"><b>Editando build</b><span style="color:var(--muted);font-size:.8rem">'+E(row.vocation)+'</span><button class="be2status '+(row.status==='approved'?'pub':'draft')+'" type="button" onclick="tpBEToggleStatus()" title="Alterna entre pública e rascunho (confirma no Salvar)">'+(row.status==='approved'?'🌐 Pública':'📝 Rascunho')+'</button><button class="be2cancel" onclick="tpBECancel()">✖ Cancelar</button><button class="be2save" id="be2-savebtn" onclick="tpBESave()">💾 Salvar</button></div>';
       var meta='<div class="be2sec"><h4>Metadados</h4><div class="be2grid">'
         +F('Nome',I('be2-name',row.name))+F('Elemento',I('be2-el',row.element))
         +F('Status','<select id="be2-status"><option value="approved"'+(row.status==='approved'?' selected':'')+'>Pública</option><option value="hidden"'+(row.status==='hidden'?' selected':'')+'>Oculta</option></select>')
@@ -7185,6 +7202,40 @@ PlayerName (Leader)
         setTimeout(function(){ location.reload(); },800);
       }catch(e){ if(window.tpToast) tpToast('Não consegui salvar (confirme que você é admin).','error'); if(btn){btn.disabled=false;btn.textContent='💾 Salvar';} }
     };
+    /* ===== Criação de build (admin) — por vocação, publica sozinho ===== */
+    window.__BLD_NEWVOC=[
+      {k:'knight',  emoji:'🛡️', label:'Knight',   sk:'Sword / Axe / Club + Shield'},
+      {k:'paladin', emoji:'🏹', label:'Paladin',  sk:'Distance Fighting'},
+      {k:'monk',    emoji:'👊', label:'Monk',     sk:'Fist Fighting'},
+      {k:'sorcerer',emoji:'🔮', label:'Sorcerer', sk:'Magic Level'},
+      {k:'druid',   emoji:'🌿', label:'Druid',    sk:'Magic Level'}
+    ];
+    window.tpBuildCreateStart=function(){
+      if(!(window.TP_AUTH&&window.TP_AUTH.user)){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
+      if(!window.TP_IS_ADMIN){ if(window.tpToast) tpToast('Só admin pode criar builds.','error'); return; }
+      var m=document.getElementById('tp-bldnew'); if(!m){ m=document.createElement('div'); m.id='tp-bldnew'; m.className='tp-modal'; document.body.appendChild(m); }
+      var cards=window.__BLD_NEWVOC.map(function(v){ return '<button type="button" class="bn-voc" onclick="tpBuildCreate(\''+v.k+'\')"><span class="bn-emoji">'+v.emoji+'</span><span>'+v.label+'<span class="bn-sk">'+v.sk+'</span></span></button>'; }).join('');
+      m.innerHTML='<div class="tp-modal-card bn-card"><button class="tp-modal-close" onclick="tpBuildNewClose()">✕</button><h3 class="bn-title">➕ Criar build</h3><p class="bn-sub">Escolha a vocação. A build nasce como <b>rascunho</b> (oculta) e abre no editor — você preenche arma, roda e rotação, o dano calcula sozinho, e publica com um clique.</p><div class="bn-vocs">'+cards+'</div></div>';
+      m.classList.add('open'); m.onclick=function(ev){ if(ev.target===m) tpBuildNewClose(); };
+    };
+    window.tpBuildNewClose=function(){ var m=document.getElementById('tp-bldnew'); if(m) m.classList.remove('open'); };
+    window.tpBuildCreate=async function(voc){
+      var A=window.TP_AUTH; if(!A||!A.user){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
+      var lbl=(window.__BLD_NEWVOC.filter(function(x){return x.k===voc;})[0]||{}).label||voc;
+      var data={ fmt:1, voc:voc, inp:{ml:"0",tr:"0",tres:"100",critc:"10",critd:"90",fatal:"0",level:"",skill:"",wheel:"10",atkman:"0",shielding:"0"}, tg:[], ut:false, ex:false, b:{ammo:null,gems:{},prof:[],equip:{},wprof:{},shapes:{},stance:"none",weapon:null,vessels:{},pickSlot:null,rotation:[],wheelPts:{},wheelSel:null,onslaught:0,stanceTier:0,transcendence:0}, guide:{} };
+      var payload={ name:'Nova build — '+lbl, vocation:voc, element:'', dano:0, ml:0, status:'hidden', data:data };
+      var m=document.getElementById('tp-bldnew'); var btns=m?m.querySelectorAll('.bn-voc'):[]; btns.forEach(function(b){b.disabled=true;b.style.opacity=.6;});
+      try{
+        var r=await (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/builds',{method:'POST',headers:{'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(payload)});
+        if(!r.ok) throw new Error('POST '+r.status);
+        var rows=await r.json(); var row=Array.isArray(rows)?rows[0]:rows;
+        tpBuildNewClose();
+        if(window.tpToast) tpToast('Rascunho criado! Abrindo o editor…','success');
+        if(row&&row.id&&window.tpBuildEditor) tpBuildEditor(row.id);
+      }catch(e){ if(window.tpToast) tpToast('Não consegui criar (confirme que você é admin).','error'); btns.forEach(function(b){b.disabled=false;b.style.opacity=1;}); }
+    };
+    /* publicar / despublicar direto no editor in-place (persiste no Salvar) */
+    window.tpBEToggleStatus=function(){ var BE=window.__BE; if(!BE||!BE.row) return; BE.row.status=(BE.row.status==='approved')?'hidden':'approved'; if(window.tpBERender) tpBERender(); if(window.tpToast) tpToast(BE.row.status==='approved'?'Marcada como PÚBLICA — clique em Salvar pra confirmar.':'Voltou pra rascunho — clique em Salvar pra confirmar.','info'); };
     window.tpCloseBuild=function(){
       document.getElementById('builds').classList.remove('detail');
       var ln=document.getElementById('bld-listnote'); if(ln)ln.style.display='';
