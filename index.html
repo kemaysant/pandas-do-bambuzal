@@ -6331,7 +6331,9 @@ PlayerName (Leader)
       var _rs=_rotSrc.filter(function(r){return !r.focus;}),_ru=_rotSrc.filter(function(r){return r.focus;});
       function stripQ(n){ return String(n||'').replace(/\s*\([^)]*\)\s*$/,'').trim(); }
       function rspell(r,idx){
-        var base=stripQ(r.n), isAA=/^auto.?attack$/i.test(base), url=isAA?null:(TP_SPELLICON[base]||_tpSpellWikiIc(base));
+        var base=stripQ(r.n), isAA=/^auto.?attack$/i.test(base);
+        var _waic=(w&&(w.icd||_DCI[w.icon]||(w.id!=null&&(_DCW[String(w.id)]||{}).ic&&_DCI[(_DCW[String(w.id)]||{}).ic])))||null;   /* auto-attack = bater com a arma → ícone da arma */
+        var url=isAA?_waic:(TP_SPELLICON[base]||_tpSpellWikiIc(base));
         var emoji=isAA?'⚔️':(r.focus?'✦':'🔮');
         var cls=isAA?'aa':(r.focus?'ult':'rota'), nm=isAA?'Auto-attack':base;
         var anim=(!isAA && TP_SPELLANIM.has(base)) ? (' data-anim="assets/spell-anim/'+base.replace(/'/g,'').replace(/ /g,'_')+'.webp"') : '';
@@ -6789,7 +6791,8 @@ PlayerName (Leader)
     function _beRotHtml(){
       var BE=window.__BE, b=BE.data.b, voc=BE.row.vocation, E=esc, DCE=_beDCE(), SP=DCE.spells||{}, rot=b.rotation||(b.rotation=[]);
       var SIC=(typeof TP_SPELLICON!=='undefined')?TP_SPELLICON:{};
-      var lines=rot.map(function(r,i){ var sp=SP[String(r.id)]||{}; var nm=sp.dn||String(sp.n||('#'+r.id)).replace(/\s*\([^)]*\)\s*$/,''); var isAA=/^auto.?attack$/i.test(nm); var icd=isAA?null:(SIC[nm]||_tpSpellWikiIc(nm));
+      var _waic=(b.weapon&&(b.weapon.icd||((DCE.icons||{})[b.weapon.icon])))||null;   /* auto-attack = arma equipada */
+      var lines=rot.map(function(r,i){ var sp=SP[String(r.id)]||{}; var nm=sp.dn||String(sp.n||('#'+r.id)).replace(/\s*\([^)]*\)\s*$/,''); var isAA=/^auto.?attack$/i.test(nm); var icd=isAA?_waic:(SIC[nm]||_tpSpellWikiIc(nm));
         return '<div class="be2rotline"><span class="be2rotnum">'+(i+1)+'</span>'+(icd?'<img class="be2roti" src="'+icd+'" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{className:\'be2rotemoji\',textContent:\'🔮\'}))">':'<span class="be2rotemoji">'+(isAA?'⚔️':'🔮')+'</span>')+'<span class="be2rotnm">'+E(nm)+(sp.el?' <small style="color:var(--muted);font-weight:400">'+E(sp.el)+'</small>':'')+'</span>'
           +'<label class="be2rotf">alvos<input type="number" min="1" value="'+(r.targets||1)+'" onchange="tpBErotField('+i+',\'targets\',this.value)"></label>'
           +'<label class="be2rotf">peso<input type="number" min="1" value="'+(r.ratio||1)+'" onchange="tpBErotField('+i+',\'ratio\',this.value)"></label>'
