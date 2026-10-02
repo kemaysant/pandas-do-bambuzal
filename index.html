@@ -4656,8 +4656,16 @@ PlayerName (Leader)
       #profile .pf-disp-edit:hover{border-color:var(--bamboo,#8b5cf6);background:var(--bamboo-pale,rgba(139,92,246,.12))}
       /* Modal editar display */
       #tp-disp-modal .disp-sec{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:.2rem 0 .55rem}
-      #tp-disp-modal .disp-floors{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:.5rem;max-height:210px;overflow:auto;padding:.1rem}
+      #tp-disp-modal .disp-floors{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:.5rem;max-height:300px;overflow-y:auto;overflow-x:hidden;padding:.1rem 2px}
       #tp-disp-modal .tp-floorsw{position:relative;width:100%;aspect-ratio:1;border-radius:9px;border:2px solid var(--rule);cursor:pointer;image-rendering:pixelated;background-size:28px 28px;background-color:#3a3a44}
+      #tp-disp-modal .tp-floorsw.r-comum{border-color:#39404d}
+      #tp-disp-modal .tp-floorsw.r-incomum{border-color:#2a5238}
+      #tp-disp-modal .tp-floorsw.r-raro{border-color:#274158}
+      #tp-disp-modal .tp-floorsw.r-epico{border-color:#43315e}
+      #tp-disp-modal .tp-floorsw.r-lendario{border-color:#6b5316}
+      #tp-disp-modal .tp-floorsw.scene{grid-column:span 3;aspect-ratio:auto;height:74px;background-size:cover;background-position:center;image-rendering:auto}
+      #tp-disp-modal .tp-floorsw.scene .nm{position:absolute;left:0;right:0;bottom:0;font-size:.62rem;font-weight:800;color:#fff;text-align:left;padding:14px 7px 4px;border-radius:0 0 7px 7px;background:linear-gradient(0deg,rgba(0,0,0,.75),transparent);text-shadow:0 1px 2px #000;letter-spacing:.02em}
+      @media(max-width:520px){#tp-disp-modal .tp-floorsw.scene{grid-column:span 2}}
       #tp-disp-modal .tp-floorsw.on{border-color:var(--bamboo,#8b5cf6);box-shadow:0 0 0 2px rgba(139,92,246,.35)}
       #tp-disp-modal .tp-floorsw.locked{opacity:.45}
       #tp-disp-modal .tp-floorsw .lk{position:absolute;top:-6px;right:-6px;font-size:.6rem;background:var(--bg-3,#23212f);border:1px solid var(--rule);border-radius:999px;padding:0 3px}
@@ -10508,7 +10516,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-02scenes1';
+window.TP_BUILD = '2026-10-02scenes2';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -17220,7 +17228,7 @@ function ewEnsureTcInput() {
     var owned=window.__TP_OWNED_FLOORS||{}, cur=window.__pfFloorId||'stone';
     host.innerHTML=TP_FLOORS.filter(_tpFloorVis).map(function(fl){
       var locked=fl.price>0 && !owned[fl.id];
-      return '<div class="tp-floorsw'+(fl.id===cur?' on':'')+(locked?' locked':'')+'" data-floor="'+fl.id+'" title="'+fl.name+(locked?' — compre na Store':'')+'" onclick="tpSetFloor(\''+fl.id+'\')" style="background-image:url('+tpFloorUrl(fl.id)+');background-size:'+(fl.scene?'cover':'28px 28px')+'">'+(locked?'<span class="lk">🔒</span>':'')+'</div>';
+      return '<div class="tp-floorsw r-'+(fl.rarity||'comum')+(fl.scene?' scene':'')+(fl.id===cur?' on':'')+(locked?' locked':'')+'" data-floor="'+fl.id+'" title="'+fl.name+(locked?' — compre na Store':'')+'" onclick="tpSetFloor(\''+fl.id+'\')" style="background-image:url('+(fl.scene?(fl.url||tpFloorUrl(fl.id)):tpFloorUrl(fl.id))+');background-size:'+(fl.scene?'cover':'28px 28px')+'">'+(fl.scene?'<span class="nm">'+fl.name+'</span>':'')+(locked?'<span class="lk">🔒</span>':'')+'</div>';
     }).join('');
   }
   function tpDispOutfit(){
