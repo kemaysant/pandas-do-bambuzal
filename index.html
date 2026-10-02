@@ -6337,8 +6337,8 @@ PlayerName (Leader)
         var emoji=isAA?'⚔️':(r.focus?'✦':'🔮');
         var cls=isAA?'aa':(r.focus?'ult':'rota'), nm=isAA?'Auto-attack':base;
         var anim=(!isAA && TP_SPELLANIM.has(base)) ? (' data-anim="assets/spell-anim/'+base.replace(/'/g,'').replace(/ /g,'_')+'.webp"') : '';
-        var inner='<span class="bd-rsnum">'+idx+'</span><span class="bd-rsemoji">'+emoji+'</span>'
-          +(url?'<img src="'+url+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">':'');
+        var inner='<span class="bd-rsnum">'+idx+'</span>'
+          +(url?'<img src="'+url+'" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{className:\'bd-rsemoji\',textContent:\''+emoji+'\'}))">':'<span class="bd-rsemoji">'+emoji+'</span>');
         return '<div class="bd-rspell '+cls+'"'+anim+' title="'+esc(r.n)+'"><div class="bd-rsic">'+inner+'</div><div class="bd-rsnm">'+esc(nm)+'</div></div>';
       }
       var _seqArr=_rs.concat(_ru);
