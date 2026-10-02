@@ -10525,7 +10525,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-02evt3';
+window.TP_BUILD = '2026-10-02evt4';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -20396,7 +20396,7 @@ window.tpLoadJornada=async function(){
   };
   window.tpAgendaChatDelete=async function(id){
     if(!(await window.tpConfirm('Apagar esta mensagem?',{ok:'Apagar'}))) return;
-    try{ var r=await af()(SB()+'/rest/v1/event_messages?id=eq.'+id,{method:'DELETE',headers:{Prefer:'return=minimal'}}); if(!r.ok) throw new Error('del'); tpAgendaChatLoad(false); }
+    try{ var r=await af()(SB()+'/rest/v1/event_messages?id=eq.'+id,{method:'DELETE',headers:{'Prefer':'return=representation'}}); var rows=await r.json().catch(function(){return null;}); if(!r.ok) throw new Error('del'); if(!Array.isArray(rows)||!rows.length){ toast('Você não tem permissão pra apagar esta mensagem.','error'); return; } tpAgendaChatLoad(false); }
     catch(e){ toast('Não consegui apagar.','error'); }
   };
   // Widget da home: próximos eventos públicos do servidor
@@ -20488,15 +20488,16 @@ window.tpLoadJornada=async function(){
   };
   window.tpEvpChatDelete=async function(mid){
     if(!(await window.tpConfirm('Apagar esta mensagem?',{ok:'Apagar'}))) return;
-    try{ var r=await af()(SB()+'/rest/v1/event_messages?id=eq.'+mid,{method:'DELETE',headers:{Prefer:'return=minimal'}}); if(!r.ok) throw new Error('del'); evpChatLoad(false); }
+    try{ var r=await af()(SB()+'/rest/v1/event_messages?id=eq.'+mid,{method:'DELETE',headers:{'Prefer':'return=representation'}}); var rows=await r.json().catch(function(){return null;}); if(!r.ok) throw new Error('del'); if(!Array.isArray(rows)||!rows.length){ toast('Você não tem permissão pra apagar esta mensagem.','error'); return; } evpChatLoad(false); }
     catch(e){ toast('Não consegui apagar.','error'); }
   };
   window.tpEvpKick=async function(userId, name){
     if(!userId||!window.__EVP||!window.__EVP.id) return;
     if(!(await window.tpConfirm('Remover '+(name||'este jogador')+' do evento? A presença dele será apagada.',{ok:'Remover'}))) return;
     try{
-      var r=await af()(SB()+'/rest/v1/event_rsvps?event_id=eq.'+window.__EVP.id+'&user_id=eq.'+userId,{method:'DELETE',headers:{Prefer:'return=minimal'}});
-      if(!r.ok) throw new Error('del');
+      var r=await af()(SB()+'/rest/v1/event_rsvps?event_id=eq.'+window.__EVP.id+'&user_id=eq.'+userId,{method:'DELETE',headers:{'Prefer':'return=representation'}});
+      var rows=await r.json().catch(function(){return null;}); if(!r.ok) throw new Error('del');
+      if(!Array.isArray(rows)||!rows.length){ toast('Você não tem permissão pra remover este jogador.','error'); return; }
       toast('Jogador removido do evento.','info'); if(window.tpEventPageOpen) tpEventPageOpen(window.__EVP.id,true); if(window.tpHomeEvents) tpHomeEvents();
     }catch(e){ toast('Não consegui remover o jogador.','error'); }
   };
