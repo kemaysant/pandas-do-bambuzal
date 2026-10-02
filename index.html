@@ -10508,7 +10508,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-02store1';
+window.TP_BUILD = '2026-10-02scenes1';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -17177,7 +17177,7 @@ function ewEnsureTcInput() {
   var TP_DEFAULT_OUTFIT={outfit:128,head:114,body:88,legs:40,feet:76,addons:0,dir:2,mount:0}; // Citizen padrão (cores clássicas)
   function cfgFrom(c){ if(!c||c.outfit_id==null) return Object.assign({},TP_DEFAULT_OUTFIT,{dir:(c&&c.direction!=null?c.direction:2),mount:(c&&c.mount_id)||0}); return {outfit:c.outfit_id, head:c.head||0, body:c.body||0, legs:c.legs||0, feet:c.feet||0, addons:c.addons||0, dir:(c.direction!=null?c.direction:2), mount:c.mount_id||0}; }
 
-  window.TP_FLOORS=[{id:'stone',name:'Pedra',rarity:'comum',price:0},{id:'grass',name:'Grama',rarity:'comum',price:0},{id:'sand',name:'Areia',rarity:'incomum',price:300},{id:'wood',name:'Madeira',rarity:'incomum',price:400},{id:'marble',name:'Mármore Dourado',rarity:'raro',price:900},{id:'mosaic',name:'Mosaico',rarity:'epico',price:1500},{id:'lava',name:'Lava',rarity:'lendario',price:3000},{id:'t429',name:'Laje de Pedra',rarity:'comum',price:200},{id:'t436',name:'Pedra Clara',rarity:'comum',price:250},{id:'t410',name:'Ardósia',rarity:'incomum',price:350},{id:'t416',name:'Paralelepípedo',rarity:'incomum',price:350},{id:'t924',name:'Arenito Claro',rarity:'incomum',price:400},{id:'t622',name:'Água',rarity:'incomum',price:450},{id:'t1771',name:'Assoalho de Madeira',rarity:'incomum',price:450},{id:'t417',name:'Mosaico Terroso',rarity:'raro',price:700},{id:'t800',name:'Gelo',rarity:'raro',price:900},{id:'t456',name:'Tábua Real',rarity:'raro',price:950},{id:'t418',name:'Mosaico Dourado',rarity:'epico',price:1600},{id:'t460',name:'Carpete Arcano',rarity:'epico',price:1900},{id:'pf-corrupted-gardens',name:'Corrupted Gardens',rarity:'lendario',price:0,scene:true,hidden:true,url:'floors/pf-corrupted-gardens.webp'}];
+  window.TP_FLOORS=[{id:'stone',name:'Pedra',rarity:'comum',price:0},{id:'grass',name:'Grama',rarity:'comum',price:0},{id:'sand',name:'Areia',rarity:'incomum',price:300},{id:'wood',name:'Madeira',rarity:'incomum',price:400},{id:'marble',name:'Mármore Dourado',rarity:'raro',price:900},{id:'mosaic',name:'Mosaico',rarity:'epico',price:1500},{id:'lava',name:'Lava',rarity:'lendario',price:3000},{id:'t429',name:'Laje de Pedra',rarity:'comum',price:200},{id:'t436',name:'Pedra Clara',rarity:'comum',price:250},{id:'t410',name:'Ardósia',rarity:'incomum',price:350},{id:'t416',name:'Paralelepípedo',rarity:'incomum',price:350},{id:'t924',name:'Arenito Claro',rarity:'incomum',price:400},{id:'t622',name:'Água',rarity:'incomum',price:450},{id:'t1771',name:'Assoalho de Madeira',rarity:'incomum',price:450},{id:'t417',name:'Mosaico Terroso',rarity:'raro',price:700},{id:'t800',name:'Gelo',rarity:'raro',price:900},{id:'t456',name:'Tábua Real',rarity:'raro',price:950},{id:'t418',name:'Mosaico Dourado',rarity:'epico',price:1600},{id:'t460',name:'Carpete Arcano',rarity:'epico',price:1900},{id:'pf-corrupted-gardens',name:'Corrupted Gardens',rarity:'lendario',price:0,scene:true,hidden:true,url:'floors/pf-corrupted-gardens.webp'},{id:'pf-feyrist',name:'Feyrist',rarity:'epico',price:1600,scene:true,url:'floors/pf-feyrist.png'},{id:'pf-issavi',name:'Issavi',rarity:'lendario',price:3000,scene:true,url:'floors/pf-issavi.webp'},{id:'pf-roshamuul',name:'Roshamuul',rarity:'lendario',price:3000,scene:true,url:'floors/pf-roshamuul.png'}];
   function tpFloorUrl(id){ return (typeof FLOOR_BASE!=='undefined'?FLOOR_BASE:'floors')+'/'+id+'.png?v='+((window.TP_BUILD)||'1'); }
   function tpApplyFloor(el,f){ if(!el) return; var _u=(f&&f.url)?(f.url+'?v='+((window.TP_BUILD)||'1')):tpFloorUrl(f.id); el.style.backgroundImage='url('+_u+')'; try{el.classList.toggle('scene',!!(f&&f.scene));}catch(_e){} if(f&&f.scene){ el.style.backgroundSize='cover'; el.style.backgroundRepeat='no-repeat'; el.style.backgroundPosition='center'; } else { el.style.backgroundSize='56px 56px'; el.style.backgroundRepeat='repeat'; el.style.backgroundPosition='top left'; } }
   function tpFloorById(id){ for(var i=0;i<TP_FLOORS.length;i++){ if(TP_FLOORS[i].id===id) return TP_FLOORS[i]; } return TP_FLOORS[0]; }
@@ -18459,8 +18459,10 @@ window.tpLoadJornada=async function(){
     if(owned) btn='<button class="sc-buy owned" disabled>✓ Possui</button>';
     else if(COINS>=f.price_coins) btn='<button class="sc-buy" data-fbuy="'+f.floor_id+'" data-name="'+encodeURIComponent(f.name)+'" data-price="'+f.price_coins+'">🪙 '+num(f.price_coins)+'</button>';
     else btn='<button class="sc-buy cant" disabled>🪙 '+num(f.price_coins)+'</button>';
-    return '<div class="store-card r-'+f.rarity+(owned?' owned':'')+'"><i class="sc-glow"></i><span class="sc-ribbon">'+(RARLBL[f.rarity]||f.rarity)+'</span>'
-      +'<div class="sc-thumb" style="background-image:url('+furl(f.floor_id)+');background-size:38px 38px;image-rendering:pixelated"></div>'
+    var _fl=(window.tpFloorById?window.tpFloorById(f.floor_id):null), _sc=_fl&&_fl.scene;
+    var _thumb=_sc?('background-image:url('+(_fl.url||furl(f.floor_id))+');background-size:cover;background-position:center'):('background-image:url('+furl(f.floor_id)+');background-size:38px 38px;image-rendering:pixelated');
+    return '<div class="store-card r-'+f.rarity+(owned?' owned':'')+(_sc?' scene':'')+'"><i class="sc-glow"></i><span class="sc-ribbon">'+(RARLBL[f.rarity]||f.rarity)+'</span>'
+      +'<div class="sc-thumb" style="'+_thumb+'"></div>'
       +'<div class="sc-name">'+f.name+'</div>'+btn+'</div>';
   }
   window.tpFStoreRender=function(){
