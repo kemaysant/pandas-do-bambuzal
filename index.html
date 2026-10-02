@@ -10523,7 +10523,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-02herobg1';
+window.TP_BUILD = '2026-10-02evt1';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -20227,7 +20227,7 @@ window.tpLoadJornada=async function(){
   function agmTitle(txt){ var m=document.getElementById('agm-modal'); var h=m&&m.querySelector('.hs-sec-t'); if(h) h.textContent=txt; }
   function toLocalInput(iso){ if(!iso) return ''; var d=new Date(iso); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes()); }
   window.tpAgendaEdit=function(id){
-    var ev=(window.__AG_EVENTS||[]).filter(function(x){return x.id===id;})[0] || (window.__AG_FOCUS&&window.__AG_FOCUS.id===id?window.__AG_FOCUS:null);
+    var ev=(window.__AG_EVENTS||[]).filter(function(x){return x.id===id;})[0] || (window.__AG_FOCUS&&window.__AG_FOCUS.id===id?window.__AG_FOCUS:null) || (window.__EVP&&window.__EVP.data&&window.__EVP.data.event&&window.__EVP.data.event.id===id?window.__EVP.data.event:null);
     var body=document.getElementById('agm-body'), modal=document.getElementById('agm-modal'); if(!ev||!body||!modal) return;
     agmTitle('✏️ Editar evento');
     var typeOpts=Object.keys(ETYPES).map(function(k){ return '<option value="'+k+'"'+(k===ev.type?' selected':'')+'>'+ETYPES[k][0]+' '+ETYPES[k][1]+'</option>'; }).join('');
@@ -20255,7 +20255,9 @@ window.tpLoadJornada=async function(){
       var r=await af()(SB()+'/rest/v1/events?id=eq.'+id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(patch)});
       if(!r.ok) throw new Error('patch');
       toast('Evento atualizado! ✅','success'); document.getElementById('agm-modal').classList.remove('open'); tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents();
-      if(window.__AG_FOCUS&&window.__AG_FOCUS.id===id&&window.tpAgendaFocus) setTimeout(function(){ tpAgendaFocus(id); },300);
+      var onEvp=window.__EVP&&window.__EVP.id===id&&document.getElementById('eventpage')&&document.getElementById('eventpage').classList.contains('active');
+      if(onEvp&&window.tpEventPageOpen){ tpEventPageOpen(id,true); }
+      else if(window.__AG_FOCUS&&window.__AG_FOCUS.id===id&&window.tpAgendaFocus) setTimeout(function(){ tpAgendaFocus(id); },300);
     }catch(e){ toast('Não consegui salvar as alterações.','error'); if(btn){ btn.disabled=false; btn.textContent='Salvar alterações'; } }
   };
   window.tpAgendaNew=function(){
@@ -20487,13 +20489,22 @@ window.tpLoadJornada=async function(){
     try{ var r=await af()(SB()+'/rest/v1/event_messages?id=eq.'+mid,{method:'DELETE',headers:{Prefer:'return=minimal'}}); if(!r.ok) throw new Error('del'); evpChatLoad(false); }
     catch(e){ toast('Não consegui apagar.','error'); }
   };
+  window.tpEvpKick=async function(userId, name){
+    if(!userId||!window.__EVP||!window.__EVP.id) return;
+    if(!window.confirm('Remover '+(name||'este jogador')+' do evento? A presença dele será apagada.')) return;
+    try{
+      var r=await af()(SB()+'/rest/v1/event_rsvps?event_id=eq.'+window.__EVP.id+'&user_id=eq.'+userId,{method:'DELETE',headers:{Prefer:'return=minimal'}});
+      if(!r.ok) throw new Error('del');
+      toast('Jogador removido do evento.','info'); if(window.tpEventPageOpen) tpEventPageOpen(window.__EVP.id,true); if(window.tpHomeEvents) tpHomeEvents();
+    }catch(e){ toast('Não consegui remover o jogador.','error'); }
+  };
   function renderEventPage(){
     var body=document.getElementById('evp-main')||document.getElementById('evp-body'), d=window.__EVP.data; if(!body||!d||!d.event) return;
     var ev=d.event, t=ETYPES[ev.type]||ETYPES.other, can=!!d.can_manage;
     var meId=(auth()&&auth().user&&auth().user.id)||null;
     var iPart=(ev.my_response==='going'||ev.my_response==='maybe');
     function pkc(p){ if(!p.user_id||p.user_id===meId) return '';
-      if(can) return '<button class="evp-krate" title="Avaliar karma (anfitrião · peso cheio)" onclick="tpKarmaOpen(\''+p.user_id+'\')">⚖️</button>';
+      if(can) return '<button class="evp-krate" title="Avaliar karma (anfitrião · peso cheio)" onclick="tpKarmaOpen(\''+p.user_id+'\')">⚖️</button>'+'<button class="evp-krate" title="Remover do evento" style="color:#e87070;border-color:#e8707066" onclick="tpEvpKick(\''+p.user_id+'\',\''+esc((p.character||'')).replace(/\x27/g,'')+'\')">✕</button>';
       if(iPart && p.user_id!==meId) return '<button class="evp-vote up'+(p.my_vote>0?' on':'')+'" title="👍 participou bem" onclick="tpKarmaVote(\''+p.user_id+'\',1)">👍</button><button class="evp-vote dn'+(p.my_vote<0?' on':'')+'" title="👎 atrapalhou" onclick="tpKarmaVote(\''+p.user_id+'\',-1)">👎</button>';
       return ''; }
     var parts=d.participants||[];
