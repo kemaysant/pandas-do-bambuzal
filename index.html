@@ -4637,6 +4637,10 @@ PlayerName (Leader)
       #profile .pf-hero-stage{position:relative;width:240px;height:240px;flex:none;align-self:flex-start;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;image-rendering:pixelated;background-size:56px 56px;background-color:#3a3a44;box-shadow:inset 0 0 0 1px var(--rule),inset 0 0 50px rgba(0,0,0,.55),0 10px 26px rgba(0,0,0,.45)}
       #profile .pf-hero-stage canvas{image-rendering:pixelated;width:150px;height:150px;position:relative;z-index:1;filter:drop-shadow(0 6px 6px rgba(0,0,0,.55))}
       #profile .pf-hero-stage.scene canvas{width:116px;height:116px}
+      .pf-herobg{position:absolute;inset:0;z-index:0;background-size:cover;background-position:center;filter:blur(16px) brightness(.42) saturate(1.05);transform:scale(1.12);pointer-events:none}
+      .pf-herobg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,15,20,.48),rgba(13,15,20,.78))}
+      .pf-header.has-scenebg,.tp-prof-hero2.has-scenebg{position:relative;overflow:hidden}
+      .pf-header.has-scenebg>*:not(.pf-herobg),.tp-prof-hero2.has-scenebg>*:not(.pf-herobg){position:relative;z-index:1}
       #profile .pf-hero-animbtn{position:absolute;bottom:9px;right:9px;z-index:2;background:rgba(20,19,28,.82);border:1px solid var(--rule);color:var(--ink,#eae8f2);border-radius:8px;padding:.32rem .62rem;cursor:pointer;font-size:.72rem;font-weight:700}
       #profile .pf-hero-animbtn.on{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6);color:#fff}
       #profile .pf-hero-info{flex:1;min-width:230px;padding:1.15rem 1.25rem;display:flex;flex-direction:column;gap:.55rem}
@@ -10519,7 +10523,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-02prof1';
+window.TP_BUILD = '2026-10-02herobg1';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -17190,7 +17194,7 @@ function ewEnsureTcInput() {
 
   window.TP_FLOORS=[{id:'stone',name:'Pedra',rarity:'comum',price:0},{id:'grass',name:'Grama',rarity:'comum',price:0},{id:'sand',name:'Areia',rarity:'incomum',price:300},{id:'wood',name:'Madeira',rarity:'incomum',price:400},{id:'marble',name:'Mármore Dourado',rarity:'raro',price:900},{id:'mosaic',name:'Mosaico',rarity:'epico',price:1500},{id:'lava',name:'Lava',rarity:'lendario',price:3000},{id:'t429',name:'Laje de Pedra',rarity:'comum',price:200},{id:'t436',name:'Pedra Clara',rarity:'comum',price:250},{id:'t410',name:'Ardósia',rarity:'incomum',price:350},{id:'t416',name:'Paralelepípedo',rarity:'incomum',price:350},{id:'t924',name:'Arenito Claro',rarity:'incomum',price:400},{id:'t622',name:'Água',rarity:'incomum',price:450},{id:'t1771',name:'Assoalho de Madeira',rarity:'incomum',price:450},{id:'t417',name:'Mosaico Terroso',rarity:'raro',price:700},{id:'t800',name:'Gelo',rarity:'raro',price:900},{id:'t456',name:'Tábua Real',rarity:'raro',price:950},{id:'t418',name:'Mosaico Dourado',rarity:'epico',price:1600},{id:'t460',name:'Carpete Arcano',rarity:'epico',price:1900},{id:'pf-corrupted-gardens',name:'Corrupted Gardens',rarity:'lendario',price:0,scene:true,hidden:true,url:'floors/pf-corrupted-gardens.webp'},{id:'pf-feyrist',name:'Feyrist',rarity:'epico',price:1600,scene:true,url:'floors/pf-feyrist.png'},{id:'pf-issavi',name:'Issavi',rarity:'lendario',price:3000,scene:true,url:'floors/pf-issavi.webp'},{id:'pf-roshamuul',name:'Roshamuul',rarity:'lendario',price:3000,scene:true,url:'floors/pf-roshamuul.png'}];
   function tpFloorUrl(id){ return (typeof FLOOR_BASE!=='undefined'?FLOOR_BASE:'floors')+'/'+id+'.png?v='+((window.TP_BUILD)||'1'); }
-  function tpApplyFloor(el,f){ if(!el) return; var _u=(f&&f.url)?(f.url+'?v='+((window.TP_BUILD)||'1')):tpFloorUrl(f.id); el.style.backgroundImage='url('+_u+')'; try{el.classList.toggle('scene',!!(f&&f.scene));}catch(_e){} if(f&&f.scene){ el.style.backgroundSize='cover'; el.style.backgroundRepeat='no-repeat'; el.style.backgroundPosition='center'; } else { el.style.backgroundSize='56px 56px'; el.style.backgroundRepeat='repeat'; el.style.backgroundPosition='top left'; } }
+  function tpApplyFloor(el,f){ if(!el) return; var _u=(f&&f.url)?(f.url+'?v='+((window.TP_BUILD)||'1')):tpFloorUrl(f.id); el.style.backgroundImage='url('+_u+')'; try{el.classList.toggle('scene',!!(f&&f.scene));}catch(_e){} if(f&&f.scene){ el.style.backgroundSize='cover'; el.style.backgroundRepeat='no-repeat'; el.style.backgroundPosition='center'; } else { el.style.backgroundSize='56px 56px'; el.style.backgroundRepeat='repeat'; el.style.backgroundPosition='top left'; } try{ var _c=el.closest&&el.closest('.pf-header,.tp-prof-hero2'); if(_c){ var _bg=_c.querySelector(':scope>.pf-herobg'); if(f&&f.scene){ if(!_bg){_bg=document.createElement('div');_bg.className='pf-herobg';_c.insertBefore(_bg,_c.firstChild);} _bg.style.backgroundImage=el.style.backgroundImage; _c.classList.add('has-scenebg'); } else { if(_bg)_bg.remove(); _c.classList.remove('has-scenebg'); } } }catch(_e){} }
   function tpFloorById(id){ for(var i=0;i<TP_FLOORS.length;i++){ if(TP_FLOORS[i].id===id) return TP_FLOORS[i]; } return TP_FLOORS[0]; }
   function _tpFloorVis(fl){ return !(fl.hidden && !((window.__TP_OWNED_FLOORS||{})[fl.id])); }
   try{ window.tpApplyFloor=tpApplyFloor; window.tpFloorById=tpFloorById; }catch(_e){}
