@@ -5994,6 +5994,12 @@ PlayerName (Leader)
     var TP_SPELLANIM=new Set(["Hell's Core","Berserk","Chained Penance","Death Echo","Divine Caldera","Divine Missile","Energy Wave","Eternal Winter","Fierce Berserk","Flurry of Blows","Forked Glacier","Forked Thorns","Great Death Beam","Great Fire Wave","Great Energy Beam","Greater Flurry of Blows","Groundshaker","Sweeping Takedown","Ice Burst","Ice Wave","Terra Wave"]);
     /* ícone real de magia via TibiaWiki (mesmo padrão das armas) — fallback quando não há miniatura embutida em TP_SPELLICON */
     function _tpSpellWikiIc(name){ return 'https://www.tibiawiki.com.br/wiki/Special:FilePath/'+encodeURIComponent(String(name||'').replace(/\s*\([^)]*\)\s*$/,''))+'.gif'; }
+    /* animações sem arquivo local em assets/spell-anim → usa o "<Nome> Preview.gif" da TibiaWiki (efeito animado) */
+    var TP_SPELLANIM_URL={
+      "Thousand Fist Blows":"https://www.tibiawiki.com.br/wiki/Special:FilePath/Thousand%20Fist%20Blows%20Preview.gif",
+      "Spiritual Outburst":"https://www.tibiawiki.com.br/wiki/Special:FilePath/Spiritual%20Outburst%20Preview.gif"
+    };
+    function _tpSpellAnim(name){ if(TP_SPELLANIM_URL[name]) return TP_SPELLANIM_URL[name]; if(TP_SPELLANIM.has(name)) return 'assets/spell-anim/'+name.replace(/'/g,'').replace(/ /g,'_')+'.gif'; return null; }
     (function(){
       if(window.__tpAnimInit)return; window.__tpAnimInit=1;
       var pop=null;
@@ -6336,7 +6342,7 @@ PlayerName (Leader)
         var url=isAA?_waic:(TP_SPELLICON[base]||_tpSpellWikiIc(base));
         var emoji=isAA?'⚔️':(r.focus?'✦':'🔮');
         var cls=isAA?'aa':(r.focus?'ult':'rota'), nm=isAA?'Auto-attack':base;
-        var anim=(!isAA && TP_SPELLANIM.has(base)) ? (' data-anim="assets/spell-anim/'+base.replace(/'/g,'').replace(/ /g,'_')+'.gif"') : '';
+        var _animU=isAA?null:_tpSpellAnim(base); var anim=_animU ? (' data-anim="'+_animU+'"') : '';
         var inner='<span class="bd-rsnum">'+idx+'</span>'
           +(url?'<img src="'+url+'" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement(\'span\'),{className:\'bd-rsemoji\',textContent:\''+emoji+'\'}))">':'<span class="bd-rsemoji">'+emoji+'</span>');
         return '<div class="bd-rspell '+cls+'"'+anim+' title="'+esc(r.n)+'"><div class="bd-rsic">'+inner+'</div><div class="bd-rsnm">'+esc(nm)+'</div></div>';
