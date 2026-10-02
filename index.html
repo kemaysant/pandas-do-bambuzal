@@ -5962,6 +5962,7 @@ PlayerName (Leader)
       var ic=w.icd||_DCIl[w.icon]||WIC[w.icon], el=b.element||w.damageType||'', elc=ELCOL[el]||'var(--gold)';
       var chips=[];
       _tpBuildEls(b,bb,w,el).forEach(function(e){var ec=ELCOL[e]||'var(--gold)';chips.push('<span class="bld-tag" style="background:'+ec+'22;border-color:'+ec+'55;color:'+ec+'">'+(ELPT[e]||e)+'</span>');});
+      (function(){ var _skL={fist:'Fist',sword:'Sword',axe:'Axe',club:'Club',distance:'Distance'}; var _sk=_skL[w.skill]; if(_sk && inp.skill) chips.push('<span class="bld-tag">'+_sk+' '+esc(inp.skill)+'</span>'); })();
       if(b.ml) chips.push('<span class="bld-tag">ML '+esc(b.ml)+'</span>');
       if(bb.stance&&bb.stance!=='none') chips.push('<span class="bld-tag">'+esc(STANCE_LBL[bb.stance]||bb.stance)+'</span>');
       if(det.rot&&det.rot[0]&&det.rot[0].n) chips.push('<span class="bld-tag">'+esc(det.rot[0].n)+'</span>');
@@ -6381,6 +6382,7 @@ PlayerName (Leader)
       (function(){ if(!bb.stance||bb.stance==='none') return; var STm=_DC.stances||{}; var _ml=(b.vocation==='sorcerer'?STm.list:STm[b.vocation])||[]; var _m=(_ml||[]).filter(function(x){return x.id===bb.stance;})[0]; if(_m){ _stEl=_m.element; _stLbl=_m.label; } })();
       if(_M){ var _me=_M.el; var _mc=ELCOL[_me]||'var(--gold)'; tags.push('<span class="bld-tag" style="background:'+_mc+'22;border-color:'+_mc+'55;color:'+_mc+'">'+(ELPT[_me]||_me)+'</span>'); tags.push('<span class="bld-tag" style="opacity:.65;font-style:italic">adapta à criatura</span>'); }
       else { var _els=_tpBuildEls(b,bb,w,el); _els.forEach(function(e){var ec=ELCOL[e]||'var(--gold)';tags.push('<span class="bld-tag" style="background:'+ec+'22;border-color:'+ec+'55;color:'+ec+'">'+(ELPT[e]||e)+'</span>');}); var _mage=(b.vocation==='druid'||b.vocation==='sorcerer'); if(_mage && (!bb.stance||bb.stance==='none')) tags.push('<span class="bld-tag" style="opacity:.65;font-style:italic">adapta à criatura</span>'); }
+      (function(){ var _skL={fist:'Fist',sword:'Sword',axe:'Axe',club:'Club',distance:'Distance'}; var _sk=_skL[w.skill]; if(_sk && inp.skill) tags.push('<span class="bld-tag">'+_sk+' '+esc(inp.skill)+'</span>'); })();
       if(b.ml) tags.push('<span class="bld-tag">ML '+esc(b.ml)+'</span>');
       if(_M) tags.push('<span class="bld-tag">'+esc(_M.lbl)+' ('+esc(_M.sub)+')</span>');
       else if(_stLbl) tags.push('<span class="bld-tag">'+esc(_stLbl)+'</span>');
