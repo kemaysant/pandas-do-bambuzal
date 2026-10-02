@@ -10523,7 +10523,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-02evt1';
+window.TP_BUILD = '2026-10-02evt2';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -19492,7 +19492,7 @@ window.tpLoadJornada=async function(){
       .then(function(r){ return r.json(); }).then(function(rows){ var m={}; (Array.isArray(rows)?rows:[]).forEach(function(c){ if(c&&c.name) m[String(c.name).toLowerCase()]=1; }); state.myChars=m; }).catch(function(){});
   }
   window.tpHousePhotoDelete=async function(id,imgPathEnc){
-    if(!window.confirm('Apagar esta foto da galeria? Não dá pra desfazer.')) return;
+    if(!(await window.tpConfirm('Apagar esta foto da galeria? Não dá pra desfazer.',{ok:'Apagar'}))) return;
     var A=auth(); if(!A||!A.user){ toast('Entre na sua conta.','info'); return; }
     try{
       var r=await af()(SBURL()+'/rest/v1/house_photos?id=eq.'+id,{method:'DELETE',headers:{Prefer:'return=minimal'}});
@@ -20219,7 +20219,7 @@ window.tpLoadJornada=async function(){
       }).join('')+'</div>';
   };
   window.tpAgendaDelete=async function(id){
-    if(!window.confirm('Apagar este evento? Não dá pra desfazer.')) return;
+    if(!(await window.tpConfirm('Apagar este evento? Não dá pra desfazer.',{ok:'Apagar'}))) return;
     try{ var r=await af()(SB()+'/rest/v1/events?id=eq.'+id,{method:'DELETE',headers:{Prefer:'return=minimal'}}); if(!r.ok) throw new Error('del'); toast('Evento apagado.','info'); tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents(); }
     catch(e){ toast('Não consegui apagar.','error'); }
   };
@@ -20393,7 +20393,7 @@ window.tpLoadJornada=async function(){
     if(btn) btn.disabled=false;
   };
   window.tpAgendaChatDelete=async function(id){
-    if(!window.confirm('Apagar esta mensagem?')) return;
+    if(!(await window.tpConfirm('Apagar esta mensagem?',{ok:'Apagar'}))) return;
     try{ var r=await af()(SB()+'/rest/v1/event_messages?id=eq.'+id,{method:'DELETE',headers:{Prefer:'return=minimal'}}); if(!r.ok) throw new Error('del'); tpAgendaChatLoad(false); }
     catch(e){ toast('Não consegui apagar.','error'); }
   };
@@ -20485,18 +20485,41 @@ window.tpLoadJornada=async function(){
     }catch(e){ toast('Erro ao enviar.','error'); }
   };
   window.tpEvpChatDelete=async function(mid){
-    if(!window.confirm('Apagar esta mensagem?')) return;
+    if(!(await window.tpConfirm('Apagar esta mensagem?',{ok:'Apagar'}))) return;
     try{ var r=await af()(SB()+'/rest/v1/event_messages?id=eq.'+mid,{method:'DELETE',headers:{Prefer:'return=minimal'}}); if(!r.ok) throw new Error('del'); evpChatLoad(false); }
     catch(e){ toast('Não consegui apagar.','error'); }
   };
   window.tpEvpKick=async function(userId, name){
     if(!userId||!window.__EVP||!window.__EVP.id) return;
-    if(!window.confirm('Remover '+(name||'este jogador')+' do evento? A presença dele será apagada.')) return;
+    if(!(await window.tpConfirm('Remover '+(name||'este jogador')+' do evento? A presença dele será apagada.',{ok:'Remover'}))) return;
     try{
       var r=await af()(SB()+'/rest/v1/event_rsvps?event_id=eq.'+window.__EVP.id+'&user_id=eq.'+userId,{method:'DELETE',headers:{Prefer:'return=minimal'}});
       if(!r.ok) throw new Error('del');
       toast('Jogador removido do evento.','info'); if(window.tpEventPageOpen) tpEventPageOpen(window.__EVP.id,true); if(window.tpHomeEvents) tpHomeEvents();
     }catch(e){ toast('Não consegui remover o jogador.','error'); }
+  };
+  window.tpConfirm=function(msg,opts){
+    opts=opts||{};
+    return new Promise(function(resolve){
+      var ov=document.createElement('div');
+      ov.setAttribute('style','position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(8,9,13,.62);backdrop-filter:blur(2px);padding:1rem');
+      var danger=opts.danger!==false, okBg=danger?'#e05353':'var(--bamboo,#5f9d5f)';
+      var card=document.createElement('div');
+      card.setAttribute('style','max-width:380px;width:100%;background:var(--bg-2,#15131d);border:1px solid var(--rule,#2a2733);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.5);padding:1.1rem 1.2rem;color:var(--text,#ece9f5);font-family:inherit');
+      card.innerHTML='<div style="font-size:.98rem;line-height:1.45;margin-bottom:1rem">'+(opts.html?msg:esc(msg))+'</div>'
+        +'<div style="display:flex;gap:.6rem;justify-content:flex-end">'
+        +'<button type="button" class="tpc-no" style="padding:.5rem .95rem;border-radius:9px;border:1px solid var(--rule,#2a2733);background:transparent;color:var(--muted,#9a95a8);cursor:pointer;font-weight:600">'+esc(opts.cancel||'Cancelar')+'</button>'
+        +'<button type="button" class="tpc-yes" style="padding:.5rem 1.05rem;border-radius:9px;border:0;background:'+okBg+';color:#fff;cursor:pointer;font-weight:700">'+esc(opts.ok||'Confirmar')+'</button>'
+        +'</div>';
+      ov.appendChild(card); document.body.appendChild(ov);
+      var done=function(v){ try{document.body.removeChild(ov);}catch(e){} document.removeEventListener('keydown',onKey); resolve(v); };
+      function onKey(e){ if(e.key==='Escape') done(false); else if(e.key==='Enter') done(true); }
+      card.querySelector('.tpc-no').onclick=function(){ done(false); };
+      card.querySelector('.tpc-yes').onclick=function(){ done(true); };
+      ov.addEventListener('click',function(e){ if(e.target===ov) done(false); });
+      document.addEventListener('keydown',onKey);
+      setTimeout(function(){ var b=card.querySelector('.tpc-yes'); if(b) b.focus(); },30);
+    });
   };
   function renderEventPage(){
     var body=document.getElementById('evp-main')||document.getElementById('evp-body'), d=window.__EVP.data; if(!body||!d||!d.event) return;
