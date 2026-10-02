@@ -2858,7 +2858,7 @@ async function tibiaFetch(path) {
       #eventpage .evp-back{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;font-weight:700;color:var(--bamboo-light,#a78bfa);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;margin-bottom:1rem}
       #eventpage .evp-head{position:relative;background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:16px;padding:1.3rem 1.4rem;overflow:hidden;margin-bottom:1.1rem}
       #eventpage .evp-head::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--bamboo,#8b5cf6),var(--bamboo-light,#a78bfa))}
-      #eventpage .evp-ttl{font-family:'Cinzel',serif;font-size:1.5rem;font-weight:700;color:var(--ink,#eae8f2);line-height:1.15;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+      #eventpage .evp-ttl{font-family:'Space Grotesk','Inter',sans-serif;font-size:1.45rem;font-weight:700;letter-spacing:-.4px;color:var(--ink,#eae8f2);line-height:1.18;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
       #eventpage .evp-badges{display:flex;gap:.5rem;flex-wrap:wrap;margin:.6rem 0 .2rem}
       #eventpage .evp-badge{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:3px 10px;border-radius:999px}
       #eventpage .evp-meta{display:flex;gap:1.3rem;flex-wrap:wrap;font-size:.84rem;color:var(--ink-3,#b9b6c9);margin-top:.7rem}
@@ -2874,11 +2874,13 @@ async function tibiaFetch(path) {
       #eventpage .evp-card h3{font-size:.95rem;font-weight:800;color:var(--ink,#eae8f2);margin:0 0 .5rem;display:flex;align-items:center;gap:.45rem}
       #eventpage .evp-text{font-size:.86rem;color:var(--ink-3,#b9b6c9);line-height:1.5;white-space:pre-wrap;word-break:break-word}
       #eventpage .evp-empty{font-size:.82rem;color:var(--muted);font-style:italic}
-      #eventpage .evp-voc{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.4rem}
-      #eventpage .evp-vcol{flex:1;min-width:120px;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:10px;padding:.6rem .55rem}
+      #eventpage .evp-voc{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:.7rem;margin-top:.4rem;align-items:start}
+      #eventpage .evp-vcol{min-width:0;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:10px;padding:.6rem .55rem}
       #eventpage .evp-vhd{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.03em;display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem}
-      #eventpage .evp-p{display:flex;align-items:center;gap:.45rem;font-size:.8rem;color:var(--ink-2,#cfc9e6);padding:3px 0}
-      #eventpage .evp-p .lv{margin-left:auto;font-size:.72rem;color:var(--muted);font-weight:700}
+      #eventpage .evp-p{display:flex;align-items:center;gap:.35rem;font-size:.8rem;color:var(--ink-2,#cfc9e6);padding:3px 0}
+      #eventpage .evp-p .evp-pn{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      #eventpage .evp-p .evp-karma,#eventpage .evp-p .evp-krate,#eventpage .evp-p .evp-vote,#eventpage .evp-p .mb{flex:none}
+      #eventpage .evp-p .lv{margin-left:auto;flex:none;font-size:.72rem;color:var(--muted);font-weight:700}
       #eventpage .evp-karma{font-size:.6rem;font-weight:800;border:1px solid;border-radius:999px;padding:1px 6px;white-space:nowrap}
       #eventpage .evp-krate{background:var(--bg-3,#23212f);border:1px solid var(--border,#2b2938);color:var(--muted);border-radius:6px;font-size:.66rem;padding:1px 6px;cursor:pointer;font-family:inherit}
       #eventpage .evp-krate:hover{border-color:var(--bamboo,#8b5cf6);color:var(--bamboo-light,#a78bfa)}
@@ -2893,13 +2895,13 @@ async function tibiaFetch(path) {
       /* Kanban */
       #eventpage .kb-wrap{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1.1rem 1.2rem;margin-bottom:1.1rem}
       #eventpage .kb-hint{font-size:.78rem;color:var(--muted);margin:.1rem 0 .9rem;line-height:1.45}
-      #eventpage .kb-board{display:flex;gap:.7rem;overflow-x:auto;padding-bottom:.7rem;scrollbar-width:thin;scrollbar-color:var(--bamboo,#8b5cf6) transparent}
+      #eventpage .kb-board{display:flex;flex-wrap:wrap;gap:.7rem;padding-bottom:.2rem}
       #eventpage .kb-board::-webkit-scrollbar{height:8px}
       #eventpage .kb-board::-webkit-scrollbar-thumb{background:var(--border,#2b2938);border-radius:8px}
       #eventpage .kb-board::-webkit-scrollbar-thumb:hover{background:var(--bamboo,#8b5cf6)}
-      #eventpage .kb-col{flex:0 0 190px;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:12px;padding:.6rem;min-height:90px;transition:.14s}
+      #eventpage .kb-col{flex:1 1 185px;max-width:260px;background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:12px;padding:.6rem;min-height:90px;transition:.14s}
       #eventpage .kb-col.drop{border-color:var(--bamboo,#8b5cf6);background:var(--bamboo-dim,#211a3d)}
-      #eventpage .kb-col.pool{flex-basis:220px}
+      #eventpage .kb-col.pool{flex-basis:200px;max-width:none}
       #eventpage .kb-chd{display:flex;align-items:center;justify-content:space-between;gap:.4rem;margin-bottom:.5rem}
       #eventpage .kb-cname{font-size:.8rem;font-weight:800;color:var(--ink,#eae8f2)}
       #eventpage .kb-count{font-size:.66rem;font-weight:700;color:var(--muted)}
@@ -2915,7 +2917,7 @@ async function tibiaFetch(path) {
       #eventpage .kb-move{margin-top:.35rem;display:flex;gap:.25rem;flex-wrap:wrap}
       #eventpage .kb-move button{font-size:.62rem;font-weight:700;border:1px solid var(--border,#2b2938);background:var(--bg-2,#1b1a25);color:var(--ink-3,#b9b6c9);border-radius:6px;padding:1px 7px;cursor:pointer;font-family:inherit}
       #eventpage .kb-move button.on{background:var(--bamboo,#8b5cf6);color:#fff;border-color:var(--bamboo,#8b5cf6)}
-      #eventpage .kb-addcol{flex:0 0 46px;display:flex;align-items:center;justify-content:center;background:none;border:1px dashed var(--border,#2b2938);border-radius:12px;color:var(--muted);font-size:1.4rem;cursor:pointer;font-family:inherit}
+      #eventpage .kb-addcol{flex:0 0 46px;min-height:90px;align-self:stretch;display:flex;align-items:center;justify-content:center;background:none;border:1px dashed var(--border,#2b2938);border-radius:12px;color:var(--muted);font-size:1.4rem;cursor:pointer;font-family:inherit}
       #eventpage .kb-addcol:hover{border-color:var(--bamboo,#8b5cf6);color:var(--bamboo-light,#a78bfa)}
       /* layout com chat fixo na lateral */
       #eventpage .evp-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:1.1rem;align-items:start}
@@ -2923,7 +2925,7 @@ async function tibiaFetch(path) {
       #eventpage #evp-main{min-width:0}
       #eventpage .evp-chatpane{position:sticky;top:64px;height:calc(100vh - 80px);background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;display:flex;flex-direction:column;overflow:hidden}
       @media(max-width:1199px){ #eventpage .evp-chatpane{position:static;height:auto;max-height:70vh} }
-      #eventpage .evp-chat-hd{font-family:'Cinzel',serif;font-size:.92rem;font-weight:700;color:var(--ink,#eae8f2);padding:.85rem 1rem;border-bottom:1px solid var(--rule,#2b2938);display:flex;align-items:center;gap:.4rem;flex:none}
+      #eventpage .evp-chat-hd{font-family:'Space Grotesk','Inter',sans-serif;font-size:.92rem;font-weight:700;letter-spacing:-.2px;color:var(--ink,#eae8f2);padding:.85rem 1rem;border-bottom:1px solid var(--rule,#2b2938);display:flex;align-items:center;gap:.4rem;flex:none}
       #eventpage .evp-chat-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:.55rem;padding:.8rem}
       #eventpage #evp-chat-foot{padding:.7rem;border-top:1px solid var(--rule,#2b2938);flex:none}
       #eventpage #evp-chat-foot .agchat-gate{margin-top:0}
@@ -10523,7 +10525,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-02evt2';
+window.TP_BUILD = '2026-10-02evt3';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -20559,8 +20561,8 @@ window.tpLoadJornada=async function(){
         var list=going.filter(function(p){ return vocInfo(p.vocation).k===V.k; });
         var mb=maybe.filter(function(p){ return vocInfo(p.vocation).k===V.k; });
         return '<div class="evp-vcol"><div class="evp-vhd" style="color:'+V.color+'">'+V.ico+' '+V.label+'<span>'+list.length+'</span></div>'
-          +((list.length+mb.length)?list.map(function(p){ return '<div class="evp-p">'+esc(p.character||'—')+' '+karmaBadge(p.karma,p.blocked)+'<span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+pkc(p)+'</div>'; }).join('')
-             + mb.map(function(p){ return '<div class="evp-p" style="opacity:.6">'+esc(p.character||'—')+' '+karmaBadge(p.karma,p.blocked)+' <span class="mb">talvez</span><span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+pkc(p)+'</div>'; }).join('')
+          +((list.length+mb.length)?list.map(function(p){ return '<div class="evp-p"><span class="evp-pn">'+esc(p.character||'—')+'</span>'+karmaBadge(p.karma,p.blocked)+'<span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+pkc(p)+'</div>'; }).join('')
+             + mb.map(function(p){ return '<div class="evp-p" style="opacity:.6"><span class="evp-pn">'+esc(p.character||'—')+'</span>'+karmaBadge(p.karma,p.blocked)+'<span class="mb">talvez</span><span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+pkc(p)+'</div>'; }).join('')
             :'<div class="evp-empty" style="font-size:.74rem">—</div>')
           +'</div>';
       }).join('')
