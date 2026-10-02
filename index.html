@@ -10476,7 +10476,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-02pf2';
+window.TP_BUILD = '2026-10-02pf3';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -12191,6 +12191,7 @@ function showPage(id, btn) {
       if (window.tpVisaoHome) window.tpVisaoHome();
     }
   }
+  if (id === 'store' && window.tpStoreLoad) { try{ window.tpStoreLoad(); }catch(e){} }
   // ─── URL da página: sincroniza o #hash pra que cada página tenha link compartilhável ───
   try{
     var _cur=(location.hash||'').replace(/^#/,'');
