@@ -10476,7 +10476,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-02pf';
+window.TP_BUILD = '2026-10-02pf2';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -17149,6 +17149,7 @@ function ewEnsureTcInput() {
   function tpApplyFloor(el,f){ if(!el) return; var _u=(f&&f.url)?(f.url+'?v='+((window.TP_BUILD)||'1')):tpFloorUrl(f.id); el.style.backgroundImage='url('+_u+')'; try{el.classList.toggle('scene',!!(f&&f.scene));}catch(_e){} if(f&&f.scene){ el.style.backgroundSize='cover'; el.style.backgroundRepeat='no-repeat'; el.style.backgroundPosition='center'; } else { el.style.backgroundSize='56px 56px'; el.style.backgroundRepeat='repeat'; el.style.backgroundPosition='top left'; } }
   function tpFloorById(id){ for(var i=0;i<TP_FLOORS.length;i++){ if(TP_FLOORS[i].id===id) return TP_FLOORS[i]; } return TP_FLOORS[0]; }
   function _tpFloorVis(fl){ return !(fl.hidden && !((window.__TP_OWNED_FLOORS||{})[fl.id])); }
+  try{ window.tpApplyFloor=tpApplyFloor; window.tpFloorById=tpFloorById; }catch(_e){}
   var _heroAnim=null, _heroCfg=null;
   function tpHeroStop(){ if(_heroAnim){ clearInterval(_heroAnim); _heroAnim=null; } var b=g('pf-hero-animbtn'); if(b){ b.classList.remove('on'); b.textContent='▶ Andar'; } var cv=g('pf-hero-cv'); if(cv) cv.style.transform=''; }
   // nº de quadros de caminhada do outfit atual (0/1 = pack sem frames reais → usa balanço)
@@ -17935,7 +17936,7 @@ window.tpToast=function(msg,type){
       +'<div class="tp-prof-sec"><div class="tp-prof-h">💬 Comentários</div>'+depoCompose+'<div id="tp-prof-depo"></div></div>'
       +'</div>';
     host.querySelector('.tp-prof').innerHTML=''+head+body;
-    try{ var av0=document.getElementById('tp-prof-av'); if(av0 && typeof tpApplyFloor==='function' && typeof tpFloorById==='function') tpApplyFloor(av0, tpFloorById(p.profile_floor||'stone')); }catch(e){}
+    try{ var av0=document.getElementById('tp-prof-av'); var _af=window.tpApplyFloor, _fb=window.tpFloorById; if(av0 && _af && _fb) _af(av0, _fb(p.profile_floor||'stone')); }catch(e){}
     if(p.outfit&&p.outfit.outfit_id!=null&&window.tpGetOutfitter){
       var o=p.outfit;
       window.tpGetOutfitter().then(function(of){ var cv=document.createElement('canvas');
