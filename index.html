@@ -2791,7 +2791,6 @@ async function tibiaFetch(path) {
         <button class="on" data-w="list" onclick="if(window.tpAgendaView)tpAgendaView('list',this)">☰ Lista</button>
         <button data-w="cal" onclick="if(window.tpAgendaView)tpAgendaView('cal',this)">▦ Calendário</button>
       </div>
-      <button class="ag-new" onclick="if(window.tpAgendaNew)tpAgendaNew()">＋ Criar evento</button>
     </div>
     <div id="ag-focus"></div>
     <div id="ag-list" class="ag-list"></div>
@@ -10525,7 +10524,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-02evt5';
+window.TP_BUILD = '2026-10-02evt6';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
