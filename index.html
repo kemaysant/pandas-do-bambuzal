@@ -4496,8 +4496,11 @@ PlayerName (Leader)
       .tp-prof-hint{font-size:.68rem;color:var(--muted,#9a97a8);margin-top:.35rem}
       /* card hero do amigo */
       .tp-prof-hero2{display:flex;gap:1rem;align-items:flex-start;padding-bottom:1rem;border-bottom:1px solid var(--rule,#2b2938);margin-bottom:.9rem}
-      .tp-prof-hero2 .tp-prof-av{width:132px;height:150px;border-radius:12px;background:#3a3a44;background-size:56px 56px;box-shadow:inset 0 0 0 1px var(--rule,#2b2938),inset 0 0 40px rgba(0,0,0,.5)}
-      .tp-prof-hero2 .tp-prof-av canvas{width:112px;height:112px;max-width:none;max-height:none;filter:drop-shadow(0 5px 4px rgba(0,0,0,.55))}
+      .tp-prof-hero2 .tp-prof-av{width:210px;height:210px;align-self:flex-start;border-radius:16px;background:#3a3a44;background-size:56px 56px;box-shadow:inset 0 0 0 1px var(--rule,#2b2938),inset 0 0 50px rgba(0,0,0,.55),0 10px 26px rgba(0,0,0,.45)}
+      .tp-prof-hero2 .tp-prof-av canvas{width:140px;height:140px;max-width:none;max-height:none;filter:drop-shadow(0 6px 6px rgba(0,0,0,.55))}
+      .tp-prof-hero2 .tp-prof-av.scene{background-size:cover;background-position:center}
+      .tp-prof-hero2 .tp-prof-av.scene canvas{width:116px;height:116px}
+      @media(max-width:620px){.tp-prof-hero2{flex-direction:column;align-items:stretch}.tp-prof-hero2 .tp-prof-av{width:100%;height:240px}}
       .tp-prof .pf-hstats{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin:.6rem 0 .2rem}
       .tp-prof .pf-hstat{display:flex;align-items:center;gap:.4rem;background:var(--bg-2,#1b1a25);border:1px solid var(--rule,#2b2938);border-radius:9px;padding:.35rem .55rem;font-size:.76rem;color:var(--ink,#eae8f2)}
       .tp-prof .pf-hstat .ic{font-size:.85rem;flex:none}
@@ -10516,7 +10519,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-02scenes2';
+window.TP_BUILD = '2026-10-02prof1';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
