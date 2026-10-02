@@ -4967,6 +4967,37 @@ PlayerName (Leader)
     #store .store-card .sc-buy.cant{background:#232833;color:var(--muted);border:1px solid var(--rule)}
     #store .store-card .sc-buy.confirm{background:var(--gold,#f0b429);color:#1c1622}
     #store .store-card.owned{border-color:#2a5238}
+    /* ===== Store revamp (molduras por raridade) ===== */
+    #store .store-card{background:linear-gradient(180deg,#1b1a25,#15141d);overflow:hidden;transition:transform .12s,box-shadow .12s,border-color .12s}
+    #store .store-card:hover{transform:translateY(-3px)}
+    #store .store-card .sc-glow{position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:120px;height:86px;border-radius:50%;filter:blur(26px);opacity:.45;pointer-events:none;z-index:0}
+    #store .store-card>.sc-thumb,#store .store-card>.sc-name,#store .store-card>.sc-buy,#store .store-card>.sc-ribbon{position:relative;z-index:1}
+    #store .store-card .sc-ribbon{align-self:flex-start;font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border-radius:999px;padding:2px 8px}
+    #store .store-card.r-comum{border-color:#333a47}
+    #store .store-card.r-comum .sc-glow{background:#8a93a3}
+    #store .store-card.r-comum>.sc-thumb{background:radial-gradient(circle at 50% 42%,#2a2f3a,#12141b)}
+    #store .store-card.r-comum .sc-ribbon{color:#cfd5e0;background:#232833;border:1px solid #39404d}
+    #store .store-card.r-incomum{border-color:#2a5238}
+    #store .store-card.r-incomum .sc-glow{background:#3fbf6e}
+    #store .store-card.r-incomum>.sc-thumb{background:radial-gradient(circle at 50% 42%,#13301f,#0e1813)}
+    #store .store-card.r-incomum .sc-ribbon{color:#8fe0a8;background:#14281c;border:1px solid #2a5238}
+    #store .store-card.r-raro{border-color:#274158}
+    #store .store-card.r-raro .sc-glow{background:#4a9fe0}
+    #store .store-card.r-raro>.sc-thumb{background:radial-gradient(circle at 50% 42%,#122840,#0e151f)}
+    #store .store-card.r-raro .sc-ribbon{color:#8fcdf0;background:#13202f;border:1px solid #274158}
+    #store .store-card.r-epico{border-color:#43315e}
+    #store .store-card.r-epico .sc-glow{background:#b06fe6}
+    #store .store-card.r-epico>.sc-thumb{background:radial-gradient(circle at 50% 42%,#281540,#140f1f)}
+    #store .store-card.r-epico .sc-ribbon{color:#d7aef0;background:#1f1430;border:1px solid #43315e}
+    #store .store-card.r-lendario{border-color:#6b5316;box-shadow:0 0 0 1px rgba(240,180,41,.1),0 6px 22px rgba(240,180,41,.07)}
+    #store .store-card.r-lendario .sc-glow{background:#f0b429;opacity:.55}
+    #store .store-card.r-lendario>.sc-thumb{background:radial-gradient(circle at 50% 42%,#3a2e0c,#17140a)}
+    #store .store-card.r-lendario .sc-ribbon{color:#ffd45e;background:#2a2210;border:1px solid #6b5316}
+    #store .store-card.r-lendario:hover{box-shadow:0 0 0 1px rgba(240,180,41,.3),0 10px 28px rgba(240,180,41,.16)}
+    #store .sc-feat-h{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--gold,#f0b429);font-weight:800;margin:.1rem 0 .6rem;display:flex;align-items:center;gap:.4rem}
+    #store .sc-feat{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.7rem;margin-bottom:1.4rem}
+    #store .sc-feat .store-card>.sc-thumb{width:94px;height:94px}
+    #store .sc-feat .store-card .sc-thumb canvas{width:82px;height:82px}
   </style>
   <!-- ─── BESTIARY ─── -->
   <style>
@@ -5098,6 +5129,7 @@ PlayerName (Leader)
 
       <!-- ── OUTFITS ── -->
       <div id="store-wrap-outfits">
+        <div id="store-featured-wrap" style="display:none"><div class="sc-feat-h">⭐ Destaques lendários</div><div id="store-featured" class="sc-feat"></div></div>
         <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:.7rem">
           <input id="store-search" placeholder="Buscar outfit..." oninput="tpStoreRender()" style="flex:1;min-width:180px;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);color:var(--ink,#e8e6f0);border-radius:9px;padding:.55rem .8rem;font:inherit">
           <div class="store-ownfilter"><button class="ownf on" data-of="all" onclick="tpOwnFilter('outfits','all',this)">Todos</button><button class="ownf" data-of="unowned" onclick="tpOwnFilter('outfits','unowned',this)">A adquirir</button><button class="ownf" data-of="owned" onclick="tpOwnFilter('outfits','owned',this)">Adquiridos</button></div>
@@ -10476,7 +10508,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-02pf3';
+window.TP_BUILD = '2026-10-02store1';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -18237,19 +18269,25 @@ window.tpLoadJornada=async function(){
     if(owned) btn='<button class="sc-buy owned" disabled>✓ Possui</button>';
     else if(COINS>=e.price) btn='<button class="sc-buy" data-buy="'+e.rep+'" data-name="'+encodeURIComponent(e.name)+'" data-price="'+e.price+'">🪙 '+num(e.price)+'</button>';
     else btn='<button class="sc-buy cant" disabled title="Coins insuficientes">🪙 '+num(e.price)+'</button>';
-    return '<div class="store-card'+(owned?' owned':'')+'">'
+    return '<div class="store-card r-'+e.rarity+(owned?' owned':'')+'"><i class="sc-glow"></i><span class="sc-ribbon">'+(RARLBL[e.rarity]||e.rarity)+'</span>'
       +'<div class="sc-thumb" data-thumb="'+e.rep+'"><span class="sc-fallback">🎽</span></div>'
-      +'<div class="sc-name">'+e.name+'</div>'+rarBadge(e.rarity)+btn+'</div>';
+      +'<div class="sc-name">'+e.name+'</div>'+btn+'</div>';
   }
 
   window.tpStoreRender=function(){
     var grid=g('store-grid'); if(!grid||!CAT) return;
     var q=((g('store-search')&&g('store-search').value)||'').toLowerCase().trim();
     var items=CAT.filter(function(e){ if(curRar!=='todas'&&e.rarity!==curRar) return false; if(q&&e.name.toLowerCase().indexOf(q)<0) return false; if(!ofPass(isOwned(e),'outfits')) return false; return true; });
-    items.sort(function(a,b){ return rarOrd(a.rarity)-rarOrd(b.rarity) || (a.price||0)-(b.price||0) || a.name.localeCompare(b.name); });
+    items.sort(function(a,b){ return (a.sort||0)-(b.sort||0) || a.name.localeCompare(b.name); });
     var emp=g('store-empty'); if(emp) emp.style.display=items.length?'none':'';
     grid.innerHTML=items.map(function(e){ return cardHtml(e, isOwned(e)); }).join('');
     wireBuys(grid); lazyThumbs(grid);
+    var _feat=g('store-featured'), _fw=g('store-featured-wrap');
+    if(_feat){ var _fl=(curRar==='todas'&&!q)?CAT.filter(function(e){return e.rarity==='lendario';}).slice(0,6):[];
+      if(_fw) _fw.style.display=_fl.length?'':'none';
+      _feat.innerHTML=_fl.map(function(e){ return cardHtml(e, isOwned(e)); }).join('');
+      wireBuys(_feat); lazyThumbs(_feat);
+    }
   };
 
   function renderOwned(){
@@ -18355,9 +18393,9 @@ window.tpLoadJornada=async function(){
     else if(COINS>=m.price_coins) btn='<button class="sc-buy" data-mbuy="'+m.mount_id+'" data-name="'+encodeURIComponent(m.name)+'" data-price="'+m.price_coins+'">🪙 '+num(m.price_coins)+'</button>';
     else btn='<button class="sc-buy cant" disabled>🪙 '+num(m.price_coins)+'</button>';
     var owned=(m.unlock_level>0 ? lv>=m.unlock_level : !!OWNEDM2[m.mount_id]);
-    return '<div class="store-card'+(owned?' owned':'')+'">'
+    return '<div class="store-card r-'+m.rarity+(owned?' owned':'')+'"><i class="sc-glow"></i><span class="sc-ribbon">'+(RARLBL[m.rarity]||m.rarity)+'</span>'
       +'<div class="sc-thumb" data-mthumb="'+m.mount_id+'"><span class="sc-fallback">🐎</span></div>'
-      +'<div class="sc-name">'+m.name+'</div>'+rarBadge(m.rarity)+btn+'</div>';
+      +'<div class="sc-name">'+m.name+'</div>'+btn+'</div>';
   }
   window.tpMStoreRender=function(){
     var grid=g('mstore-grid'); if(!grid||!MSTORE) return;
@@ -18366,7 +18404,7 @@ window.tpLoadJornada=async function(){
     var items=MSTORE.filter(function(m){ if(mCurRar!=='todas'&&m.rarity!==mCurRar) return false; if(q&&m.name.toLowerCase().indexOf(q)<0) return false;
       var owned=!!OWNEDM2[m.mount_id] || (m.unlock_level>0 && _lv>=m.unlock_level);
       if(!ofPass(owned,'mounts')) return false; return true; });
-    items.sort(function(a,b){ return rarOrd(a.rarity)-rarOrd(b.rarity) || (a.price_coins||0)-(b.price_coins||0) || a.name.localeCompare(b.name); });
+    items.sort(function(a,b){ return (a.sort||0)-(b.sort||0) || a.name.localeCompare(b.name); });
     var emp=g('mstore-empty'); if(emp) emp.style.display=items.length?'none':'';
     grid.innerHTML=items.map(mCard).join('');
     wireMBuys(grid); lazyMThumbs(grid);
@@ -18421,9 +18459,9 @@ window.tpLoadJornada=async function(){
     if(owned) btn='<button class="sc-buy owned" disabled>✓ Possui</button>';
     else if(COINS>=f.price_coins) btn='<button class="sc-buy" data-fbuy="'+f.floor_id+'" data-name="'+encodeURIComponent(f.name)+'" data-price="'+f.price_coins+'">🪙 '+num(f.price_coins)+'</button>';
     else btn='<button class="sc-buy cant" disabled>🪙 '+num(f.price_coins)+'</button>';
-    return '<div class="store-card'+(owned?' owned':'')+'">'
+    return '<div class="store-card r-'+f.rarity+(owned?' owned':'')+'"><i class="sc-glow"></i><span class="sc-ribbon">'+(RARLBL[f.rarity]||f.rarity)+'</span>'
       +'<div class="sc-thumb" style="background-image:url('+furl(f.floor_id)+');background-size:38px 38px;image-rendering:pixelated"></div>'
-      +'<div class="sc-name">'+f.name+'</div>'+rarBadge(f.rarity)+btn+'</div>';
+      +'<div class="sc-name">'+f.name+'</div>'+btn+'</div>';
   }
   window.tpFStoreRender=function(){
     var grid=g('fstore-grid'); if(!grid||!FSTORE) return;
@@ -18431,7 +18469,7 @@ window.tpLoadJornada=async function(){
     var items=FSTORE.filter(function(f){ if(fCurRar!=='todas'&&f.rarity!==fCurRar) return false; if(q&&f.name.toLowerCase().indexOf(q)<0) return false;
       var owned=!!OWNEDF[f.floor_id] || f.floor_id==='stone' || f.floor_id==='grass';
       if(!ofPass(owned,'floors')) return false; return true; });
-    items.sort(function(a,b){ return rarOrd(a.rarity)-rarOrd(b.rarity) || (a.price_coins||0)-(b.price_coins||0) || a.name.localeCompare(b.name); });
+    items.sort(function(a,b){ return (a.sort||0)-(b.sort||0) || a.name.localeCompare(b.name); });
     var emp=g('fstore-empty'); if(emp) emp.style.display=items.length?'none':'';
     grid.innerHTML=items.map(fCard).join('');
     wireFBuys(grid);
