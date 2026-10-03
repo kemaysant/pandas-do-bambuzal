@@ -6969,8 +6969,10 @@ PlayerName (Leader)
           +'</div>'
         +'</div>'
         +gInsSec;
+      html+='<div class="bld-comments-sec"><h4 style="margin:1.5rem 0 .6rem;font-size:.95rem;font-weight:800;color:var(--ink,#eae8f2)">\uD83D\uDCAC Comentários</h4><div id="bld-comments-inner" class="hf-comments"></div></div>';
       var host=document.getElementById('bld-detail'); host.innerHTML=html;
       try{ if(window._bdRenderRating) _bdRenderRating(id,b); }catch(_e){}
+      try{ if(window.initBuildComments) initBuildComments(id); }catch(_e){}
       if(window.tpCheckBuildAdmin) tpCheckBuildAdmin();
       document.getElementById('builds').classList.add('detail');
       if(window.tpLoadSavedBuilds) tpLoadSavedBuilds();
@@ -10990,7 +10992,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt36';
+window.TP_BUILD = '2026-10-03evt37';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -11121,6 +11123,85 @@ function _fmtDate(iso) {
   try { return new Date(iso).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
   catch { return iso; }
 }
+// ── Comentários da build (espelho das hunts: verificado, pré-moderado) ──
+async function initBuildComments(buildId){
+  const el=document.getElementById('bld-comments-inner'); if(!el) return;
+  _hfVerifiedChar=undefined;
+  await _renderBuildComments(buildId, el);
+}
+async function _renderBuildComments(buildId, el){
+  el.innerHTML=`<div style="font-size:.75rem;color:var(--muted)">Carregando comentários...</div>`;
+  const comments=await _fetchBuildComments(buildId);
+  const listHtml=comments.length
+    ? comments.map(c=>`
+        <div class="hf-comment-item">
+          <div class="hf-comment-meta">
+            <span class="hf-comment-author">${_escHtml(c.autor_nome||'—')}</span>
+            <span class="hf-comment-date">${_fmtDate(c.data)}</span>
+          </div>
+          <div class="hf-comment-text">${_escHtml(c.texto)}</div>
+        </div>`).join('')
+    : '<div class="hf-comment-empty">Nenhum comentário ainda. Seja o primeiro!</div>';
+  el.innerHTML=`<div id="bldc-compose"></div><div id="bldc-list">${listHtml}</div>`;
+  await _renderBuildCompose(buildId);
+}
+async function _fetchBuildComments(buildId){
+  if(!PANDA_SB_URL||!PANDA_SB_ANON) return [];
+  try{
+    const url=`${PANDA_SB_URL}/rest/v1/comentarios_build?build_id=eq.${encodeURIComponent(buildId)}&status=eq.approved&order=data.desc&limit=50`;
+    const r=await fetch(url,{headers:_pandaHeaders()});
+    if(!r.ok) return [];
+    return await r.json();
+  }catch{ return []; }
+}
+async function _renderBuildCompose(buildId){
+  const box=document.getElementById('bldc-compose'); if(!box) return;
+  const A=window.TP_AUTH;
+  if(!A||!A.access_token){
+    box.innerHTML=`<div class="hf-comments-login"><p style="font-size:.8rem;color:var(--ink-2);margin:0">Entre na sua conta para comentar. <button class="tp-btn-primary" style="margin-left:.35rem" onclick="tpOpenAuth('login')">Entrar</button></p></div>`;
+    return;
+  }
+  box.innerHTML=`<div style="font-size:.75rem;color:var(--muted);padding:.3rem 0">Verificando personagem…</div>`;
+  const v=(_hfVerifiedChar!==undefined)?_hfVerifiedChar:await _hfCheckVerified();
+  if(!v){
+    box.innerHTML=`<div class="hf-comments-login"><p style="font-size:.8rem;color:var(--ink-2);margin:0">Para comentar você precisa ter <strong>pelo menos um personagem verificado</strong>. Verifique um boneco na aba <strong>Personagem</strong>.</p></div>`;
+    return;
+  }
+  box.innerHTML=`
+    <div style="margin-bottom:.5rem;font-size:.75rem;color:var(--muted)">Comentando como <strong style="color:var(--bamboo-light)">${_escHtml(v.name)}</strong></div>
+    <div class="hf-comment-form">
+      <textarea id="bldc-text" class="hf-comment-textarea" maxlength="600" placeholder="Dica, dúvida ou feedback sobre esta build..."></textarea>
+      <button class="hf-comment-submit" onclick="bldcSubmit('${buildId}')">Publicar</button>
+      <div id="bldc-err" style="display:none;color:var(--red);font-size:.72rem;margin-top:.35rem"></div>
+    </div>`;
+}
+async function bldcSubmit(buildId){
+  const A=window.TP_AUTH; if(!A||!A.access_token){ tpOpenAuth('login'); return; }
+  const ta=document.getElementById('bldc-text');
+  const btn=document.querySelector('#bldc-compose .hf-comment-submit');
+  const errEl=document.getElementById('bldc-err');
+  const text=(ta?.value||'').trim();
+  if(errEl) errEl.style.display='none';
+  if(!text) return;
+  if(btn) btn.disabled=true;
+  try{
+    const r=await fetch(`${PANDA_SB_URL}/rest/v1/rpc/tp_build_comment_add`,{method:'POST',headers:_pandaHeaders(true),body:JSON.stringify({p_build:buildId,p_text:text})});
+    if(r.ok){
+      await r.json().catch(()=>null);
+      if(ta) ta.value='';
+      if(errEl){ errEl.textContent='✓ Comentário enviado! Ele aparece após a aprovação de um moderador.'; errEl.style.color='var(--bamboo-light,#a78bfa)'; errEl.style.display='block'; }
+      if(window.tpToast) tpToast('Comentário enviado para aprovação. 📝','success');
+    } else {
+      let msg='Não foi possível publicar.';
+      const e=await r.json().catch(()=>null);
+      if(e&&e.message){ if(/verificado/i.test(e.message)) msg='Você precisa de um personagem verificado para comentar.'; else if(/authenticated/i.test(e.message)) msg='Sessão expirada — entre novamente.'; else msg=e.message; }
+      if(errEl){ errEl.textContent=msg; errEl.style.display='block'; }
+    }
+  }catch(e){ if(errEl){ errEl.textContent='Erro de conexão ao publicar.'; errEl.style.display='block'; } }
+  if(btn) btn.disabled=false;
+}
+window.initBuildComments=initBuildComments; window.bldcSubmit=bldcSubmit;
+
 
 const HUNTS = [
   // ── LOW LEVEL (20-100) ────────────────────────────
@@ -20466,13 +20547,15 @@ window.tpLoadJornada=async function(){
         if(IS_MOD) refreshModBadge();
       }).catch(function(){});
   };
-  var _modCounts={p:0,c:0};
-  function paintModBadge(){ var total=_modCounts.p+_modCounts.c; ['hs-mod-badge','nav-mod-badge'].forEach(function(bid){ var b=document.getElementById(bid); if(b){ if(total>0){ b.textContent=total; b.style.display=''; } else b.style.display='none'; } }); }
+  var _modCounts={p:0,c:0,cb:0};
+  function paintModBadge(){ var total=_modCounts.p+_modCounts.c+_modCounts.cb; ['hs-mod-badge','nav-mod-badge'].forEach(function(bid){ var b=document.getElementById(bid); if(b){ if(total>0){ b.textContent=total; b.style.display=''; } else b.style.display='none'; } }); }
   function refreshModBadge(){
     af()(SBURL()+'/rest/v1/house_photos?select=id&status=eq.pending',{headers:{Accept:'application/json',Prefer:'count=exact',Range:'0-0'}})
       .then(function(r){ var cr=r.headers.get('content-range'); _modCounts.p=cr?parseInt(cr.split('/')[1],10):0; paintModBadge(); }).catch(function(){});
     af()(SBURL()+'/rest/v1/comentarios_hunt?select=id&status=eq.pending',{headers:{Accept:'application/json',Prefer:'count=exact',Range:'0-0'}})
       .then(function(r){ var cr=r.headers.get('content-range'); _modCounts.c=cr?parseInt(cr.split('/')[1],10):0; paintModBadge(); }).catch(function(){});
+    af()(SBURL()+'/rest/v1/comentarios_build?select=id&status=eq.pending',{headers:{Accept:'application/json',Prefer:'count=exact',Range:'0-0'}})
+      .then(function(r){ var cr=r.headers.get('content-range'); _modCounts.cb=cr?parseInt(cr.split('/')[1],10):0; paintModBadge(); }).catch(function(){});
   }
   function modRow(p){
     var img=SBURL()+'/storage/v1/object/public/house-photos/'+p.image_path;
@@ -20505,27 +20588,34 @@ window.tpLoadJornada=async function(){
       }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar a fila. (Você precisa ser moderador.)</div>'; });
   };
   function cmtRow(c){
+    var isB=(c._tbl==='comentarios_build');
+    var loc=isB?('na build: '+esc((c.builds&&c.builds.name)||'—')):('na hunt: '+esc(c.hunt_name||'—'));
+    var ico=isB?'🛠️':'💬';
     return '<div class="hs-mq-row" id="mc-'+c.id+'" style="align-items:flex-start">'
-      +'<div style="width:36px;height:36px;border-radius:50%;background:var(--bamboo-dim,#211a3d);color:var(--bamboo-light,#a78bfa);display:flex;align-items:center;justify-content:center;font-weight:800;flex:none">💬</div>'
-      +'<div class="hs-mq-info"><div class="h">'+esc(c.autor_nome||'Jogador')+'</div><div class="m">na hunt: '+esc(c.hunt_name||'—')+'</div><div class="m" style="color:var(--ink,#eae8f2);margin-top:3px">"'+esc(c.texto||'')+'"</div></div>'
-      +'<div class="hs-mq-actions"><button class="hs-approve" onclick="tpModCommentAct(\''+c.id+'\',\'approved\')">✓ Aprovar</button><button class="hs-reject" onclick="tpModCommentAct(\''+c.id+'\',\'rejected\')">Recusar</button></div></div>';
+      +'<div style="width:36px;height:36px;border-radius:50%;background:var(--bamboo-dim,#211a3d);color:var(--bamboo-light,#a78bfa);display:flex;align-items:center;justify-content:center;font-weight:800;flex:none">'+ico+'</div>'
+      +'<div class="hs-mq-info"><div class="h">'+esc(c.autor_nome||'Jogador')+'</div><div class="m">'+loc+'</div><div class="m" style="color:var(--ink,#eae8f2);margin-top:3px">"'+esc(c.texto||'')+'"</div></div>'
+      +'<div class="hs-mq-actions"><button class="hs-approve" onclick="tpModCommentAct(\''+c.id+'\',\'approved\',\''+(c._tbl||'comentarios_hunt')+'\')">✓ Aprovar</button><button class="hs-reject" onclick="tpModCommentAct(\''+c.id+'\',\'rejected\',\''+(c._tbl||'comentarios_hunt')+'\')">Recusar</button></div></div>';
   }
   window.tpModCommentsLoad=function(){
     var A=auth(), host=document.getElementById('mod-cmt-body'), cnt=document.getElementById('mod-cmt-count'); if(!host) return;
     if(!A||!A.user){ host.innerHTML='<div class="hs-map-none">Entre na sua conta.</div>'; return; }
     host.innerHTML='<div class="hs-loading">Carregando…</div>';
-    af()(SBURL()+'/rest/v1/comentarios_hunt?select=*&status=eq.pending&order=data.asc',{headers:{Accept:'application/json'}})
-      .then(function(r){ return r.json(); }).then(function(rows){
-        rows=Array.isArray(rows)?rows:[];
-        if(cnt) cnt.textContent='('+rows.length+')';
-        if(!rows.length){ host.innerHTML='<div class="hs-map-none">Nenhum comentário pendente. Tudo em dia! ✨</div>'; return; }
-        host.innerHTML=rows.map(cmtRow).join('');
-      }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar os comentários. (Você precisa ser moderador.)</div>'; });
+    Promise.all([
+      af()(SBURL()+'/rest/v1/comentarios_hunt?select=*&status=eq.pending&order=data.asc',{headers:{Accept:'application/json'}}).then(function(r){return r.ok?r.json():[];}).catch(function(){return [];}),
+      af()(SBURL()+'/rest/v1/comentarios_build?select=*,builds(name)&status=eq.pending&order=data.asc',{headers:{Accept:'application/json'}}).then(function(r){return r.ok?r.json():[];}).catch(function(){return [];})
+    ]).then(function(res){
+      var hunt=(Array.isArray(res[0])?res[0]:[]).map(function(c){c._tbl='comentarios_hunt';return c;});
+      var bld=(Array.isArray(res[1])?res[1]:[]).map(function(c){c._tbl='comentarios_build';return c;});
+      var rows=hunt.concat(bld).sort(function(a,b){return new Date(a.data)-new Date(b.data);});
+      if(cnt) cnt.textContent='('+rows.length+')';
+      if(!rows.length){ host.innerHTML='<div class="hs-map-none">Nenhum comentário pendente. Tudo em dia! ✨</div>'; return; }
+      host.innerHTML=rows.map(cmtRow).join('');
+    }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar os comentários. (Você precisa ser moderador.)</div>'; });
   };
-  window.tpModCommentAct=async function(id,action){
-    var A=auth(); if(!A||!A.user) return;
+  window.tpModCommentAct=async function(id,action,tbl){
+    var A=auth(); if(!A||!A.user) return; tbl=tbl||'comentarios_hunt';
     try{
-      var r=await af()(SBURL()+'/rest/v1/comentarios_hunt?id=eq.'+id,{ method:'PATCH', headers:{'Content-Type':'application/json',Prefer:'return=minimal'}, body:JSON.stringify({ status:action, reviewed_by:A.user.id, reviewed_at:new Date().toISOString() }) });
+      var r=await af()(SBURL()+'/rest/v1/'+tbl+'?id=eq.'+id,{ method:'PATCH', headers:{'Content-Type':'application/json',Prefer:'return=minimal'}, body:JSON.stringify({ status:action, reviewed_by:A.user.id, reviewed_at:new Date().toISOString() }) });
       if(!r.ok) throw new Error('patch '+r.status);
       var row=document.getElementById('mc-'+id); if(row) row.remove();
       toast(action==='approved'?'Comentário aprovado! ✓':'Comentário recusado.',action==='approved'?'success':'info');
