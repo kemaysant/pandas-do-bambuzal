@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt-BR"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tibia Panda — Enquadrar Fundos de Perfil</title>
+<style>
+  :root{--bg0:#0d0d10;--bg1:#14131c;--bg2:#1c1a26;--rule:#2b2938;--ink:#eae8f2;--ink2:#cfc9e6;--muted:#9a97a8;--bamboo:#8b5cf6;--bl:#a78bfa;--dim:#211a3d;--green:#5fdd9e}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;background:var(--bg0);color:var(--ink);font-family:'Space Grotesk','Inter',system-ui,sans-serif}
+  header{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;padding:.7rem 1rem;background:linear-gradient(135deg,rgba(139,92,246,.14),rgba(139,92,246,.03));border-bottom:1px solid var(--rule)}
+  header .ttl{font-weight:800}.ttl b{color:var(--bl)}
+  .sub{font-size:.72rem;color:var(--muted)}
+  .wrap{display:flex;gap:1rem;padding:1rem;align-items:flex-start;flex-wrap:wrap}
+  .stage{position:relative;background:#000;border:1px solid var(--rule);border-radius:12px;touch-action:none;cursor:grab;flex:none}
+  .stage.drag{cursor:grabbing}
+  canvas{display:block;border-radius:12px}
+  .side{flex:1;min-width:260px;display:flex;flex-direction:column;gap:.7rem}
+  .row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+  label{font-size:.78rem;color:var(--ink2)}
+  input[type=text],select{background:var(--bg2);color:var(--ink);border:1px solid var(--rule);border-radius:8px;padding:.45rem .6rem;font:inherit;font-size:.85rem}
+  input[type=text]{flex:1;min-width:140px}
+  input[type=range]{flex:1}
+  .btn{background:var(--bg2);color:var(--ink);border:1px solid var(--rule);border-radius:9px;padding:.5rem .8rem;font:inherit;font-weight:700;cursor:pointer}
+  .btn:hover{filter:brightness(1.15)}
+  .btn.on{background:var(--dim);border-color:var(--bamboo);color:var(--bl)}
+  .btn.primary{background:var(--bamboo);border-color:var(--bamboo);color:#fff}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .thumbs{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.3rem}
+  .thumb{width:54px;height:54px;object-fit:cover;border-radius:7px;border:2px solid var(--rule);cursor:pointer}
+  .thumb.on{border-color:var(--bamboo)}
+  .hint{font-size:.74rem;color:var(--muted);line-height:1.55}
+  .card{background:var(--bg1);border:1px solid var(--rule);border-radius:12px;padding:.8rem}
+  .pv{display:flex;gap:.6rem;align-items:center;margin-top:.4rem}
+  .pv img{border:1px solid var(--rule);border-radius:10px;image-rendering:auto}
+  .drop{border:2px dashed var(--rule);border-radius:12px;padding:1.4rem;text-align:center;color:var(--muted);font-size:.85rem}
+  code{background:var(--bg0);border:1px solid var(--rule);border-radius:5px;padding:1px 5px;font-size:.72rem;color:var(--ink2)}
+</style></head>
+<body>
+<header>
+  <div><div class="ttl">🖼️ <b>Tibia Panda</b> · Enquadrar Fundos</div><div class="sub">Abra os renders, posicione dentro da moldura do perfil e exporte</div></div>
+</header>
+<div class="wrap">
+  <div class="stage" id="stage"><canvas id="cv" width="560" height="560"></canvas></div>
+  <div class="side">
+    <div class="card">
+      <div class="row">
+        <input type="file" id="file" accept="image/*" multiple>
+      </div>
+      <div class="drop" id="drop">ou arraste os PNGs dos renders aqui</div>
+      <div class="thumbs" id="thumbs"></div>
+    </div>
+    <div class="card">
+      <div class="row" style="margin-bottom:.5rem">
+        <label>Formato:</label>
+        <button class="btn on" id="r1" data-r="1">Quadrado 1:1 (perfil)</button>
+        <button class="btn" id="r169" data-r="1.7778">Capa 16:9</button>
+      </div>
+      <div class="row" style="margin-bottom:.5rem">
+        <label style="width:48px">Zoom</label>
+        <input type="range" id="zoom" min="1" max="5" step="0.01" value="1">
+      </div>
+      <div class="row">
+        <label>Nome:</label>
+        <input type="text" id="name" placeholder="ex.: zao, thais, feyrist">
+        <label>Saída:</label>
+        <select id="outsz"><option>512</option><option selected>600</option><option>720</option><option>1024</option></select>
+      </div>
+      <div class="row" style="margin-top:.6rem">
+        <button class="btn primary" id="exp" disabled>⬇️ Exportar fundo (webp)</button>
+        <button class="btn" id="expall" disabled>⬇️ Exportar todos</button>
+      </div>
+      <div class="pv"><div class="hint">A prévia abaixo é exatamente o que vai pro card do perfil.</div></div>
+      <div class="pv"><img id="preview" width="120" height="120" alt="prévia"></div>
+    </div>
+    <div class="hint">
+      Arraste a imagem pra <b>posicionar</b> e use o <b>Zoom</b>. A moldura clara = o que aparece.<br>
+      <b>Exportar</b> salva <code>pf-&lt;nome&gt;.webp</code> no tamanho escolhido. Me manda os arquivos (ou os nomes) que eu ligo no site.
+    </div>
+  </div>
+</div>
+<script>
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const CW=560, CH=560;
+let imgs=[]; // {name, img}
+let cur=-1;
+let ratio=1;           // frame w/h
+let scale=1, ox=0, oy=0; // image placement: screen = img*scale + o
+let frame={x:0,y:0,w:0,h:0};
+
+function computeFrame(){
+  // largest rect of `ratio` fitting in canvas with margin
+  const m=20, availW=CW-2*m, availH=CH-2*m;
+  let w=availW, h=w/ratio;
+  if(h>availH){ h=availH; w=h*ratio; }
+  frame={x:(CW-w)/2, y:(CH-h)/2, w, h};
+}
+function minScale(){ if(cur<0) return 1; const im=imgs[cur].img; return Math.max(frame.w/im.width, frame.h/im.height); }
+function clamp(){
+  const im=imgs[cur].img, iw=im.width*scale, ih=im.height*scale;
+  // keep frame fully covered by image
+  ox=Math.min(frame.x, Math.max(frame.x+frame.w-iw, ox));
+  oy=Math.min(frame.y, Math.max(frame.y+frame.h-ih, oy));
+}
+function draw(){
+  ctx.clearRect(0,0,CW,CH); ctx.fillStyle='#000'; ctx.fillRect(0,0,CW,CH);
+  if(cur<0){ ctx.fillStyle='#555'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('Abra um render pra começar', CW/2, CH/2); return; }
+  const im=imgs[cur].img;
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(im, ox, oy, im.width*scale, im.height*scale);
+  // dim outside frame
+  ctx.fillStyle='rgba(8,8,12,.66)';
+  ctx.fillRect(0,0,CW,frame.y);
+  ctx.fillRect(0,frame.y+frame.h,CW,CH-frame.y-frame.h);
+  ctx.fillRect(0,frame.y,frame.x,frame.h);
+  ctx.fillRect(frame.x+frame.w,frame.y,CW-frame.x-frame.w,frame.h);
+  // frame border
+  ctx.strokeStyle='#a78bfa'; ctx.lineWidth=2; ctx.strokeRect(frame.x+1,frame.y+1,frame.w-2,frame.h-2);
+  updatePreview();
+}
+function fitCover(){ scale=minScale(); const im=imgs[cur].img; ox=frame.x+(frame.w-im.width*scale)/2; oy=frame.y+(frame.h-im.height*scale)/2; document.getElementById('zoom').min=1; document.getElementById('zoom').value=1; }
+function setRatio(r){ ratio=r; computeFrame(); if(cur>=0){ fitCover(); clamp(); draw(); } }
+function selectImg(i){ cur=i; computeFrame(); fitCover(); clamp(); draw();
+  document.querySelectorAll('.thumb').forEach((t,k)=>t.classList.toggle('on',k===i));
+  document.getElementById('exp').disabled=false; document.getElementById('expall').disabled=false;
+  const nm=imgs[i].name.replace(/\.[^.]+$/,'').replace(/^bg_(sel_)?/,'').replace(/[^a-z0-9]+/gi,'-').toLowerCase();
+  document.getElementById('name').value=nm;
+}
+function addFiles(files){
+  [...files].forEach(f=>{ if(!f.type.startsWith('image/'))return; const url=URL.createObjectURL(f); const im=new Image();
+    im.onload=()=>{ imgs.push({name:f.name,img:im}); renderThumbs(); if(cur<0) selectImg(0); };
+    im.src=url; });
+}
+function renderThumbs(){
+  const t=document.getElementById('thumbs'); t.innerHTML='';
+  imgs.forEach((o,i)=>{ const im=document.createElement('img'); im.className='thumb'+(i===cur?' on':''); im.src=o.img.src; im.title=o.name; im.onclick=()=>selectImg(i); t.appendChild(im); });
+}
+function cropCanvas(outSize){
+  const im=imgs[cur].img;
+  const sx=(frame.x-ox)/scale, sy=(frame.y-oy)/scale, sw=frame.w/scale, sh=frame.h/scale;
+  const outW=outSize, outH=Math.round(outSize/ratio);
+  const oc=document.createElement('canvas'); oc.width=outW; oc.height=outH;
+  const octx=oc.getContext('2d'); octx.imageSmoothingEnabled=false;
+  octx.drawImage(im, sx, sy, sw, sh, 0, 0, outW, outH);
+  return oc;
+}
+function updatePreview(){ if(cur<0)return; try{ const oc=cropCanvas(240); document.getElementById('preview').src=oc.toDataURL('image/png'); }catch(e){} }
+function exportOne(){
+  if(cur<0)return; const outSize=parseInt(document.getElementById('outsz').value,10);
+  const oc=cropCanvas(outSize); const nm=(document.getElementById('name').value||'fundo').replace(/[^a-z0-9]+/gi,'-').toLowerCase();
+  oc.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='pf-'+nm+'.webp'; a.click(); },'image/webp',0.92);
+}
+// events
+document.getElementById('file').addEventListener('change',e=>addFiles(e.target.files));
+const drop=document.getElementById('drop');
+['dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.borderColor='#8b5cf6';}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.style.borderColor='';}));
+drop.addEventListener('drop',e=>addFiles(e.dataTransfer.files));
+document.getElementById('r1').onclick=function(){setRatio(1);this.classList.add('on');document.getElementById('r169').classList.remove('on');};
+document.getElementById('r169').onclick=function(){setRatio(1.7778);this.classList.add('on');document.getElementById('r1').classList.remove('on');};
+document.getElementById('zoom').addEventListener('input',e=>{ if(cur<0)return; const cx=frame.x+frame.w/2, cy=frame.y+frame.h/2; const ns=minScale()*parseFloat(e.target.value); const k=ns/scale; ox=cx-(cx-ox)*k; oy=cy-(cy-oy)*k; scale=ns; clamp(); draw(); });
+document.getElementById('exp').onclick=exportOne;
+document.getElementById('expall').onclick=()=>{ let i=0; const step=()=>{ if(i>=imgs.length)return; selectImg(i); setTimeout(()=>{exportOne(); i++; setTimeout(step,250);},50); }; step(); };
+// drag pan
+let dragging=false, lx=0, ly=0;
+const stage=document.getElementById('stage');
+stage.addEventListener('pointerdown',e=>{ if(cur<0)return; dragging=true; stage.classList.add('drag'); lx=e.clientX; ly=e.clientY; stage.setPointerCapture(e.pointerId); });
+stage.addEventListener('pointermove',e=>{ if(!dragging)return; ox+=e.clientX-lx; oy+=e.clientY-ly; lx=e.clientX; ly=e.clientY; clamp(); draw(); });
+stage.addEventListener('pointerup',e=>{ dragging=false; stage.classList.remove('drag'); });
+stage.addEventListener('wheel',e=>{ if(cur<0)return; e.preventDefault(); const f=e.deltaY<0?1.08:1/1.08; const r=cv.getBoundingClientRect(); const mx=e.clientX-r.left, my=e.clientY-r.top; let ns=Math.max(minScale(), scale*f); const k=ns/scale; ox=mx-(mx-ox)*k; oy=my-(my-oy)*k; scale=ns; clamp(); draw(); const zi=document.getElementById('zoom'); zi.value=(scale/minScale()).toFixed(2); },{passive:false});
+computeFrame(); draw();
+window.__cropReady=true;
+</script>
+</body></html>
