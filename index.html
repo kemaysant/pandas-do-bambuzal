@@ -1655,7 +1655,7 @@ async function tibiaFetch(path) {
         </button><button class="nav-btn" id="nav-moderation" style="display:none" onclick="showPage('moderation',this);if(window.tpModPanelLoad)tpModPanelLoad()">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1.5l6.5 2.5v5c0 4-2.8 7.5-6.5 9-3.7-1.5-6.5-5-6.5-9v-5L10 1.5zm-1 11l4.5-4.5-1.4-1.4L9 9.7 7.9 8.6 6.5 10 9 12.5z" clip-rule="evenodd"/></svg>
           <span class="nav-label">Moderação <span id="nav-mod-badge" style="display:none;background:var(--red,#e87070);color:#1b1a25;border-radius:999px;padding:0 6px;font-size:.66rem;font-weight:900;margin-left:4px">0</span></span>
-        </button><button class="nav-btn" onclick="if(window.tpAccountPage)tpAccountPage('dados',this)">
+        </button><button class="nav-btn bld-adminonly" id="nav-admin" style="display:none" onclick="showPage('admin',this);if(window.tpAdminInit)tpAdminInit()"><svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.53 1.53 0 01-2.29.95c-1.37-.84-2.95.74-2.11 2.11.54.88.13 2-.95 2.29-1.56.38-1.56 2.6 0 2.98a1.53 1.53 0 01.95 2.29c-.84 1.37.74 2.95 2.11 2.11a1.53 1.53 0 012.29.95c.38 1.56 2.6 1.56 2.98 0a1.53 1.53 0 012.29-.95c1.37.84 2.95-.74 2.11-2.11a1.53 1.53 0 01.95-2.29c1.56-.38 1.56-2.6 0-2.98a1.53 1.53 0 01-.95-2.29c.84-1.37-.74-2.95-2.11-2.11a1.53 1.53 0 01-2.29-.95zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg><span class="nav-label">Admin</span></button><button class="nav-btn" onclick="if(window.tpAccountPage)tpAccountPage('dados',this)">
           <svg class="nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/></svg>
           <span class="nav-label">Dados Pessoais</span>
         </button>
@@ -2985,6 +2985,160 @@ async function tibiaFetch(path) {
   </section>
 
   <!-- ─── PAINEL DE MODERAÇÃO ─── -->
+<!-- Painel Admin -->
+<section class="page-section" id="admin">
+  <style>
+    #admin .adm-tabs{display:flex;gap:.5rem;flex-wrap:wrap;margin:.2rem 0 1rem}
+    #admin .adm-tab{background:var(--bg-2,#1c1b26);border:1px solid var(--rule);color:var(--ink,#e8e6f0);border-radius:9px;padding:.5rem .9rem;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer}
+    #admin .adm-tab.on{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6);color:#fff}
+    #admin .adm-ftable{width:100%;border-collapse:collapse;font-size:.82rem}
+    #admin .adm-ftable th,#admin .adm-ftable td{padding:.45rem .5rem;border-bottom:1px solid var(--rule);text-align:left;vertical-align:middle}
+    #admin .adm-ftable th{font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+    #admin .adm-thumb{width:54px;height:34px;border-radius:6px;background-size:cover;background-position:center;border:1px solid var(--rule)}
+    #admin .adm-in{background:var(--bg-3,#23212f);border:1px solid var(--rule);color:var(--ink,#e8e6f0);border-radius:7px;padding:.35rem .5rem;font:inherit;font-size:.8rem;width:100%;box-sizing:border-box}
+    #admin .adm-in.num{width:72px}
+    #admin .adm-save{background:var(--bamboo,#8b5cf6);border:none;color:#fff;border-radius:7px;padding:.4rem .7rem;font-weight:700;cursor:pointer;font-size:.76rem}
+    #admin .adm-del{background:transparent;border:1px solid var(--red,#e87070);color:var(--red,#e87070);border-radius:7px;padding:.4rem .6rem;cursor:pointer;font-size:.76rem}
+    #admin .adm-newcard{background:var(--bg-2,#1c1b26);border:1px dashed var(--rule);border-radius:11px;padding:1rem;margin-bottom:1.1rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem;align-items:end}
+    #admin .adm-fld label{display:block;font-size:.7rem;color:var(--muted);margin-bottom:.25rem;font-weight:700}
+    #admin .adm-note{font-size:.76rem;color:var(--muted);margin:.3rem 0 .9rem}
+    #admin .adm-tablewrap{overflow-x:auto}
+  </style>
+  <h2 class="sec-title">🛠️ Painel Admin</h2>
+  <p class="sec-sub">Gerencie o site sem passar pelo chat. Acesso restrito a administradores.</p>
+  <div id="admin-gate" class="card" style="display:none;color:var(--muted)">🔒 Acesso restrito a administradores.</div>
+  <div id="admin-wrap" style="display:none">
+    <div class="adm-tabs">
+      <button class="adm-tab on" data-atab="fundos" onclick="tpAdminTab('fundos',this)">🖼️ Fundos</button>
+      <button class="adm-tab" data-atab="bosses" onclick="tpAdminTab('bosses',this)">🐉 Bosses</button>
+      <button class="adm-tab" data-atab="users" onclick="tpAdminTab('users',this)">👤 Usuários</button>
+      <button class="adm-tab" data-atab="gami" onclick="tpAdminTab('gami',this)">🎁 Gamificação</button>
+    </div>
+    <div id="adm-fundos" class="adm-panel"></div>
+    <div id="adm-bosses" class="adm-panel" style="display:none"><div class="card" style="color:var(--muted)">🐉 Editor de bosses (overrides) — próxima fase.</div></div>
+    <div id="adm-users" class="adm-panel" style="display:none"><div class="card" style="color:var(--muted)">👤 Usuários & papéis — próxima fase.</div></div>
+    <div id="adm-gami" class="adm-panel" style="display:none"><div class="card" style="color:var(--muted)">🎁 Gamificação — próxima fase.</div></div>
+  </div>
+</section>
+
+<script>
+(function(){
+  function _sb(){ return (typeof PANDA_SB_URL!=='undefined'&&PANDA_SB_URL)?PANDA_SB_URL:(window.PANDA_SB_URL||''); }
+  function _key(){ return (typeof PANDA_SB_ANON!=='undefined')?PANDA_SB_ANON:(window.PANDA_SB_ANON||''); }
+  function _af(u,o){ return (window.tpAuthFetch||fetch)(u,o||{}); }
+  function _tok(){ var A=window.TP_AUTH; return (A&&A.access_token)||_key(); }
+  function g(id){ return document.getElementById(id); }
+  var RAR=[['comum','Comum'],['incomum','Incomum'],['raro','Raro'],['epico','Épico'],['lendario','Lendário']];
+
+  window.tpSyncFloorsFromCat=function(){
+    try{
+      var cat=window.__TP_FLOOR_CAT; if(!Array.isArray(cat)) return;
+      if(!window.__TP_FLOORS_SEED && Array.isArray(window.TP_FLOORS)) window.__TP_FLOORS_SEED=window.TP_FLOORS.slice();
+      var seed=window.__TP_FLOORS_SEED||[];
+      var byId={}; seed.forEach(function(f){ byId[f.id]=Object.assign({},f); });
+      cat.forEach(function(r){ var cur=byId[r.floor_id]||{}; byId[r.floor_id]=Object.assign(cur,{id:r.floor_id,name:r.name,rarity:r.rarity,price:+r.price_coins,scene:!!r.scene,url:(r.url||cur.url)}); });
+      var out=[], seen={};
+      seed.forEach(function(f){ if(byId[f.id]){ out.push(byId[f.id]); seen[f.id]=1; } });
+      cat.slice().sort(function(a,b){return (a.sort||0)-(b.sort||0);}).forEach(function(r){ if(!seen[r.floor_id]&&byId[r.floor_id]){ out.push(byId[r.floor_id]); seen[r.floor_id]=1; } });
+      window.TP_FLOORS=out;
+    }catch(e){}
+  };
+
+  window.tpAdminInit=function(){
+    var gate=g('admin-gate'), wrap=g('admin-wrap');
+    var show=function(){ var ok=!!window.TP_IS_ADMIN; if(gate)gate.style.display=ok?'none':''; if(wrap)wrap.style.display=ok?'':'none'; if(ok) tpAdminFundosLoad(); };
+    if(window.__tpAdminChecked){ show(); }
+    else { if(window.tpCheckBuildAdmin) try{ tpCheckBuildAdmin(); }catch(e){} setTimeout(show,700); }
+  };
+  window.tpAdminTab=function(t,btn){
+    ['fundos','bosses','users','gami'].forEach(function(k){ var p=g('adm-'+k); if(p)p.style.display=(k===t)?'':'none'; });
+    document.querySelectorAll('#admin .adm-tab').forEach(function(b){ b.classList.toggle('on',b===btn); });
+    if(t==='fundos') tpAdminFundosLoad();
+  };
+
+  function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function thumbUrl(r){ if(r.url){ return r.url; } return 'floors/'+r.floor_id+'.png'; }
+  function rarOpts(sel){ return RAR.map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===sel?' selected':'')+'>'+o[1]+'</option>'; }).join(''); }
+
+  window.tpAdminFundosLoad=function(){
+    var host=g('adm-fundos'); if(!host) return;
+    host.innerHTML='<div class="adm-note">Carregando catálogo…</div>';
+    _af(_sb()+'/rest/v1/store_floors?select=floor_id,name,rarity,price_coins,sort,active,scene,url&order=sort.asc',{headers:{apikey:_key()}})
+      .then(function(r){return r.json();})
+      .then(function(rows){ if(!Array.isArray(rows)) rows=[]; tpAdminFundosRender(rows); })
+      .catch(function(){ host.innerHTML='<div class="adm-note" style="color:var(--red,#e87070)">Erro ao carregar o catálogo.</div>'; });
+  };
+
+  function tpAdminFundosRender(rows){
+    var host=g('adm-fundos'); if(!host) return;
+    var newCard='<div class="adm-newcard">'
+      +'<div class="adm-fld" style="grid-column:1/-1;font-weight:800;color:var(--ink,#e8e6f0)">➕ Novo fundo (cenário)</div>'
+      +'<div class="adm-fld"><label>Nome</label><input id="adm-new-name" class="adm-in" placeholder="Ex: Caverna Azul"></div>'
+      +'<div class="adm-fld"><label>Raridade</label><select id="adm-new-rar" class="adm-in">'+rarOpts('raro')+'</select></div>'
+      +'<div class="adm-fld"><label>Preço (🪙)</label><input id="adm-new-price" type="number" class="adm-in" value="900"></div>'
+      +'<div class="adm-fld"><label>Imagem (.webp/.png)</label><input id="adm-new-file" type="file" accept="image/webp,image/png" class="adm-in"></div>'
+      +'<div class="adm-fld"><button class="adm-save" onclick="tpAdminFundoNew()">Criar fundo</button></div>'
+      +'<div id="adm-new-status" class="adm-fld" style="grid-column:1/-1;font-size:.76rem;color:var(--muted)"></div>'
+      +'</div>';
+    var rowsHtml=rows.map(function(r){
+      var thumb=thumbUrl(r);
+      return '<tr data-id="'+esc(r.floor_id)+'">'
+        +'<td><div class="adm-thumb" style="background-image:url('+esc(thumb)+')"></div></td>'
+        +'<td style="font-family:monospace;font-size:.72rem;color:var(--muted)">'+esc(r.floor_id)+(r.scene?'':' ·tex')+'</td>'
+        +'<td><input class="adm-in" data-f="name" value="'+esc(r.name)+'"></td>'
+        +'<td><select class="adm-in" data-f="rarity">'+rarOpts(r.rarity)+'</select></td>'
+        +'<td><input class="adm-in num" data-f="price_coins" type="number" value="'+(+r.price_coins||0)+'"></td>'
+        +'<td><input class="adm-in num" data-f="sort" type="number" value="'+(+r.sort||0)+'" style="width:60px"></td>'
+        +'<td style="text-align:center"><input type="checkbox" data-f="active" '+(r.active?'checked':'')+'></td>'
+        +'<td style="white-space:nowrap"><button class="adm-save" onclick="tpAdminFundoSave(this)">Salvar</button> <button class="adm-del" onclick="tpAdminFundoDel(this)">🗑️</button></td>'
+      +'</tr>';
+    }).join('');
+    host.innerHTML=newCard
+      +'<div class="adm-note">Edite preço, raridade, nome, ordem e ativo — vale na hora no site (loja + perfil). Texturas (·tex) não têm imagem própria.</div>'
+      +'<div class="adm-tablewrap"><table class="adm-ftable"><thead><tr><th></th><th>ID</th><th>Nome</th><th>Raridade</th><th>Preço</th><th>Ordem</th><th>Ativo</th><th></th></tr></thead><tbody>'+rowsHtml+'</tbody></table></div>';
+  }
+
+  function _invalidate(){ window.__TP_FLOOR_CAT=null; }
+
+  window.tpAdminFundoSave=function(btn){
+    var tr=btn.closest('tr'); if(!tr) return; var id=tr.getAttribute('data-id');
+    var body={}; tr.querySelectorAll('[data-f]').forEach(function(el){ var f=el.getAttribute('data-f'); if(el.type==='checkbox') body[f]=el.checked; else if(el.type==='number') body[f]=+el.value; else body[f]=el.value; });
+    btn.disabled=true; var t=btn.textContent; btn.textContent='…';
+    _af(_sb()+'/rest/v1/store_floors?floor_id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)})
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); if(window.tpToast)tpToast('Fundo "'+(body.name||id)+'" salvo.','success'); _invalidate(); if(window.tpLoadFloorCatalog) window.tpLoadFloorCatalog(); })
+      .catch(function(){ if(window.tpToast)tpToast('Erro ao salvar (precisa ser admin).','error'); })
+      .finally(function(){ btn.disabled=false; btn.textContent=t; });
+  };
+
+  window.tpAdminFundoDel=function(btn){
+    var tr=btn.closest('tr'); if(!tr) return; var id=tr.getAttribute('data-id');
+    var go=function(){ _af(_sb()+'/rest/v1/store_floors?floor_id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),Prefer:'return=minimal'}})
+        .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); if(window.tpToast)tpToast('Fundo removido.','success'); _invalidate(); tr.remove(); if(window.tpLoadFloorCatalog) window.tpLoadFloorCatalog(); })
+        .catch(function(){ if(window.tpToast)tpToast('Erro ao remover.','error'); }); };
+    if(window.tpConfirm) tpConfirm('Remover o fundo "'+id+'" da loja? (não apaga de quem já comprou)').then(function(ok){ if(ok) go(); }); else if(confirm('Remover '+id+'?')) go();
+  };
+
+  function slugify(s){ return ('pf-'+(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')).slice(0,42)||('pf-'+Date.now()); }
+
+  window.tpAdminFundoNew=function(){
+    var name=(g('adm-new-name').value||'').trim(), rar=g('adm-new-rar').value, price=+g('adm-new-price').value||0, file=g('adm-new-file').files[0];
+    var st=g('adm-new-status');
+    if(!name){ st.textContent='Dê um nome.'; return; }
+    if(!file){ st.textContent='Escolha uma imagem .webp/.png.'; return; }
+    var id=slugify(name), ext=(file.type==='image/png'?'png':'webp'), path=id+'.'+ext;
+    st.textContent='Enviando imagem…';
+    fetch(_sb()+'/storage/v1/object/fundos/'+encodeURIComponent(path),{method:'POST',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),'Content-Type':file.type||'image/webp','x-upsert':'true'},body:file})
+      .then(function(r){ if(!r.ok) return r.text().then(function(t){throw new Error('upload '+r.status+' '+t);});
+        var url=_sb()+'/storage/v1/object/public/fundos/'+path;
+        st.textContent='Criando no catálogo…';
+        return _af(_sb()+'/rest/v1/store_floors',{method:'POST',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({floor_id:id,name:name,rarity:rar,price_coins:price,sort:9000,active:true,scene:true,url:url})});
+      })
+      .then(function(r){ if(r&&!r.ok) throw new Error('insert '+r.status); st.textContent='✓ Fundo "'+name+'" criado!'; if(window.tpToast)tpToast('🎉 Fundo "'+name+'" publicado na loja!','success'); _invalidate(); if(window.tpLoadFloorCatalog) window.tpLoadFloorCatalog(); tpAdminFundosLoad(); g('adm-new-name').value=''; g('adm-new-file').value=''; })
+      .catch(function(e){ st.textContent='Erro: '+(e&&e.message||'falhou'); if(window.tpToast)tpToast('Erro ao criar fundo.','error'); });
+  };
+})();
+
+</script>
   <section class="page-section" id="moderation">
     <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.5l6.5 2.5v5c0 4-2.8 7.5-6.5 9-3.7-1.5-6.5-5-6.5-9v-5L10 1.5zm-1 11l4.5-4.5-1.4-1.4L9 9.7 7.9 8.6 6.5 10 9 12.5z"/></svg> Painel de Moderação</h2>
     <p class="sec-sub">Aprove ou recuse o conteúdo enviado pela comunidade. Aprove só o que é do tema Tibia; recuse conteúdo fora do tema, ofensivo, spam ou de baixa qualidade.</p>
@@ -10607,7 +10761,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt29';
+window.TP_BUILD = '2026-10-03evt30';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -17637,10 +17791,11 @@ function ewEnsureTcInput() {
   window.tpOpenDisplay=function(){
     if(!AUTH){ tpOpenAuth('login'); return; }
     var m=g('tp-disp-modal'); if(!m) return;
-    try{ tpRenderDisplayFloors(); }catch(e){ console.warn('disp floors',e); }
-    try{ tpDispOutfit(); }catch(e){ console.warn('disp outfit',e); }
-    try{ tpDispRenderPreview(); }catch(e){ console.warn('disp preview',e); }
     m.classList.add('open');
+    var _done=function(){ try{ tpRenderDisplayFloors(); }catch(e){} try{ tpDispOutfit(); }catch(e){} try{ tpDispRenderPreview(); }catch(e){} };
+    _done();
+    var ps=[]; try{ if(window.tpLoadFloorCatalog) ps.push(Promise.resolve(window.tpLoadFloorCatalog())); }catch(e){} try{ if(window.tpLoadOwnedFloors) ps.push(Promise.resolve(window.tpLoadOwnedFloors())); }catch(e){}
+    if(ps.length){ Promise.all(ps).then(_done).catch(_done); }
   };
   document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ var m=g('tp-disp-modal'); if(m&&m.classList.contains('open')) tpCloseDisplay(); } });
   window.tpCloseDisplay=function(){ var m=g('tp-disp-modal'); if(m) m.classList.remove('open'); };
@@ -18856,7 +19011,7 @@ window.tpLoadJornada=async function(){
   var FSTORE=null, OWNEDF={}, fCurRar='todas';
   window.tpLoadFloorCatalog=async function(){
     if(window.__TP_FLOOR_CAT) return window.__TP_FLOOR_CAT;
-    try{ var r=await fetch(SB+'/rest/v1/store_floors?select=floor_id,name,rarity,price_coins,sort&active=eq.true&order=sort.asc',{headers:{apikey:KEY}}); var rows=await r.json(); window.__TP_FLOOR_CAT=Array.isArray(rows)?rows:[]; }catch(e){ window.__TP_FLOOR_CAT=[]; }
+    try{ var r=await fetch(SB+'/rest/v1/store_floors?select=floor_id,name,rarity,price_coins,sort,url,scene&active=eq.true&order=sort.asc',{headers:{apikey:KEY}}); var rows=await r.json(); window.__TP_FLOOR_CAT=Array.isArray(rows)?rows:[]; }catch(e){ window.__TP_FLOOR_CAT=[]; } try{ if(window.tpSyncFloorsFromCat) window.tpSyncFloorsFromCat(); }catch(_e){}
     return window.__TP_FLOOR_CAT;
   };
   window.tpLoadOwnedFloors=async function(){
