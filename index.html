@@ -10992,7 +10992,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt37';
+window.TP_BUILD = '2026-10-03evt38';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -18863,9 +18863,11 @@ window.tpToast=function(msg,type){
     var body='<div class="tp-prof-secs">'
       +'<div class="tp-prof-sec"><div class="tp-prof-h">🏅 Títulos</div><div class="tp-titles">'+(titles||'<span class="soc-empty">—</span>')+'</div></div>'
       +'<div class="tp-prof-sec"><div class="tp-prof-h">🏆 Conquistas em destaque</div><div id="tp-prof-vit"><div class="soc-empty">Carregando…</div></div></div>'
+      +'<div class="tp-prof-sec"><div class="tp-prof-h">🛠️ Builds criadas</div><div id="tp-prof-builds"><div class="soc-empty">Carregando…</div></div></div>'
       +'<div class="tp-prof-sec"><div class="tp-prof-h">💬 Comentários</div>'+depoCompose+'<div id="tp-prof-depo"></div></div>'
       +'</div>';
     host.querySelector('.tp-prof').innerHTML=''+head+body;
+    try{ if(window.tpProfBuildsLoad) tpProfBuildsLoad(fid); }catch(e){}
     try{ var av0=document.getElementById('tp-prof-av'); var _af=window.tpApplyFloor, _fb=window.tpFloorById; if(av0 && _af && _fb) _af(av0, _fb(p.profile_floor||'stone')); }catch(e){}
     if(p.outfit&&p.outfit.outfit_id!=null&&window.tpGetOutfitter){
       var o=p.outfit;
@@ -18895,6 +18897,27 @@ window.tpToast=function(msg,type){
           .then(function(){ box.innerHTML=''; box.appendChild(cv); }).catch(function(){});
       });
     }).catch(function(){});
+  };
+  window.tpProfBuildsLoad=function(fid){
+    var host=document.getElementById('tp-prof-builds'); if(!host) return;
+    af(SB+'/rest/v1/builds?user_id=eq.'+fid+'&status=eq.approved&select=id,name,vocation,dano,rating_avg,rating_count&order=rating_avg.desc,created_at.desc&limit=24',{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.ok?r.json():[]; })
+      .then(function(rows){ rows=Array.isArray(rows)?rows:[];
+        if(!rows.length){ var sec=host.closest('.tp-prof-sec'); if(sec) sec.style.display='none'; return; }
+        var tot=rows.reduce(function(acc,b){return acc+(+b.rating_count||0);},0);
+        function stars(v){ v=Math.round(+v||0); var h=''; for(var i=1;i<=5;i++) h+='<span style="color:'+(i<=v?'#f2c14e':'#4a4758')+'">\u2605</span>'; return h; }
+        var VN={knight:'EK',paladin:'RP',sorcerer:'MS',druid:'ED',monk:'Monk'};
+        host.innerHTML='<div style="font-size:.74rem;color:var(--muted);margin-bottom:.5rem">'+rows.length+' build(s) \u00b7 <b style="color:#f2c14e">'+tot+'\u2605</b> no total</div>'
+          +'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.55rem">'
+          + rows.map(function(b){ var vn=VN[(b.vocation||'').toLowerCase()]||(b.vocation||'\u2014');
+            return '<div onclick="(window.tpHomeOpenBuild||function(){})(\''+b.id+'\')" style="background:var(--bg-2,#1c1b26);border:1px solid var(--rule,#2b2938);border-radius:11px;padding:.6rem;cursor:pointer">'
+              +'<div style="font-size:.56rem;font-weight:800;color:var(--bamboo-light,#a78bfa);text-transform:uppercase;letter-spacing:.04em">'+window.esc(vn)+'</div>'
+              +'<div style="font-weight:700;font-size:.85rem;margin:.15rem 0">'+window.esc(b.name||'Build')+'</div>'
+              +'<div style="font-size:.72rem;color:var(--muted)">'+(b.dano?((+b.dano/1000).toFixed(1)+'k dano'):'\u2014')+'</div>'
+              +'<div style="font-size:.78rem;margin-top:.2rem">'+stars(b.rating_avg)+' <span style="color:var(--muted);font-size:.7rem">'+(+b.rating_avg||0).toFixed(1)+' ('+(b.rating_count||0)+')</span></div>'
+            +'</div>';
+          }).join('')+'</div>';
+      }).catch(function(){ var sec=host.closest('.tp-prof-sec'); if(sec) sec.style.display='none'; });
   };
   window.tpProfSubmitDepo=async function(fid){ var ta=document.getElementById('tp-prof-depo-in'); if(!ta) return; var b=(ta.value||'').trim(); if(!b){ ta.focus(); return; }
     try{ var r=await af(SB+'/rest/v1/profile_testimonials',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({profile_id:fid,author:profMe(),body:b})});
