@@ -4702,7 +4702,29 @@ PlayerName (Leader)
       #profile .pf-disp-edit:hover{border-color:var(--bamboo,#8b5cf6);background:var(--bamboo-pale,rgba(139,92,246,.12))}
       /* Modal editar display */
       #tp-disp-modal .disp-sec{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:.2rem 0 .55rem}
-      #tp-disp-modal .disp-floors{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:.5rem;max-height:300px;overflow-y:auto;overflow-x:hidden;padding:.1rem 2px}
+      #tp-disp-modal .disp-floors{display:block;max-height:340px;overflow-y:auto;overflow-x:hidden;padding:.1rem 2px}
+      #tp-disp-modal .disp-sec-h{font-size:.66rem;font-weight:800;letter-spacing:.05em;color:var(--muted,#9a97ad);text-transform:uppercase;margin:.5rem 2px .5rem}
+      #tp-disp-modal .disp-sec-h:first-child{margin-top:.1rem}
+      #tp-disp-modal .disp-scenes{display:grid;grid-template-columns:repeat(auto-fill,minmax(134px,1fr));gap:.55rem;margin-bottom:.2rem}
+      #tp-disp-modal .disp-tex{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:.5rem}
+      #tp-disp-modal .tp-scenew{position:relative;aspect-ratio:16/10;border-radius:11px;border:2px solid var(--rule);cursor:pointer;background-size:cover;background-position:center;overflow:hidden;transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}
+      #tp-disp-modal .tp-scenew:hover{transform:translateY(-2px);box-shadow:0 7px 20px rgba(0,0,0,.5)}
+      #tp-disp-modal .tp-scenew.r-comum{border-color:#39404d}
+      #tp-disp-modal .tp-scenew.r-incomum{border-color:#2a7a44}
+      #tp-disp-modal .tp-scenew.r-raro{border-color:#3570a8}
+      #tp-disp-modal .tp-scenew.r-epico{border-color:#7c4ddb}
+      #tp-disp-modal .tp-scenew.r-lendario{border-color:#d9a21b}
+      #tp-disp-modal .tp-scenew.on{border-color:var(--bamboo,#8b5cf6);box-shadow:0 0 0 2px rgba(139,92,246,.55)}
+      #tp-disp-modal .tp-scenew .nm{position:absolute;left:0;right:0;bottom:0;font-size:.66rem;font-weight:800;color:#fff;padding:18px 8px 6px;background:linear-gradient(0deg,rgba(0,0,0,.85),transparent);text-shadow:0 1px 2px #000}
+      #tp-disp-modal .tp-scenew .sc-rib{position:absolute;top:6px;left:6px;font-size:.52rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.62);color:#fff}
+      #tp-disp-modal .tp-scenew .chk{position:absolute;top:6px;right:6px;font-size:.66rem;background:rgba(32,170,96,.95);color:#fff;border-radius:999px;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;padding:0 3px}
+      #tp-disp-modal .tp-scenew.locked{filter:saturate(.72) brightness(.8)}
+      #tp-disp-modal .tp-scenew.locked:hover{filter:saturate(1) brightness(1)}
+      #tp-disp-modal .fbuy-pill{position:absolute;top:6px;right:6px;z-index:2;font-size:.62rem;font-weight:800;padding:3px 8px;border-radius:999px;background:rgba(18,16,26,.92);border:1px solid rgba(255,255,255,.22);color:#ffe27a;white-space:nowrap;cursor:pointer}
+      #tp-disp-modal .fbuy-pill:hover{border-color:#ffe27a}
+      #tp-disp-modal .fbuy-pill.confirm{background:#8b5cf6;color:#fff;border-color:#8b5cf6}
+      #tp-disp-modal .tp-floorsw{overflow:visible}
+      #tp-disp-modal .tp-floorsw .fbuy-pill.sm{top:-5px;right:-5px;font-size:.5rem;padding:1px 5px}
       #tp-disp-modal .tp-floorsw{position:relative;width:100%;aspect-ratio:1;border-radius:9px;border:2px solid var(--rule);cursor:pointer;image-rendering:pixelated;background-size:28px 28px;background-color:#3a3a44}
       #tp-disp-modal .tp-floorsw.r-comum{border-color:#39404d}
       #tp-disp-modal .tp-floorsw.r-incomum{border-color:#2a5238}
@@ -10576,7 +10598,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt26';
+window.TP_BUILD = '2026-10-03evt27';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -17489,7 +17511,7 @@ function ewEnsureTcInput() {
   var TP_DEFAULT_OUTFIT={outfit:128,head:114,body:88,legs:40,feet:76,addons:0,dir:2,mount:0}; // Citizen padrão (cores clássicas)
   function cfgFrom(c){ if(!c||c.outfit_id==null) return Object.assign({},TP_DEFAULT_OUTFIT,{dir:(c&&c.direction!=null?c.direction:2),mount:(c&&c.mount_id)||0}); return {outfit:c.outfit_id, head:c.head||0, body:c.body||0, legs:c.legs||0, feet:c.feet||0, addons:c.addons||0, dir:(c.direction!=null?c.direction:2), mount:c.mount_id||0}; }
 
-  window.TP_FLOORS=[{id:'stone',name:'Pedra',rarity:'comum',price:0},{id:'grass',name:'Grama',rarity:'comum',price:0},{id:'sand',name:'Areia',rarity:'incomum',price:300},{id:'wood',name:'Madeira',rarity:'incomum',price:400},{id:'marble',name:'Mármore Dourado',rarity:'raro',price:900},{id:'mosaic',name:'Mosaico',rarity:'epico',price:1500},{id:'lava',name:'Lava',rarity:'lendario',price:3000},{id:'t429',name:'Laje de Pedra',rarity:'comum',price:200},{id:'t436',name:'Pedra Clara',rarity:'comum',price:250},{id:'t410',name:'Ardósia',rarity:'incomum',price:350},{id:'t416',name:'Paralelepípedo',rarity:'incomum',price:350},{id:'t924',name:'Arenito Claro',rarity:'incomum',price:400},{id:'t622',name:'Água',rarity:'incomum',price:450},{id:'t1771',name:'Assoalho de Madeira',rarity:'incomum',price:450},{id:'t417',name:'Mosaico Terroso',rarity:'raro',price:700},{id:'t800',name:'Gelo',rarity:'raro',price:900},{id:'t456',name:'Tábua Real',rarity:'raro',price:950},{id:'t418',name:'Mosaico Dourado',rarity:'epico',price:1600},{id:'t460',name:'Carpete Arcano',rarity:'epico',price:1900},{id:'pf-corrupted-gardens',name:'Corrupted Gardens',rarity:'lendario',price:0,scene:true,hidden:true,url:'floors/pf-corrupted-gardens.webp'},{id:'pf-feyrist',name:'Feyrist',rarity:'epico',price:1600,scene:true,url:'floors/pf-feyrist.png'},{id:'pf-issavi',name:'Issavi',rarity:'lendario',price:3000,scene:true,url:'floors/pf-issavi.webp'},{id:'pf-roshamuul',name:'Roshamuul',rarity:'lendario',price:3000,scene:true,url:'floors/pf-roshamuul.png'},{id:'pf-pier',name:'Píer Turquesa',rarity:'raro',price:1000,scene:true,url:'floors/pf-pier.webp'},{id:'pf-banuta',name:'Banuta',rarity:'comum',price:200,scene:true,url:'floors/pf-banuta.webp'},{id:'pf-candia-s',name:'Candia',rarity:'comum',price:200,scene:true,url:'floors/pf-candia-s.webp'}];
+  window.TP_FLOORS=[{id:'stone',name:'Pedra',rarity:'comum',price:0},{id:'grass',name:'Grama',rarity:'comum',price:0},{id:'sand',name:'Areia',rarity:'incomum',price:300},{id:'wood',name:'Madeira',rarity:'incomum',price:400},{id:'marble',name:'Mármore Dourado',rarity:'raro',price:900},{id:'mosaic',name:'Mosaico',rarity:'epico',price:1500},{id:'lava',name:'Lava',rarity:'lendario',price:3000},{id:'t429',name:'Laje de Pedra',rarity:'comum',price:200},{id:'t436',name:'Pedra Clara',rarity:'comum',price:250},{id:'t410',name:'Ardósia',rarity:'incomum',price:350},{id:'t416',name:'Paralelepípedo',rarity:'incomum',price:350},{id:'t924',name:'Arenito Claro',rarity:'incomum',price:400},{id:'t622',name:'Água',rarity:'incomum',price:450},{id:'t1771',name:'Assoalho de Madeira',rarity:'incomum',price:450},{id:'t417',name:'Mosaico Terroso',rarity:'raro',price:700},{id:'t800',name:'Gelo',rarity:'raro',price:900},{id:'t456',name:'Tábua Real',rarity:'raro',price:950},{id:'t418',name:'Mosaico Dourado',rarity:'epico',price:1600},{id:'t460',name:'Carpete Arcano',rarity:'epico',price:1900},{id:'pf-corrupted-gardens',name:'Corrupted Gardens',rarity:'lendario',price:0,scene:true,hidden:true,url:'floors/pf-corrupted-gardens.webp'},{id:'pf-feyrist',name:'Feyrist',rarity:'epico',price:1600,scene:true,url:'floors/pf-feyrist.png'},{id:'pf-issavi',name:'Issavi',rarity:'lendario',price:3000,scene:true,url:'floors/pf-issavi.webp'},{id:'pf-roshamuul',name:'Roshamuul',rarity:'lendario',price:3000,scene:true,url:'floors/pf-roshamuul.png'},{id:'pf-pier',name:'Píer Turquesa',rarity:'raro',price:1000,scene:true,url:'floors/pf-pier.webp'},{id:'pf-banuta',name:'Banuta',rarity:'comum',price:200,scene:true,url:'floors/pf-banuta.webp'},{id:'pf-candia-s',name:'Candia',rarity:'comum',price:200,scene:true,url:'floors/pf-candia-s.webp'},{id:'pf-praca',name:'Praça da Cidade',rarity:'incomum',price:400,scene:true,url:'floors/pf-praca.webp'},{id:'pf-salao-xadrez',name:'Salão Xadrez',rarity:'raro',price:900,scene:true,url:'floors/pf-salao-xadrez.webp'},{id:'pf-cav-gelada',name:'Caverna Gelada',rarity:'incomum',price:450,scene:true,url:'floors/pf-cav-gelada.webp'},{id:'pf-gruta-gelo',name:'Gruta de Gelo',rarity:'raro',price:900,scene:true,url:'floors/pf-gruta-gelo.webp'},{id:'pf-cav-chao',name:'Chão de Caverna',rarity:'comum',price:250,scene:true,url:'floors/pf-cav-chao.webp'},{id:'pf-ponte-mata',name:'Ponte na Mata',rarity:'incomum',price:400,scene:true,url:'floors/pf-ponte-mata.webp'},{id:'pf-masmorra',name:'Masmorra',rarity:'raro',price:900,scene:true,url:'floors/pf-masmorra.webp'}];
   function tpFloorUrl(id){ return (typeof FLOOR_BASE!=='undefined'?FLOOR_BASE:'floors')+'/'+id+'.png?v='+((window.TP_BUILD)||'1'); }
   function tpApplyFloor(el,f){ if(!el) return; var _u=(f&&f.url)?(f.url+'?v='+((window.TP_BUILD)||'1')):tpFloorUrl(f.id); el.style.backgroundImage='url('+_u+')'; try{el.classList.toggle('scene',!!(f&&f.scene));}catch(_e){} if(f&&f.scene){ el.style.backgroundSize='cover'; el.style.backgroundRepeat='no-repeat'; el.style.backgroundPosition='center'; } else { el.style.backgroundSize='56px 56px'; el.style.backgroundRepeat='repeat'; el.style.backgroundPosition='top left'; } try{ var _c=el.closest&&el.closest('.pf-header,.tp-prof-hero2'); if(_c){ var _bg=_c.querySelector(':scope>.pf-herobg'); if(f&&f.scene){ if(!_bg){_bg=document.createElement('div');_bg.className='pf-herobg';_c.insertBefore(_bg,_c.firstChild);} _bg.style.backgroundImage=el.style.backgroundImage; _c.classList.add('has-scenebg'); } else { if(_bg)_bg.remove(); _c.classList.remove('has-scenebg'); } } }catch(_e){} }
   function tpFloorById(id){ for(var i=0;i<TP_FLOORS.length;i++){ if(TP_FLOORS[i].id===id) return TP_FLOORS[i]; } return TP_FLOORS[0]; }
@@ -17519,21 +17541,61 @@ function ewEnsureTcInput() {
   window.tpSetFloor=function(id){
     var f=tpFloorById(id); if(!f) return;
     // pisos pagos: por enquanto só os gratuitos são selecionáveis (venda vem com a Store)
-    if(f.price>0 && !((window.__TP_OWNED_FLOORS||{})[id])){ if(window.tpToast) tpToast('Compre esse fundo na Store 🛍️','info'); return; }
+    if(f.price>0 && !((window.__TP_OWNED_FLOORS||{})[id])){ tpFloorBuyStep(id, document.querySelector('#disp-floors [data-floor="'+id+'"]')); return; }
     var stage=g('pf-hero-stage'); tpApplyFloor(stage,f);
     window.__pfFloorId=id;
-    document.querySelectorAll('#disp-floors .tp-floorsw,#pf-hero-floors .pf-floor').forEach(function(el){ el.classList.toggle('on', el.dataset.floor===id); });
+    document.querySelectorAll('#disp-floors .tp-floorsw,#disp-floors .tp-scenew,#pf-hero-floors .pf-floor').forEach(function(el){ el.classList.toggle('on', el.dataset.floor===id); });
     if(AUTH){ AUTH.profile=Object.assign(AUTH.profile||{},{profile_floor:id}); saveAuth(AUTH);
       tpAuthFetch(SB+'/rest/v1/profiles?id=eq.'+AUTH.user.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({profile_floor:id})}).catch(function(){}); }
   };
+  function tpFloorClick(id, el){
+    var f=tpFloorById(id); if(!f) return;
+    var owned=(window.__TP_OWNED_FLOORS||{})[id] || !(f.price>0);
+    if(owned){ tpSetFloor(id); return; }
+    tpFloorBuyStep(id, el);
+  }
+  window.tpFloorClick=tpFloorClick;
+  function tpFloorBuyStep(id, el){
+    var f=tpFloorById(id); if(!f) return;
+    var coins=(window.__GAMI&&window.__GAMI.progress&&+window.__GAMI.progress.coins)||0;
+    if(coins < f.price){ if(window.tpToast) tpToast('Faltam '+(f.price-coins)+' \uD83E\uDE99 pra desbloquear "'+f.name+'". Ganhe jogando ou veja na Store \uD83D\uDECD\uFE0F','info'); return; }
+    var pill=(el&&el.querySelector)?el.querySelector('.fbuy-pill'):null;
+    if(!pill){ if(window.tpToast) tpToast('Abra o seletor de fundo pra comprar \uD83D\uDECD\uFE0F','info'); return; }
+    if(pill.dataset.armed){ _tpDoFloorBuy(id); return; }
+    try{ document.querySelectorAll('#disp-floors .fbuy-pill.confirm').forEach(function(p){ if(p!==pill){ p.classList.remove('confirm'); p.textContent='\uD83E\uDE99 '+p.dataset.price; delete p.dataset.armed; } }); }catch(e){}
+    pill.dataset.armed='1'; pill.classList.add('confirm'); pill.textContent='Confirmar?';
+    setTimeout(function(){ if(pill&&pill.dataset.armed){ pill.classList.remove('confirm'); pill.textContent='\uD83E\uDE99 '+pill.dataset.price; delete pill.dataset.armed; } }, 3500);
+  }
+  window.tpFloorBuyStep=tpFloorBuyStep;
+  function _tpDoFloorBuy(id){
+    var f=tpFloorById(id); if(!f) return;
+    if(window.tpToast) tpToast('Comprando "'+f.name+'"\u2026','info');
+    tpAuthFetch(SB+'/rest/v1/rpc/gm_buy_floor',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({p_floor_id:id})})
+      .then(function(r){ return r.json().catch(function(){return null;}).then(function(d){ return {ok:r.ok,d:d}; }); })
+      .then(function(res){ var d=res.d;
+        if(!res.ok||!d||d.ok!==true){ var reason=(d&&d.reason)||'erro';
+          if(reason==='owned'){ (window.__TP_OWNED_FLOORS=window.__TP_OWNED_FLOORS||{})[id]=1; tpSetFloor(id); tpRenderDisplayFloors(); return; }
+          if(window.tpToast) tpToast(reason==='insufficient'?'Panda Coins insuficientes.':'N\u00e3o foi poss\u00edvel comprar ('+reason+').','error'); return; }
+        (window.__TP_OWNED_FLOORS=window.__TP_OWNED_FLOORS||{})[id]=1;
+        if(d.progress){ if(window.__GAMI){ window.__GAMI.progress=Object.assign(window.__GAMI.progress||{}, d.progress); } try{ localStorage.setItem('tp-gami', JSON.stringify(d.progress)); }catch(e){} if(window.tpHeaderProgress) try{ window.tpHeaderProgress(); }catch(e){} }
+        if(window.tpToast) tpToast('\uD83C\uDF89 "'+f.name+'" desbloqueado!','success');
+        tpSetFloor(id); tpRenderDisplayFloors();
+      })
+      .catch(function(){ if(window.tpToast) tpToast('Erro de conex\u00e3o ao comprar.','error'); });
+  }
   // ── Editar display de personagem (fundo + outfit exibido) ──
   function tpRenderDisplayFloors(){
     var host=g('disp-floors'); if(!host) return;
     var owned=window.__TP_OWNED_FLOORS||{}, cur=window.__pfFloorId||'stone';
-    host.innerHTML=TP_FLOORS.filter(_tpFloorVis).map(function(fl){
-      var locked=fl.price>0 && !owned[fl.id];
-      return '<div class="tp-floorsw r-'+(fl.rarity||'comum')+(fl.scene?' scene':'')+(fl.id===cur?' on':'')+(locked?' locked':'')+'" data-floor="'+fl.id+'" title="'+fl.name+(locked?' — compre na Store':'')+'" onclick="tpSetFloor(\''+fl.id+'\')" style="background-image:url('+(fl.scene?(fl.url||tpFloorUrl(fl.id)):tpFloorUrl(fl.id))+');background-size:'+(fl.scene?'cover':'28px 28px')+'">'+(fl.scene?'<span class="nm">'+fl.name+'</span>':'')+(locked?'<span class="lk">🔒</span>':'')+'</div>';
+    var RL={comum:'Comum',incomum:'Incomum',raro:'Raro',epico:'\u00c9pico',lendario:'Lend\u00e1rio'};
+    var list=TP_FLOORS.filter(_tpFloorVis), scenes=list.filter(function(f){return f.scene;}), tex=list.filter(function(f){return !f.scene;});
+    var sHtml=scenes.map(function(f){ var locked=f.price>0&&!owned[f.id], on=f.id===cur;
+      return '<div class="tp-scenew r-'+(f.rarity||'comum')+(on?' on':'')+(locked?' locked':'')+'" data-floor="'+f.id+'" onclick="tpFloorClick(\''+f.id+'\',this)" style="background-image:url('+(f.url||tpFloorUrl(f.id))+')"><span class="sc-rib">'+(RL[f.rarity]||f.rarity||'')+'</span><span class="nm">'+f.name+'</span>'+(locked?'<span class="fbuy-pill" data-price="'+f.price+'">\uD83E\uDE99 '+f.price+'</span>':(on?'<span class="chk">\u2713</span>':''))+'</div>';
     }).join('');
+    var tHtml=tex.map(function(f){ var locked=f.price>0&&!owned[f.id], on=f.id===cur;
+      return '<div class="tp-floorsw r-'+(f.rarity||'comum')+(on?' on':'')+(locked?' locked':'')+'" data-floor="'+f.id+'" title="'+f.name+'" onclick="tpFloorClick(\''+f.id+'\',this)" style="background-image:url('+tpFloorUrl(f.id)+');background-size:28px 28px">'+(locked?'<span class="fbuy-pill sm" data-price="'+f.price+'">\uD83E\uDE99'+f.price+'</span>':'')+'</div>';
+    }).join('');
+    host.innerHTML=(scenes.length?'<div class="disp-sec-h">\uD83D\uDDBC\uFE0F Cen\u00e1rios</div><div class="disp-scenes">'+sHtml+'</div>':'')+(tex.length?'<div class="disp-sec-h">\uD83C\uDFA8 Texturas</div><div class="disp-tex">'+tHtml+'</div>':'');
   }
   function tpDispOutfit(){
     var host=g('disp-outfit'); if(!host) return;
