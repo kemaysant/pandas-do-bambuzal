@@ -10576,7 +10576,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt23';
+window.TP_BUILD = '2026-10-03evt24';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -12839,6 +12839,48 @@ window.tpFetchBossExtra=async function(name){
 };
 // Minimapa do boss (tiles TibiaMaps, mesmo esquema do mapa de casas) — instancia propria.
 function _bossFloorLabel(f){ var rel=7-f; return rel===0?'0':((rel>0?'+':'')+rel); }
+// Marcadores do TibiaMaps (markers.json) — carregados 1x e cacheados em memoria.
+window._tpMarkers=window._tpMarkers||null; window._tpMarkersLoading=null;
+window.tpLoadMarkers=function(){
+  if(window._tpMarkers) return Promise.resolve(window._tpMarkers);
+  if(window._tpMarkersLoading) return window._tpMarkersLoading;
+  window._tpMarkersLoading=fetch('https://tibiamaps.github.io/tibia-map-data/markers.json',{cache:'force-cache'})
+    .then(function(r){return r.json();})
+    .then(function(j){ window._tpMarkers=Array.isArray(j)?j:[]; return window._tpMarkers; })
+    .catch(function(){ window._tpMarkers=[]; return []; });
+  return window._tpMarkersLoading;
+};
+var TP_MARK={
+  'up':{s:'▲',c:'#7CFC7C'},'down':{s:'▼',c:'#7CFC7C'},
+  'red up':{s:'▲',c:'#ff6a6a'},'red down':{s:'▼',c:'#ff6a6a'},
+  'red left':{s:'◀',c:'#ff6a6a'},'red right':{s:'▶',c:'#ff6a6a'},
+  'star':{s:'★',c:'#ffd24a'},'flag':{s:'⚑',c:'#ffffff'},
+  'checkmark':{s:'✔',c:'#7CFC7C'},'crossmark':{s:'✖',c:'#ff6a6a'},
+  'cross':{s:'✚',c:'#ff6a6a'},'sword':{s:'⚔',c:'#e6e2f0'},
+  'spear':{s:'↑',c:'#e6e2f0'},'?':{s:'?',c:'#ffd24a'},'!':{s:'!',c:'#ff6a6a'},
+  'mouth':{s:'▬',c:'#ff9a5a'},'bag':{s:'$',c:'#ffd24a'},
+  'lock':{s:'■',c:'#cfc9e6'},'skull':{s:'☠',c:'#e6e2f0'},'$':{s:'$',c:'#7CFC7C'}
+};
+function _bossMarkerIcon(name){
+  var m=TP_MARK[name]||{s:'•',c:'#cfc9e6'};
+  return L.divIcon({className:'tp-mk',iconSize:[14,14],iconAnchor:[7,7],html:'<span style="color:'+m.c+'">'+m.s+'</span>'});
+}
+function _bossDrawMarkers(cx,cy,floor){
+  var map=window._bossMiniMap; if(!map) return;
+  if(!window._bossMarkerLayer){ window._bossMarkerLayer=L.layerGroup().addTo(map); }
+  window._bossMarkerLayer.clearLayers();
+  var list=window._tpMarkers||[]; if(!list.length) return;
+  var R=380, lg=window._bossMarkerLayer;
+  for(var i=0;i<list.length;i++){
+    var mk=list[i];
+    if(mk.z!==floor) continue;
+    if(Math.abs(mk.x-cx)>R || Math.abs(mk.y-cy)>R) continue;
+    var ll=map.unproject([mk.x,mk.y],0);
+    var mrk=L.marker(ll,{icon:_bossMarkerIcon(mk.icon),interactive:!!mk.description,keyboard:false});
+    if(mk.description) mrk.bindTooltip(mk.description,{direction:'top',offset:[0,-6],className:'tp-mk-tip'});
+    mrk.addTo(lg);
+  }
+}
 window.initBossMiniMap=function(x,y,floor){
   var el=document.getElementById('tp-boss-map');
   if(!el || !window.L || typeof _hfMakeTileLayer!=='function') return;
@@ -12855,8 +12897,10 @@ window.initBossMiniMap=function(x,y,floor){
   window._bossMapLayer=_hfMakeTileLayer(map,floor); window._bossMapLayer.addTo(map);
   var icon=L.divIcon({html:'<div style="width:11px;height:11px;background:#f87171;border:2px solid #fff;border-radius:50%;box-shadow:0 0 7px rgba(248,113,113,.9)"></div>',iconSize:[11,11],iconAnchor:[5,5],className:''});
   var ll=map.unproject([x,y],0);
-  L.marker(ll,{icon:icon}).addTo(map);
+  L.marker(ll,{icon:icon,zIndexOffset:1000}).addTo(map);
   map.setView(ll,1);
+  window._bossMarkerLayer=L.layerGroup().addTo(map);
+  tpLoadMarkers().then(function(){ var c=window._bossMapState; if(c) _bossDrawMarkers(c.x,c.y,c.floor); });
   var Ctrl=L.Control.extend({options:{position:'topleft'},onAdd:function(){
     var c=L.DomUtil.create('div','leaflet-bar leaflet-control');
     function btn(txt,title,fn,style){var a=L.DomUtil.create('a','',c);a.href='#';a.title=title;a.innerHTML=txt;if(style)a.style.cssText=style;if(fn)L.DomEvent.on(a,'click',function(e){L.DomEvent.preventDefault(e);fn();});return a;}
@@ -12884,6 +12928,7 @@ function _bossChangeFloor(delta){
   var map=window._bossMiniMap;
   if(window._bossMapLayer) map.removeLayer(window._bossMapLayer);
   window._bossMapLayer=_hfMakeTileLayer(map,nf); window._bossMapLayer.addTo(map);
+  if(window._tpMarkers) _bossDrawMarkers(c.x,c.y,nf); else tpLoadMarkers().then(function(){ _bossDrawMarkers(c.x,c.y,nf); });
 }
 window._bossInitMap=function(ex){
   if(!ex||ex.x==null) return;
@@ -12929,7 +12974,11 @@ window.tpOpenBoss=async function(name){
       +".tp-boss-mapcoords{font-family:monospace;font-size:.68rem;color:var(--muted)}"
       +".tp-boss-mapcoords span{color:var(--ink-2,#cfc9e6)}"
       +".tp-boss-mapcredit{font-size:.66rem;color:var(--muted)}"
-      +".tp-boss-mapcredit a{color:var(--bamboo-light,#a78bfa);text-decoration:none}";
+      +".tp-boss-mapcredit a{color:var(--bamboo-light,#a78bfa);text-decoration:none}"
+      +".tp-boss-map .tp-mk{display:flex;align-items:center;justify-content:center;font:700 12px/1 system-ui,'Segoe UI Symbol',sans-serif;text-shadow:0 0 2px #000,0 0 2px #000,0 0 3px #000}"
+      +".tp-boss-map .tp-mk span{display:block;line-height:1}"
+      +".tp-boss-map .leaflet-tooltip.tp-mk-tip{background:#14131c;border:1px solid #2b2938;color:#eae8f2;font-size:.66rem;font-weight:600;border-radius:6px;padding:2px 7px;box-shadow:0 2px 8px rgba(0,0,0,.55);white-space:normal;max-width:180px}"
+      +".tp-boss-map .leaflet-tooltip.tp-mk-tip:before{border-top-color:#14131c}";
     document.head.appendChild(st);
     document.addEventListener('keydown',function(e){ if(e.key==='Escape') tpCloseBoss(); });
   }
