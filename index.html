@@ -10576,7 +10576,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt20';
+window.TP_BUILD = '2026-10-03evt21';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -12783,16 +12783,26 @@ function _bossExtraHtml(ex){
 function _parseBossExtra(txt){
   if(!txt) return null;
   var raid=[], seen={}, m;
-  var reMsg=/\{\{Message\|type=server\|([^}]+)\}\}/g;
-  while((m=reMsg.exec(txt))){
-    var t=m[1]
+  function _clean(t){ return (t||'')
       .replace(/<br\s*\/?>/gi,' ')
       .replace(/\[\[[^\]|]+\|([^\]]+)\]\]/g,'$1')
       .replace(/\[\[([^\]]+)\]\]/g,'$1')
       .replace(/''+/g,'')
-      .replace(/\s+/g,' ').trim();
-    if(t && !seen[t]){ seen[t]=1; raid.push(t); }
+      .replace(/\s+/g,' ').trim(); }
+  function _push(t){ if(t && !seen[t]){ seen[t]=1; raid.push(t); } }
+  // (1) Template de raids com timestamps: {{Raid Message|HH:MM:SS|texto|HH:MM:SS|texto|...}}
+  var reRaid=/\{\{Raid Message\|([\s\S]*?)\}\}/g;
+  while((m=reRaid.exec(txt))){
+    var parts=m[1].split('|');
+    for(var k=0;k<parts.length;k++){
+      if(/^\d{1,2}:\d{2}:\d{2}$/.test(parts[k].trim())){
+        var msg=_clean(parts[k+1]); if(msg) _push(parts[k].trim()+'  '+msg); k++;
+      }
+    }
   }
+  // (2) Mensagem de servidor avulsa: {{Message|type=server|texto}}
+  var reMsg=/\{\{Message\|type=server\|([^}]+)\}\}/g;
+  while((m=reMsg.exec(txt))){ _push(_clean(m[1])); }
   var reCo=/\{\{Mapper Coords\|\s*([0-9]+)(?:\.([0-9]+))?\s*\|\s*([0-9]+)(?:\.([0-9]+))?\s*\|\s*([0-9]+)/;
   var locf=txt.match(/\|\s*location\s*=([\s\S]*?)\n\s*\|/);
   var scope=locf?locf[1]:txt;
