@@ -2684,13 +2684,13 @@ async function tibiaFetch(path) {
       #agenda .ag-new:hover{filter:brightness(1.08);transform:translateY(-1px)}
       #agenda .ag-list{display:flex;flex-direction:column;gap:.8rem}
       #agenda .ag-card{position:relative;background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1rem 1.15rem 1rem 1.3rem;display:flex;gap:1.1rem;align-items:flex-start;flex-wrap:wrap;overflow:hidden;transition:border-color .18s,transform .18s,box-shadow .18s}
-      #agenda .ag-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--bamboo,#8b5cf6),var(--bamboo-light,#a78bfa));opacity:.55}
+      #agenda .ag-card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--tc,var(--bamboo,#8b5cf6));opacity:.9}
       #agenda .ag-card:hover{border-color:var(--bamboo,#8b5cf6);transform:translateY(-1px);box-shadow:0 12px 30px -18px rgba(139,92,246,.5)}
       #agenda .ag-card.ag-focus{border-color:var(--gold,#c9a840);box-shadow:0 0 0 1px var(--gold,#c9a840) inset,0 14px 34px -18px rgba(201,168,64,.5)}
       #agenda .ag-card.ag-focus::before{background:linear-gradient(var(--gold,#c9a840),var(--gold-light,#e0c060));opacity:.85}
       #agenda .ag-shared-tag{display:inline-flex;align-items:center;gap:5px;font-size:.64rem;font-weight:700;color:var(--gold-light,#e0c060);background:rgba(201,168,64,.12);border:1px solid rgba(201,168,64,.4);border-radius:999px;padding:2px 9px;margin-bottom:.55rem}
       #agenda .ag-when{flex:none;width:60px;text-align:center;background:linear-gradient(160deg,var(--bamboo-dim,#211a3d),var(--bg-2,#1b1a25));border:1px solid var(--border,#2b2938);border-radius:11px;padding:.5rem .3rem .55rem}
-      #agenda .ag-when .d{font-size:1.5rem;font-weight:800;color:var(--ink,#eae8f2);line-height:1;font-family:'Cinzel',serif}
+      #agenda .ag-when .d{font-size:1.5rem;font-weight:800;color:var(--ink,#eae8f2);line-height:1;font-family:'Space Grotesk','Inter',sans-serif;letter-spacing:-.5px}
       #agenda .ag-when .mo{font-size:.6rem;text-transform:uppercase;color:var(--gold-light,#e0c060);letter-spacing:.08em;margin-top:3px;font-weight:700}
       #agenda .ag-when .hr{font-size:.68rem;color:var(--bamboo-light,#a78bfa);font-weight:700;margin-top:5px}
       #agenda .ag-main{flex:1;min-width:180px}
@@ -2710,8 +2710,8 @@ async function tibiaFetch(path) {
       #agenda .ag-cal a:hover,#agenda .ag-cal button:hover{filter:brightness(1.15)}
       #agenda .ag-cal .ag-share{color:var(--gold-light,#e0c060);background:rgba(201,168,64,.12);border-color:rgba(201,168,64,.55)}
       #agenda .ag-empty,#agenda .ag-loading{color:var(--muted,#63607a);padding:2rem 0;text-align:center}
-      #agenda .ag-count{font-size:.72rem;color:var(--muted)}
-      #agenda .ag-count b{color:#3ecf8e}
+      #agenda .ag-count{font-size:.74rem;font-weight:700;color:var(--ink-3,#b9b6c9);background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.32);border-radius:999px;padding:3px 10px;white-space:nowrap}
+      #agenda .ag-count b{color:#5fdd9e}
       /* ── vista calendário (grade mensal) ── */
       #agenda .ag-calwrap{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:16px;padding:1rem 1.1rem 1.2rem}
       #agenda .ag-cal-hd{display:flex;align-items:center;justify-content:center;gap:.7rem;margin-bottom:1.1rem;flex-wrap:wrap}
@@ -2878,7 +2878,7 @@ async function tibiaFetch(path) {
       #eventpage .evp-abtn{font-size:.76rem;font-weight:700;text-decoration:none;color:var(--bamboo-light,#a78bfa);background:var(--bamboo-dim,#211a3d);border:1px solid var(--bamboo,#8b5cf6);border-radius:999px;padding:6px 12px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:5px}
       #eventpage .evp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.1rem;margin-bottom:1.1rem}
       #eventpage .evp-card{background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:1.1rem 1.2rem}
-      #eventpage .evp-card h3{font-size:.95rem;font-weight:800;color:var(--ink,#eae8f2);margin:0 0 .5rem;display:flex;align-items:center;gap:.45rem}
+      #eventpage .evp-card h3{font-size:.95rem;font-weight:800;color:var(--ink,#eae8f2);margin:0 0 .7rem;padding-bottom:.55rem;border-bottom:1px solid var(--border,#2b2938);display:flex;align-items:center;gap:.45rem}
       #eventpage .evp-text{font-size:.86rem;color:var(--ink-3,#b9b6c9);line-height:1.5;white-space:pre-wrap;word-break:break-word}
       #eventpage .evp-empty{font-size:.82rem;color:var(--muted);font-style:italic}
       #eventpage .evp-voc{display:grid;grid-template-columns:repeat(auto-fill,minmax(188px,1fr));gap:.7rem;margin-top:.4rem;align-items:start}
@@ -10532,7 +10532,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt7';
+window.TP_BUILD = '2026-10-03evt8';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -20021,7 +20021,7 @@ window.tpLoadJornada=async function(){
       +'<span class="ag-count"><b>'+ev.going+'</b> vão'+(ev.maybe?' · '+ev.maybe+' talvez':'')+'</span>'
       +'<span class="ag-cal"><button onclick="location.hash=\'#event='+ev.id+'\'">📄 Abrir evento</button><button class="ag-share" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button><a href="'+gcalUrl(ev)+'" target="_blank" rel="noopener">📅 Google Agenda</a></span>'
       +'</div>';
-    return '<div class="ag-card'+(focus?' ag-focus':'')+'" id="agc-'+ev.id+'">'
+    return '<div class="ag-card'+(focus?' ag-focus':'')+'" id="agc-'+ev.id+'" style="--tc:'+t[2]+'">'
       +'<div class="ag-when"><div class="d">'+w.dd+'</div><div class="mo">'+esc(w.mo)+'</div><div class="hr">'+w.hr+'</div></div>'
       +'<div class="ag-main">'+(focus?'<span class="ag-shared-tag">🔗 '+(ev.is_mine?'Seu evento (via link)':'Compartilhado com você')+'</span>':'')
       +'<div class="ag-ttl"><span style="cursor:pointer" onclick="location.hash=\'#event='+ev.id+'\'" title="Abrir página do evento">'+t[0]+' '+esc(ev.title)+'</span> <span class="ag-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span> <span class="ag-vis">'+(VISLBL[ev.visibility]||ev.visibility)+'</span></div>'
