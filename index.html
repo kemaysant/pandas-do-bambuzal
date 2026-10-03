@@ -2019,7 +2019,7 @@ async function tibiaFetch(path) {
       window.tpHomeBuilds=function(){
         var host=document.getElementById('home-builds'); if(!host) return;
         if(typeof PANDA_SB_URL==='undefined'||!PANDA_SB_URL||typeof _pandaHeaders!=='function'){ if(host.parentNode) host.parentNode.style.display='none'; return; }
-        var url=PANDA_SB_URL+'/rest/v1/builds?status=eq.approved&order=created_at.desc&limit=14&select=id,name,vocation,dano,element,data';
+        var url=PANDA_SB_URL+'/rest/v1/builds?status=eq.approved&home_featured=eq.true&order=created_at.desc&limit=14&select=id,name,vocation,dano,element,data,author_name';
         fetch(url,{headers:_pandaHeaders()}).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(rows){
           if(!rows||!rows.length){ if(host.parentNode) host.parentNode.style.display='none'; return; }
           // dedup: não repete builds iguais (mesmo nome+vocação) na vitrine
@@ -6462,10 +6462,10 @@ PlayerName (Leader)
       return '<div class="bld-row" onclick="tpOpenBuild(\''+b.id+'\')">'
         +'<div class="bld-lvlbadge"><b>'+esc(lvl)+'</b><span>NÍVEL</span></div>'
         +'<div class="bld-rowwic">'+(ic?'<img src="'+ic+'" alt="">':'⚔️')+'</div>'
-        +'<div class="bld-rmain"><div class="bld-rvoc">'+voc.emoji+' '+esc(voc.label)+'</div><div class="bld-rname">'+esc(w.name||'—')+'</div></div>'
+        +'<div class="bld-rmain"><div class="bld-rvoc">'+voc.emoji+' '+esc(voc.label)+(b.home_featured?' <span title="Validada para a home" style="color:#5fdd9e">✓</span>':'')+'</div><div class="bld-rname">'+esc(w.name||'—')+'</div>'+(b.author_name?'<div class="bld-rauthor" style="font-size:.72rem;color:var(--muted,#9a97a8);margin-top:1px">por '+esc(b.author_name)+'</div>':'')+'</div>'
         +'<div class="bld-rperks">'+chips.join('')+'</div>'
         +'<div class="bld-rdmg"><b>'+fmtNum(b.dano)+'</b><span>dano/turno</span></div>'
-        +'<div class="bld-rcta">Ver build →</div></div>';
+        +'<div class="bld-rcta"><span class="bld-adminonly" style="display:none"><button onclick="event.stopPropagation();tpBuildToggleHome(\''+b.id+'\',this)" style="background:'+(b.home_featured?'#2a7a44':'transparent')+';border:1px solid var(--rule);color:#fff;border-radius:6px;padding:2px 8px;font-size:.66rem;cursor:pointer;margin-right:.4rem" title="Exibir na home (selo de validação)">'+(b.home_featured?'✓ Na home':'☆ Home')+'</button></span>Ver build →</div></div>';
     }
     function render(){
       var grid=document.getElementById('bld-grid'); if(!grid)return;
@@ -6473,6 +6473,12 @@ PlayerName (Leader)
       grid.innerHTML=list.length?list.map(card).join(''):'<div class="bld-empty">Nenhuma build encontrada.</div>';
       if(window.tpCheckBuildAdmin) tpCheckBuildAdmin();
     }
+    window.tpBuildToggleHome=function(id,btn){
+      var b=byId[id]; if(!b) return; var nv=!b.home_featured; if(btn) btn.disabled=true;
+      (window.tpAuthFetch||fetch)(PANDA_SB_URL+'/rest/v1/builds?id=eq.'+id,{method:'PATCH',headers:{'Content-Type':'application/json',apikey:PANDA_SB_ANON,Authorization:'Bearer '+((window.TP_AUTH&&window.TP_AUTH.access_token)||PANDA_SB_ANON),Prefer:'return=minimal'},body:JSON.stringify({home_featured:nv})})
+        .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); b.home_featured=nv; if(window.tpToast)tpToast(nv?'Build validada para a home ✓':'Removida da home.','success'); render(); })
+        .catch(function(){ if(window.tpToast)tpToast('Erro ao atualizar (precisa ser admin).','error'); if(btn)btn.disabled=false; });
+    };
     function renderFilters(){
       var f=document.getElementById('bld-filters'); if(!f)return;
       var counts={}; all.forEach(function(b){counts[b.vocation]=(counts[b.vocation]||0)+1;});
@@ -7759,7 +7765,7 @@ PlayerName (Leader)
     window.tpBuildsInit=function(){
       if(loaded)return; loaded=true;
       if(window.tpLoadCatalog) tpLoadCatalog();
-      var url=PANDA_SB_URL+'/rest/v1/builds?status=eq.approved&select=id,name,vocation,dano,ml,element,data&order=vocation.asc';
+      var url=PANDA_SB_URL+'/rest/v1/builds?status=eq.approved&select=id,name,vocation,dano,ml,element,data,author_name,home_featured&order=vocation.asc';
       fetch(url,{headers:_pandaHeaders()}).then(function(r){return r.json();}).then(function(rows){
         all=(rows||[]).sort(sortBuilds); byId={}; all.forEach(function(b){byId[b.id]=b;});
         renderFilters(); render(); window.__tpBuildsReady=true;
@@ -10951,7 +10957,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt34';
+window.TP_BUILD = '2026-10-03evt35';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
