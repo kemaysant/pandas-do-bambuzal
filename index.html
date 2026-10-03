@@ -4702,7 +4702,7 @@ PlayerName (Leader)
       #profile .pf-disp-edit:hover{border-color:var(--bamboo,#8b5cf6);background:var(--bamboo-pale,rgba(139,92,246,.12))}
       /* Modal editar display */
       #tp-disp-modal .disp-sec{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:.2rem 0 .55rem}
-      #tp-disp-modal .disp-floors{display:block;max-height:340px;overflow-y:auto;overflow-x:hidden;padding:.1rem 2px}
+      #tp-disp-modal .disp-floors{display:block;max-height:440px;overflow-y:auto;overflow-x:hidden;padding:.1rem 2px}
       #tp-disp-modal .disp-sec-h{font-size:.66rem;font-weight:800;letter-spacing:.05em;color:var(--muted,#9a97ad);text-transform:uppercase;margin:.5rem 2px .5rem}
       #tp-disp-modal .disp-sec-h:first-child{margin-top:.1rem}
       #tp-disp-modal .disp-scenes{display:grid;grid-template-columns:repeat(auto-fill,minmax(134px,1fr));gap:.55rem;margin-bottom:.2rem}
@@ -4743,6 +4743,15 @@ PlayerName (Leader)
       #tp-disp-modal .disp-of .s{font-size:.72rem;color:var(--muted)}
       #tp-disp-modal .disp-btn{background:var(--bamboo,#8b5cf6);border:none;color:#fff;border-radius:8px;padding:.5rem .8rem;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap}
       #tp-disp-modal .disp-store{display:inline-block;margin-top:.55rem;font-size:.72rem;color:var(--bamboo-light,#a78bfa);cursor:pointer}
+      #tp-disp-modal .tp-disp-card{max-width:840px}
+      #tp-disp-modal .disp-grid{display:grid;grid-template-columns:310px 1fr;gap:1.2rem;align-items:start}
+      @media(max-width:700px){#tp-disp-modal .disp-grid{grid-template-columns:1fr}}
+      #tp-disp-modal .disp-preview{position:relative;width:100%;aspect-ratio:16/10;border-radius:12px;overflow:hidden;border:1px solid var(--rule);background:#15141c;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+      #tp-disp-modal .disp-prev-bg{position:absolute;inset:0;background-size:cover;background-position:center}
+      #tp-disp-modal .disp-preview::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.5),transparent 55%);pointer-events:none}
+      #tp-disp-modal #disp-prev-cv{position:absolute;left:14px;bottom:12px;width:104px;height:104px;image-rendering:pixelated;z-index:2;filter:drop-shadow(0 3px 6px rgba(0,0,0,.65))}
+      #tp-disp-modal .disp-prev-name{position:absolute;right:12px;bottom:12px;z-index:2;font-size:.84rem;font-weight:800;color:#fff;text-shadow:0 1px 3px #000;letter-spacing:.01em}
+      #tp-disp-modal .disp-prev-hint{position:absolute;top:8px;left:10px;z-index:2;font-size:.6rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.75);text-shadow:0 1px 2px #000}
     </style>
     <h2 class="sec-title">Meu Perfil</h2>
     <p class="sec-sub">Sua conta, seus personagens e seu desempenho pessoal no Tibia Panda.</p>
@@ -10598,7 +10607,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt28';
+window.TP_BUILD = '2026-10-03evt29';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -17511,7 +17520,7 @@ function ewEnsureTcInput() {
   var TP_DEFAULT_OUTFIT={outfit:128,head:114,body:88,legs:40,feet:76,addons:0,dir:2,mount:0}; // Citizen padrão (cores clássicas)
   function cfgFrom(c){ if(!c||c.outfit_id==null) return Object.assign({},TP_DEFAULT_OUTFIT,{dir:(c&&c.direction!=null?c.direction:2),mount:(c&&c.mount_id)||0}); return {outfit:c.outfit_id, head:c.head||0, body:c.body||0, legs:c.legs||0, feet:c.feet||0, addons:c.addons||0, dir:(c.direction!=null?c.direction:2), mount:c.mount_id||0}; }
 
-  window.TP_FLOORS=[{id:'stone',name:'Pedra',rarity:'comum',price:0},{id:'grass',name:'Grama',rarity:'comum',price:0},{id:'sand',name:'Areia',rarity:'comum',price:250},{id:'wood',name:'Madeira',rarity:'comum',price:250},{id:'marble',name:'Mármore Dourado',rarity:'comum',price:250},{id:'mosaic',name:'Mosaico',rarity:'comum',price:250},{id:'lava',name:'Lava',rarity:'comum',price:250},{id:'t429',name:'Laje de Pedra',rarity:'comum',price:250},{id:'t436',name:'Pedra Clara',rarity:'comum',price:250},{id:'t410',name:'Ardósia',rarity:'comum',price:250},{id:'t416',name:'Paralelepípedo',rarity:'comum',price:250},{id:'t924',name:'Arenito Claro',rarity:'comum',price:250},{id:'t622',name:'Água',rarity:'comum',price:250},{id:'t1771',name:'Assoalho de Madeira',rarity:'comum',price:250},{id:'t417',name:'Mosaico Terroso',rarity:'comum',price:250},{id:'t800',name:'Gelo',rarity:'comum',price:250},{id:'t456',name:'Tábua Real',rarity:'comum',price:250},{id:'t418',name:'Mosaico Dourado',rarity:'comum',price:250},{id:'t460',name:'Carpete Arcano',rarity:'comum',price:250},{id:'pf-corrupted-gardens',name:'Corrupted Gardens',rarity:'lendario',price:0,scene:true,hidden:true,url:'floors/pf-corrupted-gardens.webp'},{id:'pf-feyrist',name:'Feyrist',rarity:'epico',price:1600,scene:true,url:'floors/pf-feyrist.png'},{id:'pf-issavi',name:'Issavi',rarity:'lendario',price:3000,scene:true,url:'floors/pf-issavi.webp'},{id:'pf-roshamuul',name:'Roshamuul',rarity:'lendario',price:3000,scene:true,url:'floors/pf-roshamuul.png'},{id:'pf-pier',name:'Píer Turquesa',rarity:'raro',price:900,scene:true,url:'floors/pf-pier.webp'},{id:'pf-banuta',name:'Banuta',rarity:'raro',price:900,scene:true,url:'floors/pf-banuta.webp'},{id:'pf-candia-s',name:'Candia',rarity:'raro',price:900,scene:true,url:'floors/pf-candia-s.webp'},{id:'pf-praca',name:'Rookgaard DP',rarity:'raro',price:900,scene:true,url:'floors/pf-praca.webp'},{id:'pf-salao-xadrez',name:'Rookgaard Temple',rarity:'raro',price:900,scene:true,url:'floors/pf-salao-xadrez.webp'},{id:'pf-cav-gelada',name:'Grey Island (cubo)',rarity:'raro',price:900,scene:true,url:'floors/pf-cav-gelada.webp'},{id:'pf-gruta-gelo',name:'Grey Island escadaria',rarity:'raro',price:900,scene:true,url:'floors/pf-gruta-gelo.webp'},{id:'pf-cav-chao',name:'Chão de Caverna',rarity:'raro',price:900,scene:true,url:'floors/pf-cav-chao.webp'},{id:'pf-ponte-mata',name:'Ponte na Mata',rarity:'raro',price:900,scene:true,url:'floors/pf-ponte-mata.webp'},{id:'pf-masmorra',name:'Masmorra',rarity:'raro',price:900,scene:true,url:'floors/pf-masmorra.webp'}];
+  window.TP_FLOORS=[{id:'stone',name:'Pedra',rarity:'comum',price:0},{id:'grass',name:'Grama',rarity:'comum',price:0},{id:'sand',name:'Areia',rarity:'comum',price:250},{id:'wood',name:'Madeira',rarity:'comum',price:250},{id:'marble',name:'Mármore Dourado',rarity:'comum',price:250},{id:'mosaic',name:'Mosaico',rarity:'comum',price:250},{id:'lava',name:'Lava',rarity:'comum',price:250},{id:'t429',name:'Laje de Pedra',rarity:'comum',price:250},{id:'t436',name:'Pedra Clara',rarity:'comum',price:250},{id:'t410',name:'Ardósia',rarity:'comum',price:250},{id:'t416',name:'Paralelepípedo',rarity:'comum',price:250},{id:'t924',name:'Arenito Claro',rarity:'comum',price:250},{id:'t622',name:'Água',rarity:'comum',price:250},{id:'t1771',name:'Assoalho de Madeira',rarity:'comum',price:250},{id:'t417',name:'Mosaico Terroso',rarity:'comum',price:250},{id:'t800',name:'Gelo',rarity:'comum',price:250},{id:'t456',name:'Tábua Real',rarity:'comum',price:250},{id:'t418',name:'Mosaico Dourado',rarity:'comum',price:250},{id:'t460',name:'Carpete Arcano',rarity:'comum',price:250},{id:'pf-corrupted-gardens',name:'Corrupted Gardens',rarity:'lendario',price:0,scene:true,hidden:true,url:'floors/pf-corrupted-gardens.webp'},{id:'pf-feyrist',name:'Feyrist',rarity:'epico',price:1800,scene:true,url:'floors/pf-feyrist.png'},{id:'pf-issavi',name:'Issavi',rarity:'epico',price:1800,scene:true,url:'floors/pf-issavi.webp'},{id:'pf-roshamuul',name:'Roshamuul',rarity:'epico',price:1800,scene:true,url:'floors/pf-roshamuul.png'},{id:'pf-pier',name:'Píer Turquesa',rarity:'raro',price:900,scene:true,url:'floors/pf-pier.webp'},{id:'pf-banuta',name:'Banuta',rarity:'epico',price:1800,scene:true,url:'floors/pf-banuta.webp'},{id:'pf-candia-s',name:'Candia',rarity:'epico',price:1800,scene:true,url:'floors/pf-candia-s.webp'},{id:'pf-praca',name:'Rookgaard DP',rarity:'raro',price:900,scene:true,url:'floors/pf-praca.webp'},{id:'pf-salao-xadrez',name:'Rookgaard Temple',rarity:'raro',price:900,scene:true,url:'floors/pf-salao-xadrez.webp'},{id:'pf-cav-gelada',name:'Grey Island (cubo)',rarity:'raro',price:900,scene:true,url:'floors/pf-cav-gelada.webp'},{id:'pf-gruta-gelo',name:'Grey Island escadaria',rarity:'raro',price:900,scene:true,url:'floors/pf-gruta-gelo.webp'},{id:'pf-cav-chao',name:'Chão de Caverna',rarity:'raro',price:900,scene:true,url:'floors/pf-cav-chao.webp'},{id:'pf-ponte-mata',name:'Ponte na Mata',rarity:'raro',price:900,scene:true,url:'floors/pf-ponte-mata.webp'},{id:'pf-masmorra',name:'Masmorra',rarity:'epico',price:1800,scene:true,url:'floors/pf-masmorra.webp'}];
   function tpFloorUrl(id){ return (typeof FLOOR_BASE!=='undefined'?FLOOR_BASE:'floors')+'/'+id+'.png?v='+((window.TP_BUILD)||'1'); }
   function tpApplyFloor(el,f){ if(!el) return; var _u=(f&&f.url)?(f.url+'?v='+((window.TP_BUILD)||'1')):tpFloorUrl(f.id); el.style.backgroundImage='url('+_u+')'; try{el.classList.toggle('scene',!!(f&&f.scene));}catch(_e){} if(f&&f.scene){ el.style.backgroundSize='cover'; el.style.backgroundRepeat='no-repeat'; el.style.backgroundPosition='center'; } else { el.style.backgroundSize='56px 56px'; el.style.backgroundRepeat='repeat'; el.style.backgroundPosition='top left'; } try{ var _c=el.closest&&el.closest('.pf-header,.tp-prof-hero2'); if(_c){ var _bg=_c.querySelector(':scope>.pf-herobg'); if(f&&f.scene){ if(!_bg){_bg=document.createElement('div');_bg.className='pf-herobg';_c.insertBefore(_bg,_c.firstChild);} _bg.style.backgroundImage=el.style.backgroundImage; _c.classList.add('has-scenebg'); } else { if(_bg)_bg.remove(); _c.classList.remove('has-scenebg'); } } }catch(_e){} }
   function tpFloorById(id){ for(var i=0;i<TP_FLOORS.length;i++){ if(TP_FLOORS[i].id===id) return TP_FLOORS[i]; } return TP_FLOORS[0]; }
@@ -17545,6 +17554,7 @@ function ewEnsureTcInput() {
     var stage=g('pf-hero-stage'); tpApplyFloor(stage,f);
     window.__pfFloorId=id;
     document.querySelectorAll('#disp-floors .tp-floorsw,#disp-floors .tp-scenew,#pf-hero-floors .pf-floor').forEach(function(el){ el.classList.toggle('on', el.dataset.floor===id); });
+    try{ if(window.tpDispRenderPreview) tpDispRenderPreview(); }catch(e){}
     if(AUTH){ AUTH.profile=Object.assign(AUTH.profile||{},{profile_floor:id}); saveAuth(AUTH);
       tpAuthFetch(SB+'/rest/v1/profiles?id=eq.'+AUTH.user.id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({profile_floor:id})}).catch(function(){}); }
   };
@@ -17588,7 +17598,10 @@ function ewEnsureTcInput() {
     var host=g('disp-floors'); if(!host) return;
     var owned=window.__TP_OWNED_FLOORS||{}, cur=window.__pfFloorId||'stone';
     var RL={comum:'Comum',incomum:'Incomum',raro:'Raro',epico:'\u00c9pico',lendario:'Lend\u00e1rio'};
-    var list=TP_FLOORS.filter(_tpFloorVis), scenes=list.filter(function(f){return f.scene;}), tex=list.filter(function(f){return !f.scene;});
+    var list=TP_FLOORS.filter(_tpFloorVis);
+    var _own=function(f){ return (owned[f.id]|| !(f.price>0))?0:1; };
+    var _byOwn=function(arr){ return arr.map(function(f,i){return [f,i];}).sort(function(a,b){return _own(a[0])-_own(b[0])||a[1]-b[1];}).map(function(p){return p[0];}); };
+    var scenes=_byOwn(list.filter(function(f){return f.scene;})), tex=_byOwn(list.filter(function(f){return !f.scene;}));
     var sHtml=scenes.map(function(f){ var locked=f.price>0&&!owned[f.id], on=f.id===cur;
       return '<div class="tp-scenew r-'+(f.rarity||'comum')+(on?' on':'')+(locked?' locked':'')+'" data-floor="'+f.id+'" onclick="tpFloorClick(\''+f.id+'\',this)" style="background-image:url('+(f.url||tpFloorUrl(f.id))+')"><span class="sc-rib">'+(RL[f.rarity]||f.rarity||'')+'</span><span class="nm">'+f.name+'</span>'+(locked?'<span class="fbuy-pill" data-price="'+f.price+'">\uD83E\uDE99 '+f.price+'</span>':(on?'<span class="chk">\u2713</span>':''))+'</div>';
     }).join('');
@@ -17606,11 +17619,27 @@ function ewEnsureTcInput() {
       +'<button class="disp-btn" onclick="tpOpenDisplayOutfit()">✏️ Editar</button>';
     var cv=g('disp-of-cv'); if(cv){ tpOutfitter().then(function(of){ of.render(cfgFrom(feat),cv,2).catch(function(){}); }).catch(function(){}); }
   }
+  function tpDispRenderPreview(){
+    try{
+      var f=tpFloorById(window.__pfFloorId||'stone');
+      var bg=g('disp-prev-bg');
+      if(bg&&f){ var u=f.scene?((f.url||tpFloorUrl(f.id))+'?v='+((window.TP_BUILD)||'1')):tpFloorUrl(f.id);
+        bg.style.backgroundImage='url('+u+')';
+        bg.style.backgroundSize=f.scene?'cover':'64px 64px';
+        bg.style.backgroundRepeat=f.scene?'no-repeat':'repeat';
+        bg.style.backgroundPosition=f.scene?'center':'top left';
+        bg.style.imageRendering=f.scene?'auto':'pixelated'; }
+      var feat=window.__pfFeat, nm=g('disp-prev-name'); if(nm) nm.textContent=feat?feat.name:'';
+      var cv=g('disp-prev-cv'); if(cv){ if(feat){ cv.style.display=''; tpOutfitter().then(function(of){ of.render(cfgFrom(feat),cv,3).catch(function(){}); }).catch(function(){}); } else { cv.style.display='none'; } }
+    }catch(e){}
+  }
+  window.tpDispRenderPreview=tpDispRenderPreview;
   window.tpOpenDisplay=function(){
     if(!AUTH){ tpOpenAuth('login'); return; }
     var m=g('tp-disp-modal'); if(!m) return;
     try{ tpRenderDisplayFloors(); }catch(e){ console.warn('disp floors',e); }
     try{ tpDispOutfit(); }catch(e){ console.warn('disp outfit',e); }
+    try{ tpDispRenderPreview(); }catch(e){ console.warn('disp preview',e); }
     m.classList.add('open');
   };
   document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ var m=g('tp-disp-modal'); if(m&&m.classList.contains('open')) tpCloseDisplay(); } });
@@ -17757,15 +17786,23 @@ window.tpToast=function(msg,type){
 </div>
 <!-- Editar display de personagem -->
 <div id="tp-disp-modal" class="tp-modal" onclick="if(event.target===this)tpCloseDisplay()">
-  <div class="tp-modal-card" style="max-width:440px;max-height:90vh;overflow:auto">
+  <div class="tp-modal-card tp-disp-card" style="max-height:90vh;overflow:auto">
     <button class="tp-modal-close" onclick="tpCloseDisplay()">✕</button>
     <div style="font-weight:800;font-size:1.05rem;color:var(--ink,#eae8f2);margin-bottom:.15rem">🎨 Editar display de personagem</div>
     <p style="font-size:.77rem;color:var(--muted);margin:.1rem 0 1.1rem">Escolha o fundo e o outfit que aparecem no seu perfil. O outfit é o do seu personagem principal — editá-lo aqui muda ele em todo o site.</p>
-    <div class="disp-sec">🖼️ Fundo</div>
-    <div id="disp-floors" class="disp-floors"></div>
-    <span class="disp-store" onclick="tpDispGoStore()">🛍️ Ver mais fundos na Store</span>
-    <div class="disp-sec" style="margin-top:1.1rem">🎽 Outfit exibido</div>
-    <div id="disp-outfit" class="disp-of"></div>
+    <div class="disp-grid">
+      <div class="disp-col-prev">
+        <div class="disp-sec">👁️ Prévia do perfil</div>
+        <div id="disp-preview" class="disp-preview"><div id="disp-prev-bg" class="disp-prev-bg"></div><span class="disp-prev-hint">prévia</span><canvas id="disp-prev-cv" width="208" height="208"></canvas><span id="disp-prev-name" class="disp-prev-name"></span></div>
+        <div class="disp-sec" style="margin-top:1.1rem">🎽 Outfit exibido</div>
+        <div id="disp-outfit" class="disp-of"></div>
+      </div>
+      <div class="disp-col-pick">
+        <div class="disp-sec">🖼️ Fundo</div>
+        <div id="disp-floors" class="disp-floors"></div>
+        <span class="disp-store" onclick="tpDispGoStore()">🛍️ Ver mais fundos na Store</span>
+      </div>
+    </div>
     <div style="text-align:right;margin-top:1.3rem">
       <button onclick="tpCloseDisplay()" style="background:var(--bamboo,#8b5cf6);border:none;color:#fff;border-radius:8px;padding:.55rem 1.1rem;font-weight:700;cursor:pointer">Concluído</button>
     </div>
