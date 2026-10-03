@@ -436,7 +436,21 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 /* ══════════════════════════════════════
    HERO
 ══════════════════════════════════════ */
-.hero{padding:1rem 0 2rem;border-bottom:1px solid var(--border);margin-bottom:2rem}
+.hero{padding:1rem 0 2rem;border-bottom:1px solid var(--border);margin-bottom:2rem;display:flex;gap:2rem;align-items:center}
+.hero-main{flex:1;min-width:0}
+.hero-side{flex:0 0 300px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;display:flex;flex-direction:column}
+.hero-side .hb-head{font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);display:flex;align-items:center;gap:.4rem;margin-bottom:.7rem;flex-wrap:wrap}
+.hero-side .hb-world{font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0;font-size:.72rem}
+.hb-list{display:flex;flex-direction:column;gap:0;min-height:40px}
+.hb-row{display:flex;align-items:center;gap:.5rem;padding:.32rem 0;border-bottom:1px solid var(--border)}
+.hb-row:last-child{border-bottom:0}
+.hb-row img{width:24px;height:24px;object-fit:contain;flex-shrink:0}
+.hb-row .hb-n{font-size:.82rem;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.hb-row .hb-x{font-size:.64rem;font-weight:800;color:#e0894a;background:rgba(224,112,64,.14);border:1px solid rgba(224,112,64,.3);border-radius:999px;padding:1px 7px}
+.hb-empty{font-size:.8rem;color:var(--muted);padding:.5rem 0;line-height:1.5}
+.hb-more{margin-top:.8rem;background:none;border:0;color:var(--bamboo-light);font-weight:700;font-size:.78rem;cursor:pointer;font-family:inherit;text-align:left;padding:0}
+.hb-more:hover{text-decoration:underline}
+@media(max-width:860px){.hero{flex-direction:column;gap:1.2rem;align-items:stretch}.hero-side{flex:none;width:100%}}
 .hero-eyebrow{font-size:.65rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--bamboo);margin-bottom:1rem;display:flex;align-items:center;gap:10px}
 .hero-eyebrow::after{content:'';display:block;height:1px;width:40px;background:var(--bamboo);opacity:.4}
 .hero-headline{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(2rem,4vw,3.4rem);line-height:1.02;letter-spacing:-1.5px;margin-bottom:1rem;color:var(--ink);text-shadow:0 0 46px rgba(139,92,246,.22)}
@@ -1870,6 +1884,7 @@ async function tibiaFetch(path) {
 
   <section class="page-section active" id="home">
     <div class="hero reveal">
+      <div class="hero-main">
       <div class="hero-eyebrow">Ferramentas de Tibia · Comunidade</div>
       <h1 class="hero-headline">Tibia<em>Panda</em></h1>
       <p class="hero-desc">Loot split com histórico da party, bosses, imbuements, hunt finder e mais — para o <strong id="hero-founded" style="color:var(--ink);font-weight:600">seu servidor</strong>. Escolha o mundo no topo e comece.</p>
@@ -1878,6 +1893,12 @@ async function tibiaFetch(path) {
         <div class="stat-item"><div class="stat-num" id="stat-world">—</div><div class="stat-label">Servidor</div></div>
         <div class="stat-item"><div class="stat-num">14+</div><div class="stat-label">Ferramentas</div></div>
       </div>
+      </div>
+      <aside class="hero-side" id="home-bosses">
+        <div class="hb-head">💀 Bosses caçados hoje <span id="home-bosses-world" class="hb-world"></span></div>
+        <div id="home-bosses-list" class="hb-list"><div class="hb-empty">Carregando…</div></div>
+        <button class="hb-more" onclick="showPage('bosses')">Ver todos os bosses →</button>
+      </aside>
     </div>
 
     <div class="world-bar reveal" id="world-bar" style="display:none">
@@ -2717,6 +2738,10 @@ async function tibiaFetch(path) {
       #agenda .ag-cal a:hover,#agenda .ag-cal button:hover{filter:brightness(1.15)}
       #agenda .ag-cal .ag-share{color:var(--gold-light,#e0c060);background:rgba(201,168,64,.12);border-color:rgba(201,168,64,.55)}
       #agenda .ag-empty,#agenda .ag-loading{color:var(--muted,#63607a);padding:2rem 0;text-align:center}
+      #agenda .ag-emptybox{max-width:420px;margin:1rem auto;text-align:center;background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:14px;padding:2.2rem 1.5rem}
+      #agenda .ag-empty-ic{font-size:2.4rem;margin-bottom:.5rem;filter:drop-shadow(0 6px 18px rgba(139,92,246,.4))}
+      #agenda .ag-empty-t{font-family:'Space Grotesk','Inter',sans-serif;font-size:1.1rem;font-weight:700;color:var(--ink,#eae8f2);margin-bottom:.4rem}
+      #agenda .ag-empty-d{font-size:.85rem;color:var(--ink-3,#b9b6c9);line-height:1.6;margin-bottom:1.1rem;max-width:340px;margin-left:auto;margin-right:auto}
       #agenda .ag-count{font-size:.74rem;font-weight:700;color:var(--ink-3,#b9b6c9);background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.32);border-radius:999px;padding:3px 10px;white-space:nowrap}
       #agenda .ag-count b{color:#5fdd9e}
       /* ── vista calendário (grade mensal) ── */
@@ -3164,7 +3189,7 @@ async function tibiaFetch(path) {
       #markettracker .mk-legend{display:flex;gap:1.1rem;font-size:.74rem;color:var(--ink-3);margin:.5rem 0 .2rem}
       #markettracker .mk-legend span{display:inline-flex;align-items:center;gap:.35rem}
       #markettracker .mk-legend i{width:16px;height:3px;border-radius:2px;display:inline-block}
-      #markettracker .mk-empty{font-size:.86rem;color:var(--muted);text-align:center;padding:2.4rem 1rem;border:1px dashed var(--rule);border-radius:12px;margin-top:1.1rem}
+      #markettracker .mk-empty{font-size:.86rem;color:var(--muted);text-align:center;padding:2.4rem 1rem;border:1px dashed var(--rule);border-radius:12px;margin-top:1.1rem;max-width:460px}
       #markettracker .mk-chart-svg{width:100%;height:auto;display:block;background:rgba(255,255,255,.015);border:1px solid var(--rule);border-radius:12px}
       #markettracker .mk-chart-svg text{fill:var(--muted);font-size:10px;font-family:inherit}
       #markettracker .mk-chart-svg .grid{stroke:var(--rule);stroke-width:1;opacity:.5}
@@ -5104,8 +5129,16 @@ PlayerName (Leader)
     <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/></svg> Bestiary</h2>
     <p class="sec-sub">Seu progresso de criaturas — <b>descobertas</b> e <b>completas</b> (charm liberado). Alimentado pelos Hunt Analysers que você salva no Loot Split.</p>
 
-    <div id="best-gate" style="display:none;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:12px;padding:1.4rem;text-align:center;color:var(--muted)">
-      Entre na sua conta pra ver seu Bestiary. <button class="tp-btn-primary" style="margin-left:.5rem" onclick="tpOpenAuth('login')">Entrar</button>
+    <div id="best-gate" style="display:none">
+      <div class="card pth-gate-card">
+        <div class="pth-gate-icon">📖</div>
+        <h3 class="pth-gate-title">Entre pra ver seu Bestiary</h3>
+        <p class="pth-gate-desc">Acompanhe seu Bestiary por personagem — charms, criaturas completas e progresso. Crie sua conta grátis pra salvar e acompanhar.</p>
+        <div class="pth-gate-actions">
+          <button class="tp-btn-primary" onclick="tpOpenAuth('signup')">🐼 Criar conta grátis</button>
+          <button class="tp-btn-ghost" onclick="tpOpenAuth('login')">Entrar</button>
+        </div>
+      </div>
     </div>
 
     <div id="best-main" style="display:none">
@@ -5147,8 +5180,16 @@ PlayerName (Leader)
       </div>
     </div>
 
-    <div id="store-gate" style="display:none;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:12px;padding:1.4rem;text-align:center;color:var(--muted)">
-      Entre na sua conta pra ver a Store e seus outfits. <button class="tp-btn-primary" style="margin-left:.5rem" onclick="tpOpenAuth('login')">Entrar</button>
+    <div id="store-gate" style="display:none">
+      <div class="card pth-gate-card">
+        <div class="pth-gate-icon">🛍️</div>
+        <h3 class="pth-gate-title">Entre pra ver a Store</h3>
+        <p class="pth-gate-desc">Desbloqueie outfits, montarias e cenários com Panda Coins — a moeda que você ganha jogando e cumprindo missões. Sem dinheiro real.</p>
+        <div class="pth-gate-actions">
+          <button class="tp-btn-primary" onclick="tpOpenAuth('signup')">🐼 Criar conta grátis</button>
+          <button class="tp-btn-ghost" onclick="tpOpenAuth('login')">Entrar</button>
+        </div>
+      </div>
     </div>
 
     <div id="store-main" style="display:none">
@@ -10537,7 +10578,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt9';
+window.TP_BUILD = '2026-10-03evt10';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -15729,6 +15770,7 @@ function ewEnsureTcInput() {
     const pfp=g('partyfinder'); if(pfp && pfp.classList.contains('active') && typeof loadPartyFinder==='function'){ try{ loadPartyFinder(); }catch(e){} }
     const hsp=g('houses'); if(hsp && hsp.classList.contains('active') && window.tpHousesInit){ try{ window.tpHousesInit(); }catch(e){} }
     try{ if(window.tpHomeEvents) window.tpHomeEvents(); }catch(e){}
+    try{ if(window.tpHomeBosses) window.tpHomeBosses(); }catch(e){}
     const agp=g('agenda'); if(agp && agp.classList.contains('active') && window.tpAgendaLoad){ try{ window.tpAgendaLoad(); }catch(e){} }
     try{ if(window.tpMarketOnWorld) window.tpMarketOnWorld(); }catch(e){}
     render('');
@@ -20079,7 +20121,13 @@ window.tpLoadJornada=async function(){
     var fid=(window.__AG_FOCUS&&window.__AG_FOCUS.id)||null;
     var vlist=fid?list.filter(function(ev){ return ev.id!==fid; }):list;
     var hasFocus=!!(fid && document.getElementById('ag-focus') && document.getElementById('ag-focus').innerHTML.trim());
-    if(!vlist.length && !hasFocus){ host.innerHTML=''; if(empty){ empty.style.display=''; empty.textContent=(scope==='mine')?'Você ainda não criou eventos. Clique em "Criar evento".':(scope==='guild'?'Nenhum evento de guild por aqui. Só líderes e vice-líderes criam eventos de guild.':'Nenhum evento por aqui ainda. Que tal marcar o primeiro?'); } return; }
+    if(!vlist.length && !hasFocus){ host.innerHTML=''; if(empty){ empty.style.display='';
+        var _em = (scope==='mine') ? {t:'Você ainda não criou eventos',d:'Marque sua primeira hunt, boss ou quest e chame a galera — leva 1 minuto.',cta:true}
+          : (scope==='guild') ? {t:'Nenhum evento de guild por aqui',d:'Só líder e vice-líder criam eventos de guild. Verifique um boneco da sua guild pra criar.',cta:false}
+          : (scope==='friends') ? {t:'Nenhum evento de amigos ainda',d:'Quando seus amigos marcarem eventos, eles aparecem aqui. Que tal puxar o primeiro?',cta:true}
+          : {t:'Nenhum evento marcado ainda',d:'A agenda está aberta — seja o primeiro a marcar um evento e movimentar a comunidade.',cta:true};
+        empty.innerHTML='<div class="ag-emptybox"><div class="ag-empty-ic">📅</div><div class="ag-empty-t">'+_em.t+'</div><div class="ag-empty-d">'+_em.d+'</div>'+(_em.cta?'<button class="tp-btn-primary" onclick="if(window.tpAgendaNew)tpAgendaNew()">＋ Criar evento</button>':'')+'</div>';
+      } return; }
     if(empty) empty.style.display='none';
     host.innerHTML=vlist.map(function(ev){ return agCard(ev); }).join('');
   }
@@ -20412,6 +20460,21 @@ window.tpLoadJornada=async function(){
     catch(e){ toast('Não consegui apagar.','error'); }
   };
   // Widget da home: próximos eventos públicos do servidor
+  window.tpHomeBosses=function(){
+    var panel=document.getElementById('home-bosses-list'); if(!panel) return;
+    var wl=document.getElementById('home-bosses-world'); if(wl && typeof tpBossWorld==='function'){ try{ wl.textContent='· '+tpBossWorld(); }catch(e){} }
+    function draw(){
+      var panel=document.getElementById('home-bosses-list'); if(!panel) return;
+      var list=[]; try{ list=(typeof _bossBuild==='function')?_bossBuild():[]; }catch(e){ list=[]; }
+      var hoje=list.filter(function(b){return b.killedToday;}).sort(function(a,b){return (b.today||0)-(a.today||0);});
+      if(!hoje.length){ panel.innerHTML='<div class="hb-empty">Nenhum boss raro caçado hoje ainda. 🐼</div>'; return; }
+      panel.innerHTML=hoje.slice(0,7).map(function(b){ return '<div class="hb-row"><img loading="lazy" src="'+bossImgUrl(b.name)+'" onerror="this.style.visibility=\'hidden\'"><span class="hb-n">'+_bossEsc(b.name)+'</span>'+((b.today>1)?'<span class="hb-x">'+b.today+'x</span>':'')+'</div>'; }).join('');
+    }
+    try{
+      if((typeof bossSpawnData==='undefined'||!bossSpawnData.length) && typeof loadBossSpawn==='function'){ loadBossSpawn().then(draw).catch(draw); }
+      else draw();
+    }catch(e){ draw(); }
+  };
   window.tpHomeEvents=function(){
     var host=document.getElementById('home-events-body'); if(!host) return;
     af()(SB()+'/rest/v1/rpc/tp_events_feed',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_world:world(),p_scope:'public'})})
@@ -20428,6 +20491,7 @@ window.tpLoadJornada=async function(){
       }).catch(function(){});
   };
   if(document.readyState!=='loading') setTimeout(function(){ if(window.tpHomeEvents) tpHomeEvents(); },1600); else document.addEventListener('DOMContentLoaded',function(){ setTimeout(function(){ if(window.tpHomeEvents) tpHomeEvents(); },1600); });
+  if(document.readyState!=='loading') setTimeout(function(){ if(window.tpHomeBosses) tpHomeBosses(); },1900); else document.addEventListener('DOMContentLoaded',function(){ setTimeout(function(){ if(window.tpHomeBosses) tpHomeBosses(); },1900); });
 
   // ═══════ PÁGINA DEDICADA DO EVENTO — requisitos, participantes por vocação, montagem de pts ═══════
   var VOCS=[
