@@ -444,8 +444,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .hb-list{display:flex;flex-direction:column;gap:0;min-height:40px}
 .hb-row{display:flex;align-items:center;gap:.6rem;padding:.4rem 0;border-bottom:1px solid var(--border)}
 .hb-row:last-child{border-bottom:0}
-.hb-thumb{width:40px;height:40px;border-radius:10px;background:linear-gradient(145deg,#4a3d6b,#2e2746);border:1px solid var(--border);display:grid;place-items:center;flex-shrink:0;overflow:hidden}
-.hb-thumb img{width:34px;height:34px;object-fit:contain;image-rendering:pixelated}
+.hb-thumb{position:relative;width:40px;height:40px;border-radius:10px;background:linear-gradient(145deg,#4a3d6b,#2e2746);border:1px solid var(--border);flex-shrink:0;overflow:visible}
+.hb-thumb img{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);width:46px;height:46px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
 .hb-row .hb-n{font-size:.84rem;font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 .hb-row .hb-x{font-size:.64rem;font-weight:800;color:#e0894a;background:rgba(224,112,64,.14);border:1px solid rgba(224,112,64,.3);border-radius:999px;padding:1px 7px}
 .hb-empty{font-size:.8rem;color:var(--muted);padding:.5rem 0;line-height:1.5}
@@ -10579,7 +10579,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt12';
+window.TP_BUILD = '2026-10-03evt13';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
