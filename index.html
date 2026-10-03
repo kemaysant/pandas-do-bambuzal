@@ -3016,7 +3016,7 @@ async function tibiaFetch(path) {
     </div>
     <div id="adm-fundos" class="adm-panel"></div>
     <div id="adm-bosses" class="adm-panel" style="display:none"><div class="adm-newcard" style="grid-template-columns:1fr"><div class="adm-fld" style="font-weight:800;color:var(--ink,#e8e6f0)">✏️ Override de boss</div><div class="adm-note" style="margin:0">Preencha só o que quer sobrescrever. Respawn (dias) alimenta a Chance e o card. Vazio = usa o padrão/Fandom.</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem"><div class="adm-fld"><label>Boss (nome exato)</label><input id="adm-boss-name" class="adm-in" list="adm-boss-list" placeholder="Ex: The Pale Count"></div><div class="adm-fld"><label>Respawn (dias)</label><input id="adm-boss-iv" type="number" class="adm-in"></div><div class="adm-fld"><label>Local</label><input id="adm-boss-place" class="adm-in" placeholder="Ex: Drefia"></div><div class="adm-fld"><label>X</label><input id="adm-boss-x" type="number" class="adm-in"></div><div class="adm-fld"><label>Y</label><input id="adm-boss-y" type="number" class="adm-in"></div><div class="adm-fld"><label>Z (andar)</label><input id="adm-boss-z" type="number" class="adm-in"></div></div><datalist id="adm-boss-list"></datalist><div class="adm-fld"><label>Mensagens de raid (uma por linha)</label><textarea id="adm-boss-raid" class="adm-in" rows="3" placeholder="The Pale Count has risen..."></textarea></div><div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="adm-save" onclick="tpAdminBossLoadCurrent()">↺ Carregar atual</button><button class="adm-save" onclick="tpAdminBossSave()">Salvar override</button><span id="adm-boss-status" style="font-size:.76rem;color:var(--muted);align-self:center"></span></div></div><div id="adm-boss-list-host"></div></div>
-    <div id="adm-users" class="adm-panel" style="display:none"><div class="card" style="color:var(--muted)">👤 Usuários & papéis — próxima fase.</div></div>
+    <div id="adm-users" class="adm-panel" style="display:none"><div class="adm-newcard" style="grid-template-columns:1fr"><div class="adm-fld" style="font-weight:800;color:var(--ink,#e8e6f0)">🔎 Buscar usuário</div><div class="adm-note" style="margin:0">Busque por apelido, @handle ou personagem; conceda/remova <b>admin</b> ou <b>moderador</b>.</div><div style="display:flex;gap:.5rem;flex-wrap:wrap"><input id="adm-user-q" class="adm-in" style="flex:1;min-width:160px" placeholder="apelido / handle / char" onkeydown="if(event.key==='Enter')tpAdminUserSearch()"><button class="adm-save" onclick="tpAdminUserSearch()">Buscar</button></div><div id="adm-user-res"></div></div><div id="adm-users-host"></div></div>
     <div id="adm-gami" class="adm-panel" style="display:none"><div class="card" style="color:var(--muted)">🎁 Gamificação — próxima fase.</div></div>
   </div>
 </section>
@@ -3055,6 +3055,7 @@ async function tibiaFetch(path) {
     document.querySelectorAll('#admin .adm-tab').forEach(function(b){ b.classList.toggle('on',b===btn); });
     if(t==='fundos') tpAdminFundosLoad();
     if(t==='bosses'&&window.tpAdminBossLoad) tpAdminBossLoad();
+    if(t==='users'&&window.tpAdminUsersLoad) tpAdminUsersLoad();
   };
 
   function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -3240,6 +3241,87 @@ async function tibiaFetch(path) {
       .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); if(window.tpToast)tpToast('Override removido.','success'); if(window.tpLoadBossOverrides) window.tpLoadBossOverrides().then(function(){ tpAdminBossLoad(); }); else tpAdminBossLoad(); })
       .catch(function(){ if(window.tpToast)tpToast('Erro ao remover.','error'); }); };
     if(window.tpConfirm) tpConfirm('Remover o override de "'+name+'"? Volta a usar o dado padrão/Fandom.').then(function(ok){ if(ok) go(); }); else if(confirm('Remover '+name+'?')) go();
+  };
+})();
+
+</script>
+<script>
+(function(){
+  function _sb(){ return (typeof PANDA_SB_URL!=='undefined'&&PANDA_SB_URL)?PANDA_SB_URL:(window.PANDA_SB_URL||''); }
+  function _key(){ return (typeof PANDA_SB_ANON!=='undefined')?PANDA_SB_ANON:(window.PANDA_SB_ANON||''); }
+  function _af(u,o){ return (window.tpAuthFetch||fetch)(u,o||{}); }
+  function _tok(){ var A=window.TP_AUTH; return (A&&A.access_token)||_key(); }
+  function _uid(){ var A=window.TP_AUTH; return (A&&A.user&&A.user.id)||null; }
+  function g(id){ return document.getElementById(id); }
+  function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  var _rolesMap={};
+
+  function loadRoles(){
+    return _af(_sb()+'/rest/v1/user_roles?select=user_id,role',{headers:{apikey:_key()}})
+      .then(function(r){return r.json();})
+      .then(function(rows){ _rolesMap={}; (Array.isArray(rows)?rows:[]).forEach(function(x){ (_rolesMap[x.user_id]=_rolesMap[x.user_id]||{})[x.role]=1; }); return _rolesMap; });
+  }
+  function fetchProfiles(ids){
+    if(!ids.length) return Promise.resolve([]);
+    var inq='('+ids.map(function(i){return '"'+i+'"';}).join(',')+')';
+    return _af(_sb()+'/rest/v1/profiles?select=id,display_name,handle,main_char&id=in.'+encodeURIComponent(inq),{headers:{apikey:_key()}})
+      .then(function(r){return r.json();}).then(function(rows){return Array.isArray(rows)?rows:[];});
+  }
+  function who(p){ return esc(p.display_name||p.handle||p.main_char||p.id); }
+  function badges(uid){ var r=_rolesMap[uid]||{}; var b=''; if(r.admin)b+='<span style="background:#8b5cf6;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">ADMIN</span>'; if(r.moderator)b+='<span style="background:#2a7a44;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">MOD</span>'; return b; }
+  function roleBtns(uid){
+    var r=_rolesMap[uid]||{};
+    function btn(role,label){ var has=!!r[role]; return '<button class="'+(has?'adm-del':'adm-save')+'" onclick="tpAdminRole('+JSON.stringify(uid)+','+JSON.stringify(role)+','+(has?'false':'true')+')">'+(has?('− '+label):('+ '+label))+'</button>'; }
+    return btn('admin','admin')+' '+btn('moderator','mod');
+  }
+
+  window.tpAdminUsersLoad=function(){
+    var host=g('adm-users-host'); if(!host) return;
+    host.innerHTML='<div class="adm-note">Carregando staff…</div>';
+    loadRoles().then(function(){
+      var ids=Object.keys(_rolesMap).filter(function(u){var r=_rolesMap[u];return r.admin||r.moderator;});
+      return fetchProfiles(ids).then(function(profs){
+        var byId={}; profs.forEach(function(p){byId[p.id]=p;});
+        var rows=ids.map(function(uid){ var p=byId[uid]||{id:uid}; return '<tr><td>'+who(p)+badges(uid)+'</td><td style="font-family:monospace;font-size:.68rem;color:var(--muted)">'+esc(uid).slice(0,8)+'…</td><td style="white-space:nowrap">'+roleBtns(uid)+'</td></tr>'; }).join('');
+        host.innerHTML='<div class="adm-note" style="margin-top:.2rem">Staff atual (admins & moderadores):</div>'
+          +(rows?('<div class="adm-tablewrap"><table class="adm-ftable"><thead><tr><th>Usuário</th><th>ID</th><th>Papéis</th></tr></thead><tbody>'+rows+'</tbody></table></div>'):'<div class="adm-note">Nenhum staff além de você.</div>');
+      });
+    }).catch(function(){ host.innerHTML='<div class="adm-note" style="color:var(--red,#e87070)">Erro ao carregar.</div>'; });
+  };
+
+  window.tpAdminUserSearch=function(){
+    var q=(g('adm-user-q').value||'').trim(); var res=g('adm-user-res');
+    if(q.length<2){ res.innerHTML='<div class="adm-note">Digite ao menos 2 letras.</div>'; return; }
+    res.innerHTML='<div class="adm-note">Buscando…</div>';
+    var like='*'+q.replace(/[(),]/g,'')+'*';
+    var url=_sb()+'/rest/v1/profiles?select=id,display_name,handle,main_char&or=(display_name.ilike.'+encodeURIComponent(like)+',handle.ilike.'+encodeURIComponent(like)+',main_char.ilike.'+encodeURIComponent(like)+')&limit=20';
+    loadRoles().then(function(){ return _af(url,{headers:{apikey:_key()}}); })
+      .then(function(r){return r.json();})
+      .then(function(rows){ if(!Array.isArray(rows))rows=[];
+        if(!rows.length){ res.innerHTML='<div class="adm-note">Nada encontrado.</div>'; return; }
+        var body=rows.map(function(p){ return '<tr><td>'+who(p)+badges(p.id)+'</td><td style="font-size:.7rem;color:var(--muted)">'+esc(p.main_char||'')+'</td><td style="white-space:nowrap">'+roleBtns(p.id)+'</td></tr>'; }).join('');
+        res.innerHTML='<div class="adm-tablewrap"><table class="adm-ftable"><thead><tr><th>Usuário</th><th>Char</th><th>Papéis</th></tr></thead><tbody>'+body+'</tbody></table></div>';
+      })
+      .catch(function(){ res.innerHTML='<div class="adm-note" style="color:var(--red,#e87070)">Erro na busca.</div>'; });
+  };
+
+  window.tpAdminRole=function(uid,role,add){
+    var go=function(){
+      var opts = add
+        ? {method:'POST',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:uid,role:role})}
+        : {method:'DELETE',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),Prefer:'return=minimal'}};
+      var url=add?(_sb()+'/rest/v1/user_roles'):(_sb()+'/rest/v1/user_roles?user_id=eq.'+encodeURIComponent(uid)+'&role=eq.'+encodeURIComponent(role));
+      _af(url,opts).then(function(r){ if(!r.ok) return r.text().then(function(t){throw new Error(r.status+' '+t);});
+        if(window.tpToast)tpToast((add?'Concedido ':'Removido ')+role+'.','success');
+        tpAdminUsersLoad(); var rq=g('adm-user-q'); if(rq&&rq.value.trim().length>=2) tpAdminUserSearch();
+      }).catch(function(e){ if(window.tpToast)tpToast('Erro: '+(e&&e.message||'falhou'),'error'); });
+    };
+    if(!add && uid===_uid() && role==='admin'){
+      if(window.tpConfirm) tpConfirm('Remover SEU PRÓPRIO admin? Você perde o acesso ao painel.').then(function(ok){ if(ok) go(); });
+      else if(confirm('Remover seu próprio admin?')) go();
+      return;
+    }
+    go();
   };
 })();
 
@@ -10866,7 +10948,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt31';
+window.TP_BUILD = '2026-10-03evt32';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
