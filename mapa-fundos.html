@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tibia Panda — Explorador de Mapa (Fundos de Perfil)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  :root{
+    --bg-0:#0d0d10; --bg-1:#14131c; --bg-2:#1c1a26; --rule:#2b2938;
+    --ink:#eae8f2; --ink-2:#cfc9e6; --muted:#9a97a8;
+    --bamboo:#8b5cf6; --bamboo-light:#a78bfa; --bamboo-dim:#211a3d; --green:#5fdd9e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg-0);color:var(--ink);font-family:'Space Grotesk','Inter',system-ui,sans-serif}
+  #app{display:flex;flex-direction:column;height:100vh}
+  header{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;padding:.6rem .9rem;background:linear-gradient(135deg,rgba(139,92,246,.14),rgba(139,92,246,.03));border-bottom:1px solid var(--rule)}
+  header .ttl{font-weight:800;font-size:1rem;display:flex;align-items:center;gap:.5rem}
+  header .ttl b{color:var(--bamboo-light)}
+  header .sub{font-size:.72rem;color:var(--muted)}
+  .spacer{flex:1}
+  .ctrl{display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--ink-2)}
+  select,button{font-family:inherit}
+  select{background:var(--bg-2);color:var(--ink);border:1px solid var(--rule);border-radius:8px;padding:.35rem .5rem;font-size:.78rem}
+  .btn{background:var(--bg-2);color:var(--ink);border:1px solid var(--rule);border-radius:8px;padding:.4rem .7rem;font-size:.78rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:.35rem}
+  .btn:hover{filter:brightness(1.15)}
+  .btn.on{background:var(--bamboo-dim);border-color:var(--bamboo);color:var(--bamboo-light)}
+  .btn.primary{background:var(--bamboo);border-color:var(--bamboo);color:#fff}
+  .btn.primary:disabled{opacity:.4;cursor:not-allowed;filter:none}
+  #main{flex:1;position:relative;display:flex;min-height:0}
+  #map{flex:1;height:100%;background:var(--bg-0)}
+  #side{width:290px;flex:none;background:var(--bg-1);border-left:1px solid var(--rule);padding:.9rem;overflow:auto;display:flex;flex-direction:column;gap:.8rem}
+  #side h3{margin:0;font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .sel-box{background:var(--bg-2);border:1px solid var(--rule);border-radius:10px;padding:.7rem}
+  .sel-row{display:flex;justify-content:space-between;font-size:.8rem;padding:.15rem 0}
+  .sel-row span{color:var(--muted)} .sel-row b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .hint{font-size:.74rem;color:var(--muted);line-height:1.5}
+  .floorbar{display:flex;align-items:center;gap:.3rem}
+  .floorbar button{width:28px;height:28px;padding:0;justify-content:center}
+  .floorbar .lbl{min-width:42px;text-align:center;font-family:monospace;font-weight:800;color:var(--bamboo-light)}
+  .leaflet-container{background:var(--bg-0)}
+  .leaflet-tile-container canvas{image-rendering:pixelated}
+  .leaflet-bar a{background:var(--bg-2);color:var(--ink-2);border-color:var(--rule)}
+  .leaflet-bar a:hover{background:#2a2a32;color:#fff}
+  .sel-rect{stroke:var(--bamboo-light);stroke-width:2;fill:var(--bamboo);fill-opacity:.18}
+  #preview{width:100%;border-radius:8px;border:1px solid var(--rule);display:none;background:var(--bg-0)}
+  .mini{font-size:.68rem;color:var(--muted)}
+  code{background:var(--bg-0);border:1px solid var(--rule);border-radius:5px;padding:1px 5px;font-size:.72rem;color:var(--ink-2)}
+  @media(max-width:760px){#side{width:100%;position:absolute;right:0;top:0;bottom:0;max-width:300px;box-shadow:-8px 0 24px rgba(0,0,0,.4)}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div>
+      <div class="ttl">🗺️ <b>Tibia Panda</b> · Explorador de Mapa</div>
+      <div class="sub">Navegue, selecione uma área e exporte como fundo de perfil</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="ctrl">Andar
+      <div class="floorbar">
+        <button class="btn" id="fup" title="Andar acima">▲</button>
+        <span class="lbl" id="flbl">0</span>
+        <button class="btn" id="fdn" title="Andar abaixo">▼</button>
+      </div>
+    </div>
+    <label class="ctrl">Proporção
+      <select id="preset">
+        <option value="free">Livre</option>
+        <option value="3">Banner 3:1</option>
+        <option value="1.7778" selected>Capa 16:9</option>
+        <option value="1.3333">Card 4:3</option>
+        <option value="1">Quadrado 1:1</option>
+      </select>
+    </label>
+    <label class="ctrl">Largura
+      <select id="outw">
+        <option>800</option><option selected>1200</option><option>1600</option><option>1920</option>
+      </select>
+    </label>
+    <button class="btn" id="selbtn">✏️ Selecionar área</button>
+    <label class="ctrl"><input type="checkbox" id="mk"> marcadores</label>
+  </header>
+  <div id="main">
+    <div id="map"></div>
+    <aside id="side">
+      <h3>Área selecionada</h3>
+      <div class="sel-box" id="selinfo">
+        <div class="hint">Clique em <b>✏️ Selecionar área</b> e arraste no mapa pra desenhar o retângulo do fundo.</div>
+      </div>
+      <button class="btn primary" id="export" disabled>⬇️ Exportar PNG do fundo</button>
+      <button class="btn" id="copy" disabled>📋 Copiar dados da área</button>
+      <img id="preview" alt="prévia do fundo">
+      <h3>Como usar</h3>
+      <div class="hint">
+        1. Escolha a <b>proporção</b> do fundo (16:9 pra capa, 3:1 pra banner…).<br>
+        2. Ative <b>Selecionar área</b> e arraste no mapa.<br>
+        3. Ajuste o <b>andar</b> (▲▼) e a <b>largura</b> de saída.<br>
+        4. <b>Exportar PNG</b> baixa a imagem; <b>Copiar dados</b> leva as coordenadas pra registrar no site.
+      </div>
+      <div class="mini">Tiles & dados: TibiaMaps.io 💜 — uso pessoal/fansite.</div>
+    </aside>
+  </div>
+</div>
+<script>
+const TILE_BASE='https://tibiamaps.github.io/tibia-map-data/mapper/';
+let floor=7, selMode=false, sel=null, rectLayer=null, markerLayer=null, markersData=null;
+
+// ---- CRS idêntico ao do site (256px por tile a zoom 0) ----
+L.CRS.TibiaSimple=L.extend({},L.CRS.Simple,{
+  scale:z=>256*Math.pow(2,z),
+  latLngToPoint(ll,z){const pt=this.projection.project(ll),s=this.scale(z);return this.transformation._transform(pt,s);},
+  pointToLatLng(p,z){const s=this.scale(z);const pt=this.transformation.untransform(p,s);return this.projection.unproject(pt);}
+});
+function makeTileLayer(fl){
+  const lay=L.gridLayer({floor:fl});
+  lay.createTile=function(coords){
+    const cv=document.createElement('canvas');cv.width=cv.height=256;
+    const ctx=cv.getContext('2d');ctx.fillStyle='#0d0d10';ctx.fillRect(0,0,256,256);ctx.imageSmoothingEnabled=false;
+    const scale=Math.pow(2,coords.z);
+    const tx0=Math.floor(coords.x/scale),ty0=Math.floor(coords.y/scale);
+    const px=Math.abs(tx0*256),py=Math.abs(ty0*256);
+    const subX=(coords.x-tx0*scale)*(256/scale),subY=(coords.y-ty0*scale)*(256/scale),sub=256/scale;
+    const img=new Image();img.crossOrigin='anonymous';
+    img.onload=()=>{ctx.imageSmoothingEnabled=false;ctx.drawImage(img,subX,subY,sub,sub,0,0,256,256);};
+    img.src=TILE_BASE+`Minimap_Color_${px}_${py}_${fl}.png`;
+    return cv;
+  };
+  return lay;
+}
+const map=L.map('map',{crs:L.CRS.TibiaSimple,minZoom:0,maxZoom:5,zoomControl:true,attributionControl:false,fadeAnimation:false});
+let tileLayer=makeTileLayer(floor).addTo(map);
+map.setView(map.unproject([32360,32240],0),2); // Thais-ish
+
+function floorLabel(f){const r=7-f;return r===0?'0':((r>0?'+':'')+r);}
+function setFloor(f){
+  f=Math.max(0,Math.min(15,f)); if(f===floor && tileLayer) return; floor=f;
+  document.getElementById('flbl').textContent=floorLabel(f);
+  if(tileLayer) map.removeLayer(tileLayer);
+  tileLayer=makeTileLayer(f).addTo(map);
+  if(document.getElementById('mk').checked) drawMarkers();
+}
+document.getElementById('flbl').textContent=floorLabel(floor);
+document.getElementById('fup').onclick=()=>setFloor(floor-1);
+document.getElementById('fdn').onclick=()=>setFloor(floor+1);
+
+// ---- Marcadores (opcional) ----
+const MARK={'up':['▲','#7CFC7C'],'down':['▼','#7CFC7C'],'red up':['▲','#ff6a6a'],'red down':['▼','#ff6a6a'],'red left':['◀','#ff6a6a'],'red right':['▶','#ff6a6a'],'star':['★','#ffd24a'],'flag':['⚑','#fff'],'checkmark':['✔','#7CFC7C'],'crossmark':['✖','#ff6a6a'],'cross':['✚','#ff6a6a'],'sword':['⚔','#e6e2f0'],'?':['?','#ffd24a'],'!':['!','#ff6a6a'],'skull':['☠','#e6e2f0'],'$':['$','#7CFC7C'],'bag':['$','#ffd24a'],'lock':['■','#cfc9e6'],'mouth':['▬','#ff9a5a'],'spear':['↑','#e6e2f0']};
+async function loadMarkers(){ if(markersData) return markersData; try{const r=await fetch(TILE_BASE.replace('/mapper/','/')+'markers.json');markersData=await r.json();}catch(e){markersData=[];} return markersData; }
+async function drawMarkers(){
+  await loadMarkers();
+  if(markerLayer) map.removeLayer(markerLayer);
+  markerLayer=L.layerGroup().addTo(map);
+  const b=map.getBounds(), p1=map.project(b.getNorthWest(),0), p2=map.project(b.getSouthEast(),0);
+  const minX=Math.min(p1.x,p2.x)-20,maxX=Math.max(p1.x,p2.x)+20,minY=Math.min(p1.y,p2.y)-20,maxY=Math.max(p1.y,p2.y)+20;
+  let n=0;
+  for(const m of markersData){ if(m.z!==floor||m.x<minX||m.x>maxX||m.y<minY||m.y>maxY) continue; if(n++>400) break;
+    const sm=MARK[m.icon]||['•','#cfc9e6'];
+    const ic=L.divIcon({className:'',iconSize:[14,14],iconAnchor:[7,7],html:`<span style="color:${sm[1]};font:700 12px/1 system-ui;text-shadow:0 0 2px #000,0 0 2px #000">${sm[0]}</span>`});
+    const mk=L.marker(map.unproject([m.x,m.y],0),{icon:ic,interactive:!!m.description});
+    if(m.description) mk.bindTooltip(m.description,{direction:'top'});
+    mk.addTo(markerLayer);
+  }
+}
+document.getElementById('mk').onchange=function(){ if(this.checked) drawMarkers(); else if(markerLayer){map.removeLayer(markerLayer);markerLayer=null;} };
+
+// ---- Seleção de área ----
+const selBtn=document.getElementById('selbtn');
+selBtn.onclick=()=>{ selMode=!selMode; selBtn.classList.toggle('on',selMode); map.dragging[selMode?'disable':'enable'](); map.getContainer().style.cursor=selMode?'crosshair':''; };
+function ratio(){ const v=document.getElementById('preset').value; return v==='free'?null:parseFloat(v); }
+let dragStart=null;
+map.on('mousedown',e=>{ if(!selMode) return; dragStart=map.project(e.latlng,0); if(rectLayer){map.removeLayer(rectLayer);rectLayer=null;} });
+map.on('mousemove',e=>{ if(!selMode||!dragStart) return; updateRect(map.project(e.latlng,0)); });
+map.on('mouseup',e=>{ if(!selMode||!dragStart) return; finalize(map.project(e.latlng,0)); dragStart=null; });
+function computeBounds(end){
+  let x1=dragStart.x,y1=dragStart.y,x2=end.x,y2=end.y;
+  let w=x2-x1,h=y2-y1; const r=ratio();
+  if(r){ const aw=Math.abs(w),ah=Math.abs(h); if(aw/ (ah||1) > r){ h=(aw/r)*Math.sign(h||1);} else { w=(ah*r)*Math.sign(w||1);} x2=x1+w;y2=y1+h; }
+  const minX=Math.round(Math.min(x1,x2)),maxX=Math.round(Math.max(x1,x2)),minY=Math.round(Math.min(y1,y2)),maxY=Math.round(Math.max(y1,y2));
+  return {minX,maxX,minY,maxY};
+}
+function drawRectLayer(bb){
+  const bounds=[map.unproject([bb.minX,bb.minY],0),map.unproject([bb.maxX,bb.maxY],0)];
+  if(rectLayer) rectLayer.setBounds(bounds); else rectLayer=L.rectangle(bounds,{className:'sel-rect',interactive:false}).addTo(map);
+}
+function updateRect(end){ drawRectLayer(computeBounds(end)); }
+function finalize(end){
+  const bb=computeBounds(end); const w=bb.maxX-bb.minX,h=bb.maxY-bb.minY;
+  if(w<4||h<4){ return; }
+  sel={...bb,w,h,z:floor,preset:document.getElementById('preset').options[document.getElementById('preset').selectedIndex].text};
+  drawRectLayer(bb);
+  document.getElementById('selinfo').innerHTML=
+    `<div class="sel-row"><span>X</span><b>${bb.minX} – ${bb.maxX}</b></div>`+
+    `<div class="sel-row"><span>Y</span><b>${bb.minY} – ${bb.maxY}</b></div>`+
+    `<div class="sel-row"><span>Andar (Z)</span><b>${floor} (${floorLabel(floor)})</b></div>`+
+    `<div class="sel-row"><span>Tamanho</span><b>${w} × ${h} tiles</b></div>`+
+    `<div class="sel-row"><span>Proporção</span><b>${(w/h).toFixed(2)}:1</b></div>`;
+  document.getElementById('export').disabled=false;
+  document.getElementById('copy').disabled=false;
+}
+
+// ---- Exportar PNG compondo os tiles da área ----
+document.getElementById('export').onclick=async function(){
+  if(!sel) return; const btn=this; btn.textContent='⏳ Gerando…'; btn.disabled=true;
+  try{
+    const outW=parseInt(document.getElementById('outw').value,10);
+    const scale=outW/sel.w, outH=Math.round(sel.h*scale);
+    const cv=document.createElement('canvas');cv.width=outW;cv.height=outH;
+    const ctx=cv.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.fillStyle='#0d0d10';ctx.fillRect(0,0,outW,outH);
+    const t0x=Math.floor(sel.minX/256),t1x=Math.floor((sel.maxX-1)/256),t0y=Math.floor(sel.minY/256),t1y=Math.floor((sel.maxY-1)/256);
+    const jobs=[];
+    for(let tx=t0x;tx<=t1x;tx++) for(let ty=t0y;ty<=t1y;ty++){
+      jobs.push(new Promise(res=>{
+        const img=new Image();img.crossOrigin='anonymous';
+        img.onload=()=>{
+          const originX=tx*256,originY=ty*256;
+          const sx=Math.max(0,sel.minX-originX), sy=Math.max(0,sel.minY-originY);
+          const ex=Math.min(256,sel.maxX-originX), ey=Math.min(256,sel.maxY-originY);
+          const sw=ex-sx, sh=ey-sy; if(sw<=0||sh<=0) return res();
+          const dx=(originX+sx-sel.minX)*scale, dy=(originY+sy-sel.minY)*scale;
+          ctx.drawImage(img,sx,sy,sw,sh,dx,dy,sw*scale,sh*scale); res();
+        };
+        img.onerror=()=>res();
+        img.src=TILE_BASE+`Minimap_Color_${tx*256}_${ty*256}_${sel.z}.png`;
+      }));
+    }
+    await Promise.all(jobs);
+    const url=cv.toDataURL('image/png');
+    const pv=document.getElementById('preview'); pv.src=url; pv.style.display='block';
+    const a=document.createElement('a'); a.href=url; a.download=`fundo_${sel.minX}-${sel.minY}_z${sel.z}_${outW}px.png`; a.click();
+  }catch(e){ alert('Falha ao exportar: '+e.message); }
+  btn.textContent='⬇️ Exportar PNG do fundo'; btn.disabled=false;
+};
+document.getElementById('copy').onclick=function(){
+  if(!sel) return;
+  const data={x:sel.minX,y:sel.minY,x2:sel.maxX,y2:sel.maxY,z:sel.z,w:sel.w,h:sel.h,ratio:+(sel.w/sel.h).toFixed(3)};
+  navigator.clipboard.writeText(JSON.stringify(data)).then(()=>{this.textContent='✓ Copiado!';setTimeout(()=>this.textContent='📋 Copiar dados da área',1500);});
+};
+</script>
+</body>
+</html>
