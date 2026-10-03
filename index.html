@@ -2335,22 +2335,22 @@ async function tibiaFetch(path) {
     <!-- ── ABA: Chances de Spawn (só Nemesis) ── -->
     <div id="boss-pane-spawn" style="padding-top:1.25rem">
       <div id="boss-catfilter" style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.7rem">
-        <button class="bcf" onclick="tpBossSetCat('all',this)" style="background:var(--ink);color:var(--bg);border:1px solid var(--rule);border-radius:20px;padding:4px 12px;font-size:.76rem;font-weight:600;cursor:pointer">Todas</button>
-        <button class="bcf" onclick="tpBossSetCat('Rookgaard',this)" style="background:none;border:1px solid var(--rule);border-radius:20px;padding:4px 12px;font-size:.76rem;cursor:pointer;color:var(--ink)">Rookgaard</button>
-        <button class="bcf" onclick="tpBossSetCat('Tribe Chiefs',this)" style="background:none;border:1px solid var(--rule);border-radius:20px;padding:4px 12px;font-size:.76rem;cursor:pointer;color:var(--ink)">Tribe Chiefs</button>
-        <button class="bcf" onclick="tpBossSetCat('Humans &amp; Heroes',this)" style="background:none;border:1px solid var(--rule);border-radius:20px;padding:4px 12px;font-size:.76rem;cursor:pointer;color:var(--ink)">Humans &amp; Heroes</button>
-        <button class="bcf" onclick="tpBossSetCat('Inbred Beasts',this)" style="background:none;border:1px solid var(--rule);border-radius:20px;padding:4px 12px;font-size:.76rem;cursor:pointer;color:var(--ink)">Inbred Beasts</button>
-        <button class="bcf" onclick="tpBossSetCat('Vampire Lords',this)" style="background:none;border:1px solid var(--rule);border-radius:20px;padding:4px 12px;font-size:.76rem;cursor:pointer;color:var(--ink)">Vampire Lords</button>
-        <button class="bcf" onclick="tpBossSetCat('Loyal Partners',this)" style="background:none;border:1px solid var(--rule);border-radius:20px;padding:4px 12px;font-size:.76rem;cursor:pointer;color:var(--ink)">Loyal Partners</button>
-        <button class="bcf" onclick="tpBossSetCat('Pits of Inferno Leaders',this)" style="background:none;border:1px solid var(--rule);border-radius:20px;padding:4px 12px;font-size:.76rem;cursor:pointer;color:var(--ink)">Pits of Inferno</button>
-        <button class="bcf" onclick="tpBossSetCat('Cultism Workshop',this)" style="background:none;border:1px solid var(--rule);border-radius:20px;padding:4px 12px;font-size:.76rem;cursor:pointer;color:var(--ink)">Cultism Workshop</button>
-        <button class="bcf" onclick="tpBossSetCat('Prison Rulers',this)" style="background:none;border:1px solid var(--rule);border-radius:20px;padding:4px 12px;font-size:.76rem;cursor:pointer;color:var(--ink)">Prison Rulers</button>
+        <button class="bcf on" onclick="tpBossSetCat('all',this)">Todas</button>
+        <button class="bcf" onclick="tpBossSetCat('Rookgaard',this)">Rookgaard</button>
+        <button class="bcf" onclick="tpBossSetCat('Tribe Chiefs',this)">Tribe Chiefs</button>
+        <button class="bcf" onclick="tpBossSetCat('Humans &amp; Heroes',this)">Humans &amp; Heroes</button>
+        <button class="bcf" onclick="tpBossSetCat('Inbred Beasts',this)">Inbred Beasts</button>
+        <button class="bcf" onclick="tpBossSetCat('Vampire Lords',this)">Vampire Lords</button>
+        <button class="bcf" onclick="tpBossSetCat('Loyal Partners',this)">Loyal Partners</button>
+        <button class="bcf" onclick="tpBossSetCat('Pits of Inferno Leaders',this)">Pits of Inferno</button>
+        <button class="bcf" onclick="tpBossSetCat('Cultism Workshop',this)">Cultism Workshop</button>
+        <button class="bcf" onclick="tpBossSetCat('Prison Rulers',this)">Prison Rulers</button>
       </div>
       <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.9rem">
         <label style="font-size:.72rem;color:var(--muted)">Ordenar:</label>
         <select class="tool-select" onchange="tpBossSetSort(this.value)" style="padding:.3rem .6rem;font-size:.78rem">
           <option value="seen">Último visto</option>
-          <option value="chance">Chance</option>
+          <option value="chance" selected>Chance (maior primeiro)</option>
           <option value="today">Caçados agora</option>
           <option value="name">Nome (A-Z)</option>
         </select>
@@ -2358,6 +2358,9 @@ async function tibiaFetch(path) {
       </div>
       <div style="font-size:.7rem;color:var(--muted);margin-bottom:1rem;background:rgba(139,92,246,.05);border:1px solid var(--rule);border-radius:8px;padding:.5rem .75rem;line-height:1.5">💡 <b>Chance</b> = estimativa do "visto há Xd" vs. o intervalo típico de spawn de cada boss (calibrado com a comunidade, refina com o nosso histórico). <b>"Caçado hoje/semana"</b> é o kill statistics oficial ao vivo.</div>
       <style>
+        #bosses .bcf{background:var(--bg-2,#1b1a25);border:1px solid var(--border,#2b2938);border-radius:999px;padding:5px 13px;font-size:.76rem;font-weight:600;cursor:pointer;color:var(--ink-3,#b9b6c9);font-family:inherit;transition:background .15s,border-color .15s,color .15s}
+        #bosses .bcf:hover{border-color:var(--bamboo,#8b5cf6);color:var(--ink,#eae8f2)}
+        #bosses .bcf.on{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6);color:#fff}
         #boss-spawn-grid .bs-card{cursor:pointer;background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:.5rem .6rem;display:flex;align-items:center;gap:.55rem;transition:transform .12s,border-color .12s}
         #boss-spawn-grid .bs-card:hover{transform:translateY(-1px);border-color:rgba(139,92,246,.4)}
         #boss-spawn-grid .bs-ic{width:46px;height:46px;background:var(--paper);border:1px solid var(--rule);border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
@@ -10579,7 +10582,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt13';
+window.TP_BUILD = '2026-10-03evt14';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -12849,7 +12852,7 @@ function _bossImgFallback(name){
   const slug=name.split(' ').map((w,i)=>(i>0&&['of','the','a','an'].includes(w.toLowerCase()))?w.toLowerCase():(w.charAt(0).toUpperCase()+w.slice(1))).join('_')+'.gif';
   return 'https://www.tibiawiki.com.br/wiki/Special:FilePath/'+encodeURIComponent(slug.replace(/'([A-Za-z])/g,(m,c)=>"'"+c.toLowerCase()));
 }
-window.tpBossSetCat=function(cat,btn){ bossCatFilter=cat||'all'; document.querySelectorAll('#boss-catfilter .bcf').forEach(b=>{b.style.background='none';b.style.color='var(--ink)';}); if(btn){btn.style.background='var(--ink)';btn.style.color='var(--bg)';} renderBossSpawnGrid(); };
+window.tpBossSetCat=function(cat,btn){ bossCatFilter=cat||'all'; document.querySelectorAll('#boss-catfilter .bcf').forEach(b=>b.classList.remove('on')); if(btn) btn.classList.add('on'); renderBossSpawnGrid(); };
 window.tpBossSetSort=function(s){ bossSort=s||'seen'; renderBossSpawnGrid(); };
 function renderBossSpawnGrid(){
   const grid=document.getElementById('boss-spawn-grid');
@@ -12925,7 +12928,7 @@ const TP_BOSS_IV = {"arthom the hunter":4,"dreadmaw":34,"fleabringer":3,"rottie 
 var bossLive = {};      // race(lower) -> {day, week}
 var bossActivity = {};  // race(lower) -> {last, today, d7, d30, seen}
 var bossCatFilter = 'all';
-var bossSort = 'seen';
+var bossSort = 'chance';
 
 function tpBossWorld(){ return (typeof CONFIG!=='undefined' && CONFIG.world) ? CONFIG.world : 'Gentebra'; }
 
