@@ -10576,7 +10576,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt18';
+window.TP_BUILD = '2026-10-03evt19';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -12758,6 +12758,9 @@ function bossCategory(name){ if(!name) return null; var k=String(name).toLowerCa
 function bossCatBadge(name,big){ var c=bossCategory(name); if(!c) return ''; var m=BOSS_CATS[c];
   return '<span title="Categoria do Bosstiary" style="display:inline-flex;align-items:center;gap:4px;font-size:'+(big?'.72rem':'.6rem')+';font-weight:800;color:'+m.color+';background:'+m.color+'1f;border:1px solid '+m.color+'55;border-radius:20px;padding:'+(big?'2px 9px':'1px 6px')+'">'+m.sym+' '+m.label+'</span>'; }
 window.tpCloseBoss=function(){ var m=document.getElementById('tp-boss-modal'); if(m) m.style.display='none'; };
+window.TP_BOSS_EXTRA = window.TP_BOSS_EXTRA || {
+  'The Pale Count': { raid:['The Pale Count has risen from his crypt deep under Drefia. Blood will flow.'], x:32900, y:32341, z:14, place:'Drefia (Darashia)' }
+};
 window.tpBossCache=window.tpBossCache||{};
 window.tpOpenBoss=async function(name){
   if(!name) return;
@@ -12779,7 +12782,7 @@ window.tpOpenBoss=async function(name){
       +".tp-boss-sec{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted,#9a97a8);margin:.2rem 0 .5rem}"
       +".tp-boss-loot{display:flex;flex-wrap:wrap;gap:.35rem}"
       +".tp-boss-loot span{font-size:.74rem;color:var(--ink,#eae8f2);background:var(--bg-2,#1c1a26);border:1px solid var(--rule,#2b2938);border-radius:20px;padding:.2rem .6rem}"
-      +".tp-boss-empty{color:var(--muted,#9a97a8);font-size:.8rem}"+".tp-boss-lootgrid{display:flex;flex-wrap:wrap;gap:.4rem}"+".tp-boss-lootitem{display:inline-flex;align-items:center;gap:.35rem;background:var(--bg-2,#1c1a26);border:1px solid var(--rule,#2b2938);border-radius:8px;padding:.25rem .5rem;font-size:.74rem;color:var(--ink,#eae8f2)}"+".tp-boss-lootitem img{width:20px;height:20px;object-fit:contain;image-rendering:pixelated}"+".tp-boss-links{margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap}"+".tp-boss-links a{font-size:.78rem;font-weight:700;color:var(--bamboo-light,#a78bfa);background:var(--bamboo-dim,#211a3d);border:1px solid var(--bamboo,#8b5cf6);border-radius:8px;padding:.45rem .7rem;text-decoration:none}"+".tp-boss-links a:hover{filter:brightness(1.12)}";
+      +".tp-boss-empty{color:var(--muted,#9a97a8);font-size:.8rem}"+".tp-boss-lootgrid{display:flex;flex-wrap:wrap;gap:.4rem}"+".tp-boss-lootitem{display:inline-flex;align-items:center;gap:.35rem;background:var(--bg-2,#1c1a26);border:1px solid var(--rule,#2b2938);border-radius:8px;padding:.25rem .5rem;font-size:.74rem;color:var(--ink,#eae8f2)}"+".tp-boss-lootitem img{width:20px;height:20px;object-fit:contain;image-rendering:pixelated}"+".tp-boss-links{margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap}"+".tp-boss-links a{font-size:.78rem;font-weight:700;color:var(--bamboo-light,#a78bfa);background:var(--bamboo-dim,#211a3d);border:1px solid var(--bamboo,#8b5cf6);border-radius:8px;padding:.45rem .7rem;text-decoration:none}"+".tp-boss-links a:hover{filter:brightness(1.12)}"+".tp-boss-raid{background:rgba(139,92,246,.08);border-left:3px solid var(--bamboo,#8b5cf6);border-radius:6px;padding:.5rem .7rem;font-size:.8rem;color:var(--ink-2,#cfc9e6);line-height:1.45;margin-bottom:.4rem;font-style:italic}"+".tp-boss-loc{display:flex;align-items:center;justify-content:space-between;gap:.6rem;background:var(--bg-2,#1c1a26);border:1px solid var(--rule,#2b2938);border-radius:10px;padding:.6rem .8rem;flex-wrap:wrap}"+".tp-boss-loc .co{font-size:.7rem;color:var(--muted);margin-top:2px}"+".tp-boss-loc a{font-size:.76rem;font-weight:700;color:var(--bamboo-light,#a78bfa);text-decoration:none;white-space:nowrap}";
     document.head.appendChild(st);
     document.addEventListener('keydown',function(e){ if(e.key==='Escape') tpCloseBoss(); });
   }
@@ -12820,6 +12823,15 @@ window.tpOpenBoss=async function(name){
   html+='<div class="tp-boss-sec" style="margin-top:1rem">\u2694\uFE0F Atividade no servidor</div>'
     +'<div>'+(act||'<span class="tp-boss-empty">Sem dados de kill statistics.</span>')+'</div>';
   if(!c) html+='<div class="tp-boss-empty" style="margin-top:.8rem">N\u00e3o achei ficha detalhada deste boss na TibiaData (alguns bosses de evento n\u00e3o t\u00eam). Vida/loot podem faltar.</div>';
+  var _ex = window.TP_BOSS_EXTRA && window.TP_BOSS_EXTRA[name];
+  if(_ex && _ex.raid && _ex.raid.length){
+    html+='<div class="tp-boss-sec" style="margin-top:1rem">📣 Mensagem de raid</div>'+_ex.raid.map(function(m){ return '<div class="tp-boss-raid">'+_bossEsc(m)+'</div>'; }).join('');
+  }
+  if(_ex && _ex.x){
+    var _tm='https://tibiamaps.io/map#'+_ex.x+','+_ex.y+','+(_ex.z||7);
+    html+='<div class="tp-boss-sec" style="margin-top:1rem">📍 Localização</div>'
+      +'<div class="tp-boss-loc"><div><b>'+_bossEsc(_ex.place||'')+'</b><div class="co">X '+_ex.x+' · Y '+_ex.y+' · Z '+(_ex.z!=null?_ex.z:'?')+'</div></div><a href="'+_tm+'" target="_blank" rel="noopener">🗺️ Abrir no TibiaMaps →</a></div>';
+  }
   var _wiki='https://www.tibiawiki.com.br/wiki/'+encodeURIComponent(name.replace(/ /g,'_'));
   html+='<div class="tp-boss-links"><a href="'+_wiki+'" target="_blank" rel="noopener">📖 Loot completo & localização (TibiaWiki)</a></div>';
   body.innerHTML=html;
