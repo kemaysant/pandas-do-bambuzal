@@ -2019,7 +2019,7 @@ async function tibiaFetch(path) {
       window.tpHomeBuilds=function(){
         var host=document.getElementById('home-builds'); if(!host) return;
         if(typeof PANDA_SB_URL==='undefined'||!PANDA_SB_URL||typeof _pandaHeaders!=='function'){ if(host.parentNode) host.parentNode.style.display='none'; return; }
-        var url=PANDA_SB_URL+'/rest/v1/builds?status=eq.approved&home_featured=eq.true&order=created_at.desc&limit=14&select=id,name,vocation,dano,element,data,author_name';
+        var url=PANDA_SB_URL+'/rest/v1/builds?status=eq.approved&home_featured=eq.true&order=created_at.desc&limit=14&select=id,name,vocation,dano,element,data,author_name,rating_avg,rating_count';
         fetch(url,{headers:_pandaHeaders()}).then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(function(rows){
           if(!rows||!rows.length){ if(host.parentNode) host.parentNode.style.display='none'; return; }
           // dedup: não repete builds iguais (mesmo nome+vocação) na vitrine
@@ -6174,6 +6174,17 @@ PlayerName (Leader)
       #builds .bld-rcta{font-size:.74rem;font-weight:700;color:var(--bamboo-light);white-space:nowrap;flex:0 0 auto}
       @media(max-width:760px){#builds .bld-rperks{display:none}#builds .bld-rcta{display:none}}
       #builds .bld-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem;display:flex;flex-direction:column;gap:.7rem;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s}
+      #builds .bd-ratingrow{margin:.55rem 0 .2rem}
+      .bd-rate{display:flex;align-items:center;gap:1.1rem;flex-wrap:wrap}
+      .bd-rate-avg{font-weight:800;color:#f2c14e;font-size:1.1rem}
+      .bd-stars{color:#4a4758;font-size:1.05rem;letter-spacing:1px;white-space:nowrap}
+      .bd-stars .st.on{color:#f2c14e}
+      .bd-stars.pick .st{cursor:pointer;transition:transform .08s}
+      .bd-stars.pick .st:hover{transform:scale(1.18)}
+      .bd-rate-cnt{color:var(--muted);font-size:.8rem}
+      .bd-rate-hint{color:var(--muted);font-size:.78rem}
+      .bld-rstars{font-size:.8rem;letter-spacing:.5px;color:#4a4758;margin-top:1px;display:inline-block}
+      .bld-rstars .st.on{color:#f2c14e}
       #builds .bld-card:hover{border-color:var(--bamboo);transform:translateY(-2px);box-shadow:0 8px 26px -12px #8b5cf655}
       #builds .bld-top{display:flex;align-items:center;gap:.6rem}
       #builds .bld-wic{width:44px;height:44px;flex:0 0 44px;border-radius:10px;background:var(--bg-1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;image-rendering:pixelated}
@@ -6462,7 +6473,7 @@ PlayerName (Leader)
       return '<div class="bld-row" onclick="tpOpenBuild(\''+b.id+'\')">'
         +'<div class="bld-lvlbadge"><b>'+esc(lvl)+'</b><span>NÍVEL</span></div>'
         +'<div class="bld-rowwic">'+(ic?'<img src="'+ic+'" alt="">':'⚔️')+'</div>'
-        +'<div class="bld-rmain"><div class="bld-rvoc">'+voc.emoji+' '+esc(voc.label)+(b.home_featured?' <span title="Validada para a home" style="color:#5fdd9e">✓</span>':'')+'</div><div class="bld-rname">'+esc(w.name||'—')+'</div>'+(b.author_name?'<div class="bld-rauthor" style="font-size:.72rem;color:var(--muted,#9a97a8);margin-top:1px">por '+esc(b.author_name)+'</div>':'')+'</div>'
+        +'<div class="bld-rmain"><div class="bld-rvoc">'+voc.emoji+' '+esc(voc.label)+(b.home_featured?' <span title="Validada para a home" style="color:#5fdd9e">✓</span>':'')+'</div><div class="bld-rname">'+esc(w.name||'—')+'</div>'+(b.author_name?'<div class="bld-rauthor" style="font-size:.72rem;color:var(--muted,#9a97a8);margin-top:1px">por '+esc(b.author_name)+'</div>':'')+((b.rating_count>0)?'<div class="bld-rstars">'+_starStr(b.rating_avg)+' <span style="color:var(--muted);font-size:.72rem">'+(+b.rating_avg).toFixed(1)+' ('+b.rating_count+')</span></div>':'')+'</div>'
         +'<div class="bld-rperks">'+chips.join('')+'</div>'
         +'<div class="bld-rdmg"><b>'+fmtNum(b.dano)+'</b><span>dano/turno</span></div>'
         +'<div class="bld-rcta"><span class="bld-adminonly" style="display:none"><button onclick="event.stopPropagation();tpBuildToggleHome(\''+b.id+'\',this)" style="background:'+(b.home_featured?'#2a7a44':'transparent')+';border:1px solid var(--rule);color:#fff;border-radius:6px;padding:2px 8px;font-size:.66rem;cursor:pointer;margin-right:.4rem" title="Exibir na home (selo de validação)">'+(b.home_featured?'✓ Na home':'☆ Home')+'</button></span>Ver build →</div></div>';
@@ -6478,6 +6489,26 @@ PlayerName (Leader)
       (window.tpAuthFetch||fetch)(PANDA_SB_URL+'/rest/v1/builds?id=eq.'+id,{method:'PATCH',headers:{'Content-Type':'application/json',apikey:PANDA_SB_ANON,Authorization:'Bearer '+((window.TP_AUTH&&window.TP_AUTH.access_token)||PANDA_SB_ANON),Prefer:'return=minimal'},body:JSON.stringify({home_featured:nv})})
         .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); b.home_featured=nv; if(window.tpToast)tpToast(nv?'Build validada para a home ✓':'Removida da home.','success'); render(); })
         .catch(function(){ if(window.tpToast)tpToast('Erro ao atualizar (precisa ser admin).','error'); if(btn)btn.disabled=false; });
+    };
+    function _starStr(v){ v=+v||0; var h=''; for(var i=1;i<=5;i++){ h+='<span class="st'+(i<=Math.round(v)?' on':'')+'">\u2605</span>'; } return '<span class="bld-rstars">'+h+'</span>'; }
+    window._bdRenderRating=function(id,b){
+      var host=document.getElementById('bd-rating'); if(!host) return; b=b||{};
+      var avg=(+b.rating_avg||0), cnt=(+b.rating_count||0);
+      function rd(v){ var h=''; for(var i=1;i<=5;i++){ h+='<span class="st'+(i<=Math.round(v)?' on':'')+'">\u2605</span>'; } return h; }
+      host.innerHTML='<div class="bd-rate"><div class="bd-rate-read"><span class="bd-rate-avg">'+(avg?avg.toFixed(1):'\u2014')+'</span> <span class="bd-stars">'+rd(avg)+'</span> <span class="bd-rate-cnt">('+cnt+' votos)</span></div><div class="bd-rate-you" id="bd-rate-you"></div></div>';
+      var A=window.TP_AUTH, you=document.getElementById('bd-rate-you'); if(!you) return;
+      if(!A||!A.user){ you.innerHTML='<span class="bd-rate-hint">Entre pra dar sua nota \u2605</span>'; return; }
+      you.innerHTML='<span class="bd-rate-hint">Sua nota:</span> <span class="bd-stars pick">'+[1,2,3,4,5].map(function(i){return '<span class="st" data-v="'+i+'" onclick="_bdRate(\''+id+'\','+i+')">\u2605</span>';}).join('')+'</span>';
+      fetch(PANDA_SB_URL+'/rest/v1/build_ratings?select=stars&build_id=eq.'+id+'&user_id=eq.'+A.user.id,{headers:_pandaHeaders()})
+        .then(function(r){return r.json();}).then(function(rows){ var yv=(rows&&rows[0]&&rows[0].stars)||0; var ss=you.querySelectorAll('.pick .st'); ss.forEach(function(st,ix){ st.classList.toggle('on',(ix+1)<=yv); }); }).catch(function(){});
+    };
+    window._bdRate=function(id,stars){
+      var A=window.TP_AUTH; if(!A||!A.user){ if(window.tpOpenAuth)tpOpenAuth('login'); return; }
+      fetch(PANDA_SB_URL+'/rest/v1/rpc/tp_build_rate',{method:'POST',headers:_pandaHeaders(true),body:JSON.stringify({p_build:id,p_stars:stars})})
+        .then(function(r){ return r.json().then(function(d){return {ok:r.ok,d:d};}); })
+        .then(function(res){ if(!res.ok) throw 0; var d=res.d||{}; if(window.tpToast)tpToast('Sua nota: '+stars+'\u2605','success');
+          var bb=byId[id]; if(bb){ bb.rating_avg=d.avg; bb.rating_count=d.count; } _bdRenderRating(id, bb||{rating_avg:d.avg,rating_count:d.count}); try{ render(); }catch(e){} })
+        .catch(function(){ if(window.tpToast)tpToast('Erro ao enviar a nota.','error'); });
     };
     function renderFilters(){
       var f=document.getElementById('bld-filters'); if(!f)return;
@@ -6917,6 +6948,7 @@ PlayerName (Leader)
         +'<div class="bd-htext"><div class="bld-vname">'+voc.emoji+' '+esc(voc.label)+(inp.level?' · Nível '+esc(inp.level):'')+'</div>'
         +'<div class="bd-wname">'+esc(w.name||'—')+'</div>'+gHeroSum+'</div></div>'
         +'<div class="bd-dmgrow">'+((inp.level||st.level)?'<div class="bld-lvlbig"><b>'+esc(inp.level||st.level)+'</b><span>nível</span></div>':'')+'<div class="bld-dmg"><b>'+fmtNum(_M?_M.dano:b.dano)+'</b><span>dano / turno</span></div></div>'
+        +'<div class="bd-ratingrow" id="bd-rating"></div>'
         +'<div class="bld-meta" style="margin-top:.5rem">'+tags.join('')+'</div>'
         +'<div class="bd-acts">'
           +'<button class="bd-open" onclick="tpOpenBuildInCalc(\''+code+'\')">⚔️ Abrir na Calculadora</button>'
@@ -6938,6 +6970,7 @@ PlayerName (Leader)
         +'</div>'
         +gInsSec;
       var host=document.getElementById('bld-detail'); host.innerHTML=html;
+      try{ if(window._bdRenderRating) _bdRenderRating(id,b); }catch(_e){}
       if(window.tpCheckBuildAdmin) tpCheckBuildAdmin();
       document.getElementById('builds').classList.add('detail');
       if(window.tpLoadSavedBuilds) tpLoadSavedBuilds();
@@ -7765,7 +7798,7 @@ PlayerName (Leader)
     window.tpBuildsInit=function(){
       if(loaded)return; loaded=true;
       if(window.tpLoadCatalog) tpLoadCatalog();
-      var url=PANDA_SB_URL+'/rest/v1/builds?status=eq.approved&select=id,name,vocation,dano,ml,element,data,author_name,home_featured&order=vocation.asc';
+      var url=PANDA_SB_URL+'/rest/v1/builds?status=eq.approved&select=id,name,vocation,dano,ml,element,data,author_name,home_featured,rating_avg,rating_count&order=vocation.asc';
       fetch(url,{headers:_pandaHeaders()}).then(function(r){return r.json();}).then(function(rows){
         all=(rows||[]).sort(sortBuilds); byId={}; all.forEach(function(b){byId[b.id]=b;});
         renderFilters(); render(); window.__tpBuildsReady=true;
@@ -10957,7 +10990,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt35';
+window.TP_BUILD = '2026-10-03evt36';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
