@@ -10576,7 +10576,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt22';
+window.TP_BUILD = '2026-10-03evt23';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -12773,9 +12773,14 @@ function _bossExtraHtml(ex){
       + ex.raid.map(function(m){ return '<div class="tp-boss-raid">'+_bossEsc(m)+'</div>'; }).join('');
   }
   if(ex.x!=null){
-    var tm='https://tibiamaps.io/map#'+ex.x+','+ex.y+','+(ex.z!=null?ex.z:7);
+    var _z=(ex.z!=null?ex.z:7);
+    var tm='https://tibiamaps.io/map#'+ex.x+','+ex.y+','+_z;
     h+='<div class="tp-boss-sec" style="margin-top:1rem">\uD83D\uDCCD Localiza\u00e7\u00e3o</div>'
-      +'<div class="tp-boss-loc"><div><b>'+_bossEsc(ex.place||'')+'</b><div class="co">X '+ex.x+' \u00b7 Y '+ex.y+' \u00b7 Z '+(ex.z!=null?ex.z:'?')+'</div></div><a href="'+tm+'" target="_blank" rel="noopener">\uD83D\uDDFA\uFE0F Abrir no TibiaMaps \u2192</a></div>';
+      +'<div class="tp-boss-locbox">'
+      +'<div class="tp-boss-loc-top"><div><b>'+_bossEsc(ex.place||'')+'</b><div class="co">X '+ex.x+' \u00b7 Y '+ex.y+' \u00b7 Z '+_z+'</div></div><a href="'+tm+'" target="_blank" rel="noopener">\uD83D\uDDFA\uFE0F Tela cheia \u2192</a></div>'
+      +'<div id="tp-boss-map" class="tp-boss-map"></div>'
+      +'<div class="tp-boss-mapbar"><span id="tp-boss-map-coords" class="tp-boss-mapcoords">X: <span>'+ex.x+'</span> Y: <span>'+ex.y+'</span> Z: <span>'+_z+'</span></span><span class="tp-boss-mapcredit">usando <a href="https://tibiamaps.io" target="_blank" rel="noopener">TibiaMaps.io</a> \uD83D\uDC9C</span></div>'
+      +'</div>';
   }
   return h;
 }
@@ -12832,6 +12837,61 @@ window.tpFetchBossExtra=async function(name){
   window.tpBossExtraCache[name]=out;
   return out;
 };
+// Minimapa do boss (tiles TibiaMaps, mesmo esquema do mapa de casas) — instancia propria.
+function _bossFloorLabel(f){ var rel=7-f; return rel===0?'0':((rel>0?'+':'')+rel); }
+window.initBossMiniMap=function(x,y,floor){
+  var el=document.getElementById('tp-boss-map');
+  if(!el || !window.L || typeof _hfMakeTileLayer!=='function') return;
+  if(window._bossMiniMap){ try{window._bossMiniMap.remove();}catch(e){} window._bossMiniMap=null; }
+  if(!L.CRS.TibiaSimple){
+    L.CRS.TibiaSimple=L.extend({},L.CRS.Simple,{
+      scale:function(z){return 256*Math.pow(2,z);},
+      latLngToPoint:function(ll,z){var pt=this.projection.project(ll),s=this.scale(z);return this.transformation._transform(pt,s);},
+      pointToLatLng:function(p,z){var s=this.scale(z);var pt=this.transformation.untransform(p,s);return this.projection.unproject(pt);}
+    });
+  }
+  var map=window._bossMiniMap=L.map(el,{crs:L.CRS.TibiaSimple,minZoom:0,maxZoom:5,zoomControl:false,attributionControl:false,fadeAnimation:false});
+  window._bossMapState={x:x,y:y,floor:floor};
+  window._bossMapLayer=_hfMakeTileLayer(map,floor); window._bossMapLayer.addTo(map);
+  var icon=L.divIcon({html:'<div style="width:11px;height:11px;background:#f87171;border:2px solid #fff;border-radius:50%;box-shadow:0 0 7px rgba(248,113,113,.9)"></div>',iconSize:[11,11],iconAnchor:[5,5],className:''});
+  var ll=map.unproject([x,y],0);
+  L.marker(ll,{icon:icon}).addTo(map);
+  map.setView(ll,1);
+  var Ctrl=L.Control.extend({options:{position:'topleft'},onAdd:function(){
+    var c=L.DomUtil.create('div','leaflet-bar leaflet-control');
+    function btn(txt,title,fn,style){var a=L.DomUtil.create('a','',c);a.href='#';a.title=title;a.innerHTML=txt;if(style)a.style.cssText=style;if(fn)L.DomEvent.on(a,'click',function(e){L.DomEvent.preventDefault(e);fn();});return a;}
+    btn('+','Zoom in',function(){map.zoomIn();});
+    btn('−','Zoom out',function(){map.zoomOut();});
+    btn('','',null,'height:1px;background:rgba(255,255,255,.12);padding:0;pointer-events:none;min-height:1px');
+    btn('▲','Andar acima',function(){_bossChangeFloor(-1);});
+    window._bossFloorLbl=btn(_bossFloorLabel(floor),'Andar',null,'cursor:default;pointer-events:none;font-family:monospace;font-size:10px;font-weight:700;letter-spacing:-.5px');
+    btn('▼','Andar abaixo',function(){_bossChangeFloor(1);});
+    L.DomEvent.disableClickPropagation(c);
+    return c;
+  }});
+  new Ctrl().addTo(map);
+  function _setCo(mx,my,mz){var e=document.getElementById('tp-boss-map-coords'); if(e) e.innerHTML='X: <span>'+mx+'</span> Y: <span>'+my+'</span> Z: <span>'+mz+'</span>';}
+  map.on('mousemove',function(e){var pt=map.project(e.latlng,0);_setCo(Math.round(pt.x),Math.round(pt.y),window._bossMapState.floor);});
+  map.on('mouseout',function(){var c=window._bossMapState;_setCo(c.x,c.y,c.floor);});
+  setTimeout(function(){ try{map.invalidateSize();map.setView(ll,1);}catch(e){} },90);
+};
+function _bossChangeFloor(delta){
+  if(!window._bossMapState||!window._bossMiniMap) return;
+  var c=window._bossMapState, nf=Math.max(0,Math.min(15,c.floor+delta));
+  if(nf===c.floor) return; c.floor=nf;
+  if(window._bossFloorLbl) window._bossFloorLbl.textContent=_bossFloorLabel(nf);
+  var e=document.getElementById('tp-boss-map-coords'); if(e) e.innerHTML='X: <span>'+c.x+'</span> Y: <span>'+c.y+'</span> Z: <span>'+nf+'</span>';
+  var map=window._bossMiniMap;
+  if(window._bossMapLayer) map.removeLayer(window._bossMapLayer);
+  window._bossMapLayer=_hfMakeTileLayer(map,nf); window._bossMapLayer.addTo(map);
+}
+window._bossInitMap=function(ex){
+  if(!ex||ex.x==null) return;
+  var f=(ex.z!=null?ex.z:7);
+  function go(){ try{ initBossMiniMap(ex.x,ex.y,f); }catch(e){} }
+  if(window.L) setTimeout(go,40);
+  else document.addEventListener('tp-leaflet-ready',function h(){ document.removeEventListener('tp-leaflet-ready',h); setTimeout(go,40); });
+};
 window.tpOpenBoss=async function(name){
   if(!name) return;
   window._tpBossCurrent=name;
@@ -12853,7 +12913,23 @@ window.tpOpenBoss=async function(name){
       +".tp-boss-sec{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted,#9a97a8);margin:.2rem 0 .5rem}"
       +".tp-boss-loot{display:flex;flex-wrap:wrap;gap:.35rem}"
       +".tp-boss-loot span{font-size:.74rem;color:var(--ink,#eae8f2);background:var(--bg-2,#1c1a26);border:1px solid var(--rule,#2b2938);border-radius:20px;padding:.2rem .6rem}"
-      +".tp-boss-empty{color:var(--muted,#9a97a8);font-size:.8rem}"+".tp-boss-lootgrid{display:flex;flex-wrap:wrap;gap:.4rem}"+".tp-boss-lootitem{display:inline-flex;align-items:center;gap:.35rem;background:var(--bg-2,#1c1a26);border:1px solid var(--rule,#2b2938);border-radius:8px;padding:.25rem .5rem;font-size:.74rem;color:var(--ink,#eae8f2)}"+".tp-boss-lootitem img{width:20px;height:20px;object-fit:contain;image-rendering:pixelated}"+".tp-boss-links{margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap}"+".tp-boss-links a{font-size:.78rem;font-weight:700;color:var(--bamboo-light,#a78bfa);background:var(--bamboo-dim,#211a3d);border:1px solid var(--bamboo,#8b5cf6);border-radius:8px;padding:.45rem .7rem;text-decoration:none}"+".tp-boss-links a:hover{filter:brightness(1.12)}"+".tp-boss-raid{background:rgba(139,92,246,.08);border-left:3px solid var(--bamboo,#8b5cf6);border-radius:6px;padding:.5rem .7rem;font-size:.8rem;color:var(--ink-2,#cfc9e6);line-height:1.45;margin-bottom:.4rem;font-style:italic}"+".tp-boss-loc{display:flex;align-items:center;justify-content:space-between;gap:.6rem;background:var(--bg-2,#1c1a26);border:1px solid var(--rule,#2b2938);border-radius:10px;padding:.6rem .8rem;flex-wrap:wrap}"+".tp-boss-loc .co{font-size:.7rem;color:var(--muted);margin-top:2px}"+".tp-boss-loc a{font-size:.76rem;font-weight:700;color:var(--bamboo-light,#a78bfa);text-decoration:none;white-space:nowrap}";
+      +".tp-boss-empty{color:var(--muted,#9a97a8);font-size:.8rem}"+".tp-boss-lootgrid{display:flex;flex-wrap:wrap;gap:.4rem}"+".tp-boss-lootitem{display:inline-flex;align-items:center;gap:.35rem;background:var(--bg-2,#1c1a26);border:1px solid var(--rule,#2b2938);border-radius:8px;padding:.25rem .5rem;font-size:.74rem;color:var(--ink,#eae8f2)}"+".tp-boss-lootitem img{width:20px;height:20px;object-fit:contain;image-rendering:pixelated}"+".tp-boss-links{margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap}"+".tp-boss-links a{font-size:.78rem;font-weight:700;color:var(--bamboo-light,#a78bfa);background:var(--bamboo-dim,#211a3d);border:1px solid var(--bamboo,#8b5cf6);border-radius:8px;padding:.45rem .7rem;text-decoration:none}"+".tp-boss-links a:hover{filter:brightness(1.12)}"+".tp-boss-raid{background:rgba(139,92,246,.08);border-left:3px solid var(--bamboo,#8b5cf6);border-radius:6px;padding:.5rem .7rem;font-size:.8rem;color:var(--ink-2,#cfc9e6);line-height:1.45;margin-bottom:.4rem;font-style:italic}"+".tp-boss-loc{display:flex;align-items:center;justify-content:space-between;gap:.6rem;background:var(--bg-2,#1c1a26);border:1px solid var(--rule,#2b2938);border-radius:10px;padding:.6rem .8rem;flex-wrap:wrap}"+".tp-boss-loc .co{font-size:.7rem;color:var(--muted);margin-top:2px}"+".tp-boss-loc a{font-size:.76rem;font-weight:700;color:var(--bamboo-light,#a78bfa);text-decoration:none;white-space:nowrap}"
+      +".tp-boss-locbox{background:var(--bg-2,#1c1a26);border:1px solid var(--rule,#2b2938);border-radius:10px;padding:.6rem .7rem}"
+      +".tp-boss-loc-top{display:flex;align-items:center;justify-content:space-between;gap:.6rem;flex-wrap:wrap;margin-bottom:.5rem}"
+      +".tp-boss-loc-top .co{font-size:.7rem;color:var(--muted);margin-top:2px}"
+      +".tp-boss-loc-top a{font-size:.76rem;font-weight:700;color:var(--bamboo-light,#a78bfa);text-decoration:none;white-space:nowrap}"
+      +".tp-boss-map{width:100%;height:220px;border-radius:9px;border:1px solid var(--rule,#2b2938);background:#0d0d10;overflow:hidden}"
+      +".tp-boss-map .leaflet-container{background:#0d0d10;font-family:inherit}"
+      +".tp-boss-map .leaflet-tile-container canvas{image-rendering:pixelated}"
+      +".tp-boss-map .leaflet-bar{border:none;box-shadow:0 2px 8px rgba(0,0,0,.5)}"
+      +".tp-boss-map .leaflet-bar a{background:#1b1a25;color:#cfc9e6;border-bottom:1px solid #2b2938;width:24px;height:24px;line-height:24px;font-size:13px}"
+      +".tp-boss-map .leaflet-bar a:hover{background:#2a2a32;color:#fff}"
+      +".tp-boss-map .leaflet-control-attribution{display:none}"
+      +".tp-boss-mapbar{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:.4rem;flex-wrap:wrap}"
+      +".tp-boss-mapcoords{font-family:monospace;font-size:.68rem;color:var(--muted)}"
+      +".tp-boss-mapcoords span{color:var(--ink-2,#cfc9e6)}"
+      +".tp-boss-mapcredit{font-size:.66rem;color:var(--muted)}"
+      +".tp-boss-mapcredit a{color:var(--bamboo-light,#a78bfa);text-decoration:none}";
     document.head.appendChild(st);
     document.addEventListener('keydown',function(e){ if(e.key==='Escape') tpCloseBoss(); });
   }
@@ -12912,11 +12988,11 @@ window.tpOpenBoss=async function(name){
   (function(bn){
     var slot=document.getElementById('tp-boss-extra-slot'); if(!slot) return;
     var ov = window.TP_BOSS_EXTRA && window.TP_BOSS_EXTRA[bn];
-    if(ov){ slot.innerHTML=_bossExtraHtml(ov); return; }
+    if(ov){ slot.innerHTML=_bossExtraHtml(ov); _bossInitMap(ov); return; }
     slot.innerHTML='<div class="tp-boss-empty" style="margin-top:1rem">\uD83D\uDCE1 Buscando raid e localiza\u00e7\u00e3o na TibiaWiki...</div>';
     tpFetchBossExtra(bn).then(function(ex){
       if(window._tpBossCurrent!==bn) return;
-      var s2=document.getElementById('tp-boss-extra-slot'); if(s2) s2.innerHTML=ex?_bossExtraHtml(ex):'';
+      var s2=document.getElementById('tp-boss-extra-slot'); if(s2){ s2.innerHTML=ex?_bossExtraHtml(ex):''; if(ex) _bossInitMap(ex); }
     }).catch(function(){ var s2=document.getElementById('tp-boss-extra-slot'); if(s2) s2.innerHTML=''; });
   })(name);
 };
