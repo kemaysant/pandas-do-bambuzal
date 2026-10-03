@@ -3015,7 +3015,7 @@ async function tibiaFetch(path) {
       <button class="adm-tab" data-atab="gami" onclick="tpAdminTab('gami',this)">🎁 Gamificação</button>
     </div>
     <div id="adm-fundos" class="adm-panel"></div>
-    <div id="adm-bosses" class="adm-panel" style="display:none"><div class="card" style="color:var(--muted)">🐉 Editor de bosses (overrides) — próxima fase.</div></div>
+    <div id="adm-bosses" class="adm-panel" style="display:none"><div class="adm-newcard" style="grid-template-columns:1fr"><div class="adm-fld" style="font-weight:800;color:var(--ink,#e8e6f0)">✏️ Override de boss</div><div class="adm-note" style="margin:0">Preencha só o que quer sobrescrever. Respawn (dias) alimenta a Chance e o card. Vazio = usa o padrão/Fandom.</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem"><div class="adm-fld"><label>Boss (nome exato)</label><input id="adm-boss-name" class="adm-in" list="adm-boss-list" placeholder="Ex: The Pale Count"></div><div class="adm-fld"><label>Respawn (dias)</label><input id="adm-boss-iv" type="number" class="adm-in"></div><div class="adm-fld"><label>Local</label><input id="adm-boss-place" class="adm-in" placeholder="Ex: Drefia"></div><div class="adm-fld"><label>X</label><input id="adm-boss-x" type="number" class="adm-in"></div><div class="adm-fld"><label>Y</label><input id="adm-boss-y" type="number" class="adm-in"></div><div class="adm-fld"><label>Z (andar)</label><input id="adm-boss-z" type="number" class="adm-in"></div></div><datalist id="adm-boss-list"></datalist><div class="adm-fld"><label>Mensagens de raid (uma por linha)</label><textarea id="adm-boss-raid" class="adm-in" rows="3" placeholder="The Pale Count has risen..."></textarea></div><div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="adm-save" onclick="tpAdminBossLoadCurrent()">↺ Carregar atual</button><button class="adm-save" onclick="tpAdminBossSave()">Salvar override</button><span id="adm-boss-status" style="font-size:.76rem;color:var(--muted);align-self:center"></span></div></div><div id="adm-boss-list-host"></div></div>
     <div id="adm-users" class="adm-panel" style="display:none"><div class="card" style="color:var(--muted)">👤 Usuários & papéis — próxima fase.</div></div>
     <div id="adm-gami" class="adm-panel" style="display:none"><div class="card" style="color:var(--muted)">🎁 Gamificação — próxima fase.</div></div>
   </div>
@@ -3054,6 +3054,7 @@ async function tibiaFetch(path) {
     ['fundos','bosses','users','gami'].forEach(function(k){ var p=g('adm-'+k); if(p)p.style.display=(k===t)?'':'none'; });
     document.querySelectorAll('#admin .adm-tab').forEach(function(b){ b.classList.toggle('on',b===btn); });
     if(t==='fundos') tpAdminFundosLoad();
+    if(t==='bosses'&&window.tpAdminBossLoad) tpAdminBossLoad();
   };
 
   function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -3135,6 +3136,110 @@ async function tibiaFetch(path) {
       })
       .then(function(r){ if(r&&!r.ok) throw new Error('insert '+r.status); st.textContent='✓ Fundo "'+name+'" criado!'; if(window.tpToast)tpToast('🎉 Fundo "'+name+'" publicado na loja!','success'); _invalidate(); if(window.tpLoadFloorCatalog) window.tpLoadFloorCatalog(); tpAdminFundosLoad(); g('adm-new-name').value=''; g('adm-new-file').value=''; })
       .catch(function(e){ st.textContent='Erro: '+(e&&e.message||'falhou'); if(window.tpToast)tpToast('Erro ao criar fundo.','error'); });
+  };
+})();
+
+</script>
+<script>
+(function(){
+  function _sb(){ return (typeof PANDA_SB_URL!=='undefined'&&PANDA_SB_URL)?PANDA_SB_URL:(window.PANDA_SB_URL||''); }
+  function _key(){ return (typeof PANDA_SB_ANON!=='undefined')?PANDA_SB_ANON:(window.PANDA_SB_ANON||''); }
+  function _af(u,o){ return (window.tpAuthFetch||fetch)(u,o||{}); }
+  function _tok(){ var A=window.TP_AUTH; return (A&&A.access_token)||_key(); }
+  function g(id){ return document.getElementById(id); }
+  function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  window.tpAdminBossLoad=function(){
+    var host=g('adm-boss-list-host'); if(!host) return;
+    // datalist de nomes
+    var dl=g('adm-boss-list');
+    if(dl && !dl.dataset.filled){
+      var names=[];
+      try{ if(typeof TP_BOSS_CATALOG!=='undefined') names=TP_BOSS_CATALOG.map(function(o){return o.n;}); }catch(e){}
+      dl.innerHTML=names.map(function(n){return '<option value="'+esc(n)+'">';}).join('');
+      dl.dataset.filled='1';
+    }
+    host.innerHTML='<div class="adm-note">Carregando overrides…</div>';
+    _af(_sb()+'/rest/v1/boss_overrides?select=name,iv,raid,x,y,z,place,updated_at&order=name.asc',{headers:{apikey:_key()}})
+      .then(function(r){return r.json();})
+      .then(function(rows){ if(!Array.isArray(rows)) rows=[]; renderList(rows); })
+      .catch(function(){ host.innerHTML='<div class="adm-note" style="color:var(--red,#e87070)">Erro ao carregar overrides.</div>'; });
+  };
+
+  function renderList(rows){
+    var host=g('adm-boss-list-host'); if(!host) return;
+    if(!rows.length){ host.innerHTML='<div class="adm-note">Nenhum override ainda. Preencha acima e salve.</div>'; return; }
+    var body=rows.map(function(r){
+      var raidN=(r.raid&&r.raid.length)||0;
+      var loc=(r.x!=null)?(r.x+','+r.y+' z'+r.z+(r.place?(' ('+r.place+')'):'')):(r.place||'—');
+      return '<tr>'
+        +'<td><b>'+esc(r.name)+'</b></td>'
+        +'<td>'+(r.iv!=null?('~'+r.iv+'d'):'—')+'</td>'
+        +'<td style="font-size:.74rem">'+esc(loc)+'</td>'
+        +'<td style="text-align:center">'+(raidN||'—')+'</td>'
+        +'<td style="white-space:nowrap"><button class="adm-save" onclick="tpAdminBossEdit('+JSON.stringify(esc(r.name))+')">Editar</button> <button class="adm-del" onclick="tpAdminBossDel('+JSON.stringify(esc(r.name))+')">🗑️</button></td>'
+      +'</tr>';
+    }).join('');
+    host.innerHTML='<div class="adm-note" style="margin-top:1rem">Overrides salvos ('+rows.length+'):</div>'
+      +'<div class="adm-tablewrap"><table class="adm-ftable"><thead><tr><th>Boss</th><th>Respawn</th><th>Local</th><th>Raid</th><th></th></tr></thead><tbody>'+body+'</tbody></table></div>';
+  }
+
+  function setForm(o){
+    o=o||{};
+    g('adm-boss-name').value=o.name||'';
+    g('adm-boss-iv').value=(o.iv!=null?o.iv:'');
+    g('adm-boss-place').value=o.place||'';
+    g('adm-boss-x').value=(o.x!=null?o.x:'');
+    g('adm-boss-y').value=(o.y!=null?o.y:'');
+    g('adm-boss-z').value=(o.z!=null?o.z:'');
+    g('adm-boss-raid').value=(o.raid&&o.raid.length)?o.raid.join('\n'):'';
+  }
+
+  window.tpAdminBossEdit=function(name){
+    var ov=(window.__TP_BOSS_OV&&window.__TP_BOSS_OV[(name||'').toLowerCase()])||null;
+    setForm(Object.assign({name:name},ov||{}));
+    g('adm-boss-status').textContent='Editando "'+name+'".';
+    try{ g('adm-boss-name').scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
+  };
+
+  window.tpAdminBossLoadCurrent=function(){
+    var name=(g('adm-boss-name').value||'').trim(); if(!name){ g('adm-boss-status').textContent='Digite o nome do boss.'; return; }
+    var k=name.toLowerCase();
+    var ov=(window.__TP_BOSS_OV&&window.__TP_BOSS_OV[k])||null;
+    var stat=(window.TP_BOSS_EXTRA&&window.TP_BOSS_EXTRA[name])||null;
+    var iv=(ov&&ov.iv!=null)?ov.iv:((typeof TP_BOSS_IV!=='undefined')?TP_BOSS_IV[k]:null);
+    var merged={name:name, iv:iv,
+      place:(ov&&ov.place)||(stat&&stat.place)||'',
+      x:(ov&&ov.x!=null)?ov.x:(stat&&stat.x), y:(ov&&ov.y!=null)?ov.y:(stat&&stat.y), z:(ov&&ov.z!=null)?ov.z:(stat&&stat.z),
+      raid:(ov&&ov.raid)||(stat&&stat.raid)||[]};
+    setForm(merged);
+    g('adm-boss-status').textContent='Carregado valor atual (override/padrão). Edite e salve.';
+  };
+
+  window.tpAdminBossSave=function(){
+    var name=(g('adm-boss-name').value||'').trim(); var st=g('adm-boss-status');
+    if(!name){ st.textContent='Digite o nome do boss.'; return; }
+    function numOrNull(id){ var v=g(id).value; return v===''?null:(+v); }
+    var raidTxt=(g('adm-boss-raid').value||'').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+    var body={ name:name, iv:numOrNull('adm-boss-iv'), place:(g('adm-boss-place').value||'').trim()||null,
+      x:numOrNull('adm-boss-x'), y:numOrNull('adm-boss-y'), z:numOrNull('adm-boss-z'),
+      raid: raidTxt.length?raidTxt:null,
+      updated_by:(window.TP_AUTH&&window.TP_AUTH.user&&window.TP_AUTH.user.id)||null,
+      updated_at:new Date().toISOString() };
+    st.textContent='Salvando…';
+    _af(_sb()+'/rest/v1/boss_overrides',{method:'POST',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(body)})
+      .then(function(r){ if(!r.ok) return r.text().then(function(t){throw new Error(r.status+' '+t);}); st.textContent='✓ Override salvo para "'+name+'".'; if(window.tpToast)tpToast('Boss "'+name+'" atualizado.','success');
+        if(window.tpLoadBossOverrides) window.tpLoadBossOverrides().then(function(){ tpAdminBossLoad(); }); else tpAdminBossLoad();
+        try{ delete window.tpBossExtraCache[name]; }catch(e){}
+      })
+      .catch(function(e){ st.textContent='Erro: '+(e&&e.message||'falhou'); if(window.tpToast)tpToast('Erro ao salvar (precisa ser admin).','error'); });
+  };
+
+  window.tpAdminBossDel=function(name){
+    var go=function(){ _af(_sb()+'/rest/v1/boss_overrides?name=eq.'+encodeURIComponent(name),{method:'DELETE',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),Prefer:'return=minimal'}})
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); if(window.tpToast)tpToast('Override removido.','success'); if(window.tpLoadBossOverrides) window.tpLoadBossOverrides().then(function(){ tpAdminBossLoad(); }); else tpAdminBossLoad(); })
+      .catch(function(){ if(window.tpToast)tpToast('Erro ao remover.','error'); }); };
+    if(window.tpConfirm) tpConfirm('Remover o override de "'+name+'"? Volta a usar o dado padrão/Fandom.').then(function(ok){ if(ok) go(); }); else if(confirm('Remover '+name+'?')) go();
   };
 })();
 
@@ -10761,7 +10866,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt30';
+window.TP_BUILD = '2026-10-03evt31';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -12949,6 +13054,16 @@ window.TP_BOSS_EXTRA = window.TP_BOSS_EXTRA || {
 };
 window.tpBossCache=window.tpBossCache||{};
 window.tpBossExtraCache=window.tpBossExtraCache||{};
+window.__TP_BOSS_OV=window.__TP_BOSS_OV||null;
+window.tpLoadBossOverrides=async function(){
+  try{
+    var r=await fetch(PANDA_SB_URL+'/rest/v1/boss_overrides?select=name,iv,raid,x,y,z,place',{headers:{apikey:PANDA_SB_ANON}});
+    var rows=await r.json(); var m={};
+    (Array.isArray(rows)?rows:[]).forEach(function(o){ m[(o.name||'').toLowerCase()]=o; });
+    window.__TP_BOSS_OV=m;
+  }catch(e){ window.__TP_BOSS_OV=window.__TP_BOSS_OV||{}; }
+  return window.__TP_BOSS_OV;
+};
 // Monta o HTML das seções de raid + localização a partir de um objeto {raid:[],x,y,z,place}.
 function _bossExtraHtml(ex){
   if(!ex) return '';
@@ -13009,6 +13124,14 @@ function _parseBossExtra(txt){
 // Busca ao vivo na TibiaWiki (Fandom, CORS origin=*) quando não há override curado.
 window.tpFetchBossExtra=async function(name){
   var ov = window.TP_BOSS_EXTRA && window.TP_BOSS_EXTRA[name];
+  var dbov = window.__TP_BOSS_OV && window.__TP_BOSS_OV[(name||'').toLowerCase()];
+  if(dbov && ((dbov.raid&&dbov.raid.length)||dbov.x!=null||dbov.place)){
+    var _b = ov ? Object.assign({},ov) : {};
+    if(dbov.raid && dbov.raid.length) _b.raid=dbov.raid;
+    if(dbov.x!=null){ _b.x=dbov.x; _b.y=dbov.y; _b.z=dbov.z; }
+    if(dbov.place) _b.place=dbov.place;
+    return _b;
+  }
   if(ov) return ov;
   if(window.tpBossExtraCache[name]!==undefined) return window.tpBossExtraCache[name];
   var out=null;
@@ -13193,7 +13316,8 @@ window.tpOpenBoss=async function(name){
   if(loot && loot.length){ html+='<div class="tp-boss-sec" style="margin-top:.2rem">⚔️ Loot relevante</div><div class="tp-boss-lootgrid">'+loot.slice(0,14).map(function(it){ var nm=(typeof it==='string')?it:((it&&(it.name||it.item))||''); return nm?('<span class="tp-boss-lootitem" title="'+_bossEsc(nm)+'"><img loading="lazy" src="'+itemImgUrl(nm)+'" onerror="this.style.display=&quot;none&quot;" alt="'+_bossEsc(nm)+'"><span>'+_bossEsc(nm)+'</span></span>'):''; }).join('')+'</div>'; }
   // Respawn: intervalo tipico (TP_BOSS_IV, calibrado pela comunidade — mesmo dado que alimenta a Chance)
   var _rk=name.toLowerCase();
-  var _riv=(typeof TP_BOSS_IV!=='undefined')?TP_BOSS_IV[_rk]:null;
+  var _ovv=window.__TP_BOSS_OV && window.__TP_BOSS_OV[_rk];
+  var _riv=(_ovv&&_ovv.iv!=null)?_ovv.iv:((typeof TP_BOSS_IV!=='undefined')?TP_BOSS_IV[_rk]:null);
   if(_riv){
     var _ract=(typeof bossActivity!=='undefined')?bossActivity[_rk]:null;
     var _rds=(typeof _bossDaysSince==='function'&&_ract&&_ract.last)?_bossDaysSince(_ract.last):null;
@@ -13264,7 +13388,8 @@ function _bossBuild(){
     const live=bossLive[key]||{day:0,week:0};
     const act=bossActivity[key]||{};
     const daysSince=_bossDaysSince(act.last);
-    const chance=_bossChance(daysSince, TP_BOSS_IV[key]);
+    const _ivo=(window.__TP_BOSS_OV&&window.__TP_BOSS_OV[key]&&window.__TP_BOSS_OV[key].iv!=null)?window.__TP_BOSS_OV[key].iv:TP_BOSS_IV[key];
+    const chance=_bossChance(daysSince, _ivo);
     return {name:o.n, cat:o.c, key, killedToday:((act.today||0)>0||(live.day||0)>0), killedWeek:(live.week||0), today:(act.today||live.day||0), yday:(act.yday||0), daysSince, chance, pinned:pinnedBosses.includes(o.n)};
   });
 }
@@ -13380,6 +13505,7 @@ async function loadBossSpawn() {
     });
     if (r.ok) bossActivity = (await r.json()) || {};
   } catch(e) { console.warn('[Boss] boss_activity falhou:', e.message); }
+  try{ if(window.tpLoadBossOverrides) await tpLoadBossOverrides(); }catch(e){}
 
   // 3) bosses de alavanca (boostables) — pra aba Alavanca
   try {
