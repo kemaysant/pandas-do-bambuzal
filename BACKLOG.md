@@ -1,12 +1,69 @@
-# Tibia Panda — Builds · Status & Backlog
+# Tibia Panda — Produto · Status & Backlog
 
-_Atualizado: 2026-09-30_
+_Atualizado: 2026-10-03_
 
-Objetivo: transformar a página de builds no "Blitz.gg do Tibia" — dados reais (nunca inventados), 1:1 com a calculadora, e uma UX de alto padrão. Toda build recalcula o dano com o equipamento escolhido antes de salvar.
+Objetivo: ser o hub do Tibia BR — ferramentas de alto padrão **e** comunidade. Regra permanente: **dados reais, nunca inventados**. O produto cresceu além das builds: hoje tem bosses, eventos/agenda, hunt analyser, economia (Panda Coins)/store e conta social. Esta primeira parte é o **roadmap atual por área**; a parte detalhada de **Builds & Ferramentas** segue preservada mais abaixo.
 
 ---
 
-## ✅ Feito
+## 🧭 Roadmap atual (out/2026)
+
+### 🟢 Entregue recentemente — Bosses, Eventos, UX (out/2026)
+- **Card de boss enriquecido** (busca ao vivo da TibiaWiki/Fandom com cache, dados reais):
+  - 📣 **Mensagem de raid** — lê `{{Message|type=server}}` **e** `{{Raid Message|HH:MM:SS|...}}` (sequência cronológica, estilo exevopan): Orshabaal/Morgaroth/Ghazbaran etc.
+  - ⚔️ **Loot relevante** (TibiaData quando tem) + link TibiaWiki.
+  - 🔁 **Respawn** — intervalo típico (`TP_BOSS_IV`, calibrado pela comunidade) + "visto há Xd" + "~Xd p/ liberar" / "pode nascer já".
+  - 📍 **Localização com minimapa TibiaMaps embutido** — tiles reais, marcador do spawn, troca de andar (▲▼), coordenadas ao mover o mouse, link "Tela cheia".
+  - ⭐ **Marcadores do TibiaMaps** (`markers.json`, 6.398 marcadores, cache) — spawn/escadas/flags/`?`/POIs por andar, com descrição em tooltip (ex.: "Fleabringer possible spawn location").
+- **Página de Bosses**: ordenar por chance (default), filtros em pills; herói da home com "caçados hoje" + Boostados + Rashid do dia ("Hoje no Tibia").
+- **Eventos/Agenda**: editar na página do evento; anfitrião apaga qualquer comentário e remove jogador (RPC `SECURITY DEFINER`); confirmação no estilo do site (`tpConfirm`); refresh visual (card/kanban/vocações, sem serifa); cabeçalho capa-ready + contagem regressiva.
+- **UX geral (review)**: menos topo em todas as páginas, header mobile ok, gates padronizados, estados vazios convidativos, espaçamentos.
+
+### A. 👥 Comunidade & Guilds — NOVO (foco estratégico)
+**Objetivo:** virar o hub social do Tibia BR, não só ferramentas — guildas e comunidades por servidor, integradas a acessos, soul cores e bosses.
+- [ ] **Espaços de guilda** — cada guilda tem sua comunidade: membros (verificados por personagem), mural/feed, eventos da guilda (já temos eventos de guild), cargos (líder/vice puxados do Tibia.com).
+- [ ] **Multi-servidor** — comunidades por mundo; um usuário participa de guildas/mundos diferentes; navegação por servidor.
+- [ ] **Acessos integrados** — gate de conteúdo por guilda/cargo (ex.: agenda de boss da guilda só pra membros).
+- [ ] **Soul Cores integrados** — rastreio/compartilhamento de soul cores (Bosstiary/soul pit) por membro e por guilda: quem já tem, o que falta, metas coletivas. _Definir fonte:_ input manual verificado vs. leitura do char no Tibia.com (se exposto).
+- [ ] **Bosses por guilda** — agenda/rotação de boss da guilda ligada ao boss tracker (quem vai, split, histórico). Liga com "Meu Tracker + rotação de boss" (item E).
+- _Definir:_ modelo de dados (tabelas guild/membership/roles no Supabase), verificação de liderança, privacidade (público vs. só-membros), moderação.
+
+### B. 🌱 Desenvolvimento de comunidade — NOVO
+**Objetivo:** dar motivos recorrentes pra galera voltar e interagir.
+- [ ] **Feed/mural social** — posts, comentários, reações; destaque de conquistas (boss raro, build, hunt recorde).
+- [ ] **Perfis sociais mais ricos** — vitrine de personagens verificados, conquistas, participação em eventos/sorteios.
+- [ ] **Rankings da comunidade** — mais ativos, mais eventos, mais bosses (liga com gamificação, item C).
+- [ ] **Notificações** — evento da guilda, boss prestes a liberar, resultado de sorteio/missão.
+- _Definir:_ o que incentiva interação saudável; moderação; anti-spam.
+
+### C. 🎮 Gamificação, Sorteios & Missões — REVISAR/MELHORAR o que já temos
+**Hoje:** Panda Coins (economia), Store, ideia de sorteio de 1k e premiação em eventos — falta amarrar num sistema coerente.
+- [ ] **Missões feitas em game, revisadas no site** — o jogador cumpre no Tibia (matar X boss, completar quest, atingir level/skill) e **comprova no site**; a revisão (automática via Tibia.com onde der, manual/admin onde não der) libera recompensa em Panda Coins. _Definir:_ catálogo de missões, prova aceita, anti-fraude, quem revisa.
+- [ ] **Sorteio semanal + mensal** (evoluir o "sorteio de 1k") — cadência fixa, métrica de elegibilidade (atividade: eventos, missões, presença), bilhetes por atividade, sorteio auditável, entrega automática.
+- [ ] **Animação de baú abrindo** na entrega (sorteio, missão, prêmio de evento, compra na store) — ref. baú da store do Tibia; componente reutilizável.
+- [ ] **Premiação em eventos (250/500/750 PC)** — decidir quem banca (site credita vs. saldo do host), escolha de ganhador, anti-abuse, limite.
+- [ ] **Métrica única de "ativo"** que alimenta rankings + elegibilidade de sorteio + missões (fonte de verdade da gamificação).
+- [ ] _Menor:_ esconder widget "PANDA COINS —" no topo da Store quando deslogado.
+
+### D. 🐲 Bosses (pendências)
+- [ ] **Bosses de Alavanca** — repaginar a aba (hoje "sucateada").
+- [ ] _Menor:_ respawn como faixa min~max (se tivermos o dado); opção de trocar de servidor (hoje fixo Gentebra).
+
+### E. 📊 Hunt Analyser / Performance / Análise de PT
+- [ ] **Performance: filtrar por personagem** (hoje não filtra por boneco).
+- [ ] **Análise de PT: editar o nome do local** (ficou errado) + **deduplicar hunts iguais** (mesmo spot vira várias linhas).
+- [ ] **Comparador por dia**: separar por PT/personagem (hoje mistura hunts e pessoas diferentes).
+- [ ] **Meu Tracker (bosses) → juntar com o analyser** pra medir **rotação de boss** (quando/onde cada boss foi feito). Liga com Guildas (item A).
+
+### F. 🧭 Jornada do personagem por vocação
+- [ ] Trilha de quests/progresso **por vocação** do personagem verificado (ex.: só EK vê a trilha de EK). Exige char verificado no site com a vocação certa.
+
+### G. 📅 Eventos / Agenda (pendências)
+- [ ] **Capa (imagem/banner)** pros eventos — upload do host vs. biblioteca por tipo; onde armazenar (Supabase Storage?); recorte padrão; fallback por tipo. O cabeçalho já está pronto pra receber a imagem.
+
+---
+
+## ✅ Feito — Builds & Roda do Destino
 
 ### Arquitetura de dados
 - **Catálogo unificado** extraído do `DC_DATA` da calculadora:
@@ -44,7 +101,7 @@ Objetivo: transformar a página de builds no "Blitz.gg do Tibia" — dados reais
 
 ---
 
-## 📋 Backlog (prioridade sugerida)
+## 📋 Backlog — Builds & Ferramentas (detalhado)
 
 ### 0. 🗺️ MAP EDITOR — (o Kemay quer as ferramentas abaixo ANTES)
 - Priorizar o editor de mapa (`mapa_editor.html` + `mapper-pack`). Definir escopo (o que falta / o que melhorar) e executar.
