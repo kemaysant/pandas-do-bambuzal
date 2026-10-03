@@ -3254,13 +3254,38 @@ async function tibiaFetch(path) {
   function _uid(){ var A=window.TP_AUTH; return (A&&A.user&&A.user.id)||null; }
   function g(id){ return document.getElementById(id); }
   function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  var _rolesMap={};
+  var _rolesMap={}, _catsAll=[], _userCats={};
 
   function loadRoles(){
-    return _af(_sb()+'/rest/v1/user_roles?select=user_id,role',{headers:{apikey:_key()}})
-      .then(function(r){return r.json();})
-      .then(function(rows){ _rolesMap={}; (Array.isArray(rows)?rows:[]).forEach(function(x){ (_rolesMap[x.user_id]=_rolesMap[x.user_id]||{})[x.role]=1; }); return _rolesMap; });
+    return Promise.all([
+      _af(_sb()+'/rest/v1/user_roles?select=user_id,role',{headers:{apikey:_key()}}).then(function(r){return r.json();}).catch(function(){return [];}),
+      _af(_sb()+'/rest/v1/edit_categories?select=key,label,icon,sort&order=sort.asc',{headers:{apikey:_key()}}).then(function(r){return r.json();}).catch(function(){return [];}),
+      _af(_sb()+'/rest/v1/user_editor_cats?select=user_id,category_key',{headers:{apikey:_key()}}).then(function(r){return r.json();}).catch(function(){return [];})
+    ]).then(function(res){
+      _rolesMap={}; (Array.isArray(res[0])?res[0]:[]).forEach(function(x){ (_rolesMap[x.user_id]=_rolesMap[x.user_id]||{})[x.role]=1; });
+      _catsAll=Array.isArray(res[1])?res[1]:[];
+      _userCats={}; (Array.isArray(res[2])?res[2]:[]).forEach(function(x){ (_userCats[x.user_id]=_userCats[x.user_id]||{})[x.category_key]=1; });
+      return _rolesMap;
+    });
   }
+  function catManagerHtml(){
+    var list=_catsAll.map(function(c){ return '<span class="chip" style="margin-right:.35rem">'+(c.icon||'')+' '+esc(c.label)+' <code style="opacity:.55;font-size:.66rem">'+esc(c.key)+'</code></span>'; }).join('')||'<span class="adm-note">nenhuma</span>';
+    return '<div class="adm-newcard" style="grid-template-columns:1fr;margin-bottom:.9rem"><div class="adm-fld" style="font-weight:800;color:var(--ink,#e8e6f0)">📂 Categorias de editor <button class="adm-save" style="margin-left:.4rem" onclick="tpAdminCatNew()">+ Criar categoria</button></div><div>'+list+'</div><div class="adm-note" style="margin:0">Atribua editores por categoria nos cartões de usuário abaixo (botões laranja).</div></div>';
+  }
+  window.tpAdminUserCat=function(uid,cat,add){
+    var opts = add ? {method:'POST',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:uid,category_key:cat})}
+      : {method:'DELETE',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),Prefer:'return=minimal'}};
+    var url=add?(_sb()+'/rest/v1/user_editor_cats'):(_sb()+'/rest/v1/user_editor_cats?user_id=eq.'+encodeURIComponent(uid)+'&category_key=eq.'+encodeURIComponent(cat));
+    _af(url,opts).then(function(r){ if(!r.ok) throw new Error(r.status); if(window.tpToast)tpToast((add?'Editor de ':'Removido editor de ')+cat+'.','success'); tpAdminUsersLoad(); var rq=g('adm-user-q'); if(rq&&rq.value.trim().length>=2) tpAdminUserSearch(); })
+      .catch(function(){ if(window.tpToast)tpToast('Erro (precisa ser admin).','error'); });
+  };
+  window.tpAdminCatNew=function(){
+    var label=prompt('Nome da categoria (ex: Bosses):'); if(!label) return; label=label.trim(); if(!label) return;
+    var key=label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'').slice(0,24); if(!key){ if(window.tpToast)tpToast('Nome inválido.','error'); return; }
+    _af(_sb()+'/rest/v1/edit_categories',{method:'POST',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({key:key,label:label,sort:100})})
+      .then(function(r){ if(!r.ok) throw new Error(r.status); if(window.tpToast)tpToast('Categoria "'+label+'" criada.','success'); tpAdminUsersLoad(); })
+      .catch(function(){ if(window.tpToast)tpToast('Erro ao criar categoria.','error'); });
+  };
   function fetchProfiles(ids){
     if(!ids.length) return Promise.resolve([]);
     var inq='('+ids.map(function(i){return '"'+i+'"';}).join(',')+')';
@@ -3268,23 +3293,24 @@ async function tibiaFetch(path) {
       .then(function(r){return r.json();}).then(function(rows){return Array.isArray(rows)?rows:[];});
   }
   function who(p){ return esc(p.display_name||p.handle||p.main_char||p.id); }
-  function badges(uid){ var r=_rolesMap[uid]||{}; var b=''; if(r.admin)b+='<span style="background:#8b5cf6;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">ADMIN</span>'; if(r.editor)b+='<span style="background:#b2742a;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">EDITOR</span>'; if(r.moderator)b+='<span style="background:#2a7a44;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">MOD</span>'; return b; }
+  function badges(uid){ var r=_rolesMap[uid]||{}, uc=_userCats[uid]||{}; var b=''; if(r.admin)b+='<span style="background:#8b5cf6;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">ADMIN</span>'; if(r.moderator)b+='<span style="background:#2a7a44;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">MOD</span>'; _catsAll.forEach(function(c){ if(uc[c.key]) b+='<span style="background:#b2742a;color:#fff;border-radius:999px;padding:1px 7px;font-size:.6rem;font-weight:800;margin-left:4px">'+(c.icon||'')+' Editor: '+esc(c.label)+'</span>'; }); return b; }
   function roleBtns(uid){
-    var r=_rolesMap[uid]||{};
+    var r=_rolesMap[uid]||{}, uc=_userCats[uid]||{};
     function btn(role,label){ var has=!!r[role]; return '<button class="'+(has?'adm-del':'adm-save')+'" onclick="tpAdminRole('+JSON.stringify(uid)+','+JSON.stringify(role)+','+(has?'false':'true')+')">'+(has?('− '+label):('+ '+label))+'</button>'; }
-    return btn('admin','admin')+' '+btn('editor','editor')+' '+btn('moderator','mod');
+    var cats=_catsAll.map(function(c){ var has=!!uc[c.key]; return '<span onclick="tpAdminUserCat('+JSON.stringify(uid)+','+JSON.stringify(c.key)+','+(has?'false':'true')+')" title="Editor de '+esc(c.label)+'" style="display:inline-flex;align-items:center;gap:.2rem;background:'+(has?'rgba(178,116,42,.25)':'var(--bg-3,#23212f)')+';border:1px solid '+(has?'#b2742a':'var(--rule)')+';color:'+(has?'#f0b870':'var(--ink,#e8e6f0)')+';border-radius:8px;padding:.3rem .55rem;font-size:.72rem;cursor:pointer;margin-left:.3rem;white-space:nowrap">'+(has?'✓ ':'')+(c.icon||'')+' '+esc(c.label)+'</span>'; }).join('');
+    return btn('admin','admin')+' '+btn('moderator','mod')+'<br><span class="adm-note" style="margin:.3rem .2rem 0;display:inline-block">editor:</span>'+cats;
   }
 
   window.tpAdminUsersLoad=function(){
     var host=g('adm-users-host'); if(!host) return;
     host.innerHTML='<div class="adm-note">Carregando staff…</div>';
     loadRoles().then(function(){
-      var ids=Object.keys(_rolesMap).filter(function(u){var r=_rolesMap[u];return r.admin||r.moderator;});
+      var _idset={}; Object.keys(_rolesMap).forEach(function(u){var r=_rolesMap[u]; if(r.admin||r.moderator) _idset[u]=1;}); Object.keys(_userCats).forEach(function(u){_idset[u]=1;}); var ids=Object.keys(_idset);
       return fetchProfiles(ids).then(function(profs){
         var byId={}; profs.forEach(function(p){byId[p.id]=p;});
         var rows=ids.map(function(uid){ var p=byId[uid]||{id:uid}; return '<tr><td>'+who(p)+badges(uid)+'</td><td style="font-family:monospace;font-size:.68rem;color:var(--muted)">'+esc(uid).slice(0,8)+'…</td><td style="white-space:nowrap">'+roleBtns(uid)+'</td></tr>'; }).join('');
-        host.innerHTML='<div class="adm-note" style="margin-top:.2rem">Staff atual (admins & moderadores):</div>'
-          +(rows?('<div class="adm-tablewrap"><table class="adm-ftable"><thead><tr><th>Usuário</th><th>ID</th><th>Papéis</th></tr></thead><tbody>'+rows+'</tbody></table></div>'):'<div class="adm-note">Nenhum staff além de você.</div>');
+        host.innerHTML=catManagerHtml()+'<div class="adm-note" style="margin-top:.2rem">Staff atual (admins, moderadores & editores):</div>'
+          +(rows?('<div class="adm-tablewrap"><table class="adm-ftable"><thead><tr><th>Usuário</th><th>ID</th><th>Papéis & categorias</th></tr></thead><tbody>'+rows+'</tbody></table></div>'):'<div class="adm-note">Nenhum staff além de você.</div>');
       });
     }).catch(function(){ host.innerHTML='<div class="adm-note" style="color:var(--red,#e87070)">Erro ao carregar.</div>'; });
   };
@@ -7021,7 +7047,10 @@ PlayerName (Leader)
       if(!A||!A.user){ window.TP_IS_ADMIN=false; window.TP_IS_EDITOR=false; return; }
       if(window.__tpAdminChecked){ reveal(); return; }
       (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/user_roles?select=role&user_id=eq.'+A.user.id,{headers:{Accept:'application/json'}})
-        .then(function(r){return r.json();}).then(function(rows){ var R=(Array.isArray(rows)?rows:[]).map(function(x){return x.role;}); window.__tpAdminChecked=true; window.TP_IS_ADMIN=R.indexOf('admin')>=0; window.TP_IS_EDITOR=window.TP_IS_ADMIN||R.indexOf('editor')>=0; reveal(); }).catch(function(){});
+        .then(function(r){return r.json();}).then(function(rows){ var R=(Array.isArray(rows)?rows:[]).map(function(x){return x.role;}); window.__tpAdminChecked=true; window.TP_IS_ADMIN=R.indexOf('admin')>=0; window.TP_IS_EDITOR=window.TP_IS_ADMIN; reveal();
+          (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/user_editor_cats?select=category_key&user_id=eq.'+A.user.id,{headers:{Accept:'application/json'}})
+            .then(function(r2){return r2.json();}).then(function(cr){ var m={}; (Array.isArray(cr)?cr:[]).forEach(function(x){m[x.category_key]=1;}); window.__TP_EDITOR_CATS=m; window.TP_IS_EDITOR=window.TP_IS_ADMIN||!!m['builds']; reveal(); }).catch(function(){});
+        }).catch(function(){});
     };
     function _beCss(){ if(document.getElementById('be-css'))return; var s=document.createElement('style'); s.id='be-css';
       s.textContent='#tp-buildedit .be-card{max-width:640px;max-height:88vh;overflow:auto;text-align:left}#tp-buildedit .be-title{font-size:1.1rem;margin:0 0 .3rem}#tp-buildedit .be-sec{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:1rem 0 .5rem;font-weight:800}#tp-buildedit .be-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}#tp-buildedit .be-fld{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.5rem}#tp-buildedit .be-lbl{font-size:.72rem;color:var(--ink-3);font-weight:700}#tp-buildedit .be-fld input,#tp-buildedit .be-fld select,#tp-buildedit .be-fld textarea{background:var(--bg-2,#1b1a25);border:1px solid var(--rule,#2b2938);color:var(--ink,#eae8f2);border-radius:8px;padding:.5rem .6rem;font:inherit;font-size:.85rem;width:100%;box-sizing:border-box}#tp-buildedit .be-fld textarea{resize:vertical;line-height:1.45}#tp-buildedit .be-acts{display:flex;gap:.5rem;margin-top:1rem}#tp-buildedit .be-save{background:var(--bamboo,#8b5cf6);border:0;color:#fff;border-radius:9px;padding:.6rem 1rem;font:inherit;font-weight:800;cursor:pointer}#tp-buildedit .be-cancel{background:var(--bg-2);border:1px solid var(--rule);color:var(--ink-2);border-radius:9px;padding:.6rem 1rem;font:inherit;font-weight:700;cursor:pointer}#tp-buildedit .be-note{font-size:.72rem;color:var(--muted);margin-top:.8rem;line-height:1.5;border-top:1px solid var(--rule);padding-top:.6rem}@media(max-width:560px){#tp-buildedit .be-grid{grid-template-columns:1fr}}';
@@ -10992,7 +11021,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt38';
+window.TP_BUILD = '2026-10-03evt39';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
