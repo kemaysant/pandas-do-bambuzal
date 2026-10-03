@@ -11021,7 +11021,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt39';
+window.TP_BUILD = '2026-10-03evt40';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -19999,12 +19999,15 @@ window.tpLoadJornada=async function(){
   function renderNotifBadge(){ var nb=document.getElementById('tp-notif-unread'); if(!nb) return;
     nb.textContent=notifUnread>9?'9+':notifUnread; nb.style.display=notifUnread>0?'':'none'; }
   function notifName(a){ if(!a) return 'Alguém'; return a.display_name||(a.handle?('@'+a.handle):null)||a.main_char||'Alguém'; }
-  function notifIcon(t){ return t==='friend_request'||t==='friend_accept'?'👤':t==='testimonial'?'💬':'🔔'; }
+  function notifIcon(t){ return (t==='friend_request'||t==='friend_accept')?'👤':(t==='testimonial'||t==='mention')?'💬':t==='event_reminder'?'⏰':t==='event_update'?'✏️':'🔔'; }
   function notifText(n){ var nm='<b>'+esc(notifName(n.actor))+'</b>';
     if(n.type==='friend_request') return nm+' te enviou um pedido de amizade.';
     if(n.type==='friend_accept')  return nm+' aceitou seu pedido de amizade.';
     if(n.type==='testimonial')    return nm+' deixou um depoimento no seu perfil.';
     if(n.type==='pass_reward')    return 'Recompensa do <b>Passe do Panda</b> nível '+esc(''+(n.ref||''))+' liberada para resgate!';
+    if(n.type==='mention')        return nm+' te mencionou no chat de um evento.';
+    if(n.type==='event_reminder') return '⏰ Lembrete: um evento que você confirmou está chegando.';
+    if(n.type==='event_update')   return nm+' atualizou um evento que você vai participar.';
     return 'Nova notificação.'; }
   function notifAvatar(n){ var a=n.actor;
     if(n.type!=='pass_reward' && a && a.outfit && a.outfit.outfit_id!=null){ SOC_OUT['nf:'+n.id]=a.outfit;
@@ -20033,6 +20036,7 @@ window.tpLoadJornada=async function(){
     if(n.type==='friend_request'){ if(window.tpGoFriends) tpGoFriends(); }
     else if(n.type==='pass_reward'){ tpGoPass(); }
     else if((n.type==='friend_accept'||n.type==='testimonial') && n.actor_id){ if(window.tpOpenProfile) window.tpOpenProfile(n.actor_id); }
+    else if((n.type==='mention'||n.type==='event_reminder'||n.type==='event_update') && n.ref){ try{ location.hash='#event='+n.ref; }catch(e){} if(window.tpEventPageOpen) tpEventPageOpen(n.ref); }
     else if(window.tpGoFriends){ tpGoFriends(); } };
   function tpGoPass(){ if(typeof showPage==='function'){ var b=document.querySelector('.nav-btn[onclick*="profile"]'); showPage('profile',b); }
     var t=document.querySelector('#profile .pf-tab[data-tab=prog]'); if(t) t.click();
@@ -21413,17 +21417,16 @@ window.tpLoadJornada=async function(){
   // ── Chat embutido na lateral da página do evento ──
   function initEvpChat(id){
     if(window.__EVP.chatTimer){ clearInterval(window.__EVP.chatTimer); window.__EVP.chatTimer=null; }
-    var foot=document.getElementById('evp-chat-foot'), A=auth();
-    if(foot){
-      if(A&&A.user) foot.innerHTML='<div class="agchat-input"><input id="evp-chat-text" maxlength="500" placeholder="Escreva uma mensagem…" onkeydown="if(event.key===\'Enter\'){event.preventDefault();tpEvpChatSend();}"><button onclick="tpEvpChatSend()">Enviar</button></div>';
-      else foot.innerHTML='<div class="agchat-gate">Entre pra participar do chat. <a href="#" onclick="if(window.tpOpenAuth)tpOpenAuth(\'login\');return false" style="color:var(--bamboo-light)">Entrar</a></div>';
-    }
+    if(window.__EVP.editTimer){ clearInterval(window.__EVP.editTimer); window.__EVP.editTimer=null; }
+    window.__EVP.reply=null;
+    evpRenderComposer();
     evpChatLoad(true);
     window.__EVP.chatTimer=setInterval(function(){
       var sec=document.getElementById('eventpage');
       if(!sec||!sec.classList.contains('active')||window.__EVP.id!==id){ clearInterval(window.__EVP.chatTimer); window.__EVP.chatTimer=null; return; }
       evpChatLoad(false);
     }, 9000);
+    window.__EVP.editTimer=setInterval(evpEditTick,1000);
   }
   function evpChatLoad(full){
     var id=window.__EVP.id, scroll=document.getElementById('evp-chat-scroll'); if(!id||!scroll) return;
@@ -21432,9 +21435,12 @@ window.tpLoadJornada=async function(){
         if(window.__EVP.id!==id) return;
         if(!d||!d.ok){ scroll.innerHTML='<div class="agchat-empty">🔒 Sem acesso ao chat.</div>'; return; }
         var msgs=Array.isArray(d.messages)?d.messages:[];
+        window.__EVP.msgs=msgs; window.__EVP.srvNow=d.now?new Date(d.now).getTime():Date.now(); window.__EVP.cliNow=Date.now();
+        evpStoreMsgOutfits(msgs);
         if(!msgs.length){ scroll.innerHTML='<div class="agchat-empty">Sem mensagens ainda. Comece a conversa! 👋</div>'; return; }
-        var atBottom=(scroll.scrollHeight-scroll.scrollTop-scroll.clientHeight)<40;
-        scroll.innerHTML=msgs.map(function(m){ return '<div class="agchat-msg'+(m.mine?' mine':'')+'"><div class="agchat-mh"><span class="who">'+chatWho(m)+'</span><span class="when">'+chatWhen(m.created_at)+'</span>'+(m.can_delete?'<button class="del" title="Apagar" onclick="tpEvpChatDelete(\''+m.id+'\')">🗑</button>':'')+'</div><div class="agchat-body">'+esc(m.body)+'</div></div>'; }).join('');
+        var atBottom=(scroll.scrollHeight-scroll.scrollTop-scroll.clientHeight)<60;
+        scroll.innerHTML=msgs.map(evcMsgHtml).join('');
+        evpRenderAvatars(scroll);
         if(full||atBottom) scroll.scrollTop=scroll.scrollHeight;
       }).catch(function(){});
   }
@@ -21442,11 +21448,12 @@ window.tpLoadJornada=async function(){
     var A=auth(); if(!A||!A.user){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
     var id=window.__EVP.id, inp=document.getElementById('evp-chat-text'); if(!id||!inp) return;
     var body=(inp.value||'').trim(); if(!body) return;
+    var payload={event_id:id,body:body}; if(window.__EVP.reply&&window.__EVP.reply.id) payload.reply_to=window.__EVP.reply.id;
     try{
-      var r=await af()(SB()+'/rest/v1/rpc/tp_event_chat_post',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p:{event_id:id,body:body}})});
+      var r=await af()(SB()+'/rest/v1/rpc/tp_event_chat_post',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p:payload})});
       var j=await r.json().catch(function(){return null;});
       if(!r.ok||!j||!j.ok){ var em=(j&&j.message)||''; toast(/slow_down/.test(em)?'Calma, espere um segundinho ⏳':(/no_access/.test(em)?'Você não pode escrever neste chat.':'Não consegui enviar.'),'error'); return; }
-      inp.value=''; evpChatLoad(true);
+      inp.value=''; window.__EVP.reply=null; evpRenderComposer(); evpChatLoad(true);
     }catch(e){ toast('Erro ao enviar.','error'); }
   };
   window.tpEvpChatDelete=async function(mid){
@@ -21487,6 +21494,134 @@ window.tpLoadJornada=async function(){
       setTimeout(function(){ var b=card.querySelector('.tpc-yes'); if(b) b.focus(); },30);
     });
   };
+  // ═══════ EVENTO v2 — identidade de outfit + reminders + chat (menções/reações/editar/responder) ═══════
+  (function(){ if(document.getElementById('tp-evt2-css')) return; var st=document.createElement('style'); st.id='tp-evt2-css';
+    st.textContent=''
+    +'.evp-av{display:inline-flex;align-items:center;justify-content:center;flex:none;border-radius:7px;background:linear-gradient(180deg,#201f2a,#15141d);border:1px solid var(--rule,#2b2938);overflow:hidden;vertical-align:middle}'
+    +'.evp-av canvas{width:100%;height:100%;image-rendering:pixelated;object-fit:contain}'
+    +'.evp-av .evp-av-fb{font-size:.8em;opacity:.5}'
+    +'.evp-p{display:flex;align-items:center;gap:.45rem}'
+    +'.kb-card{display:flex;align-items:center;gap:.5rem}.kb-cmain{flex:1;min-width:0}'
+    +'.evp-rembtn{border:1px solid var(--rule,#2b2938);background:var(--bg-2,#1b1a25);color:var(--ink3,#b9b6c9);border-radius:999px;padding:6px 13px;font:inherit;font-size:.78rem;font-weight:700;cursor:pointer}'
+    +'.evp-rembtn.on{background:#2a2410;border-color:#c9a84088;color:#e6c964}'
+    +'.evc-msg{display:flex;gap:.5rem;position:relative;margin-bottom:.35rem}'
+    +'.evc-msg.mine{flex-direction:row-reverse}'
+    +'.evc-bub{background:var(--bg-2,#1b1a25);border:1px solid var(--rule,#2b2938);border-radius:4px 12px 12px 12px;padding:.42rem .6rem;max-width:86%}'
+    +'.evc-msg.mine .evc-bub{background:var(--bamboo-dim,#211a3d);border-color:#3a2d63;border-radius:12px 4px 12px 12px}'
+    +'.evc-who{font-size:.72rem;font-weight:800;color:var(--bamboo-light,#a78bfa)}'
+    +'.evc-voc{font-size:.56rem;font-weight:800;color:var(--muted);margin-left:.3rem}'
+    +'.evc-when{font-size:.6rem;color:var(--muted);margin-left:.3rem}'
+    +'.evc-edited{font-size:.58rem;color:var(--muted);margin-left:.28rem}'
+    +'.evc-txt{font-size:.85rem;margin-top:.12rem;white-space:pre-wrap;word-break:break-word}'
+    +'.evc-ment{color:var(--bamboo-light,#a78bfa);font-weight:700;background:rgba(139,92,246,.14);border-radius:4px;padding:0 3px}'
+    +'.evc-quote{border-left:3px solid var(--bamboo,#8b5cf6);background:rgba(139,92,246,.08);border-radius:4px;padding:.18rem .42rem;margin-bottom:.28rem;font-size:.72rem;color:var(--ink2,#cfc9e6)}'
+    +'.evc-quote b{color:var(--bamboo-light,#a78bfa)}.evc-quote.gone{opacity:.6;font-style:italic}'
+    +'.evc-reacts{display:flex;gap:.3rem;margin-top:.3rem;flex-wrap:wrap}'
+    +'.evc-react{background:var(--bg-3,#23212f);border:1px solid var(--rule,#2b2938);border-radius:999px;padding:0 7px;font-size:.72rem;cursor:pointer;user-select:none}'
+    +'.evc-react.on{background:rgba(139,92,246,.2);border-color:var(--bamboo,#8b5cf6)}'
+    +'.evc-rpick{gap:.25rem;margin-top:.3rem;flex-wrap:wrap}'
+    +'.evc-acts{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.4rem}'
+    +'.evc-acts button{display:inline-flex;align-items:center;gap:.22rem;background:var(--bg-3,#23212f);border:1px solid var(--rule,#2b2938);color:var(--ink2,#cfc9e6);cursor:pointer;font:inherit;font-size:.66rem;font-weight:700;padding:3px 8px;border-radius:999px;line-height:1}'
+    +'.evc-acts button:hover{background:rgba(139,92,246,.18);border-color:var(--bamboo,#8b5cf6);color:#fff}'
+    +'.evc-acts button.danger{color:#f0938a}.evc-acts button.danger:hover{background:rgba(224,90,90,.14);border-color:#6a3030}'
+    +'.evc-editwin{font-size:.58rem;color:#e6c964;margin-left:.28rem}'
+    +'.evc-replybar{display:flex;align-items:center;gap:.4rem;background:rgba(139,92,246,.08);border-top:1px solid var(--rule,#2b2938);padding:.3rem .6rem;font-size:.74rem;color:var(--ink2,#cfc9e6)}'
+    +'.evc-replybar .x{margin-left:auto;cursor:pointer;color:var(--muted);font-weight:700}'
+    +'.evp-chat-foot-wrap{position:relative}'
+    +'.evc-mentpop{position:absolute;bottom:52px;left:8px;right:8px;background:var(--bg-3,#23212f);border:1px solid var(--rule,#2b2938);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.5);display:none;max-height:190px;overflow-y:auto;z-index:6}'
+    +'.evc-mentpop.on{display:block}'
+    +'.evc-mentpop div{padding:.4rem .6rem;cursor:pointer;font-size:.82rem;display:flex;align-items:center;gap:.45rem}'
+    +'.evc-mentpop div:hover,.evc-mentpop div.hl{background:rgba(139,92,246,.2)}';
+    document.head.appendChild(st);
+  })();
+  window.__EVP.outf=window.__EVP.outf||{};
+  function evpStoreOutfits(list){ (list||[]).forEach(function(p){ if(p&&p.user_id&&p.outfit&&p.outfit.outfit_id!=null) window.__EVP.outf[p.user_id]=p.outfit; }); }
+  function evpStoreMsgOutfits(msgs){ (msgs||[]).forEach(function(m){ if(m&&m.user_id&&m.outfit&&m.outfit.outfit_id!=null) window.__EVP.outf[m.user_id]=m.outfit; }); }
+  function evpAvHtml(uid,size){ size=size||30; return '<span class="evp-av" data-ouid="'+esc(uid||'')+'" style="width:'+size+'px;height:'+size+'px"><span class="evp-av-fb">🐼</span></span>'; }
+  function evpRenderAvatars(root){ if(!window.tpGetOutfitter||!root) return;
+    var els=[].slice.call(root.querySelectorAll('.evp-av[data-ouid]:not([data-avd])')); var i=0;
+    function next(){ if(i>=els.length) return; var el=els[i++]; el.setAttribute('data-avd','1');
+      var o=window.__EVP.outf[el.getAttribute('data-ouid')]; if(!o||o.outfit_id==null){ next(); return; }
+      window.tpGetOutfitter().then(function(of){ var cv=document.createElement('canvas');
+        of.render({outfit:+o.outfit_id,head:+o.head||0,body:+o.body||0,legs:+o.legs||0,feet:+o.feet||0,addons:+o.addons||0,dir:2,mount:0},cv,1)
+          .then(function(){ el.innerHTML=''; el.appendChild(cv); next(); }).catch(function(){ next(); }); }).catch(function(){ next(); }); }
+    for(var k=0;k<8;k++) next();
+  }
+  window.tpEvpReminderToggle=async function(eid){
+    var A=auth(); if(!A||!A.user){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
+    var btn=document.getElementById('evp-rembtn');
+    try{ var r=await af()(SB()+'/rest/v1/rpc/tp_event_reminder_toggle',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_event:eid})});
+      var d=await r.json().catch(function(){return null;}); if(!r.ok||!d||!d.ok){ toast('Não consegui atualizar o lembrete.','error'); return; }
+      if(window.__EVP&&window.__EVP.data&&window.__EVP.data.event) window.__EVP.data.event.my_reminder=d.on;
+      if(btn){ btn.classList.toggle('on',!!d.on); btn.textContent=d.on?'🔔 Lembrando':'🔔 Lembrar-me'; }
+      toast(d.on?'🔔 Vou te lembrar antes do evento (no sino 🔔).':'Lembrete desligado.', d.on?'success':'info');
+    }catch(e){ toast('Erro ao atualizar lembrete.','error'); }
+  };
+  var EVC_EMO=['👍','❤️','🔥','😂','🙏','👀','⚔️','✅'];
+  function evcMentions(t){ return esc(t).replace(/@([A-Za-zÀ-ú][A-Za-zÀ-ú0-9 ]{1,28}[A-Za-zÀ-ú0-9])/g,'<span class="evc-ment">@$1</span>'); }
+  function evcMsgHtml(m){
+    var tag=vocTag(m.vocation), lv=(m.level!=null&&m.level!=='')?m.level:null;
+    var meta='<span class="evc-who">'+esc(m.character||'Jogador')+'</span>'+(tag?'<span class="evc-voc">'+tag+(lv!=null?(' '+lv):'')+'</span>':'')+'<span class="evc-when">'+chatWhen(m.created_at)+'</span>'+(m.edited?'<span class="evc-edited">(editado)</span>':'');
+    var editwin=''; if(m.can_edit){ editwin='<span class="evc-editwin" data-editms="'+(new Date(m.created_at).getTime())+'"></span>'; }
+    var quote=''; if(m.reply){ quote = m.reply.hidden ? '<div class="evc-quote gone">↩ mensagem apagada</div>' : '<div class="evc-quote"><b>'+esc(m.reply.character||'—')+':</b> '+esc(m.reply.body||'')+'</div>'; }
+    var reacts=''; if(m.reactions&&m.reactions.length){ reacts='<div class="evc-reacts">'+m.reactions.map(function(x){ return '<span class="evc-react'+(x.mine?' on':'')+'" onclick="tpEvpChatReact(\''+m.id+'\',\''+x.emoji+'\')">'+esc(x.emoji)+' '+x.count+'</span>'; }).join('')+'</div>'; }
+    var pick='<div class="evc-reacts evc-rpick" id="rp-'+m.id+'" style="display:none">'+EVC_EMO.map(function(e){ return '<span class="evc-react" onclick="tpEvpChatReact(\''+m.id+'\',\''+e+'\')">'+e+'</span>'; }).join('')+'</div>';
+    var acts='<div class="evc-acts">';
+    acts+='<button onclick="tpEvpChatReply(\''+m.id+'\')">↩ Responder</button>';
+    acts+='<button onclick="tpEvpChatReactPick(\''+m.id+'\')">😊 Reagir</button>';
+    if(m.can_edit) acts+='<button onclick="tpEvpChatEdit(\''+m.id+'\')">✏ Editar</button>';
+    if(m.can_delete) acts+='<button class="danger" onclick="tpEvpChatDelete(\''+m.id+'\')">🗑 Apagar</button>';
+    acts+='</div>';
+    return '<div class="evc-msg'+(m.mine?' mine':'')+'" data-mid="'+m.id+'">'+evpAvHtml(m.user_id,34)
+      +'<div class="evc-bub"><div>'+meta+editwin+'</div>'+quote+'<div class="evc-txt">'+evcMentions(m.body||'')+'</div>'+reacts+pick+acts+'</div></div>';
+  }
+  function evpEditTick(){
+    var off=(window.__EVP.srvNow||0)-(window.__EVP.cliNow||0);
+    [].slice.call(document.querySelectorAll('.evc-editwin[data-editms]')).forEach(function(el){
+      var ms=+el.getAttribute('data-editms'); var left=60-Math.floor((Date.now()+off-ms)/1000);
+      if(left<=0){ el.textContent=''; var msg=el.closest('.evc-msg'); if(msg){ var eb=msg.querySelector('.evc-acts button[onclick*="tpEvpChatEdit("]'); if(eb) eb.style.display='none'; } }
+      else el.textContent='✏ '+(left>=60?'1:00':('0:'+(left<10?'0':'')+left));
+    });
+  }
+  window.tpEvpChatReactPick=function(mid){ var el=document.getElementById('rp-'+mid); if(!el) return; el.style.display=(el.style.display==='none'||!el.style.display)?'flex':'none'; };
+  window.tpEvpChatReact=async function(mid,emoji){
+    var A=auth(); if(!A||!A.user){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
+    try{ var r=await af()(SB()+'/rest/v1/rpc/tp_event_msg_react',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_msg:mid,p_emoji:emoji})});
+      var d=await r.json().catch(function(){return null;}); if(!r.ok||!d||!d.ok) return; evpChatLoad(false);
+    }catch(e){}
+  };
+  window.tpEvpChatReply=function(mid){ var m=(window.__EVP.msgs||[]).filter(function(x){return x.id===mid;})[0]; if(!m) return;
+    window.__EVP.reply={id:m.id,who:m.character||'—',body:(m.body||'').slice(0,80)}; evpRenderComposer(); var i=document.getElementById('evp-chat-text'); if(i) i.focus(); };
+  window.tpEvpReplyCancel=function(){ window.__EVP.reply=null; evpRenderComposer(); };
+  window.tpEvpChatEdit=function(mid){ var m=(window.__EVP.msgs||[]).filter(function(x){return x.id===mid;})[0]; if(!m) return;
+    var row=document.querySelector('.evc-msg[data-mid="'+mid+'"] .evc-txt'); if(!row) return;
+    row.innerHTML='<textarea id="evced-'+mid+'" maxlength="500" style="width:100%;background:var(--bg-3,#23212f);border:1px solid var(--bamboo,#8b5cf6);color:var(--ink,#eae8f2);border-radius:8px;padding:.4rem;font:inherit;font-size:.84rem;resize:vertical;min-height:40px">'+esc(m.body||'')+'</textarea><div class="evc-acts"><button onclick="tpEvpChatEditSave(\''+mid+'\')">✓ Salvar</button><button onclick="evpChatLoad(false)">✕ Cancelar</button></div>';
+    var ta=document.getElementById('evced-'+mid); if(ta){ ta.focus(); ta.selectionStart=ta.value.length; } };
+  window.tpEvpChatEditSave=async function(mid){ var ta=document.getElementById('evced-'+mid); if(!ta) return; var b=(ta.value||'').trim(); if(!b) return;
+    try{ var r=await af()(SB()+'/rest/v1/rpc/tp_event_msg_edit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({p_msg:mid,p_body:b})});
+      var d=await r.json().catch(function(){return null;});
+      if(!r.ok||!d||!d.ok){ toast(d&&d.expired?'Passou da janela de 1 min pra editar.':(d&&d.permitted===0?'Você só edita suas mensagens.':'Não consegui editar.'),'error'); evpChatLoad(false); return; }
+      evpChatLoad(false);
+    }catch(e){ toast('Erro ao editar.','error'); } };
+  function evpConfirmedChars(){ var d=window.__EVP.data, out=[]; if(d&&d.participants){ d.participants.forEach(function(p){ if((p.response==='going'||p.response==='maybe')&&p.character) out.push({name:p.character,uid:p.user_id}); }); } return out; }
+  function evpRenderComposer(){
+    var foot=document.getElementById('evp-chat-foot'), A=auth(); if(!foot) return;
+    if(!(A&&A.user)){ foot.innerHTML='<div class="agchat-gate">Entre pra participar do chat. <a href="#" onclick="if(window.tpOpenAuth)tpOpenAuth(\'login\');return false" style="color:var(--bamboo-light)">Entrar</a></div>'; return; }
+    var rb=''; var rep=window.__EVP.reply;
+    if(rep){ rb='<div class="evc-replybar">↩ Respondendo <b style="margin:0 .2rem">'+esc(rep.who)+'</b> — '+esc(rep.body)+'<span class="x" onclick="tpEvpReplyCancel()">✕</span></div>'; }
+    foot.innerHTML=rb+'<div class="evp-chat-foot-wrap"><div class="evc-mentpop" id="evp-mentpop"></div>'
+      +'<div class="agchat-input"><input id="evp-chat-text" maxlength="500" autocomplete="off" placeholder="Mensagem… (@ menciona)" oninput="tpEvpMentionType()" onkeydown="if(event.key===\'Enter\'){event.preventDefault();tpEvpChatSend();}"><button onclick="tpEvpChatSend()">Enviar</button></div></div>';
+  }
+  window.tpEvpMentionType=function(){ var inp=document.getElementById('evp-chat-text'), pop=document.getElementById('evp-mentpop'); if(!inp||!pop) return;
+    var v=inp.value||''; var mm=v.match(/@([\wÀ-ú ]{0,28})$/);
+    if(!mm){ pop.classList.remove('on'); pop.innerHTML=''; return; }
+    var q=mm[1].toLowerCase().trim(); var list=evpConfirmedChars().filter(function(c){ return c.name.toLowerCase().indexOf(q)>=0; }).slice(0,6);
+    if(!list.length){ pop.classList.remove('on'); pop.innerHTML=''; return; }
+    pop.innerHTML=list.map(function(c){ return '<div onclick="tpEvpMentionPick('+JSON.stringify(c.name).replace(/"/g,'&quot;')+')">'+evpAvHtml(c.uid,22)+'<span>'+esc(c.name)+'</span></div>'; }).join('');
+    pop.classList.add('on'); evpRenderAvatars(pop); };
+  window.tpEvpMentionPick=function(name){ var inp=document.getElementById('evp-chat-text'), pop=document.getElementById('evp-mentpop'); if(!inp) return;
+    inp.value=inp.value.replace(/@([\wÀ-ú ]{0,28})$/,'@'+name+' '); if(pop){ pop.classList.remove('on'); pop.innerHTML=''; } inp.focus(); };
+
   function renderEventPage(){
     var body=document.getElementById('evp-main')||document.getElementById('evp-body'), d=window.__EVP.data; if(!body||!d||!d.event) return;
     var ev=d.event, t=ETYPES[ev.type]||ETYPES.other, can=!!d.can_manage;
@@ -21511,8 +21646,8 @@ window.tpLoadJornada=async function(){
       +'<div class="evp-actions">'
         +'<button class="evp-rbtn going'+(ev.my_response==='going'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'going\')">✓ Vou</button>'
         +'<button class="evp-rbtn maybe'+(ev.my_response==='maybe'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'maybe\')">? Talvez</button>'
-        +'<button class="evp-rbtn no'+(ev.my_response==='no'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'no\')">✕ Não</button>'
-        +(ev.my_response==='going'&&ev.my_character?'<span style="font-size:.74rem;color:#5fdd9e;font-weight:700;align-self:center">com '+esc(ev.my_character)+'</span>':'')
+        +'<button class="evp-rbtn no'+(ev.my_response==='no'?' on':'')+'" onclick="tpAgendaRSVP(\''+ev.id+'\',\'no\')">✕ Não</button>'+'<button class="evp-rembtn'+(ev.my_reminder?' on':'')+'" id="evp-rembtn" onclick="tpEvpReminderToggle(\''+ev.id+'\')">'+(ev.my_reminder?'🔔 Lembrando':'🔔 Lembrar-me')+'</button>'
+        +(ev.my_response==='going'&&ev.my_character?'<span class="evp-confirmed" style="font-size:.74rem;color:#5fdd9e;font-weight:700;align-self:center;display:inline-flex;align-items:center;gap:.35rem">confirmado como '+evpAvHtml(meId,22)+esc(ev.my_character)+'</span>':'')
         +'<span style="flex:1"></span>'
         +'<button class="evp-abtn" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button>'
         +(can?'<button class="evp-abtn" onclick="tpAgendaEdit(\''+ev.id+'\')">✏️ Editar</button>':'')
@@ -21529,8 +21664,8 @@ window.tpLoadJornada=async function(){
         var list=going.filter(function(p){ return vocInfo(p.vocation).k===V.k; });
         var mb=maybe.filter(function(p){ return vocInfo(p.vocation).k===V.k; });
         return '<div class="evp-vcol"><div class="evp-vhd" style="color:'+V.color+'">'+V.ico+' '+V.label+'<span>'+list.length+'</span></div>'
-          +((list.length+mb.length)?list.map(function(p){ return '<div class="evp-p"><span class="evp-pn">'+esc(p.character||'—')+'</span>'+karmaBadge(p.karma,p.blocked)+'<span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+pkc(p)+'</div>'; }).join('')
-             + mb.map(function(p){ return '<div class="evp-p" style="opacity:.6"><span class="evp-pn">'+esc(p.character||'—')+'</span>'+karmaBadge(p.karma,p.blocked)+'<span class="mb">talvez</span><span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+pkc(p)+'</div>'; }).join('')
+          +((list.length+mb.length)?list.map(function(p){ return '<div class="evp-p">'+evpAvHtml(p.user_id,26)+'<span class="evp-pn">'+esc(p.character||'—')+'</span>'+karmaBadge(p.karma,p.blocked)+'<span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+pkc(p)+'</div>'; }).join('')
+             + mb.map(function(p){ return '<div class="evp-p" style="opacity:.6">'+evpAvHtml(p.user_id,26)+'<span class="evp-pn">'+esc(p.character||'—')+'</span>'+karmaBadge(p.karma,p.blocked)+'<span class="mb">talvez</span><span class="lv">'+(p.level?'Lv '+p.level:'')+'</span>'+pkc(p)+'</div>'; }).join('')
             :'<div class="evp-empty" style="font-size:.74rem">—</div>')
           +'</div>';
       }).join('')
@@ -21539,8 +21674,10 @@ window.tpLoadJornada=async function(){
       ? '<div class="evp-card" style="margin-bottom:1.1rem"><h3>📋 Regras de participação</h3><div class="evp-text" style="white-space:pre-wrap">'+esc(ev.rules)+'</div></div>'
       : (can ? '<div class="evp-card" style="margin-bottom:1.1rem"><h3>📋 Regras de participação</h3><div class="evp-empty">Sem regras ainda — clique em ✏️ Editar pra adicionar (waste, level mínimo, punições…).</div></div>' : '');
     var ctaCreate='<div class="evp-card" style="margin-top:1.1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;border-color:var(--bamboo,#8b5cf6)"><div style="flex:1;min-width:200px"><div style="font-weight:800;color:var(--ink,#eae8f2)">Quer organizar o seu?</div><div style="font-size:.82rem;color:var(--muted,#63607a)">Qualquer jogador cria acessos, quests, hunts e bosses — leva 1 minuto.</div></div><button class="tp-btn-primary" onclick="if(window.tpAgendaNew)tpAgendaNew()">＋ Criar evento</button></div>';
+    evpStoreOutfits(parts);
     body.innerHTML=head+info+rulesCard+voc+renderKanban(going, ev, can)+ctaCreate;
     if(can) wireKanbanDnD();
+    evpRenderAvatars(body);
   }
   function maxTeamNo(going){ var mx=0; going.forEach(function(p){ if(p.team_no) mx=Math.max(mx,p.team_no); }); return mx; }
   function renderKanban(going, ev, can){
@@ -21574,8 +21711,8 @@ window.tpLoadJornada=async function(){
       moves+='<button onclick="tpEvpSetTeam(\''+p.user_id+'\','+(n+1)+')">+</button></div>';
     }
     return '<div class="kb-card" draggable="'+(can?'true':'false')+'" data-pid="'+p.user_id+'" style="border-left-color:'+V.color+'">'
-      +'<div class="kb-cn">'+V.ico+' '+esc(p.character||'—')+'</div>'
-      +'<div class="kb-cs">'+V.label+(p.level?' · Lv '+p.level:'')+'</div>'+moves+'</div>';
+      +evpAvHtml(p.user_id,34)+'<div class="kb-cmain"><div class="kb-cn">'+V.ico+' '+esc(p.character||'—')+'</div>'
+      +'<div class="kb-cs">'+V.label+(p.level?' · Lv '+p.level:'')+'</div>'+moves+'</div></div>';
   }
   window.tpEvpAddTeam=function(){ var d=window.__EVP.data; var mx=maxTeamNo((d&&d.participants||[]).filter(function(p){return p.response==='going';})); window.__EVP.wantTeams=Math.max(window.__EVP.wantTeams||1, mx)+1; renderEventPage(); };
   window.tpEvpSetTeam=function(userId, teamNo){
