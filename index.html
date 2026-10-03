@@ -10576,7 +10576,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt21';
+window.TP_BUILD = '2026-10-03evt22';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -12881,6 +12881,17 @@ window.tpOpenBoss=async function(name){
     +'<div class="tp-boss-stat"><div class="v">'+(diff||'\u2014')+'</div><div class="k">Dificuldade</div></div></div>'; }
   // Boss n\u00E3o tem loot no Bosstiary \u2014 mostra categoria + kills por est\u00E1gio (dados TibiaDraptor).
   if(loot && loot.length){ html+='<div class="tp-boss-sec" style="margin-top:.2rem">⚔️ Loot relevante</div><div class="tp-boss-lootgrid">'+loot.slice(0,14).map(function(it){ var nm=(typeof it==='string')?it:((it&&(it.name||it.item))||''); return nm?('<span class="tp-boss-lootitem" title="'+_bossEsc(nm)+'"><img loading="lazy" src="'+itemImgUrl(nm)+'" onerror="this.style.display=&quot;none&quot;" alt="'+_bossEsc(nm)+'"><span>'+_bossEsc(nm)+'</span></span>'):''; }).join('')+'</div>'; }
+  // Respawn: intervalo tipico (TP_BOSS_IV, calibrado pela comunidade — mesmo dado que alimenta a Chance)
+  var _rk=name.toLowerCase();
+  var _riv=(typeof TP_BOSS_IV!=='undefined')?TP_BOSS_IV[_rk]:null;
+  if(_riv){
+    var _ract=(typeof bossActivity!=='undefined')?bossActivity[_rk]:null;
+    var _rds=(typeof _bossDaysSince==='function'&&_ract&&_ract.last)?_bossDaysSince(_ract.last):null;
+    var _rexp=(_rds!=null)?Math.max(0,_riv-_rds):null;
+    var _rtag=(_rexp!=null)?(_rexp<=0?'<span style="font-size:.76rem;font-weight:800;color:#5fdd9e;white-space:nowrap">🟢 Pode nascer já</span>':'<span style="font-size:.76rem;font-weight:700;color:var(--bamboo-light,#a78bfa);white-space:nowrap">~'+_rexp+'d p/ liberar</span>'):'';
+    html+='<div class="tp-boss-sec" style="margin-top:1rem">🔁 Respawn</div>'
+      +'<div class="tp-boss-loc"><div><b>A cada ~'+_riv+' dias</b><div class="co">Intervalo típico (estimativa da comunidade)'+(_rds!=null?(' · visto há '+_rds+'d'):'')+'</div></div>'+_rtag+'</div>';
+  }
   var _bc=bossCategory(name), _bm=_bc?BOSS_CATS[_bc]:null;
   if(_bm){
     html+='<div class="tp-boss-sec">\uD83C\uDFC6 Bosstiary</div>'
