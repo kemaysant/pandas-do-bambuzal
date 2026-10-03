@@ -3268,11 +3268,11 @@ async function tibiaFetch(path) {
       .then(function(r){return r.json();}).then(function(rows){return Array.isArray(rows)?rows:[];});
   }
   function who(p){ return esc(p.display_name||p.handle||p.main_char||p.id); }
-  function badges(uid){ var r=_rolesMap[uid]||{}; var b=''; if(r.admin)b+='<span style="background:#8b5cf6;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">ADMIN</span>'; if(r.moderator)b+='<span style="background:#2a7a44;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">MOD</span>'; return b; }
+  function badges(uid){ var r=_rolesMap[uid]||{}; var b=''; if(r.admin)b+='<span style="background:#8b5cf6;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">ADMIN</span>'; if(r.editor)b+='<span style="background:#b2742a;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">EDITOR</span>'; if(r.moderator)b+='<span style="background:#2a7a44;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">MOD</span>'; return b; }
   function roleBtns(uid){
     var r=_rolesMap[uid]||{};
     function btn(role,label){ var has=!!r[role]; return '<button class="'+(has?'adm-del':'adm-save')+'" onclick="tpAdminRole('+JSON.stringify(uid)+','+JSON.stringify(role)+','+(has?'false':'true')+')">'+(has?('− '+label):('+ '+label))+'</button>'; }
-    return btn('admin','admin')+' '+btn('moderator','mod');
+    return btn('admin','admin')+' '+btn('editor','editor')+' '+btn('moderator','mod');
   }
 
   window.tpAdminUsersLoad=function(){
@@ -6369,7 +6369,7 @@ PlayerName (Leader)
     <p class="sec-sub bld-sub">Builds validadas 1:1 contra a calculadora — uma boa referência por vocação e faixa de nível. Clique numa build pra ver o detalhe completo, as proficiências, a rotação e abrir na calculadora. <span class="dc-conf" style="font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:4px;background:var(--gold-dim);color:var(--gold)">dano conferido pelo motor</span></p>
 
     <div id="bld-list">
-      <div class="bld-adminonly" id="bld-adminbar" style="display:none"><button class="bld-newbtn" type="button" onclick="tpBuildCreateStart()">➕ Criar build</button><span class="bld-adminhint">Admin — crie e publique builds por vocação, sem depender de ninguém.</span></div>
+      <div class="bld-editoronly" id="bld-adminbar" style="display:none"><button class="bld-newbtn" type="button" onclick="tpBuildCreateStart()">➕ Criar build</button><span class="bld-adminhint">Admin/Editor — crie e publique builds por vocação, sem depender de ninguém.</span></div>
       <div class="bld-filters" id="bld-filters"></div>
       <div class="bld-grid" id="bld-grid"><div class="bld-empty">Carregando builds…</div></div>
     </div>
@@ -6970,14 +6970,17 @@ PlayerName (Leader)
       btn.disabled=false;
     };
     /* ===== Editor de build (admin) ===== */
-    window.TP_IS_ADMIN=window.TP_IS_ADMIN||false; window.__tpAdminChecked=window.__tpAdminChecked||false;
+    window.TP_IS_ADMIN=window.TP_IS_ADMIN||false; window.__tpAdminChecked=window.__tpAdminChecked||false; window.TP_IS_EDITOR=window.TP_IS_EDITOR||false;
     window.tpCheckBuildAdmin=function(){
       var A=window.TP_AUTH;
-      var reveal=function(){ if(window.TP_IS_ADMIN){ document.querySelectorAll('.bd-editbtn').forEach(function(b){b.style.display='';}); document.querySelectorAll('.bld-adminonly').forEach(function(b){b.style.display='';}); } };
-      if(!A||!A.user){ window.TP_IS_ADMIN=false; return; }
+      var reveal=function(){
+        if(window.TP_IS_ADMIN){ document.querySelectorAll('.bld-adminonly').forEach(function(b){b.style.display='';}); }
+        if(window.TP_IS_ADMIN||window.TP_IS_EDITOR){ document.querySelectorAll('.bd-editbtn,.bld-editoronly').forEach(function(b){b.style.display='';}); }
+      };
+      if(!A||!A.user){ window.TP_IS_ADMIN=false; window.TP_IS_EDITOR=false; return; }
       if(window.__tpAdminChecked){ reveal(); return; }
-      (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/user_roles?select=role&role=eq.admin&user_id=eq.'+A.user.id,{headers:{Accept:'application/json'}})
-        .then(function(r){return r.json();}).then(function(rows){ window.__tpAdminChecked=true; window.TP_IS_ADMIN=Array.isArray(rows)&&rows.length>0; reveal(); }).catch(function(){});
+      (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/user_roles?select=role&user_id=eq.'+A.user.id,{headers:{Accept:'application/json'}})
+        .then(function(r){return r.json();}).then(function(rows){ var R=(Array.isArray(rows)?rows:[]).map(function(x){return x.role;}); window.__tpAdminChecked=true; window.TP_IS_ADMIN=R.indexOf('admin')>=0; window.TP_IS_EDITOR=window.TP_IS_ADMIN||R.indexOf('editor')>=0; reveal(); }).catch(function(){});
     };
     function _beCss(){ if(document.getElementById('be-css'))return; var s=document.createElement('style'); s.id='be-css';
       s.textContent='#tp-buildedit .be-card{max-width:640px;max-height:88vh;overflow:auto;text-align:left}#tp-buildedit .be-title{font-size:1.1rem;margin:0 0 .3rem}#tp-buildedit .be-sec{font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:1rem 0 .5rem;font-weight:800}#tp-buildedit .be-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}#tp-buildedit .be-fld{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.5rem}#tp-buildedit .be-lbl{font-size:.72rem;color:var(--ink-3);font-weight:700}#tp-buildedit .be-fld input,#tp-buildedit .be-fld select,#tp-buildedit .be-fld textarea{background:var(--bg-2,#1b1a25);border:1px solid var(--rule,#2b2938);color:var(--ink,#eae8f2);border-radius:8px;padding:.5rem .6rem;font:inherit;font-size:.85rem;width:100%;box-sizing:border-box}#tp-buildedit .be-fld textarea{resize:vertical;line-height:1.45}#tp-buildedit .be-acts{display:flex;gap:.5rem;margin-top:1rem}#tp-buildedit .be-save{background:var(--bamboo,#8b5cf6);border:0;color:#fff;border-radius:9px;padding:.6rem 1rem;font:inherit;font-weight:800;cursor:pointer}#tp-buildedit .be-cancel{background:var(--bg-2);border:1px solid var(--rule);color:var(--ink-2);border-radius:9px;padding:.6rem 1rem;font:inherit;font-weight:700;cursor:pointer}#tp-buildedit .be-note{font-size:.72rem;color:var(--muted);margin-top:.8rem;line-height:1.5;border-top:1px solid var(--rule);padding-top:.6rem}@media(max-width:560px){#tp-buildedit .be-grid{grid-template-columns:1fr}}';
@@ -7687,7 +7690,7 @@ PlayerName (Leader)
     ];
     window.tpBuildCreateStart=function(){
       if(!(window.TP_AUTH&&window.TP_AUTH.user)){ if(window.tpOpenAuth) tpOpenAuth('login'); return; }
-      if(!window.TP_IS_ADMIN){ if(window.tpToast) tpToast('Só admin pode criar builds.','error'); return; }
+      if(!(window.TP_IS_ADMIN||window.TP_IS_EDITOR)){ if(window.tpToast) tpToast('Sem permissão pra criar builds (admin/editor).','error'); return; }
       var m=document.getElementById('tp-bldnew'); if(!m){ m=document.createElement('div'); m.id='tp-bldnew'; m.className='tp-modal'; document.body.appendChild(m); }
       var cards=window.__BLD_NEWVOC.map(function(v){ return '<button type="button" class="bn-voc" onclick="tpBuildCreate(\''+v.k+'\')"><span class="bn-emoji">'+v.emoji+'</span><span>'+v.label+'<span class="bn-sk">'+v.sk+'</span></span></button>'; }).join('');
       m.innerHTML='<div class="tp-modal-card bn-card"><button class="tp-modal-close" onclick="tpBuildNewClose()">✕</button><h3 class="bn-title">➕ Criar build</h3><p class="bn-sub">Escolha a vocação. A build nasce como <b>rascunho</b> (oculta) e abre no editor — você preenche arma, roda e rotação, o dano calcula sozinho, e publica com um clique.</p><div class="bn-vocs">'+cards+'</div></div>';
@@ -10948,7 +10951,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt32';
+window.TP_BUILD = '2026-10-03evt33';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -20409,14 +20412,14 @@ window.tpLoadJornada=async function(){
 
   function checkMod(){
     var A=auth(); if(!A||!A.user){ IS_MOD=false; return Promise.resolve(false); }
-    return af()(SBURL()+'/rest/v1/user_roles?select=role&role=eq.moderator&user_id=eq.'+A.user.id,{headers:{Accept:'application/json'}})
+    return af()(SBURL()+'/rest/v1/user_roles?select=role&role=in.(moderator,admin)&user_id=eq.'+A.user.id,{headers:{Accept:'application/json'}})
       .then(function(r){ return r.json(); }).then(function(rows){ IS_MOD=Array.isArray(rows)&&rows.length>0; return IS_MOD; }).catch(function(){ IS_MOD=false; return false; });
   }
   // Detecção de moderador a nível de app (mostra o item no menu lateral)
   window.tpCheckModerator=function(){
     var item=document.getElementById('nav-moderation'), A=auth();
     if(!A||!A.user){ IS_MOD=false; if(item) item.style.display='none'; window.TP_IS_MOD=false; return; }
-    af()(SBURL()+'/rest/v1/user_roles?select=role&role=eq.moderator&user_id=eq.'+A.user.id,{headers:{Accept:'application/json'}})
+    af()(SBURL()+'/rest/v1/user_roles?select=role&role=in.(moderator,admin)&user_id=eq.'+A.user.id,{headers:{Accept:'application/json'}})
       .then(function(r){ return r.json(); }).then(function(rows){
         IS_MOD=Array.isArray(rows)&&rows.length>0; window.TP_IS_MOD=IS_MOD;
         if(item) item.style.display=IS_MOD?'':'none';
