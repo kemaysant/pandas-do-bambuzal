@@ -3693,8 +3693,8 @@ async function tibiaFetch(path) {
       if (!r) return;
       var sell = cur ? (cur.buy_offer||0) : 0;    // venda
       var buy  = cur ? (cur.sell_offer||0) : 0;   // compra
-      var mavgS = cur ? (cur.month_average_sell||0) : 0;
-      var mavgB = cur ? (cur.month_average_buy||0) : 0;
+      var mavgS = cur ? (cur.month_average_buy||0) : 0;   // Media venda = media das OFERTAS DE COMPRA (buy_offer)
+      var mavgB = cur ? (cur.month_average_sell||0) : 0;  // Media compra = media das OFERTAS DE VENDA (sell_offer)
       var sold  = cur ? (cur.month_sold||0) : 0;
       var bought= cur ? (cur.month_bought||0) : 0;
       var trad  = cur ? (cur.active_traders||0) : 0;
@@ -11021,7 +11021,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt40';
+window.TP_BUILD = '2026-10-03evt41';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
