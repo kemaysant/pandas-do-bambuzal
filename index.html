@@ -2855,15 +2855,23 @@ async function tibiaFetch(path) {
   <section class="page-section" id="eventpage">
     <style>
       #eventpage .evp-back{display:inline-flex;align-items:center;gap:.4rem;font-size:.8rem;font-weight:700;color:var(--bamboo-light,#a78bfa);background:none;border:none;cursor:pointer;font-family:inherit;padding:0;margin-bottom:1rem}
-      #eventpage .evp-head{position:relative;background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:16px;padding:1.3rem 1.4rem;overflow:hidden;margin-bottom:1.1rem}
-      #eventpage .evp-head::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(var(--bamboo,#8b5cf6),var(--bamboo-light,#a78bfa))}
+      #eventpage .evp-head{position:relative;background:var(--surface,#1a1922);border:1px solid var(--border,#2b2938);border-radius:16px;padding:0;overflow:hidden;margin-bottom:1.1rem}
+      #eventpage .evp-head::before{content:"";position:absolute;left:0;top:80px;bottom:0;width:4px;background:linear-gradient(var(--bamboo,#8b5cf6),var(--bamboo-light,#a78bfa));z-index:1}
+      #eventpage .evp-cover{position:relative;height:80px;display:flex;align-items:flex-start;justify-content:flex-end;padding:.6rem .8rem;border-bottom:1px solid var(--border,#2b2938);overflow:hidden}
+      #eventpage .evp-cover-ico{position:absolute;left:16px;bottom:-14px;font-size:3.4rem;opacity:.33;line-height:1;filter:saturate(.85);pointer-events:none;user-select:none}
+      #eventpage .evp-cd{font-size:.7rem;font-weight:800;letter-spacing:.02em;padding:4px 11px;border-radius:999px;background:rgba(10,11,15,.42);border:1px solid rgba(255,255,255,.14);color:#fff;white-space:nowrap}
+      #eventpage .evp-cd.soon{background:#2a2410;border-color:#c9a84066;color:#e6c964}
+      #eventpage .evp-cd.live{background:#173a26;border-color:#3ecf8e66;color:#5fdd9e}
+      #eventpage .evp-cd.past{background:var(--bg-3,#23212f);border-color:var(--border,#2b2938);color:var(--muted)}
+      #eventpage .evp-hbody{padding:1.05rem 1.4rem 1.3rem}
       #eventpage .evp-ttl{font-family:'Space Grotesk','Inter',sans-serif;font-size:1.45rem;font-weight:700;letter-spacing:-.4px;color:var(--ink,#eae8f2);line-height:1.18;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
       #eventpage .evp-badges{display:flex;gap:.5rem;flex-wrap:wrap;margin:.6rem 0 .2rem}
       #eventpage .evp-badge{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:3px 10px;border-radius:999px}
       #eventpage .evp-meta{display:flex;gap:1.3rem;flex-wrap:wrap;font-size:.84rem;color:var(--ink-3,#b9b6c9);margin-top:.7rem}
       #eventpage .evp-meta b{color:var(--ink,#eae8f2);font-weight:700}
       #eventpage .evp-actions{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem;align-items:center}
-      #eventpage .evp-rbtn{border:1px solid var(--border,#2b2938);background:var(--bg-2,#1b1a25);color:var(--ink-3,#b9b6c9);border-radius:999px;padding:6px 14px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit}
+      #eventpage .evp-rbtn{border:1px solid var(--border,#2b2938);background:var(--bg-2,#1b1a25);color:var(--ink-3,#b9b6c9);border-radius:999px;padding:7px 16px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .1s,filter .1s}
+      #eventpage .evp-rbtn:hover{filter:brightness(1.12)}#eventpage .evp-rbtn:active{transform:scale(.96)}
       #eventpage .evp-rbtn.going.on{background:#173a26;border-color:#3ecf8e;color:#5fdd9e}
       #eventpage .evp-rbtn.maybe.on{background:#2a2410;border-color:#c9a840;color:#e6c964}
       #eventpage .evp-rbtn.no.on{background:#2f1a1a;border-color:#e05a5a;color:#f08a8a}
@@ -10524,7 +10532,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-02evt6';
+window.TP_BUILD = '2026-10-03evt7';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -20536,7 +20544,11 @@ window.tpLoadJornada=async function(){
     var going=parts.filter(function(p){return p.response==='going';});
     var maybe=parts.filter(function(p){return p.response==='maybe';});
     var dfull=new Date(ev.starts_at).toLocaleString('pt-BR',{weekday:'long',day:'2-digit',month:'long',hour:'2-digit',minute:'2-digit'});
-    var head='<div class="evp-head"><div class="evp-ttl">'+t[0]+' '+esc(ev.title)+'</div>'
+    var _st=new Date(ev.starts_at).getTime(),_now=Date.now(),_df=_st-_now,_de=ev.ends_at?new Date(ev.ends_at).getTime():(_st+10800000);
+    var _cdt,_cdc; if(_now>_de){_cdt='já aconteceu';_cdc='past';} else if(_now>=_st){_cdt='⏳ rolando agora';_cdc='live';} else {var _dys=Math.floor(_df/86400000),_hrs=Math.round(_df/3600000),_min=Math.max(1,Math.round(_df/60000)); _cdt='em '+(_dys>=1?(_dys+(_dys===1?' dia':' dias')):(_hrs>=1?(_hrs+'h'):(_min+' min'))); _cdc=(_df<=86400000)?'soon':'future';}
+    var head='<div class="evp-head">'
+      +'<div class="evp-cover" style="background:linear-gradient(120deg,'+t[2]+'44,'+t[2]+'11 55%,transparent),var(--bg-2,#1b1a25)"><span class="evp-cover-ico">'+t[0]+'</span><span class="evp-cd '+_cdc+'">'+_cdt+'</span></div>'
+      +'<div class="evp-hbody"><div class="evp-ttl">'+t[0]+' '+esc(ev.title)+'</div>'
       +'<div class="evp-badges"><span class="evp-badge" style="background:'+t[2]+'22;color:'+t[2]+'">'+esc(t[1])+'</span><span class="evp-badge" style="background:var(--bg-3,#23212f);color:var(--muted)">'+(VISLBL[ev.visibility]||ev.visibility)+'</span>'+(ev.difficulty==='hard'?'<span class="evp-diff hard">🔴 Difícil · karma 5+</span>':(ev.difficulty==='medium'?'<span class="evp-diff med">🟡 Média · karma 3+</span>':''))+'</div>'
       +'<div class="evp-meta"><span>🗓 <b>'+esc(dfull)+'</b></span><span>🌎 <b>'+esc(ev.world||'')+'</b></span>'+(ev.location?'<span>📍 <b>'+esc(ev.location)+'</b></span>':'')+(ev.creator_char?'<span>👑 Host: <b>'+esc(ev.creator_char)+'</b></span>':'')+(ev.capacity?'<span>👥 <b>'+going.length+'/'+ev.capacity+'</b> vagas</span>':'<span>👥 <b>'+going.length+'</b> confirmados</span>')+'</div>'
       +(ev.description?'<div class="evp-text" style="margin-top:.8rem">'+esc(ev.description)+'</div>':'')
@@ -20549,7 +20561,7 @@ window.tpLoadJornada=async function(){
         +'<button class="evp-abtn" onclick="tpAgendaShare(\''+ev.id+'\')">🔗 Compartilhar</button>'
         +(can?'<button class="evp-abtn" onclick="tpAgendaEdit(\''+ev.id+'\')">✏️ Editar</button>':'')
         +(can?'<button class="evp-abtn" style="color:var(--red,#e87070);border-color:var(--red,#e87070);background:transparent" onclick="tpAgendaDelete(\''+ev.id+'\')">🗑 Excluir</button>':'')
-      +'</div></div>';
+      +'</div></div></div>';
     var info='<div class="evp-grid">'
       +'<div class="evp-card"><h3>📋 Requisitos</h3>'+(ev.requirements?'<div class="evp-text">'+esc(ev.requirements)+'</div>':'<div class="evp-empty">'+(can?'Ainda não informado — clique em ✏️ Editar pra adicionar.':'Não informado.')+'</div>')+'</div>'
       +'<div class="evp-card"><h3>🗝️ Quests e acessos</h3>'+(ev.quests_access?'<div class="evp-text">'+esc(ev.quests_access)+'</div>':'<div class="evp-empty">'+(can?'Ainda não informado — clique em ✏️ Editar pra adicionar.':'Não informado.')+'</div>')+'</div>'
