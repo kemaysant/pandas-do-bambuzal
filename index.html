@@ -10576,7 +10576,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt19';
+window.TP_BUILD = '2026-10-03evt20';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -12759,11 +12759,72 @@ function bossCatBadge(name,big){ var c=bossCategory(name); if(!c) return ''; var
   return '<span title="Categoria do Bosstiary" style="display:inline-flex;align-items:center;gap:4px;font-size:'+(big?'.72rem':'.6rem')+';font-weight:800;color:'+m.color+';background:'+m.color+'1f;border:1px solid '+m.color+'55;border-radius:20px;padding:'+(big?'2px 9px':'1px 6px')+'">'+m.sym+' '+m.label+'</span>'; }
 window.tpCloseBoss=function(){ var m=document.getElementById('tp-boss-modal'); if(m) m.style.display='none'; };
 window.TP_BOSS_EXTRA = window.TP_BOSS_EXTRA || {
-  'The Pale Count': { raid:['The Pale Count has risen from his crypt deep under Drefia. Blood will flow.'], x:32900, y:32341, z:14, place:'Drefia (Darashia)' }
+  // Overrides curados (dados reais). Qualquer boss fora daqui busca ao vivo na TibiaWiki (Fandom).
+  'The Pale Count': { raid:['The Pale Count has risen from his crypt deep under Drefia. Blood will flow.'], x:32965, y:32423, z:14, place:'Drefia' }
 };
 window.tpBossCache=window.tpBossCache||{};
+window.tpBossExtraCache=window.tpBossExtraCache||{};
+// Monta o HTML das seções de raid + localização a partir de um objeto {raid:[],x,y,z,place}.
+function _bossExtraHtml(ex){
+  if(!ex) return '';
+  var h='';
+  if(ex.raid && ex.raid.length){
+    h+='<div class="tp-boss-sec" style="margin-top:1rem">\uD83D\uDCE3 Mensagem de raid</div>'
+      + ex.raid.map(function(m){ return '<div class="tp-boss-raid">'+_bossEsc(m)+'</div>'; }).join('');
+  }
+  if(ex.x!=null){
+    var tm='https://tibiamaps.io/map#'+ex.x+','+ex.y+','+(ex.z!=null?ex.z:7);
+    h+='<div class="tp-boss-sec" style="margin-top:1rem">\uD83D\uDCCD Localiza\u00e7\u00e3o</div>'
+      +'<div class="tp-boss-loc"><div><b>'+_bossEsc(ex.place||'')+'</b><div class="co">X '+ex.x+' \u00b7 Y '+ex.y+' \u00b7 Z '+(ex.z!=null?ex.z:'?')+'</div></div><a href="'+tm+'" target="_blank" rel="noopener">\uD83D\uDDFA\uFE0F Abrir no TibiaMaps \u2192</a></div>';
+  }
+  return h;
+}
+// Converte coord do Mapper (setor.offset) para coord real do jogo: setor*256 + offset.
+function _parseBossExtra(txt){
+  if(!txt) return null;
+  var raid=[], seen={}, m;
+  var reMsg=/\{\{Message\|type=server\|([^}]+)\}\}/g;
+  while((m=reMsg.exec(txt))){
+    var t=m[1]
+      .replace(/<br\s*\/?>/gi,' ')
+      .replace(/\[\[[^\]|]+\|([^\]]+)\]\]/g,'$1')
+      .replace(/\[\[([^\]]+)\]\]/g,'$1')
+      .replace(/''+/g,'')
+      .replace(/\s+/g,' ').trim();
+    if(t && !seen[t]){ seen[t]=1; raid.push(t); }
+  }
+  var reCo=/\{\{Mapper Coords\|\s*([0-9]+)(?:\.([0-9]+))?\s*\|\s*([0-9]+)(?:\.([0-9]+))?\s*\|\s*([0-9]+)/;
+  var locf=txt.match(/\|\s*location\s*=([\s\S]*?)\n\s*\|/);
+  var scope=locf?locf[1]:txt;
+  var cm=scope.match(reCo) || txt.match(reCo);
+  var o={}; if(raid.length) o.raid=raid;
+  if(cm){
+    o.x=parseInt(cm[1],10)*256+(cm[2]?parseInt(cm[2],10):0);
+    o.y=parseInt(cm[3],10)*256+(cm[4]?parseInt(cm[4],10):0);
+    o.z=parseInt(cm[5],10);
+    if(locf){ var pm=locf[1].match(/\[\[([^\]|]+)/); if(pm) o.place=pm[1].replace(/_/g,' '); }
+  }
+  return (o.raid||o.x!=null)?o:null;
+}
+// Busca ao vivo na TibiaWiki (Fandom, CORS origin=*) quando não há override curado.
+window.tpFetchBossExtra=async function(name){
+  var ov = window.TP_BOSS_EXTRA && window.TP_BOSS_EXTRA[name];
+  if(ov) return ov;
+  if(window.tpBossExtraCache[name]!==undefined) return window.tpBossExtraCache[name];
+  var out=null;
+  try{
+    var u='https://tibia.fandom.com/api.php?action=query&prop=revisions&rvprop=content&rvslots=main&format=json&origin=*&redirects=1&titles='+encodeURIComponent(name);
+    var r=await fetch(u,{cache:'force-cache'});
+    var d=await r.json();
+    var pages=d&&d.query&&d.query.pages;
+    if(pages){ var pg=pages[Object.keys(pages)[0]]; var rv=pg&&pg.revisions&&pg.revisions[0]; var txt=rv&&rv.slots&&rv.slots.main&&rv.slots.main['*']; out=_parseBossExtra(txt); }
+  }catch(e){ out=null; }
+  window.tpBossExtraCache[name]=out;
+  return out;
+};
 window.tpOpenBoss=async function(name){
   if(!name) return;
+  window._tpBossCurrent=name;
   if(!document.getElementById('tp-boss-style')){
     var st=document.createElement('style'); st.id='tp-boss-style';
     st.textContent=".tp-boss-ov{position:fixed;inset:0;z-index:3000;background:rgba(6,6,10,.72);backdrop-filter:blur(3px);display:none;align-items:flex-start;justify-content:center;padding:6vh 16px;overflow:auto}"
@@ -12823,18 +12884,20 @@ window.tpOpenBoss=async function(name){
   html+='<div class="tp-boss-sec" style="margin-top:1rem">\u2694\uFE0F Atividade no servidor</div>'
     +'<div>'+(act||'<span class="tp-boss-empty">Sem dados de kill statistics.</span>')+'</div>';
   if(!c) html+='<div class="tp-boss-empty" style="margin-top:.8rem">N\u00e3o achei ficha detalhada deste boss na TibiaData (alguns bosses de evento n\u00e3o t\u00eam). Vida/loot podem faltar.</div>';
-  var _ex = window.TP_BOSS_EXTRA && window.TP_BOSS_EXTRA[name];
-  if(_ex && _ex.raid && _ex.raid.length){
-    html+='<div class="tp-boss-sec" style="margin-top:1rem">📣 Mensagem de raid</div>'+_ex.raid.map(function(m){ return '<div class="tp-boss-raid">'+_bossEsc(m)+'</div>'; }).join('');
-  }
-  if(_ex && _ex.x){
-    var _tm='https://tibiamaps.io/map#'+_ex.x+','+_ex.y+','+(_ex.z||7);
-    html+='<div class="tp-boss-sec" style="margin-top:1rem">📍 Localização</div>'
-      +'<div class="tp-boss-loc"><div><b>'+_bossEsc(_ex.place||'')+'</b><div class="co">X '+_ex.x+' · Y '+_ex.y+' · Z '+(_ex.z!=null?_ex.z:'?')+'</div></div><a href="'+_tm+'" target="_blank" rel="noopener">🗺️ Abrir no TibiaMaps →</a></div>';
-  }
+  html+='<div id="tp-boss-extra-slot"></div>';
   var _wiki='https://www.tibiawiki.com.br/wiki/'+encodeURIComponent(name.replace(/ /g,'_'));
-  html+='<div class="tp-boss-links"><a href="'+_wiki+'" target="_blank" rel="noopener">📖 Loot completo & localização (TibiaWiki)</a></div>';
+  html+='<div class="tp-boss-links"><a href="'+_wiki+'" target="_blank" rel="noopener">\uD83D\uDCD6 Loot completo & localiza\u00e7\u00e3o (TibiaWiki)</a></div>';
   body.innerHTML=html;
+  (function(bn){
+    var slot=document.getElementById('tp-boss-extra-slot'); if(!slot) return;
+    var ov = window.TP_BOSS_EXTRA && window.TP_BOSS_EXTRA[bn];
+    if(ov){ slot.innerHTML=_bossExtraHtml(ov); return; }
+    slot.innerHTML='<div class="tp-boss-empty" style="margin-top:1rem">\uD83D\uDCE1 Buscando raid e localiza\u00e7\u00e3o na TibiaWiki...</div>';
+    tpFetchBossExtra(bn).then(function(ex){
+      if(window._tpBossCurrent!==bn) return;
+      var s2=document.getElementById('tp-boss-extra-slot'); if(s2) s2.innerHTML=ex?_bossExtraHtml(ex):'';
+    }).catch(function(){ var s2=document.getElementById('tp-boss-extra-slot'); if(s2) s2.innerHTML=''; });
+  })(name);
 };
 
 function _bossDaysSince(lastStr){
