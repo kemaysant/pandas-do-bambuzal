@@ -436,9 +436,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 /* ══════════════════════════════════════
    HERO
 ══════════════════════════════════════ */
-.hero{padding:1rem 0 2rem;border-bottom:1px solid var(--border);margin-bottom:2rem;display:flex;gap:2rem;align-items:center}
+.hero{padding:1rem 0 2rem;border-bottom:1px solid var(--border);margin-bottom:2rem;display:flex;gap:2rem;align-items:flex-start}
 .hero-main{flex:1;min-width:0}
-.hero-side{flex:0 0 300px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.1rem;display:flex;flex-direction:column}
+.hero-side{flex:0 0 288px;margin-top:2.4rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:.9rem 1rem;display:flex;flex-direction:column}
 .hero-side .hb-head{font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);display:flex;align-items:center;gap:.4rem;margin-bottom:.7rem;flex-wrap:wrap}
 .hero-side .hb-world{font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0;font-size:.72rem}
 .hb-list{display:flex;flex-direction:column;gap:0;min-height:40px}
@@ -10582,7 +10582,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt14';
+window.TP_BUILD = '2026-10-03evt15';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -20472,7 +20472,7 @@ window.tpLoadJornada=async function(){
       var list=[]; try{ list=(typeof _bossBuild==='function')?_bossBuild():[]; }catch(e){ list=[]; }
       var hoje=list.filter(function(b){return b.killedToday;}).sort(function(a,b){return (b.today||0)-(a.today||0);});
       if(!hoje.length){ panel.innerHTML='<div class="hb-empty">Nenhum boss raro caçado hoje ainda. 🐼</div>'; return; }
-      panel.innerHTML=hoje.slice(0,6).map(function(b){ var fb=(typeof _bossImgFallback==='function')?_bossImgFallback(b.name).replace(/"/g,'&quot;'):''; return '<div class="hb-row"><span class="hb-thumb"><img loading="lazy" src="'+bossImgUrl(b.name)+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=&quot;'+fb+'&quot;}else{this.style.display=&quot;none&quot;}"></span><span class="hb-n">'+_bossEsc(b.name)+'</span>'+((b.today>1)?'<span class="hb-x">'+b.today+'x</span>':'')+'</div>'; }).join('');
+      panel.innerHTML=hoje.slice(0,5).map(function(b){ var fb=(typeof _bossImgFallback==='function')?_bossImgFallback(b.name).replace(/"/g,'&quot;'):''; return '<div class="hb-row"><span class="hb-thumb"><img loading="lazy" src="'+bossImgUrl(b.name)+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=&quot;'+fb+'&quot;}else{this.style.display=&quot;none&quot;}"></span><span class="hb-n">'+_bossEsc(b.name)+'</span>'+((b.today>1)?'<span class="hb-x">'+b.today+'x</span>':'')+'</div>'; }).join('');
     }
     try{
       if((typeof bossSpawnData==='undefined'||!bossSpawnData.length) && typeof loadBossSpawn==='function'){ loadBossSpawn().then(draw).catch(draw); }
