@@ -1896,9 +1896,10 @@ async function tibiaFetch(path) {
       </div>
       </div>
       <aside class="hero-side" id="home-bosses">
-        <div class="hb-head">💀 Bosses caçados hoje <span id="home-bosses-world" class="hb-world"></span></div>
-        <div id="home-bosses-list" class="hb-list"><div class="hb-empty">Carregando…</div></div>
-        <button class="hb-more" onclick="showPage('bosses')">Ver todos os bosses →</button>
+        <div class="hb-head">⚡ Boostados hoje</div>
+        <div id="home-boosted" style="display:none;flex-direction:column;gap:0"><div class="api-loading"><div class="spinner"></div> Carregando…</div></div>
+        <div class="api-loading" id="home-boosted-loading"><div class="spinner"></div> Buscando dados do dia…</div>
+        <button class="hb-more" onclick="showPage('bosses')">Ver bosses →</button>
       </aside>
     </div>
 
@@ -2073,15 +2074,7 @@ async function tibiaFetch(path) {
     </script>
 
     <!-- NOTÍCIAS & EVENTOS -->
-    <div class="grid-2 reveal" style="margin-top:2.2rem">
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
-          <div class="tool-label" style="margin-bottom:0">Boostados hoje</div>
-          <button class="nav-btn" style="padding:4px 10px;font-size:.68rem;border:1px solid var(--rule);border-radius:4px;color:var(--muted)" onclick="showPage('bosses',document.querySelector('[onclick*=bosses]'))">Ver bosses →</button>
-        </div>
-        <div id="home-boosted" style="display:none;flex-direction:column;gap:0"><div class="api-loading"><div class="spinner"></div> Carregando...</div></div>
-        <div class="api-loading" id="home-boosted-loading"><div class="spinner"></div> Buscando dados do dia...</div>
-      </div>
+    <div class="reveal" style="margin-top:2.2rem">
       <div class="card">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
           <div class="tool-label" style="margin-bottom:0">Eventos ativos</div>
@@ -10582,7 +10575,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt15';
+window.TP_BUILD = '2026-10-03evt16';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
