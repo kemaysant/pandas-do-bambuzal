@@ -11218,7 +11218,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar16';
+window.TP_BUILD = '2026-10-05bazar17';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -22835,7 +22835,7 @@ window.tpLoadJornada=async function(){
     var A=auth(); if(!A){ window.tpJorLogin(); return; }
     if(window.tpToast) tpToast('Verificando no Tibia.com...','info');
     try{
-      var r=await af(SB+'/functions/v1/jornada-claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code})});
+      var r=await af(SB+'/functions/v1/jornada-claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code:code, char:(J.charName||null)})});
       var j=await r.json();
       if(j&&j.ok){
         if(!J.claimed) J.claimed=new Set(); J.claimed.add(code);
