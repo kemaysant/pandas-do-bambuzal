@@ -2358,6 +2358,21 @@ async function tibiaFetch(path) {
         #boss-spawn-grid .bs-card{cursor:pointer;background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:.5rem .6rem;display:flex;align-items:center;gap:.55rem;transition:transform .12s,border-color .12s}
         #boss-spawn-grid .bs-card:hover{transform:translateY(-1px);border-color:rgba(139,92,246,.4)}
         #boss-spawn-grid .bs-ic{width:46px;height:46px;background:var(--paper);border:1px solid var(--rule);border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+        #boss-spawn-grid{padding-top:10px}
+        #bosses .tp-popbox{position:relative;flex:0 0 auto;width:50px;height:50px;border-radius:11px;background:linear-gradient(160deg,var(--bamboo-dim,#211a3d),#191527);border:1px solid var(--border-2,#37344a);display:flex;align-items:flex-end;justify-content:center;overflow:visible}
+        #bosses .tp-popbox img{width:56px;height:56px;object-fit:contain;position:relative;z-index:2;margin-bottom:-3px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.55))}
+        #bosses .tp-popbox.m{width:62px;height:62px}
+        #bosses .tp-popbox.m img{width:78px;height:78px;margin-bottom:-5px}
+        #bosses .tp-popbox.l{width:90px;height:90px}
+        #bosses .tp-popbox.l img{width:118px;height:118px;margin-bottom:-8px}
+        #bosses .bs-card2{position:relative;cursor:pointer;background:var(--white);border:1px solid var(--rule);border-radius:12px;padding:.7rem .8rem;display:flex;gap:.7rem;align-items:flex-start;transition:transform .12s,border-color .12s}
+        #bosses .bs-card2:hover{transform:translateY(-2px);border-color:rgba(139,92,246,.4)}
+        #bosses .bs-card2.inwin{border-color:rgba(95,191,106,.35)}
+        #bosses .bs-win{display:inline-flex;align-items:center;gap:3px;font-size:.63rem;font-weight:700;border-radius:20px;padding:1px 7px;white-space:nowrap}
+        #bosses .bs-win.on{color:#5fbf6a;background:rgba(95,191,106,.12);border:1px solid rgba(95,191,106,.33)}
+        #bosses .bs-win.soon{color:#e0c060;background:rgba(201,168,64,.14);border:1px solid rgba(201,168,64,.33)}
+        #bosses .bs-win.off{color:var(--ink-3,#8f8ba0);background:rgba(255,255,255,.04);border:1px solid var(--rule)}
+        #bosses .bs-pin2{position:absolute;top:.5rem;right:.55rem;background:none;border:none;cursor:pointer;font-size:.85rem;padding:2px;z-index:3}
       </style>
       <div id="boss-spawn-loading" class="api-loading"><div class="spinner"></div> Buscando dados de Gentebra...</div>
       <!-- ── Hot Bosses Banner ── -->
@@ -11021,7 +11036,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-03evt41';
+window.TP_BUILD = '2026-10-04boss1';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -13624,13 +13639,14 @@ function _bossBuild(){
     const daysSince=_bossDaysSince(act.last);
     const _ivo=(window.__TP_BOSS_OV&&window.__TP_BOSS_OV[key]&&window.__TP_BOSS_OV[key].iv!=null)?window.__TP_BOSS_OV[key].iv:TP_BOSS_IV[key];
     const chance=_bossChance(daysSince, _ivo);
-    return {name:o.n, cat:o.c, key, killedToday:((act.today||0)>0||(live.day||0)>0), killedWeek:(live.week||0), today:(act.today||live.day||0), yday:(act.yday||0), daysSince, chance, pinned:pinnedBosses.includes(o.n)};
+    return {name:o.n, cat:o.c, key, killedToday:((act.today||0)>0||(live.day||0)>0), killedWeek:(live.week||0), today:(act.today||live.day||0), yday:(act.yday||0), daysSince, chance, iv:_ivo, pinned:pinnedBosses.includes(o.n)};
   });
 }
 // fallback de imagem de boss: exevopan (primário) → tibiawiki → emoji
 function _bossImgFallback(name){
-  const slug=name.split(' ').map((w,i)=>(i>0&&['of','the','a','an'].includes(w.toLowerCase()))?w.toLowerCase():(w.charAt(0).toUpperCase()+w.slice(1))).join('_')+'.gif';
-  return 'https://www.tibiawiki.com.br/wiki/Special:FilePath/'+encodeURIComponent(slug.replace(/'([A-Za-z])/g,(m,c)=>"'"+c.toLowerCase()));
+  // exevopan cobre so classicos; bosses novos 404 -> creatureImgUrl (wsrv+tibiaroute) cobre todos
+  return (typeof creatureImgUrl==='function') ? creatureImgUrl(name)
+    : 'https://www.tibiawiki.com.br/wiki/Special:FilePath/'+encodeURIComponent(name.replace(/ /g,'_'))+'.gif';
 }
 window.tpBossSetCat=function(cat,btn){ bossCatFilter=cat||'all'; document.querySelectorAll('#boss-catfilter .bcf').forEach(b=>b.classList.remove('on')); if(btn) btn.classList.add('on'); renderBossSpawnGrid(); };
 window.tpBossSetSort=function(s){ bossSort=s||'seen'; renderBossSpawnGrid(); };
@@ -13675,25 +13691,35 @@ function renderBossSpawnGrid(){
   grid.style.display='grid';
   grid.innerHTML=list.map(_bossCard).join('');
 }
+function _bossWin(b){
+  if(b.daysSince==null||!b.iv) return {cls:'off',ic:'',txt:'chance coletando'};
+  var left=b.iv-b.daysSince;
+  if(left<=0) return {cls:'on',ic:'\uD83D\uDFE2',txt:'Est\u00e1 na janela'};
+  if(left<=3) return {cls:'soon',ic:'\uD83D\uDFE1',txt:'Entra em '+left+'d'};
+  return {cls:'off',ic:'\u26AA',txt:'Fora da janela'};
+}
 function _bossCard(b){
   const v=_bossVisto(b);
-  const catColor=_bossCatColor(b.cat);
+  const w=_bossWin(b);
   const km=b.killedToday
     ? '<span style="font-size:.62rem;font-weight:700;color:#e07040;background:rgba(224,112,64,.12);border:1px solid rgba(224,112,64,.25);border-radius:20px;padding:0 6px">⚔️ '+(b.today>1?b.today+'x hoje':'caçado hoje')+'</span>'
     : (b.killedWeek>0
         ? '<span style="font-size:.62rem;font-weight:600;color:#a08060;background:rgba(160,128,96,.1);border:1px solid rgba(160,128,96,.2);border-radius:20px;padding:0 6px">📅 '+b.killedWeek+'x semana</span>' : '');
   const chanceHtml = b.chance!=null
-    ? '<div style="display:flex;align-items:center;gap:.4rem;margin-top:1px"><b style="font-size:.82rem;color:'+(b.chance>=80?'#22c55e':b.chance>=40?'#eab308':'#e07040')+'">'+b.chance+'%</b>'+_bossDotsHtml(b.chance)+'</div>'
-    : '<div style="font-size:.66rem;color:var(--muted);margin-top:1px">chance: coletando</div>';
-  return '<div onclick="tpOpenBoss(\''+b.name.replace(/'/g,"\\'")+'\')" class="bs-card">'
-    +'<div class="bs-ic"><img loading="lazy" decoding="async" src="'+bossImgUrl(b.name)+'" alt="'+_bossEsc(b.name)+'" style="width:100%;height:100%;object-fit:contain" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+_bossImgFallback(b.name)+'\'}else{this.parentNode.innerHTML=\'<span style=font-size:1.2rem>👹</span>\'}"></div>'
-    +'<div style="flex:1;min-width:0">'
-    +'<div style="font-weight:600;font-size:.83rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_bossEsc(b.name)+'</div>'
+    ? '<div style="display:flex;align-items:center;gap:.4rem;margin-top:2px"><b style="font-size:.82rem;color:'+(b.chance>=80?'#22c55e':b.chance>=40?'#eab308':'#e07040')+'">'+b.chance+'%</b>'+_bossDotsHtml(b.chance)+'</div>'
+    : '<div style="font-size:.66rem;color:var(--muted);margin-top:2px">chance: coletando</div>';
+  const nm=b.name.replace(/'/g,"\\'");
+  const fb=_bossImgFallback(b.name).replace(/'/g,"\\'");
+  return '<div onclick="tpOpenBoss(\''+nm+'\')" class="bs-card2'+(w.cls==='on'?' inwin':'')+'">'
+    +'<button onclick="event.stopPropagation();togglePin(\''+nm+'\',this)" title="'+(b.pinned?'Desafixar':'Fixar')+'" class="bs-pin2" style="opacity:'+(b.pinned?'1':'0.3')+'">📌</button>'
+    +'<div class="tp-popbox"><img loading="lazy" decoding="async" src="'+bossImgUrl(b.name)+'" alt="'+_bossEsc(b.name)+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+fb+'\'}else{this.style.opacity=.2}"></div>'
+    +'<div style="flex:1;min-width:0;padding-top:1px">'
+    +'<div style="font-weight:700;font-size:.86rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:1.1rem">'+_bossEsc(b.name)+'</div>'
     + chanceHtml
-    +'<div style="display:flex;align-items:center;gap:.3rem;margin-top:1px"><span style="width:6px;height:6px;border-radius:50%;background:'+catColor+';flex-shrink:0"></span><span style="font-size:.64rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_bossEsc(b.cat)+' · <span style="color:'+v.c+'">'+v.t+'</span></span></div>'
-    +(km?'<div style="margin-top:2px">'+km+'</div>':'')
+    +'<div style="display:flex;align-items:center;gap:.3rem;flex-wrap:wrap;margin-top:4px">'+bossCatBadge(b.name)+'<span class="bs-win '+w.cls+'">'+w.ic+' '+w.txt+'</span></div>'
+    +'<div style="font-size:.64rem;color:var(--muted);margin-top:4px">'+_bossEsc(b.cat)+' · <span style="color:'+v.c+'">'+v.t+'</span></div>'
+    +(km?'<div style="margin-top:3px">'+km+'</div>':'')
     +'</div>'
-    +'<button onclick="event.stopPropagation();togglePin(\''+b.name.replace(/'/g,"\\'")+'\',this)" title="'+(b.pinned?'Desafixar':'Fixar')+'" style="background:none;border:none;cursor:pointer;font-size:.85rem;opacity:'+(b.pinned?'1':'0.25')+';padding:2px;align-self:flex-start">📌</button>'
     +'</div>';
 }
 
