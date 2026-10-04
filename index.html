@@ -11068,7 +11068,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-04boss1';
+window.TP_BUILD = '2026-10-04boss2';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -13621,7 +13621,7 @@ window.tpOpenBoss=async function(name){
   var _hpill2=_hwin2?'<span class="tp-boss-win '+_hwin2.cls+'">'+_hwin2.ic+' '+_hwin2.txt+'</span>':'';
   var b=(typeof bossSpawnData!=='undefined'?bossSpawnData:[]).filter(function(x){return x.name===name;})[0]||{name:name};
   var act=activityBadge(b.killedToday!=null?b.killedToday:null, b.killedWeek!=null?b.killedWeek:null)||'';
-  var img=bossImgUrl(name), fb=creatureImgUrl(name);
+  var img=bossImgUrl(name), fb=_bossImgFallback(name);
   host.innerHTML='<div class="tp-boss"><button class="tp-boss-x" onclick="tpCloseBoss()">\u2715</button>'
     +'<div class="tp-boss-hd"><div class="tp-boss-av"><img loading="lazy" decoding="async" src="'+img+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+fb.replace(/'/g,"\\'")+'\'}else{this.parentNode.innerHTML=\'<span style=font-size:2rem>\uD83D\uDC7F</span>\'}"></div>'
     +'<div><div class="tp-boss-nm">'+_bossEsc(name)+'</div><div class="tp-boss-sub">'+(bossCatBadge(name,true)||'Boss')+' \u00b7 '+_bossEsc((typeof CONFIG!=='undefined'&&CONFIG.world)||'')+'</div><div style="margin-top:6px;display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">'+_hpill2+act+'</div></div></div>'
@@ -13721,9 +13721,9 @@ function _bossBuild(){
 }
 // fallback de imagem de boss: exevopan (primário) → tibiawiki → emoji
 function _bossImgFallback(name){
-  // exevopan cobre so classicos; bosses novos 404 -> creatureImgUrl (wsrv+tibiaroute) cobre todos
-  return (typeof creatureImgUrl==='function') ? creatureImgUrl(name)
-    : 'https://www.tibiawiki.com.br/wiki/Special:FilePath/'+encodeURIComponent(name.replace(/ /g,'_'))+'.gif';
+  // sprite ANIMADO: wsrv proxy do tibiaroute com n=-1 (preserva os frames). wsrv sem n=-1 achata p/ 1 frame; tibiaroute direto bloqueia hotlink.
+  var slug=(name||'').split(' ').map(function(w){return w.charAt(0).toUpperCase()+w.slice(1);}).join('-');
+  return ('https://wsrv.nl/?url='+encodeURIComponent('https://cdn.tibiaroute.com/monsters/'+slug+'.gif')+'&n=-1').replace(/'/g,'%27');
 }
 window.tpBossSetCat=function(cat,btn){ bossCatFilter=cat||'all'; document.querySelectorAll('#boss-catfilter .bcf').forEach(b=>b.classList.remove('on')); if(btn) btn.classList.add('on'); renderBossSpawnGrid(); };
 window.tpBossSetSort=function(s){ bossSort=s||'seen'; renderBossSpawnGrid(); };
