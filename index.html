@@ -11209,7 +11209,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar12';
+window.TP_BUILD = '2026-10-05bazar13';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -23013,6 +23013,20 @@ window.tpLoadJornada=async function(){
     host().innerHTML=h;
   }
 
+  /* ─── chars verificados: carrega sozinho (nao depende de abrir o perfil) ─── */
+  var _bzCharsFetched=false;
+  function ensureChars(cb){
+    try{
+      if(!me() || (window.__tpChars && window.__tpChars.length) || _bzCharsFetched){ if(cb)cb(); return; }
+      _bzCharsFetched=true;
+      af(SB+'/rest/v1/characters?select=*&order=level.desc.nullslast,created_at.asc')
+        .then(function(r){ return r.json(); })
+        .then(function(cs){ if(Array.isArray(cs)&&cs.length) window.__tpChars=cs; })
+        .catch(function(){})
+        .finally(function(){ if(cb)cb(); });
+    }catch(e){ if(cb)cb(); }
+  }
+
   /* ─── NOVO ANÚNCIO ─── */
   function myWorld(){ try{ var cs=window.__tpChars||[]; var v=cs.filter(function(c){return c.verified;}).sort(function(a,b){return (b.level||0)-(a.level||0);})[0]; return v?v.world:null; }catch(e){ return null; } }
   function renderNew(){
@@ -23115,7 +23129,7 @@ window.tpLoadJornada=async function(){
   }
 
   /* ─── AÇÕES ─── */
-  window.tpBazarInit=function(){ BZ.view='feed'; render(); loadFeed(); };
+  window.tpBazarInit=function(){ BZ.view='feed'; render(); loadFeed(); ensureChars(); };
   window.tpBzSeg=function(v){ BZ.f.intent=v; render(); loadFeed(); };
   window.tpBzType=function(v){ BZ.f.kind=v; render(); loadFeed(); };
   window.tpBzSet=function(k,v){ BZ.f[k]=v; loadFeed(); };
@@ -23123,7 +23137,7 @@ window.tpLoadJornada=async function(){
   window.tpBzBack=function(){ BZ.view='feed'; BZ.detail=null; render(); if(!BZ.ads.length) loadFeed(); };
   window.tpBzOpen=function(id){ BZ.view='detail'; host().innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando anúncio...</div>';
     rpc('tp_bazar_get',{p_id:id}).then(function(rows){ var a=Array.isArray(rows)?rows[0]:rows; if(!a){ toast('Anúncio não encontrado ou removido.','info'); window.tpBzBack(); return; } BZ.detail=a; renderDetail(a); }).catch(function(){ toast('Não consegui abrir o anúncio.','error'); window.tpBzBack(); }); };
-  window.tpBzNew=function(){ BZ.view='new'; render(); };
+  window.tpBzNew=function(){ BZ.view='new'; render(); if(me()&&!myWorld()) ensureChars(function(){ if(BZ.view==='new') render(); }); };
   window.tpBzMine=function(){ BZ.view='mine'; render(); };
   window.tpBzAlerts=function(){ BZ.view='alerts'; render(); };
   window.tpBzDraft=function(k,v){ BZ.draft=BZ.draft||{}; BZ.draft[k]=v; if(k==='kind'||k==='currency'||k==='intent') render(); else paintPreview(); };
@@ -23158,7 +23172,7 @@ window.tpLoadJornada=async function(){
     .then(function(r){ if(!r.ok) throw 0; toast('Alerta removido.','success'); loadFilters(); }).catch(function(){ toast('Não consegui remover.','error'); }); };
 
   // re-render em login/logout se estiver na página
-  window.tpBazarOnAuth=function(){ var s=document.getElementById('bazar'); if(s&&s.classList.contains('active')){ BZ.view='feed'; render(); loadFeed(); } };
+  window.tpBazarOnAuth=function(){ _bzCharsFetched=false; ensureChars(); var s=document.getElementById('bazar'); if(s&&s.classList.contains('active')){ BZ.view='feed'; render(); loadFeed(); } };
 })();
 
 </script>
