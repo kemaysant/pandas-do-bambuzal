@@ -2098,18 +2098,8 @@ async function tibiaFetch(path) {
     })();
     </script>
 
-    <!-- NOTÍCIAS & EVENTOS -->
+    <!-- ÚLTIMAS NOTÍCIAS DO TIBIA -->
     <div class="reveal" style="margin-top:2.2rem">
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
-          <div class="tool-label" style="margin-bottom:0">Eventos ativos</div>
-          <button class="nav-btn" style="padding:4px 10px;font-size:.68rem;border:1px solid var(--rule);border-radius:4px;color:var(--muted)" onclick="showPage('events',document.querySelector('[onclick*=events]'))">Ver todos →</button>
-        </div>
-        <div id="home-tibia-events"><div class="api-loading"><div class="spinner"></div> Carregando...</div></div>
-      </div>
-    </div>
-
-    <div class="reveal" style="margin-top:1.25rem">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
         <div class="tool-label" style="margin-bottom:0">Últimas notícias do Tibia</div>
         <a href="https://www.tibia.com/news/?subtopic=latestnews" target="_blank" rel="noopener" style="font-size:.78rem;color:var(--bamboo);font-weight:500;text-decoration:none">Ver todas →</a>
@@ -11209,7 +11199,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar8';
+window.TP_BUILD = '2026-10-05bazar9';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
