@@ -11217,7 +11217,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar14';
+window.TP_BUILD = '2026-10-05bazar15';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -23021,6 +23021,38 @@ window.tpLoadJornada=async function(){
     host().innerHTML=h;
   }
 
+  /* ─── listas do jogo p/ o form: itens (market-items.json) + casas (TibiaData) ─── */
+  var BZ_ITEMS=null, BZ_ITEMS_LOADING=null;
+  function bzLoadItems(){
+    if(BZ_ITEMS) return Promise.resolve(BZ_ITEMS);
+    if(BZ_ITEMS_LOADING) return BZ_ITEMS_LOADING;
+    BZ_ITEMS_LOADING=fetch('assets/data/market-items.json',{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ BZ_ITEMS=(d&&d.items)?d.items:[]; return BZ_ITEMS; })
+      .catch(function(){ BZ_ITEMS=[]; return BZ_ITEMS; });
+    return BZ_ITEMS_LOADING;
+  }
+  function bzFillItemDL(){
+    if(!document.getElementById('bz-item-dl')) return;
+    bzLoadItems().then(function(items){
+      var dl=document.getElementById('bz-item-dl'); if(!dl) return;
+      dl.innerHTML=items.map(function(it){ return '<option value="'+esc(it.n)+'">'; }).join('');
+    });
+  }
+  var BZ_TOWNS=["Ab'Dendriel","Ankrahmun","Carlin","Darashia","Edron","Farmine","Gray Beach","Issavi","Kazordoon","Liberty Bay","Port Hope","Rathleton","Svargrond","Thais","Venore","Yalahar"];
+  var BZ_HOUSE_CACHE={};
+  function bzFillHouseDL(){
+    var dl=document.getElementById('bz-house-dl'); if(!dl) return;
+    var world=myWorld(), town=(BZ.draft&&BZ.draft.town)||'';
+    if(!world||!town){ dl.innerHTML=''; return; }
+    var key=world+'|'+town;
+    if(BZ_HOUSE_CACHE[key]){ dl.innerHTML=BZ_HOUSE_CACHE[key].map(function(n){ return '<option value="'+esc(n)+'">'; }).join(''); return; }
+    fetch('https://api.tibiadata.com/v4/houses/'+encodeURIComponent(world)+'/'+encodeURIComponent(town),{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ var hh=(d&&d.houses)||{}; var arr=(Array.isArray(hh.house_list)?hh.house_list:[]).map(function(x){ return x.name; }).filter(Boolean).sort(); BZ_HOUSE_CACHE[key]=arr; var dl2=document.getElementById('bz-house-dl'); if(dl2) dl2.innerHTML=arr.map(function(n){ return '<option value="'+esc(n)+'">'; }).join(''); })
+      .catch(function(){});
+  }
+
   /* ─── chars verificados: carrega sozinho (nao depende de abrir o perfil) ─── */
   var _bzCharsFetched=false;
   function ensureChars(cb){
@@ -23051,10 +23083,15 @@ window.tpLoadJornada=async function(){
     h+='<label class="bz-lbl">Categoria</label><div class="bz-chips wide">';
     [['item','📦 Item'],['casa','🏠 Casa'],['servico','🛠️ Serviço']].forEach(function(s){ h+='<button class="bz-chip'+(d.kind===s[0]?' on':'')+'" onclick="tpBzDraft(\'kind\',\''+s[0]+'\')">'+s[1]+'</button>'; });
     h+='</div>';
-    h+='<label class="bz-lbl">Título *</label><input class="bz-in" maxlength="120" value="'+esc(d.title)+'" oninput="tpBzDraft(\'title\',this.value)" placeholder="'+(d.kind==='casa'?'Ex.: Casa em Thais, 5 sqm':(d.kind==='servico'?'Ex.: Power gaming / quests':'Ex.: Magic Sword Tier 3'))+'">';
+    if(d.kind==='casa'){
+      h+='<label class="bz-lbl">Cidade</label><select class="bz-sel" onchange="tpBzHouseTown(this.value)"><option value="">Escolha a cidade…</option>'+BZ_TOWNS.map(function(t){ return '<option value="'+esc(t)+'"'+((d.town===t)?' selected':'')+'>'+esc(t)+'</option>'; }).join('')+'</select>';
+    }
+    h+='<label class="bz-lbl">Título *</label><input class="bz-in" '+(d.kind==='casa'?'list="bz-house-dl" autocomplete="off" ':'')+'maxlength="120" value="'+esc(d.title)+'" oninput="tpBzDraft(\'title\',this.value)" placeholder="'+(d.kind==='casa'?'Selecione a cidade e escolha a casa da lista':(d.kind==='servico'?'Ex.: Power gaming / quests':'Ex.: Magic Sword Tier 3'))+'">';
+    if(d.kind==='casa') h+='<datalist id="bz-house-dl"></datalist>';
     if(d.kind==='item'){
-      h+='<div class="bz-row"><div style="flex:2"><label class="bz-lbl">Nome do item (pro sprite)</label><input class="bz-in" value="'+esc(d.item_name)+'" oninput="tpBzDraft(\'item_name\',this.value)" placeholder="Ex.: Magic Sword"></div>'
-        +'<div style="flex:1"><label class="bz-lbl">Tier</label><input class="bz-in" type="number" min="0" max="10" value="'+esc(d.tier)+'" oninput="tpBzDraft(\'tier\',this.value)" placeholder="—"></div></div>';
+      h+='<div class="bz-row"><div style="flex:2"><label class="bz-lbl">Nome do item (busque na lista)</label><input class="bz-in" list="bz-item-dl" autocomplete="off" value="'+esc(d.item_name)+'" oninput="tpBzDraft(\'item_name\',this.value)" placeholder="Ex.: Magic Sword"></div>'
+        +'<div style="flex:1"><label class="bz-lbl">Tier</label><input class="bz-in" type="number" min="0" max="10" value="'+esc(d.tier)+'" oninput="tpBzDraft(\'tier\',this.value)" placeholder="—"></div></div>'
+        +'<datalist id="bz-item-dl"></datalist>';
     }
     h+='<div class="bz-row"><div style="flex:2"><label class="bz-lbl">Preço</label><input class="bz-in" type="number" min="0" value="'+esc(d.price)+'" oninput="tpBzDraft(\'price\',this.value)" placeholder="'+(d.currency==='combinar'?'a combinar':'0')+'"'+(d.currency==='combinar'?' disabled':'')+'></div>'
       +'<div style="flex:1"><label class="bz-lbl">Moeda</label><select class="bz-sel" onchange="tpBzDraft(\'currency\',this.value)"><option value="gp"'+(d.currency==='gp'?' selected':'')+'>gp</option><option value="tc"'+(d.currency==='tc'?' selected':'')+'>TC</option><option value="combinar"'+(d.currency==='combinar'?' selected':'')+'>A combinar</option></select></div></div>';
@@ -23066,6 +23103,8 @@ window.tpLoadJornada=async function(){
     h+='</div>';
     host().innerHTML=h;
     paintPreview();
+    if(d.kind==='item') bzFillItemDL();
+    if(d.kind==='casa') bzFillHouseDL();
   }
   function paintPreview(){
     var pv=document.getElementById('bz-pv'); if(!pv) return; var d=BZ.draft;
@@ -23149,6 +23188,7 @@ window.tpLoadJornada=async function(){
   window.tpBzMine=function(){ BZ.view='mine'; render(); };
   window.tpBzAlerts=function(){ BZ.view='alerts'; render(); };
   window.tpBzDraft=function(k,v){ BZ.draft=BZ.draft||{}; BZ.draft[k]=v; if(k==='kind'||k==='currency'||k==='intent') render(); else paintPreview(); };
+  window.tpBzHouseTown=function(town){ BZ.draft=BZ.draft||{}; BZ.draft.town=town; bzFillHouseDL(); };
   window.tpBzMarket=function(name){ try{ if(window.showPage) showPage('markettracker'); if(window.tpMarketInit) tpMarketInit(); setTimeout(function(){ var i=document.querySelector('#markettracker input[type=text],#markettracker input:not([type])'); if(i){ i.value=name; i.dispatchEvent(new Event('input',{bubbles:true})); } },300); }catch(e){} };
   window.tpBzContato=function(uid){ if(!me()){ toast('Entre na conta pra conversar.','info'); return; } if(window.tpOpenChat){ tpOpenChat(uid); toast('Abra o chat e mande sua proposta 🐼','info'); } else { toast('Chat indisponível agora.','error'); } };
   window.tpBzReport=function(id){ if(!me()){ toast('Entre na conta pra denunciar.','info'); return; }
