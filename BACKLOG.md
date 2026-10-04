@@ -208,6 +208,14 @@ Auditoria de 30/09: RLS ligado nas 41 tabelas, políticas da `builds` corretas (
 
 ---
 
+## 🔎 SEO & descoberta
+
+**Feito (out/2026):** `sitemap.xml` + `robots.txt` na raiz (home + `calculadora-dano.html`); Google Analytics (gtag.js, `G-W5SB3RZ98J`).
+
+- [ ] **Roteamento por path real** (`/huntfinder`, `/bosses`, `/bestiary`…) no lugar do `#hash`, pra cada ferramenta indexar como página própria no Google. Técnica SPA do GitHub Pages: `404.html` que redireciona + `history.pushState` + `<link rel="canonical">` por página; depois expandir o `sitemap.xml` com essas URLs. _Risco:_ mexe no roteamento que já funciona — testar bem.
+- [ ] **Política de cookies/privacidade:** atualizar `#cookies` e `#privacy` mencionando o Google Analytics (cookies de medição do Google) — hoje o texto diz "sem analytics de terceiros".
+- [ ] _Menor:_ `<title>`/meta description e Open Graph por página quando o path routing existir.
+
 ## 🔗 Ferramentas de referência (inspiração)
 - **Simulador de revelar gemas** (Tibia do Zero): https://tibiadozero.com.br/ferramentas/simulador-revelar-gemas — referência forte pro sistema de gemas / Atelier (item 2d).
 - **Atelier de Gemas** (TibiaBR): https://www.tibiabr.com/23347/atelier-de-gemas/ — mecânica oficial dos mods básicos/supremos.
