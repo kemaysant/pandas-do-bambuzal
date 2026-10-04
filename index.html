@@ -1952,10 +1952,25 @@ async function tibiaFetch(path) {
       .hm-hi{display:flex;align-items:center;gap:10px;margin-bottom:12px}
       .hm-hi .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--bamboo),var(--bamboo-light,#a78bfa));display:grid;place-items:center;font-weight:800;color:#fff}.hm-hi b{color:var(--ink)}
       @media(max-width:720px){.hm-quick,.hm-shelf{grid-template-columns:repeat(2,1fr)}.hm-acct .acts{margin-left:0;width:100%}}
+      .tdy-card{position:relative;display:flex;gap:11px;align-items:center;border-radius:13px;padding:10px 12px;margin-bottom:9px}
+      .tdy-card.boost{background:linear-gradient(135deg,rgba(224,192,96,.13),rgba(224,192,96,.02)),var(--bg-1,#14131c);border:1px solid rgba(224,192,96,.38);border-left:3px solid var(--gold,#e0c060)}
+      .tdy-card.npc{background:var(--bg-1,#14131c);border:1px solid var(--rule,#2b2938)}
+      .tdy-pop{position:relative;width:50px;height:50px;border-radius:12px;background:linear-gradient(145deg,#312a4d,#1a1726);border:1px solid var(--rule,#2b2938);flex:none;overflow:visible}
+      .tdy-pop img{position:absolute;left:50%;bottom:3px;transform:translateX(-50%);width:58px;height:58px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 3px 5px rgba(0,0,0,.55))}
+      .tdy-info{flex:1;min-width:0}
+      .tdy-eye{font-size:.57rem;font-weight:800;letter-spacing:.06em;color:var(--gold,#e0c060);text-transform:uppercase;display:flex;align-items:center;gap:4px}
+      .tdy-name{font-size:.98rem;font-weight:800;color:var(--ink);margin:2px 0 6px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .tdy-badges{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+      .tdy-b{font-size:.58rem;font-weight:800;border-radius:999px;padding:2px 8px;white-space:nowrap}
+      .tdy-b.cre{background:rgba(123,179,106,.16);color:#8fe09a;border:1px solid rgba(123,179,106,.4)}
+      .tdy-b.boost{background:rgba(224,192,96,.14);color:var(--gold,#e0c060);border:1px solid rgba(224,192,96,.35)}
+      .tdy-b.npc{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--rule,#2b2938)}
+      .tdy-city{font-size:.74rem;color:var(--muted);margin-top:3px}
+      .tdy-city b{color:var(--ink-3,#b9b6c6)}
     </style>
 
     <!-- Conta / progresso — adapta a logado/deslogado -->
-    <div class="reveal">
+    <div class="reveal" style="margin-bottom:1.9rem">
       <div class="hm-cat">Progresso &amp; conta <span class="l"></span></div>
       <div id="home-account"></div>
     </div>
@@ -11186,7 +11201,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar5';
+window.TP_BUILD = '2026-10-05bazar6';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -13231,31 +13246,20 @@ function renderHomeBoosted(creature, boss) {
   const loading = document.getElementById('home-boosted-loading');
   if (loading) loading.style.display = 'none';
   if (!el) return;
-  el.style.display = 'flex';
-  el.style.flexDirection = 'column';
-  const items = [
-    creature ? { label:'Criatura', name: creature.name, img: creatureImgUrl(creature.name) } : null,
-    boss     ? { label:'Boss',     name: boss.name,     img: creatureImgUrl(boss.name)     } : null,
-  ].filter(Boolean);
-
-  if (!items.length) {
-    el.innerHTML = '<p style="font-size:.82rem;color:var(--muted);font-weight:300;padding:.5rem 0">Dados não disponíveis no momento.</p>';
-    return;
+  el.style.display='flex'; el.style.flexDirection='column'; el.style.gap='0';
+  function _e(x){ return window.esc?window.esc(x):String(x==null?'':x); }
+  function catBadge(name){ try{ if(typeof bossCatBadge==='function'){ var b=bossCatBadge(name); if(b) return b; } }catch(e){} return '<span class="tdy-b" style="background:rgba(167,139,250,.16);color:#c4b5fd;border:1px solid rgba(167,139,250,.4)">Boss</span>'; }
+  function card(name,img,eyebrow,badge){
+    return '<div class="tdy-card boost">'
+      +'<div class="tdy-pop"><img loading="lazy" decoding="async" src="'+img+'" alt="'+_e(name)+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=creatureImgUrl(this.alt)}else{this.style.opacity=.2}"></div>'
+      +'<div class="tdy-info"><div class="tdy-eye">⭐ '+eyebrow+'</div><div class="tdy-name" title="'+_e(name)+'">'+_e(name)+'</div>'
+      +'<div class="tdy-badges">'+badge+'<span class="tdy-b boost">⚔️ +drop e +spawn hoje</span></div></div></div>';
   }
-
-  el.innerHTML = items.map(item => `
-    <div style="display:flex;align-items:center;gap:.75rem;padding:.65rem 0;border-bottom:1px solid var(--rule)">
-      <div style="width:52px;height:52px;flex-shrink:0;background:var(--bg-2);border-radius:8px;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;overflow:hidden">
-        <img loading="lazy" decoding="async" src="${item.img}" alt="${item.name}"
-          style="width:52px;height:52px;image-rendering:pixelated;object-fit:contain"
-          onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=creatureImgUrl(this.alt)}else{this.style.opacity='.2'}">
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:600;font-size:.88rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.name}</div>
-        <div style="font-size:.7rem;color:var(--muted);font-weight:300;margin-top:1px">+50% hoje · ${item.label}</div>
-      </div>
-      <span style="font-size:.62rem;background:var(--bamboo-pale);color:var(--bamboo);padding:2px 9px;border-radius:10px;font-weight:600;flex-shrink:0">BOOST</span>
-    </div>`).join('');
+  var html='';
+  if(creature) html+=card(creature.name, creatureImgUrl(creature.name), 'Criatura boostada', '<span class="tdy-b cre">🐾 Criatura</span>');
+  if(boss) html+=card(boss.name, creatureImgUrl(boss.name), 'Boss boostado', catBadge(boss.name));
+  if(!html){ el.innerHTML='<p style="font-size:.82rem;color:var(--muted);font-weight:300;padding:.5rem 0">Dados não disponíveis no momento.</p>'; return; }
+  el.innerHTML=html;
 }
   function rashidCityToday(){
     try{
@@ -13268,11 +13272,10 @@ function renderHomeBoosted(creature, boss) {
   function renderRashid(){
     var el=document.getElementById('home-rashid'); if(!el) return;
     var city=rashidCityToday();
-    el.innerHTML='<div style="display:flex;align-items:center;gap:.75rem;padding:.65rem 0;border-top:1px solid var(--rule)">'
-      +'<div style="width:52px;height:52px;flex-shrink:0;background:var(--bg-2);border-radius:8px;border:1px solid var(--rule);display:flex;align-items:center;justify-content:center;overflow:hidden"><img loading="lazy" src="https://www.tibiawiki.com.br/wiki/Special:FilePath/Rashid.gif" alt="Rashid" style="width:40px;height:40px;image-rendering:pixelated;object-fit:contain" onerror="this.style.opacity=0.2"></div>'
-      +'<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.88rem;color:var(--ink)">Rashid</div><div style="font-size:.7rem;color:var(--muted);margin-top:1px">Hoje em <b style="color:var(--gold,#c9a840)">'+city+'</b></div></div>'
-      +'<span style="font-size:.62rem;background:rgba(201,168,64,.14);color:var(--gold,#c9a840);padding:2px 9px;border-radius:10px;font-weight:600;flex-shrink:0">NPC</span>'
-      +'</div>';
+    el.innerHTML='<div class="tdy-card npc">'
+      +'<div class="tdy-pop"><img loading="lazy" src="https://www.tibiawiki.com.br/wiki/Special:FilePath/Rashid.gif" alt="Rashid" onerror="this.style.opacity=.2"></div>'
+      +'<div class="tdy-info"><div class="tdy-name">Rashid</div><div class="tdy-badges" style="margin-bottom:4px"><span class="tdy-b npc">NPC viajante</span></div>'
+      +'<div class="tdy-city">📍 Hoje em <b>'+city+'</b></div></div></div>';
   }
   window.renderRashid=renderRashid;
 
