@@ -3410,10 +3410,12 @@ async function tibiaFetch(path) {
 
   <!-- ─── QUEST GUIDE ─── -->
   <section class="page-section" id="quests">
-    <h2 class="sec-title">Jornada do Panda</h2>
-    <p class="sec-sub">Sua rota de desenvolvimento por vocação — hunts, quests, progressão de item e recompensas, do nível 8 ao end-game. Marque o que já fez; o progresso salva na sua conta.</p>
+    <h2 class="sec-title">Guia de Quests</h2>
+    <p class="sec-sub">As 237 quests do Tibia organizadas por <b>faixa de nível</b> — recompensa, saga e nível mínimo de cada uma. Entre na conta pra marcar o que já concluiu e salvar o progresso. <span style="color:var(--ink-3)">Fonte: TibiaDraptor.</span></p>
 
-    <div id="jornada-root"><div class="api-loading"><div class="spinner"></div> Carregando jornada...</div></div>
+    <div id="jr-summary" style="margin-bottom:1rem"></div>
+    <div id="jr-filters" style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem"></div>
+    <div id="jr-body"><div class="api-loading"><div class="spinner"></div> Carregando guia...</div></div>
   </section>
 
   <!-- ─── IMBUEMENTS ─── -->
@@ -5186,7 +5188,7 @@ PlayerName (Leader)
       <button class="pf-tab" data-tab="chars" onclick="tpProfTab('chars',this)">🎽 Personagens</button>
       <button class="pf-tab" data-tab="prog" onclick="tpProfTab('prog',this)">🎮 Progressão</button>
       <button class="pf-tab" data-tab="inventario" onclick="tpProfTab('inventario',this)">🎒 Inventário</button>
-      <button class="pf-tab" data-tab="jornada" onclick="showPage('quests')">🗺 Jornada</button>
+      <button class="pf-tab" data-tab="jornada" onclick="tpProfTab('jornada',this)">🗺 Jornada</button>
       <button class="pf-tab" data-tab="houses" onclick="tpProfTab('houses',this)">🏠 Houses</button>
       <span class="pf-tabdiv" aria-hidden="true"></span>
       <button class="pf-tab" data-tab="amigos" onclick="tpProfTab('amigos',this)">👥 Amigos <span id="pf-amigos-badge" class="pf-tabbadge" style="display:none">0</span></button>
@@ -5206,14 +5208,12 @@ PlayerName (Leader)
       </div>
     </div>
 
-    <!-- JORNADA DE QUESTS -->
+    <!-- JORNADA DO PANDA (rota por vocacao do char verificado) -->
     <div class="pf-panel" data-panel="jornada" style="display:none">
       <div class="card">
-        <div class="tool-title" style="font-size:1.05rem;margin-bottom:.3rem">🗺 Jornada de Quests</div>
-        <div style="font-size:.76rem;color:var(--muted);margin-bottom:.9rem">237 quests reais do Tibia organizadas por <b>faixa de nível</b>. Marque as que você já concluiu — o progresso fica salvo na sua conta. <span style="color:var(--ink-3)">Fonte: TibiaDraptor.</span></div>
-        <div id="jr-summary" style="margin-bottom:1rem"></div>
-        <div id="jr-filters" style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem"></div>
-        <div id="jr-body"><div class="api-loading"><div class="spinner"></div> Carregando jornada...</div></div>
+        <div class="tool-title" style="font-size:1.05rem;margin-bottom:.3rem">🗺 Jornada do Panda</div>
+        <div style="font-size:.76rem;color:var(--muted);margin-bottom:.9rem">Sua rota de desenvolvimento <b>pela vocação do seu personagem verificado</b> — hunts, quests, progressão de item e recompensas, do nível 8 ao end-game. Troque entre seus chars verificados pra ver a rota de cada vocação.</div>
+        <div id="jornada-root"><div class="api-loading"><div class="spinner"></div> Carregando sua jornada...</div></div>
       </div>
     </div>
 
@@ -11076,7 +11076,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-04boss5';
+window.TP_BUILD = '2026-10-05jor1';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -12819,8 +12819,8 @@ function showPage(id, btn) {
     var _bd=document.getElementById('builds'); if(_bd) _bd.classList.remove('detail');
     var _bln=document.getElementById('bld-listnote'); if(_bln) _bln.style.display='';
   }
-  if (id === 'quests' && window.tpJornadaInit) {
-    tpJornadaInit('jornada-root');
+  if (id === 'quests' && window.tpLoadJornada) {
+    tpLoadJornada();
   }
   if (id === 'dashboard' && window.tpRenderDashboard) {
     tpRenderDashboard();
@@ -17398,7 +17398,7 @@ function ewEnsureTcInput() {
       document.querySelectorAll('#profile .rk-sbtn').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-scope')==='global');});
       if(window.tpLoadRankings) tpLoadRankings();
     }
-    if(name==='jornada' && window.tpLoadJornada) tpLoadJornada();
+    if(name==='jornada' && window.tpJornadaInit) tpJornadaInit('jornada-root');
     if(name==='houses' && window.tpProfHouses) tpProfHouses();
     if(name==='eventos' && window.tpProfEvents) tpProfEvents();
     if(name==='dados' && window.tpLoadHandle) tpLoadHandle();
@@ -19407,15 +19407,13 @@ window.tpLoadJornada=async function(){
   jrInjectStyle();
   var host=document.getElementById('jr-body'); if(!host) return;
   var A=window.TP_AUTH;
-  var sumEl=document.getElementById('jr-summary'), filEl=document.getElementById('jr-filters');
-  if(!A||!A.user){ host.innerHTML='<div class="vit-empty">Entre na sua conta pra acompanhar sua jornada de quests. 🐼</div>'; if(sumEl) sumEl.innerHTML=''; if(filEl) filEl.innerHTML=''; return; }
   // tenta puxar o nível do personagem principal pra pré-preencher "Meu nível"
   if(!window.__JR_LVL){ try{ var f=(window.__GAMI&&window.__GAMI.feat)||null; if(f&&f.level) window.__JR_LVL=+f.level; }catch(e){} }
-  if(window.__JR_DONE===null){
-    host.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando sua jornada...</div>';
+  if((A&&A.user) && window.__JR_DONE===null){
+    host.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando seu progresso...</div>';
     var done=[]; try{ var r=await af(SB+'/rest/v1/rpc/tp_quest_progress',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}); if(r.ok){ var j=await r.json(); done=(j&&j.done)||[]; } }catch(e){}
     window.__JR_DONE=new Set(done);
-  }
+  } else if(!window.__JR_DONE){ window.__JR_DONE=new Set(); }
   jrRenderFilters(); jrRenderSummary(); jrRenderBody();
 };
 
@@ -22311,6 +22309,33 @@ window.tpLoadJornada=async function(){
   function auth(){ return window.TP_AUTH&&window.TP_AUTH.user?window.TP_AUTH:null; }
   var SB=(window.PANDA_SB_URL||'https://vrhsylkkdqnakftjutvb.supabase.co');
   function af(u,o){ return (window.tpAuthFetch||fetch)(u,o); }
+  function vocFullKey(voc){ var v=(voc||'').toLowerCase();
+    if(v.indexOf('knight')>=0) return 'knight';
+    if(v.indexOf('druid')>=0) return 'druid';
+    if(v.indexOf('sorcerer')>=0) return 'sorcerer';
+    if(v.indexOf('paladin')>=0) return 'paladin';
+    if(v.indexOf('monk')>=0) return 'monk';
+    return null; }
+  var VOCEMO={knight:'🛡️',paladin:'🏹',sorcerer:'🔮',druid:'🌿',monk:'🧘'};
+  async function loadJorChars(){
+    var raw=window.__tpChars;
+    if(!Array.isArray(raw)||!raw.length){
+      try{ var r=await af(SB+'/rest/v1/characters?select=name,level,vocation,verified&verified=is.true&order=level.desc.nullslast'); if(r&&r.ok) raw=await r.json(); }catch(e){ raw=[]; }
+    }
+    var seen={}, out=[];
+    (Array.isArray(raw)?raw:[]).forEach(function(c){
+      if(!c||!c.verified) return; var k=vocFullKey(c.vocation); if(!k) return;
+      if(seen[c.name]) return; seen[c.name]=1;
+      out.push({name:c.name,level:+c.level||0,voc:k,vocRaw:c.vocation||k});
+    });
+    out.sort(function(a,b){ return (b.level||0)-(a.level||0); });
+    return out;
+  }
+  function jorGate(kind){
+    if(kind==='login') return '<div class="jor-gate">🐼 <b>Entre na sua conta</b> pra ver sua jornada por vocação.<br>Ela usa a vocação e o nível do seu personagem verificado pra montar a rota.</div>';
+    return '<div class="jor-gate">🗺 <b>Verifique um personagem</b> pra ativar sua jornada.<br>A rota é montada pela <b>vocação</b> do seu char verificado. Vá em <b>Personagens</b>, verifique um boneco e volte aqui. 🐼<div style="margin-top:10px"><button onclick="tpJorGoChars()" style="background:var(--jg,#c9a840);color:#1a1710;border:0;border-radius:10px;padding:9px 15px;font-weight:700;font-size:.82rem;cursor:pointer">Ir pra Personagens →</button></div></div>';
+  }
+  window.tpJorGoChars=function(){ var t=document.querySelector('#profile .pf-tab[data-tab=chars]'); if(t) t.click(); };
   J.dataByVoc=J.dataByVoc||{};
   async function loadVocData(voc){
     if(J.dataByVoc[voc]){ J.data=J.dataByVoc[voc]; return true; }
@@ -22485,18 +22510,19 @@ window.tpLoadJornada=async function(){
   }
 
   function renderSelector(){
-    var h='<div class="jor-sel"><div><span class="jor-lbl">Vocação</span><div class="jor-vocs">';
-    VOCS.forEach(function(v){
-      var on=v.k===J.voc;
-      var cls='jor-voc'+(on?' on':'')+(v.on?'':' off');
-      var style=on?('border-color:'+v.color+';background:'+v.color+'22'):'';
-      var attr=v.on?(' onclick="tpJorVoc(\''+v.k+'\')"'):' title="Em breve"';
-      h+='<div class="'+cls+'"'+attr+' style="'+style+'">'
-        +'<span class="vd" style="background:'+v.color+'"></span>'+v.label+(v.on?'':'<span class="soon">em breve</span>')+'</div>';
+    var chars=J.chars||[];
+    var h='<div class="jor-sel"><div style="flex:1;min-width:0"><span class="jor-lbl">Sua vocação — pelo personagem verificado</span><div class="jor-vocs">';
+    chars.forEach(function(c,i){
+      var on=(c.name===J.charName);
+      var col=(VOCS.filter(function(v){return v.k===c.voc;})[0]||{}).color||'#9a97a8';
+      var style=on?('border-color:'+col+';background:'+col+'22'):'';
+      h+='<div class="jor-voc'+(on?' on':'')+'" onclick="tpJorChar('+i+')" style="'+style+'" title="'+esc(c.vocRaw)+' · Lv '+c.level+'">'
+        +'<span class="vd" style="background:'+col+'"></span>'+(VOCEMO[c.voc]||'🐼')+' '+esc(c.name)
+        +'<span class="soon" style="background:transparent;color:var(--muted)">Lv '+c.level+'</span></div>';
     });
     h+='</div></div>';
-    h+='<div><span class="jor-lbl">Meu nível</span><input class="jor-lvin" type="number" min="1" value="'+(J.lvl||'')+'" placeholder="—" oninput="tpJorLvl(this.value)"></div>';
-    h+='<div class="jor-noob" onclick="tpJorGo(0)">🐣 Comecei agora — <b>seguir a rota do zero →</b></div>';
+    h+='<div><span class="jor-lbl">Ver a partir do nível</span><input class="jor-lvin" type="number" min="1" value="'+(J.lvl||'')+'" placeholder="—" oninput="tpJorLvl(this.value)"></div>';
+    h+='<div class="jor-noob" onclick="tpJorGo(0)">🐣 <b>Começar a rota do zero →</b></div>';
     h+='</div>';
     return h;
   }
@@ -22594,6 +22620,19 @@ window.tpLoadJornada=async function(){
     J.open=currentChapterIdx();
     render();
   };
+  window.tpJorChar=async function(i){
+    var c=(J.chars||[])[i]; if(!c) return;
+    J.charName=c.name; J.lvl=c.level||0; J.open=-1;
+    var host=document.getElementById(J.host);
+    if(c.voc!==J.voc){
+      J.voc=c.voc;
+      if(host){ host.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando jornada de '+esc(c.vocRaw)+'...</div>'; }
+      var ok=await loadVocData(c.voc);
+      if(!ok){ if(host) host.innerHTML='<div class="jor-empty">Não consegui carregar essa vocação.</div>'; return; }
+    }
+    J.open=currentChapterIdx();
+    render();
+  };
   window.tpJorLvl=function(v){ J.lvl=parseInt(v)||0; render(); };
   window.tpJorToggle=function(i){ J.open=(J.open===i?-1:i); render(); if(J.open===i){ var el=document.querySelectorAll('#'+J.host+' .jor-ch')[i]; if(el) el.scrollIntoView({block:'nearest',behavior:'smooth'}); } };
   window.tpJorGo=function(i){ J.open=i; render(); var el=document.querySelectorAll('#'+J.host+' .jor-ch')[i]; if(el) el.scrollIntoView({block:'center',behavior:'smooth'}); };
@@ -22644,27 +22683,33 @@ window.tpLoadJornada=async function(){
     var host=document.getElementById(J.host); if(!host) return;
     if(J.loading) return; J.loading=true;
     injectCSS();
-    // vocação/level auto do char
-    if(!J.lvl){ try{ var f=(window.__GAMI&&window.__GAMI.feat)||null; if(f&&f.level) J.lvl=+f.level; }catch(e){} }
-    // dados do guia (por vocação)
-    if(!J.data){
-      host.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando sua jornada...</div>';
+    var A=auth();
+    if(!A){ host.className='jor'; host.innerHTML=jorGate('login'); J.loading=false; return; }
+    // chars verificados do usuário (com vocação)
+    host.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando sua jornada...</div>';
+    J.chars=await loadJorChars();
+    if(!J.chars.length){ host.className='jor'; host.innerHTML=jorGate('verify'); J.loading=false; return; }
+    // escolhe char principal: main_char (se lv>=100) senão o de maior nível
+    var mk=(A.profile&&A.profile.main_char)?String(A.profile.main_char).toLowerCase():null;
+    var chosen=mk?(J.chars.filter(function(c){return c.name.toLowerCase()===mk;})[0]):null;
+    if(!chosen || (chosen.level||0)<100) chosen=J.chars[0];
+    J.charName=chosen.name; J.voc=chosen.voc; J.lvl=chosen.level||0;
+    // dados do guia (por vocação do char)
+    if(!J.dataByVoc[J.voc]){
       var ok=await loadVocData(J.voc);
       if(!ok){ host.innerHTML='<div class="jor-empty">Não consegui carregar a jornada agora. Tente recarregar a página.</div>'; J.loading=false; return; }
-    }
+    } else { J.data=J.dataByVoc[J.voc]; }
     // progresso + claimed (logado)
-    var A=auth();
-    if(A){
-      if(J.done===null||J.done===undefined){ try{ var rp=await af(SB+'/rest/v1/rpc/tp_quest_progress',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}); if(rp.ok){ var jp=await rp.json(); J.done=new Set((jp&&jp.done)||[]); } }catch(e){ J.done=new Set(); } }
-      if(J.claimed===null||J.claimed===undefined){ try{ var rc=await af(SB+'/rest/v1/rpc/tp_jornada_claimed',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}); if(rc.ok){ var jc=await rc.json(); J.claimed=new Set((jc&&jc.claimed)||[]); } }catch(e){ J.claimed=new Set(); } }
-    } else { if(!J.done) J.done=new Set(); if(!J.claimed) J.claimed=new Set(); }
-    if(J.open<0) J.open=currentChapterIdx();
+    if(J.done===null||J.done===undefined){ try{ var rp=await af(SB+'/rest/v1/rpc/tp_quest_progress',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}); if(rp.ok){ var jp=await rp.json(); J.done=new Set((jp&&jp.done)||[]); } }catch(e){ J.done=new Set(); } }
+    if(J.claimed===null||J.claimed===undefined){ try{ var rc=await af(SB+'/rest/v1/rpc/tp_jornada_claimed',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}); if(rc.ok){ var jc=await rc.json(); J.claimed=new Set((jc&&jc.claimed)||[]); } }catch(e){ J.claimed=new Set(); } }
+    if(!J.done) J.done=new Set(); if(!J.claimed) J.claimed=new Set();
+    J.open=currentChapterIdx();
     J.loading=false;
     render();
   };
 
   // re-init quando o usuário loga/desloga (pra puxar progresso)
-  window.tpJornadaReset=function(){ J.done=null; J.claimed=null; J.loading=false; if(document.getElementById(J.host||'jornada-root')) window.tpJornadaInit(J.host); };
+  window.tpJornadaReset=function(){ J.done=null; J.claimed=null; J.chars=null; J.charName=null; J.loading=false; if(document.getElementById(J.host||'jornada-root')) window.tpJornadaInit(J.host); };
 })();
 
 </script>
