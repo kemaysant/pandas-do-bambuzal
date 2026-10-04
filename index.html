@@ -11201,7 +11201,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar6';
+window.TP_BUILD = '2026-10-05bazar7';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -13249,15 +13249,15 @@ function renderHomeBoosted(creature, boss) {
   el.style.display='flex'; el.style.flexDirection='column'; el.style.gap='0';
   function _e(x){ return window.esc?window.esc(x):String(x==null?'':x); }
   function catBadge(name){ try{ if(typeof bossCatBadge==='function'){ var b=bossCatBadge(name); if(b) return b; } }catch(e){} return '<span class="tdy-b" style="background:rgba(167,139,250,.16);color:#c4b5fd;border:1px solid rgba(167,139,250,.4)">Boss</span>'; }
-  function card(name,img,eyebrow,badge){
+  function card(name,img,eyebrow,badge,boostTxt){
     return '<div class="tdy-card boost">'
       +'<div class="tdy-pop"><img loading="lazy" decoding="async" src="'+img+'" alt="'+_e(name)+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=creatureImgUrl(this.alt)}else{this.style.opacity=.2}"></div>'
       +'<div class="tdy-info"><div class="tdy-eye">⭐ '+eyebrow+'</div><div class="tdy-name" title="'+_e(name)+'">'+_e(name)+'</div>'
-      +'<div class="tdy-badges">'+badge+'<span class="tdy-b boost">⚔️ +drop e +spawn hoje</span></div></div></div>';
+      +'<div class="tdy-badges">'+badge+'<span class="tdy-b boost">'+boostTxt+'</span></div></div></div>';
   }
   var html='';
-  if(creature) html+=card(creature.name, creatureImgUrl(creature.name), 'Criatura boostada', '<span class="tdy-b cre">🐾 Criatura</span>');
-  if(boss) html+=card(boss.name, creatureImgUrl(boss.name), 'Boss boostado', catBadge(boss.name));
+  if(creature) html+=card(creature.name, creatureImgUrl(creature.name), 'Criatura boostada', '<span class="tdy-b cre">🐾 Criatura</span>', '⚔️ +drop e +spawn hoje');
+  if(boss) html+=card(boss.name, creatureImgUrl(boss.name), 'Boss boostado', catBadge(boss.name), _bossBoostTxt(boss.name));
   if(!html){ el.innerHTML='<p style="font-size:.82rem;color:var(--muted);font-weight:300;padding:.5rem 0">Dados não disponíveis no momento.</p>'; return; }
   el.innerHTML=html;
 }
@@ -13429,7 +13429,7 @@ function renderLeverGrid() {
     html+='<div class="lev-hero">'+_tpPopbox(boosted,'l')
       +'<div><div style="font-size:.62rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--gold-light,#e0c060)">⭐ Boostado de hoje</div>'
       +'<div style="font-size:1.35rem;font-weight:800;color:var(--ink);margin:.1rem 0 .4rem;letter-spacing:-.3px">'+_bossEsc(boosted)+'</div>'
-      +'<div style="display:flex;gap:.45rem;flex-wrap:wrap;align-items:center">'+bossCatBadge(boosted,true)+'<span class="lev-boost">⚔️ +drop e +spawn hoje</span></div></div></div>';
+      +'<div style="display:flex;gap:.45rem;flex-wrap:wrap;align-items:center">'+bossCatBadge(boosted,true)+'<span class="lev-boost">'+_bossBoostTxt(boosted)+'</span></div></div></div>';
   }
   html+=sorted.map(_leverCard).join('');
   html+='</div>';
@@ -13486,6 +13486,8 @@ var BOSS_CATS={ nemesis:{label:'Nemesis',sym:'\ud83d\udd34',color:'#e05a5a',prow
 function bossCategory(name){ if(!name) return null; var k=String(name).toLowerCase(); if(typeof TD_BOSS_CAT!=='undefined' && TD_BOSS_CAT[k]) return TD_BOSS_CAT[k]; return (typeof NEMESIS_NAMES!=='undefined' && NEMESIS_NAMES.has(name)) ? 'nemesis' : null; }
 function bossCatBadge(name,big){ var c=bossCategory(name); if(!c) return ''; var m=BOSS_CATS[c];
   return '<span title="Categoria do Bosstiary" style="display:inline-flex;align-items:center;gap:4px;font-size:'+(big?'.72rem':'.6rem')+';font-weight:800;color:'+m.color+';background:'+m.color+'1f;border:1px solid '+m.color+'55;border-radius:20px;padding:'+(big?'2px 9px':'1px 6px')+'">'+m.sym+' '+m.label+'</span>'; }
+// boss de alavanca (lever = boostable nao-nemesis) so ganha boost de drop; boss/criatura que spawna ganha drop + spawn
+function _bossBoostTxt(name){ try{ if(typeof NEMESIS_NAMES!=='undefined' && !NEMESIS_NAMES.has(name)) return '⚔️ +drop de equipamento hoje'; }catch(e){} return '⚔️ +drop e +spawn hoje'; }
 window.tpCloseBoss=function(){ var m=document.getElementById('tp-boss-modal'); if(m) m.style.display='none'; };
 window.TP_BOSS_EXTRA = window.TP_BOSS_EXTRA || {
   // Overrides curados (dados reais). Qualquer boss fora daqui busca ao vivo na TibiaWiki (Fandom).
