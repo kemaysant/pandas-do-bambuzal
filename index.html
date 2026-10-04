@@ -11218,7 +11218,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar17';
+window.TP_BUILD = '2026-10-05bazar18';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -22736,7 +22736,7 @@ window.tpLoadJornada=async function(){
       g+=ess.map(function(id){ return questRowHTML(id,idx); }).join('');
       if(rest.length){ g+='<details class="jor-more"><summary>ver todas as quests (+'+rest.length+')</summary>'+rest.map(function(id){ return questRowHTML(id,idx); }).join('')+'</details>'; }
     } else g+='<div class="jor-empty">Nenhuma quest específica nesta faixa — foco em hunt e progressão.</div>';
-    if(ch.tdz&&ch.tdz.length){ g+='<div style="margin-top:8px;font-size:.68rem;color:var(--muted)">💡 tibiadozero recomenda: '+ch.tdz.map(function(t){return t.w?('<a href="'+esc(t.w)+'" target="_blank" style="color:#a78bfa;text-decoration:none">'+esc(t.n)+'</a>'):esc(t.n);}).join(' · ')+'</div>'; }
+    if(ch.tdz&&ch.tdz.length){ g+='<div style="margin-top:8px;font-size:.68rem;color:var(--muted)">💡 Recomendado: '+ch.tdz.map(function(t){return t.w?('<a href="'+esc(t.w)+'" target="_blank" style="color:#a78bfa;text-decoration:none">'+esc(t.n)+'</a>'):esc(t.n);}).join(' · ')+'</div>'; }
     g+='</div>';
     // reward — verificação fidedigna (nível + conquistas do perfil Tibia.com)
     var reqParts=['nível <b>'+ch.reqLevel+'</b>'];
@@ -22758,7 +22758,7 @@ window.tpLoadJornada=async function(){
 
   function renderRoadmap(){
     var h='<div class="jor-rmh">A Rota — '+esc(J.data.vocLabel)+'</div>';
-    h+='<div class="jor-rmsub">Capítulos por faixa de nível. Fonte: guia por vocação do tibiadozero + quests reais do Tibia. Clique pra expandir.</div>';
+    h+='<div class="jor-rmsub">Capítulos por faixa de nível, com quests reais do Tibia. Clique pra expandir.</div>';
     h+='<div class="jor-road">';
     J.data.chapters.forEach(function(ch,i){ h+=renderChapter(ch,i); });
     h+='</div>';
