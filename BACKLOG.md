@@ -1,6 +1,6 @@
 # Tibia Panda — Produto · Status & Backlog
 
-_Atualizado: 2026-10-03_
+_Atualizado: 2026-10-04_
 
 Objetivo: ser o hub do Tibia BR — ferramentas de alto padrão **e** comunidade. Regra permanente: **dados reais, nunca inventados**. O produto cresceu além das builds: hoje tem bosses, eventos/agenda, hunt analyser, economia (Panda Coins)/store e conta social. Esta primeira parte é o **roadmap atual por área**; a parte detalhada de **Builds & Ferramentas** segue preservada mais abaixo.
 
@@ -60,6 +60,11 @@ Objetivo: ser o hub do Tibia BR — ferramentas de alto padrão **e** comunidade
 
 ### G. 📅 Eventos / Agenda (pendências)
 - [ ] **Capa (imagem/banner)** pros eventos — upload do host vs. biblioteca por tipo; onde armazenar (Supabase Storage?); recorte padrão; fallback por tipo. O cabeçalho já está pronto pra receber a imagem.
+
+### H. 🛒 Bazar / Marketplace — NOVO (em mockup; grátis agora, monetização depois)
+**Estratégia:** tudo grátis pra **validar a plataforma**; nunca esconder dados (≠ ExevoPan Pro, que tranca "investido"/filtros/alertas). Pagar só pra **aparecer** (destaque), não pra ver — de preferência com **gems da Panda** (Pix como opção futura via gateway). Diferencial vs. TibiaTrade/ExevoPan = **confiança** (char verificado + karma). Mockups em `Downloads/tibiapanda_mockups/`.
+- [ ] **Bazar da Panda (itens/casas/serviços)** — classificados P2P Vendo/Procuro; char verificado + karma, contato pelo **DM interno** + notificação no sino; moderação; expira 30d (renovar/vendido); avaliar karma pós-negócio; página do anúncio com atributos do item em **chips** (anti-TibiaTrade) + link pro Market Tracker. Só troca **in-game**. Mockup: `bazar-completo.html`.
+- [ ] **Bazar de Personagens (agregador do Char Bazaar oficial)** — QUER FAZER, **falta infra**. _Pesquisa out/2026:_ CipSoft **não tem API** e **TibiaData não cobre** o bazaar → única fonte = HTML do tibia.com **atrás de Cloudflare** = **scraping** (worker always-on + **proxies rotativos** + manutenção quando o layout muda; **edge function do Supabase não serve**). Rodar no **VPS** é a opção; dá pra **forkar o scraper open-source do ExevoPan** (reuso liberado). **Interim viável:** _vitrine leve_ — user cola o **link do leilão** → Panda puxa só aquela página (1 req + cache, mesma técnica da verificação de char). Lance continua no **leilão oficial (↗)** — só CipSoft transfere char. Mockups: `bazar-personagens.html` (feed estilo ExevoPan, stats completos) + `card-patrocinado.html` (destaque dourado). Destaque/boost já desenhado pra plugar depois.
 
 ---
 
