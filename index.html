@@ -4808,7 +4808,7 @@ PlayerName (Leader)
       #profile .pf-prog-bar{height:9px;border-radius:999px;background:var(--bg-3,#23212f);overflow:hidden}
       #profile .pf-prog-fill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--bamboo,#8b5cf6),var(--bamboo-light,#a78bfa));transition:width .5s cubic-bezier(.4,0,.2,1)}
       #profile .pf-prog-hint{font-size:.72rem;color:var(--muted);margin-top:.4rem}
-      #profile .pf-tabs{display:flex;align-items:center;flex-wrap:wrap;gap:.05rem .1rem;margin-bottom:1rem;border-bottom:1px solid var(--rule);padding-bottom:0}
+      #profile .pf-tabs{display:flex;align-items:center;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:.05rem .1rem;margin-bottom:1rem;border-bottom:1px solid var(--rule);padding-bottom:0;scrollbar-width:thin}
       #profile .pf-tab{white-space:nowrap;flex:none}
       #profile .pf-tabdiv{flex:none;align-self:stretch;width:1px;height:1.1rem;margin:.35rem .3rem;background:var(--rule);opacity:.7}
       #profile .pf-tab{background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:.5rem .62rem;cursor:pointer;font-size:.85rem;font-weight:600;transition:color .15s,border-color .15s;margin-bottom:-1px}
@@ -5221,6 +5221,11 @@ PlayerName (Leader)
           <div class="card pf-side-card">
             <div class="pf-side-h">📊 Resumo</div>
             <div id="pf-visao-stats" class="pf-stats"></div>
+          </div>
+          <div class="card pf-side-card">
+            <div class="pf-side-h">🎯 Meus Bosses <span id="pf-visao-bosscount" style="color:var(--muted);font-weight:400"></span></div>
+            <div id="pf-visao-bosses"><div style="font-size:.78rem;color:var(--muted)">Carregando...</div></div>
+            <button class="pf-side-more" onclick="var t=document.querySelector('#profile .pf-tab[data-tab=bosses]');if(t)t.click()">Ver todos →</button>
           </div>
           <div class="card pf-side-card">
             <div class="pf-side-h">👥 Amigos <span id="pf-visao-fcount" style="color:var(--muted);font-weight:400"></span></div>
@@ -11068,7 +11073,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-04boss3';
+window.TP_BUILD = '2026-10-04boss4';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -13313,7 +13318,7 @@ function renderLeverGrid() {
 }
 
 function togglePin(name, btn) {
-  event.stopPropagation();
+  if(typeof event!=='undefined'&&event&&event.stopPropagation) event.stopPropagation();
   const idx = pinnedBosses.indexOf(name);
   if (idx >= 0) pinnedBosses.splice(idx, 1);
   else pinnedBosses.push(name);
@@ -13725,15 +13730,22 @@ function _bossImgFallback(name){
   return ('https://wsrv.nl/?url='+encodeURIComponent('https://cdn.tibiaroute.com/monsters/'+slug+'.gif')+'&n=-1').replace(/'/g,'%27');
 }
 function _bossImgFallback2(name){
-  // 2o nivel: TibiaWiki BR (Special:FilePath, GIF animado) — cobre bosses raros que a tibiaroute nao tem (Bone Overlord, Court Warlock...)
+  // 2o nivel: TibiaWiki BR (Special:FilePath, GIF animado), nome como vem da API (Title-Case)
   return 'https://www.tibiawiki.com.br/wiki/Special:FilePath/'+encodeURIComponent((name||'').replace(/ /g,'_'))+'.gif';
 }
-// onerror unico p/ sprites de boss: exevopan (primario) -> tibiaroute(animado) -> tibiawiki-br(animado) -> fade
+function _bossImgFallback3(name){
+  // 3o nivel: TibiaWiki BR com conectores minusculos (o wiki e inconsistente no case: uns "X of Y", outros "X Of Y")
+  var conn={of:1,the:1,a:1,an:1,and:1,'in':1,to:1,from:1};
+  var slug=(name||'').split(' ').map(function(w,i){ var lw=w.toLowerCase(); return (i>0&&conn[lw])?lw:(w.charAt(0).toUpperCase()+w.slice(1)); }).join('_');
+  return 'https://www.tibiawiki.com.br/wiki/Special:FilePath/'+encodeURIComponent(slug)+'.gif';
+}
+// onerror unico p/ sprites de boss: exevopan -> tibiaroute -> tibiawiki-br(asis) -> tibiawiki-br(conectores minusc.) -> fade
 window.tpBossImgErr=function(img){
   var name=img.getAttribute('data-bn')||img.alt||'';
   var step=parseInt(img.dataset.step||'0',10); img.dataset.step=String(step+1);
   if(step===0){ img.src=_bossImgFallback(name); }
   else if(step===1){ img.src=_bossImgFallback2(name); }
+  else if(step===2){ img.src=_bossImgFallback3(name); }
   else { img.style.opacity=.25; }
 };
 window.tpBossSetCat=function(cat,btn){ bossCatFilter=cat||'all'; document.querySelectorAll('#boss-catfilter .bcf').forEach(b=>b.classList.remove('on')); if(btn) btn.classList.add('on'); renderBossSpawnGrid(); };
@@ -17391,6 +17403,29 @@ function ewEnsureTcInput() {
   };
   window.tpProfUnpin=function(name){ try{ var i=pinnedBosses.indexOf(name); if(i>=0){ pinnedBosses.splice(i,1); localStorage.setItem('panda-pinned',JSON.stringify(pinnedBosses)); } }catch(e){} if(window.tpProfBosses) tpProfBosses(); if(typeof renderBossSpawnGrid==='function'){ try{renderBossSpawnGrid();}catch(e){} } };
   window.tpProfBossAlert=function(k,el){ var p={}; try{ p=JSON.parse(localStorage.getItem('panda-boss-alerts')||'{}'); }catch(e){} p[k]=!p[k]; try{ localStorage.setItem('panda-boss-alerts',JSON.stringify(p)); }catch(e){} if(el) el.classList.toggle('on',!!p[k]); };
+  window.tpVisaoBosses=function(){
+    var host=document.getElementById('pf-visao-bosses'); if(!host) return;
+    function _pill(cls,txt){ var m={on:['#5fbf6a','rgba(95,191,106,.12)','rgba(95,191,106,.33)'],soon:['#e0c060','rgba(201,168,64,.14)','rgba(201,168,64,.33)'],off:['#8f8ba0','rgba(255,255,255,.04)','var(--rule)'],boost:['#e0c060','rgba(201,168,64,.2)','rgba(201,168,64,.5)']}[cls]||['#8f8ba0','rgba(255,255,255,.04)','var(--rule)']; return '<span style="font-size:.62rem;font-weight:700;border-radius:20px;padding:1px 7px;white-space:nowrap;color:'+m[0]+';background:'+m[1]+';border:1px solid '+m[2]+'">'+txt+'</span>'; }
+    function _render(){
+      var pins=[]; try{ pins=JSON.parse(localStorage.getItem('panda-pinned')||'[]')||[]; }catch(e){}
+      var cc=document.getElementById('pf-visao-bosscount');
+      if(!pins.length){ host.innerHTML='<div style="font-size:.76rem;color:var(--muted)">Fixe bosses (📌) pra ver a rota\u00e7\u00e3o aqui \u2014 boostado / na janela.</div>'; if(cc)cc.textContent=''; return; }
+      var inCat={}; if(typeof TP_BOSS_CATALOG!=='undefined') TP_BOSS_CATALOG.forEach(function(o){inCat[o.n]=1;});
+      var byName={}; (typeof _bossBuild==='function'?_bossBuild():[]).forEach(function(b){byName[b.name]=b;});
+      var items=pins.map(function(nm){ var b=byName[nm]||{name:nm,iv:null,daysSince:null}; var boosted=(window.__TP_BOOSTED===nm); var w=(typeof _bossWin==='function')?_bossWin(b):{cls:'off',ic:'',txt:''}; return {nm:nm,boosted:boosted,w:w,boostable:!inCat[nm]}; });
+      function rk(it){ return it.boosted?0:(it.w.cls==='on'?1:(it.w.cls==='soon'?2:3)); }
+      items.sort(function(a,b){return rk(a)-rk(b);});
+      if(cc) cc.textContent='('+pins.length+')';
+      host.innerHTML=items.slice(0,6).map(function(it,i){
+        var st=it.boosted?_pill('boost','⚔️ Boostado'):(it.boostable?_pill('off','Boost\u00e1vel'):_pill(it.w.cls,it.w.ic+' '+it.w.txt));
+        return '<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem 0'+(i?';border-top:1px solid var(--rule)':'')+'">'
+          +'<img loading="lazy" data-bn="'+_bossEsc(it.nm)+'" src="'+bossImgUrl(it.nm)+'" onerror="tpBossImgErr(this)" style="width:30px;height:30px;object-fit:contain;flex:none">'
+          +'<div style="flex:1;min-width:0;font-size:.8rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="'+_bossEsc(it.nm)+'">'+_bossEsc(it.nm)+'</div>'
+          +st+'</div>';
+      }).join('')+(pins.length>6?'<div style="font-size:.68rem;color:var(--muted);padding-top:.5rem">+'+(pins.length-6)+' mais</div>':'');
+    }
+    if(typeof bossSpawnData!=='undefined' && !bossSpawnData.length && typeof loadBossSpawn==='function'){ loadBossSpawn().then(_render).catch(_render); } else { _render(); }
+  };
   window.tpProfBosses=function(){
     var host=document.getElementById('pf-bosses-body'); if(!host) return;
     if(!document.getElementById('pfb-css')){
@@ -17442,9 +17477,10 @@ function ewEnsureTcInput() {
       +'</div>';
     }
     function _render(){
-      var all=(typeof _bossBuild==='function')?_bossBuild().filter(function(b){return b.pinned;}):[];
+      var _pins=[]; try{ _pins=JSON.parse(localStorage.getItem('panda-pinned')||'[]')||[]; }catch(e){}
+      var all=(typeof _bossBuild==='function')?_bossBuild().filter(function(b){return _pins.indexOf(b.name)>=0;}):[];
       var inCat={}; if(typeof TP_BOSS_CATALOG!=='undefined') TP_BOSS_CATALOG.forEach(function(o){ inCat[o.n]=1; });
-      (pinnedBosses||[]).forEach(function(nm){ if(!inCat[nm]) all.push({name:nm,cat:'',chance:null,daysSince:null,iv:null,pinned:true,boostable:true}); });
+      _pins.forEach(function(nm){ if(!inCat[nm]) all.push({name:nm,cat:'',chance:null,daysSince:null,iv:null,pinned:true,boostable:true}); });
       var act=[],mon=[],nWin=0,nSoon=0,nBoost=0;
       all.forEach(function(b){
         var boosted=(window.__TP_BOOSTED===b.name);
@@ -17502,6 +17538,7 @@ function ewEnsureTcInput() {
       host.innerHTML=chips.map(function(c){ return '<div class="pf-stat"><div class="v">'+c[0]+'</div><div class="l">'+c[1]+'</div></div>'; }).join('') || '<div style="font-size:.75rem;color:var(--muted)">Sem dados ainda.</div>';
     }
     if(window.tpRenderMiniFriends) tpRenderMiniFriends();
+    if(window.tpVisaoBosses) tpVisaoBosses();
     if(window.tpRenderMyBuilds) tpRenderMyBuilds();
   };
   var MB_VOCIC={druid:'🌿',sorcerer:'🔥',knight:'🗡️',paladin:'🏹',monk:'👊'};
