@@ -3710,7 +3710,7 @@ async function tibiaFetch(path) {
     </style>
 
     <h2 class="sec-title">Market Tracker</h2>
-    <p class="sec-sub mk-sub">Preço real do market no seu mundo, ao vivo, com histórico do último mês. Procure qualquer item tradeável e veja por quanto você <b style="color:var(--bamboo)">vende</b> (maior oferta de compra) e por quanto <b style="color:var(--gold)">compra</b> (menor oferta de venda), com médias, volume e evolução no gráfico. Dados do Tibia Market Tracker.</p>
+    <p class="sec-sub mk-sub">Preço real do market no seu mundo, ao vivo, com histórico do último mês. Procure qualquer item tradeável e veja a <b style="color:#8b5cf6">Buy Offer</b> (maior oferta de compra — por quanto você vende) e a <b style="color:var(--gold)">Sell Offer</b> (menor oferta de venda — por quanto você compra), com médias, volume e evolução no gráfico. Dados do Tibia Market Tracker.</p>
 
     <div class="mk-worldline">Mundo: <b id="mk-world">Gentebra</b> <span style="color:var(--muted)">— troque o servidor no seletor do topo.</span></div>
 
@@ -3862,8 +3862,8 @@ async function tibiaFetch(path) {
       } else {
         html +=
           '<div class="mk-prices">'+
-            '<div class="mk-pbox sell"><div class="mk-plbl">Venda</div><div class="mk-pval">'+fmt(sell)+' gp</div><div class="mk-phint">maior oferta de compra — por quanto você vende</div></div>'+
-            '<div class="mk-pbox buy"><div class="mk-plbl">Compra</div><div class="mk-pval">'+fmt(buy)+' gp</div><div class="mk-phint">menor oferta de venda — por quanto você compra</div></div>'+
+            '<div class="mk-pbox sell"><div class="mk-plbl">Buy Offers</div><div class="mk-pval">'+fmt(sell)+' gp</div><div class="mk-phint">maior oferta de compra — por quanto você vende</div></div>'+
+            '<div class="mk-pbox buy"><div class="mk-plbl">Sell Offers</div><div class="mk-pval">'+fmt(buy)+' gp</div><div class="mk-phint">menor oferta de venda — por quanto você compra</div></div>'+
           '</div>';
       }
       html +=
@@ -3879,7 +3879,7 @@ async function tibiaFetch(path) {
         html +=
           '<div class="mk-chartwrap">'+
             '<div class="mk-chartttl">Histórico do último mês</div>'+
-            '<div class="mk-legend"><span><i style="background:#8b5cf6"></i>Venda (oferta de compra)</span><span><i style="background:#c9a840"></i>Compra (oferta de venda)</span></div>'+
+            '<div class="mk-legend"><span><i style="background:#8b5cf6"></i>Buy Offers (você vende)</span><span><i style="background:#c9a840"></i>Sell Offers (você compra)</span></div>'+
             chart+
           '</div>';
       } else {
@@ -11186,7 +11186,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar4';
+window.TP_BUILD = '2026-10-05bazar5';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
