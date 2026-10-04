@@ -1965,6 +1965,8 @@ async function tibiaFetch(path) {
       .tdy-card.npc{background:var(--bg-1,#14131c);border:1px solid var(--rule,#2b2938)}
       .tdy-pop{position:relative;width:50px;height:50px;border-radius:12px;background:linear-gradient(145deg,#312a4d,#1a1726);border:1px solid var(--rule,#2b2938);flex:none;overflow:visible}
       .tdy-pop img{position:absolute;left:50%;bottom:3px;transform:translateX(-50%);width:58px;height:58px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 3px 5px rgba(0,0,0,.55))}
+      .tdy-pop.rashid{overflow:hidden}
+      .tdy-pop.rashid img{bottom:2px;width:auto;height:70px}
       .tdy-info{flex:1;min-width:0}
       .tdy-eye{font-size:.57rem;font-weight:800;letter-spacing:.06em;color:var(--gold,#e0c060);text-transform:uppercase;display:flex;align-items:center;gap:4px}
       .tdy-name{font-size:.98rem;font-weight:800;color:var(--ink);margin:2px 0 6px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -11207,7 +11209,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar11';
+window.TP_BUILD = '2026-10-05bazar12';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -13279,7 +13281,7 @@ function renderHomeBoosted(creature, boss) {
     var el=document.getElementById('home-rashid'); if(!el) return;
     var city=rashidCityToday();
     el.innerHTML='<div class="tdy-card npc">'
-      +'<div class="tdy-pop"><img loading="lazy" src="https://www.tibiawiki.com.br/wiki/Special:FilePath/Rashid.gif" alt="Rashid" onerror="this.style.opacity=.2"></div>'
+      +'<div class="tdy-pop rashid"><img loading="lazy" src="https://www.tibiawiki.com.br/wiki/Special:FilePath/Rashid.gif" alt="Rashid" onerror="this.style.opacity=.2"></div>'
       +'<div class="tdy-info"><div class="tdy-name">Rashid</div><div class="tdy-badges" style="margin-bottom:4px"><span class="tdy-b npc">NPC viajante</span></div>'
       +'<div class="tdy-city">📍 Hoje em <b>'+city+'</b></div></div></div>';
   }
