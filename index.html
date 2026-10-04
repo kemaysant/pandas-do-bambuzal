@@ -4808,7 +4808,10 @@ PlayerName (Leader)
       #profile .pf-prog-bar{height:9px;border-radius:999px;background:var(--bg-3,#23212f);overflow:hidden}
       #profile .pf-prog-fill{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--bamboo,#8b5cf6),var(--bamboo-light,#a78bfa));transition:width .5s cubic-bezier(.4,0,.2,1)}
       #profile .pf-prog-hint{font-size:.72rem;color:var(--muted);margin-top:.4rem}
-      #profile .pf-tabs{display:flex;align-items:center;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:.05rem .1rem;margin-bottom:1rem;border-bottom:1px solid var(--rule);padding-bottom:0;scrollbar-width:thin}
+      #profile .pf-tabs{display:flex;align-items:center;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:.1rem;margin-bottom:1rem;border-bottom:1px solid var(--rule);padding-bottom:0;justify-content:space-between;scrollbar-width:none;-ms-overflow-style:none}
+      #profile .pf-tabs::-webkit-scrollbar{display:none}
+      #profile .pf-tabs .pf-tabdiv{display:none}
+      #profile .pf-tabs .pf-tab{flex:0 1 auto;min-width:0;padding:.55rem .4rem;font-size:.79rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
       #profile .pf-tab{white-space:nowrap;flex:none}
       #profile .pf-tabdiv{flex:none;align-self:stretch;width:1px;height:1.1rem;margin:.35rem .3rem;background:var(--rule);opacity:.7}
       #profile .pf-tab{background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);padding:.5rem .62rem;cursor:pointer;font-size:.85rem;font-weight:600;transition:color .15s,border-color .15s;margin-bottom:-1px}
@@ -11073,7 +11076,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-04boss4';
+window.TP_BUILD = '2026-10-04boss5';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
