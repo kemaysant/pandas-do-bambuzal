@@ -5189,8 +5189,18 @@ PlayerName (Leader)
       <button class="pf-tab" data-tab="amigos" onclick="tpProfTab('amigos',this)">👥 Amigos <span id="pf-amigos-badge" class="pf-tabbadge" style="display:none">0</span></button>
       <button class="pf-tab" data-tab="rankings" onclick="tpProfTab('rankings',this)">🏆 Rankings</button>
       <button class="pf-tab" data-tab="eventos" onclick="tpProfTab('eventos',this)">📅 Eventos</button>
+      <button class="pf-tab" data-tab="bosses" onclick="tpProfTab('bosses',this)">🎯 Bosses</button>
       <span class="pf-tabdiv" aria-hidden="true"></span>
       <button class="pf-tab" data-tab="dados" onclick="tpProfTab('dados',this)">👤 Meus dados</button>
+    </div>
+
+    <!-- BOSSES (tracker no perfil) -->
+    <div class="pf-panel" data-panel="bosses" style="display:none">
+      <div class="card">
+        <div class="tool-title" style="font-size:1.05rem;margin-bottom:.3rem;display:flex;align-items:center;gap:.4rem">🎯 Meus Bosses <a class="pf-side-more" style="margin-left:auto;width:auto" onclick="showPage('bosses')">Ver todos →</a></div>
+        <div style="font-size:.76rem;color:var(--muted);margin-bottom:.9rem">Os bosses que você fixou (📌), com status de janela e seus avisos no sino.</div>
+        <div id="pf-bosses-body"><div class="api-loading"><div class="spinner"></div> Carregando...</div></div>
+      </div>
     </div>
 
     <!-- JORNADA DE QUESTS -->
@@ -17366,6 +17376,98 @@ function ewEnsureTcInput() {
     if(name==='houses' && window.tpProfHouses) tpProfHouses();
     if(name==='eventos' && window.tpProfEvents) tpProfEvents();
     if(name==='dados' && window.tpLoadHandle) tpLoadHandle();
+    if(name==='bosses' && window.tpProfBosses) tpProfBosses();
+  };
+  window.tpProfUnpin=function(name){ try{ var i=pinnedBosses.indexOf(name); if(i>=0){ pinnedBosses.splice(i,1); localStorage.setItem('panda-pinned',JSON.stringify(pinnedBosses)); } }catch(e){} if(window.tpProfBosses) tpProfBosses(); if(typeof renderBossSpawnGrid==='function'){ try{renderBossSpawnGrid();}catch(e){} } };
+  window.tpProfBossAlert=function(k,el){ var p={}; try{ p=JSON.parse(localStorage.getItem('panda-boss-alerts')||'{}'); }catch(e){} p[k]=!p[k]; try{ localStorage.setItem('panda-boss-alerts',JSON.stringify(p)); }catch(e){} if(el) el.classList.toggle('on',!!p[k]); };
+  window.tpProfBosses=function(){
+    var host=document.getElementById('pf-bosses-body'); if(!host) return;
+    if(!document.getElementById('pfb-css')){
+      var st=document.createElement('style'); st.id='pfb-css'; st.textContent=
+       "#profile .pfb-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.1rem}"
+      +"@media(max-width:620px){#profile .pfb-sum{grid-template-columns:repeat(2,1fr)}}"
+      +"#profile .pfb-stat{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:12px;padding:.7rem;text-align:center}"
+      +"#profile .pfb-stat .v{font-size:1.4rem;font-weight:800;line-height:1}"
+      +"#profile .pfb-stat .l{font-size:.66rem;color:var(--muted);margin-top:.3rem}"
+      +"#profile .pfb-stat.g{border-color:rgba(95,191,106,.33)}#profile .pfb-stat.g .v{color:#5fbf6a}"
+      +"#profile .pfb-stat.y{border-color:rgba(201,168,64,.33)}#profile .pfb-stat.y .v{color:#e0c060}"
+      +"#profile .pfb-gh{display:flex;align-items:center;gap:.5rem;font-size:.82rem;font-weight:800;margin:1.1rem 0 .6rem;color:var(--ink-2,#bfbccb)}"
+      +"#profile .pfb-gh .t{font-size:.62rem;font-weight:700;color:var(--muted);background:var(--bg-2);border:1px solid var(--rule);border-radius:20px;padding:1px 8px}"
+      +"#profile .pfb-row{display:flex;align-items:center;gap:.8rem;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:12px;padding:.55rem .75rem;margin-bottom:.5rem}"
+      +"#profile .pfb-row.hl{border-color:rgba(95,191,106,.4)}"
+      +"#profile .pfb-pop{position:relative;flex:none;width:46px;height:46px;border-radius:10px;background:linear-gradient(160deg,var(--bamboo-dim,#211a3d),#191527);border:1px solid var(--border-2,#37344a);display:flex;align-items:flex-end;justify-content:center;overflow:visible}"
+      +"#profile .pfb-pop img{width:52px;height:52px;object-fit:contain;position:relative;z-index:2;margin-bottom:-3px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}"
+      +"#profile .pfb-main{flex:1;min-width:0}"
+      +"#profile .pfb-nm{font-weight:700;font-size:.88rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}"
+      +"#profile .pfb-sub{font-size:.7rem;color:var(--muted);margin-top:.15rem}"
+      +"#profile .pfb-win{display:inline-flex;align-items:center;gap:3px;font-size:.66rem;font-weight:700;border-radius:20px;padding:1px 8px;white-space:nowrap}"
+      +"#profile .pfb-win.on{color:#5fbf6a;background:rgba(95,191,106,.12);border:1px solid rgba(95,191,106,.33)}"
+      +"#profile .pfb-win.soon{color:#e0c060;background:rgba(201,168,64,.14);border:1px solid rgba(201,168,64,.33)}"
+      +"#profile .pfb-win.off{color:#8f8ba0;background:rgba(255,255,255,.04);border:1px solid var(--rule)}"
+      +"#profile .pfb-win.boost{color:#e0c060;background:rgba(201,168,64,.2);border:1px solid rgba(201,168,64,.5)}"
+      +"#profile .pfb-ic{width:30px;height:30px;border-radius:8px;border:1px solid var(--rule);background:var(--bg-3,#23212f);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:.8rem;text-decoration:none;flex:none}"
+      +"#profile .pfb-ic:hover{border-color:var(--bamboo,#8b5cf6);color:var(--ink)}"
+      +"#profile .pfb-alerts{margin-top:1.3rem;border-top:1px solid var(--rule);padding-top:1rem}"
+      +"#profile .pfb-tog{display:flex;align-items:center;gap:.65rem;padding:.5rem 0}"
+      +"#profile .pfb-sw{flex:none;width:40px;height:23px;border-radius:20px;background:var(--bg-0,#0d0c12);border:1px solid var(--border-2,#37344a);position:relative;cursor:pointer;transition:.18s}"
+      +"#profile .pfb-sw::after{content:'';position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:var(--muted);transition:.18s}"
+      +"#profile .pfb-sw.on{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6)}"
+      +"#profile .pfb-sw.on::after{left:19px;background:#fff}"
+      +"#profile .pfb-empty{font-size:.82rem;color:var(--muted);padding:1rem 0}";
+      document.head.appendChild(st);
+    }
+    function _row(b,hl){
+      var w=b._w, nm=b.name.replace(/'/g,"\\'");
+      var fb=_bossImgFallback(b.name).replace(/'/g,"\\'");
+      var status=b._boost?'<span class="pfb-win boost">⚔️ Boostado hoje</span>'
+        :(b.boostable?'<span class="pfb-win off">Boostável</span>':'<span class="pfb-win '+w.cls+'">'+w.ic+' '+w.txt+'</span>');
+      var sub=(b.iv!=null)?('respawn ~'+b.iv+'d'+(b.daysSince!=null?' · visto há '+b.daysSince+'d':'')):(b.boostable?'Boostável · ~20h':'');
+      return '<div class="pfb-row'+(hl?' hl':'')+'">'
+        +'<div class="pfb-pop"><img loading="lazy" src="'+bossImgUrl(b.name)+'" alt="'+_bossEsc(b.name)+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+fb+'\'}else{this.style.opacity=.2}"></div>'
+        +'<div class="pfb-main"><div class="pfb-nm">'+_bossEsc(b.name)+bossCatBadge(b.name)+'</div><div class="pfb-sub">'+sub+'</div></div>'
+        +status
+        +'<a class="pfb-ic" title="Ver boss" onclick="tpOpenBoss(\''+nm+'\')">🔎</a>'
+        +'<span class="pfb-ic" title="Desafixar" onclick="tpProfUnpin(\''+nm+'\')">📌</span>'
+      +'</div>';
+    }
+    function _render(){
+      var all=(typeof _bossBuild==='function')?_bossBuild().filter(function(b){return b.pinned;}):[];
+      var inCat={}; if(typeof TP_BOSS_CATALOG!=='undefined') TP_BOSS_CATALOG.forEach(function(o){ inCat[o.n]=1; });
+      (pinnedBosses||[]).forEach(function(nm){ if(!inCat[nm]) all.push({name:nm,cat:'',chance:null,daysSince:null,iv:null,pinned:true,boostable:true}); });
+      var act=[],mon=[],nWin=0,nSoon=0,nBoost=0;
+      all.forEach(function(b){
+        var boosted=(window.__TP_BOOSTED===b.name);
+        var w=(typeof _bossWin==='function')?_bossWin(b):{cls:'off',ic:'',txt:''}; b._w=w; b._boost=boosted;
+        if(boosted){ nBoost++; act.push(b); }
+        else if(w.cls==='on'){ nWin++; act.push(b); }
+        else if(w.cls==='soon'){ nSoon++; act.push(b); }
+        else mon.push(b);
+      });
+      var prefs={boosted:true,window:true,killed:false}; try{ var sv=JSON.parse(localStorage.getItem('panda-boss-alerts')||'null'); if(sv) prefs=sv; }catch(e){}
+      function _tog(k,t,d){ return '<div class="pfb-tog"><div class="pfb-sw'+(prefs[k]?' on':'')+'" onclick="tpProfBossAlert(\''+k+'\',this)"></div><div><div style="font-size:.82rem;font-weight:600">'+t+'</div><div style="font-size:.72rem;color:var(--muted)">'+d+'</div></div></div>'; }
+      var html='<div class="pfb-sum">'
+        +'<div class="pfb-stat g"><div class="v">'+nWin+'</div><div class="l">🟢 na janela agora</div></div>'
+        +'<div class="pfb-stat y"><div class="v">'+nSoon+'</div><div class="l">🟡 entram em breve</div></div>'
+        +'<div class="pfb-stat"><div class="v" style="color:#e0c060">'+nBoost+'</div><div class="l">⭐ boostado hoje</div></div>'
+        +'<div class="pfb-stat"><div class="v">'+all.length+'</div><div class="l">📌 fixados</div></div></div>';
+      if(!all.length){
+        html+='<div class="pfb-empty">Você ainda não fixou nenhum boss. Abra um boss e toque em <b>📌 Fixar</b> — ele aparece aqui com o status de janela.</div>';
+      } else {
+        html+='<div class="pfb-gh">⚡ Agir agora <span class="t">janela aberta / boostado</span></div>';
+        html+= act.length? act.map(function(b){return _row(b,true);}).join('') : '<div class="pfb-empty" style="padding:.2rem 0">Nada exige ação agora.</div>';
+        if(mon.length){ html+='<div class="pfb-gh">👀 Monitorando <span class="t">fora da janela</span></div>'+mon.map(function(b){return _row(b,false);}).join(''); }
+      }
+      html+='<div class="pfb-alerts"><div class="pfb-gh" style="margin-top:0">🔔 Avisos no sino</div>'
+        +_tog('boosted','Favorito boostado','Quando um boss da sua lista é o boostado do dia.')
+        +_tog('window','Nemesis na janela','Quando um Nemesis seu passa a poder nascer.')
+        +_tog('killed','Morto no servidor','Quando um boss seu é morto no seu mundo.')
+        +'</div>';
+      host.innerHTML=html;
+    }
+    if(typeof bossSpawnData!=='undefined' && !bossSpawnData.length && typeof loadBossSpawn==='function'){
+      host.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando seus bosses...</div>';
+      loadBossSpawn().then(_render).catch(_render);
+    } else { _render(); }
   };
   // Página de conta no menu lateral (Dados / Segurança) — mostra o painel sem aba destacada
   window.tpAccountPage=function(name, btn){
