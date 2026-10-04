@@ -3875,8 +3875,8 @@ async function tibiaFetch(path) {
       } else {
         html +=
           '<div class="mk-prices">'+
-            '<div class="mk-pbox sell"><div class="mk-plbl">Buy Offers</div><div class="mk-pval">'+fmt(sell)+' gp</div><div class="mk-phint">maior oferta de compra — por quanto você vende</div></div>'+
             '<div class="mk-pbox buy"><div class="mk-plbl">Sell Offers</div><div class="mk-pval">'+fmt(buy)+' gp</div><div class="mk-phint">menor oferta de venda — por quanto você compra</div></div>'+
+            '<div class="mk-pbox sell"><div class="mk-plbl">Buy Offers</div><div class="mk-pval">'+fmt(sell)+' gp</div><div class="mk-phint">maior oferta de compra — por quanto você vende</div></div>'+
           '</div>';
       }
       html +=
@@ -3892,7 +3892,7 @@ async function tibiaFetch(path) {
         html +=
           '<div class="mk-chartwrap">'+
             '<div class="mk-chartttl">Histórico do último mês</div>'+
-            '<div class="mk-legend"><span><i style="background:#8b5cf6"></i>Buy Offers (você vende)</span><span><i style="background:#c9a840"></i>Sell Offers (você compra)</span></div>'+
+            '<div class="mk-legend"><span><i style="background:#c9a840"></i>Sell Offers (você compra)</span><span><i style="background:#8b5cf6"></i>Buy Offers (você vende)</span></div>'+
             chart+
           '</div>';
       } else {
@@ -11207,7 +11207,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar10';
+window.TP_BUILD = '2026-10-05bazar11';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
