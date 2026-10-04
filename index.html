@@ -2373,6 +2373,28 @@ async function tibiaFetch(path) {
         #bosses .bs-win.soon{color:#e0c060;background:rgba(201,168,64,.14);border:1px solid rgba(201,168,64,.33)}
         #bosses .bs-win.off{color:var(--ink-3,#8f8ba0);background:rgba(255,255,255,.04);border:1px solid var(--rule)}
         #bosses .bs-pin2{position:absolute;top:.5rem;right:.55rem;background:none;border:none;cursor:pointer;font-size:.85rem;padding:2px;z-index:3}
+        #bosses .lev-wrap{display:flex;flex-direction:column;gap:.7rem;padding-top:10px}
+        #bosses .lev-hero{display:flex;gap:1.1rem;align-items:center;background:linear-gradient(135deg,#241b06,var(--bg-1,#14131c));border:1px solid #4a3a10;border-left:4px solid var(--gold,#c9a840);border-radius:14px;padding:.9rem 1.2rem;margin-bottom:.3rem}
+        #bosses .lev-card{background:var(--white);border:1px solid var(--rule);border-radius:14px}
+        #bosses .lev-card.open{border-color:var(--border-2,#37344a)}
+        #bosses .lev-head{display:flex;align-items:center;gap:.9rem;padding:.6rem .9rem;cursor:pointer;user-select:none}
+        #bosses .lev-head:hover{background:var(--bg-3,#23212f);border-radius:14px}
+        #bosses .lev-main{flex:1;min-width:0}
+        #bosses .lev-n{font-weight:700;font-size:.95rem;color:var(--ink);display:flex;align-items:center;gap:.45rem;flex-wrap:wrap}
+        #bosses .lev-sub{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+        #bosses .lev-chev{color:var(--muted);transition:transform .2s;font-size:1rem}
+        #bosses .lev-card.open .lev-chev{transform:rotate(180deg)}
+        #bosses .lev-body{display:none;border-top:1px solid var(--rule);padding:1rem}
+        #bosses .lev-card.open .lev-body{display:block}
+        #bosses .lev-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem;margin-bottom:.9rem}
+        #bosses .lev-info .box{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:10px;padding:.55rem .7rem}
+        #bosses .lev-info .k{font-size:.58rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+        #bosses .lev-info .v{font-size:.9rem;font-weight:700;color:var(--ink);margin-top:.15rem}
+        #bosses .lev-acts{display:flex;gap:.5rem;flex-wrap:wrap}
+        #bosses .lev-btn{display:inline-flex;align-items:center;gap:.35rem;font-size:.78rem;font-weight:600;border-radius:9px;padding:.5rem .85rem;border:1px solid var(--rule);background:var(--bg-3,#23212f);color:var(--ink-2,#bfbccb);cursor:pointer;transition:.15s;text-decoration:none}
+        #bosses .lev-btn:hover{border-color:var(--bamboo,#8b5cf6);color:var(--ink)}
+        #bosses .lev-btn.prim{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6);color:#fff}
+        #bosses .lev-boost{font-size:.62rem;font-weight:700;color:var(--gold-light,#e0c060);background:rgba(201,168,64,.14);border:1px solid rgba(201,168,64,.4);border-radius:20px;padding:1px 8px;white-space:nowrap}
       </style>
       <div id="boss-spawn-loading" class="api-loading"><div class="spinner"></div> Buscando dados de Gentebra...</div>
       <!-- ── Hot Bosses Banner ── -->
@@ -13216,34 +13238,69 @@ function filterBossSpawn(f, btn) {
   renderBossSpawnGrid();
 }
 
+function _tpPopbox(name,cls){
+  var fb=_bossImgFallback(name).replace(/'/g,"\\'");
+  return '<div class="tp-popbox '+(cls||'')+'"><img loading="lazy" decoding="async" src="'+bossImgUrl(name)+'" alt="'+_bossEsc(name)+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+fb+'\'}else{this.style.opacity=.2}"></div>';
+}
+window.tpLeverFollow=function(name,btn){
+  var i=pinnedBosses.indexOf(name);
+  if(i>=0){ pinnedBosses.splice(i,1); btn.innerHTML='📌 Seguir'; btn.classList.remove('prim'); }
+  else { pinnedBosses.push(name); btn.innerHTML='📌 Seguindo'; btn.classList.add('prim'); }
+  localStorage.setItem('panda-pinned',JSON.stringify(pinnedBosses));
+};
+function _leverCard(b){
+  var name=b.name;
+  var boosted = window.__TP_BOOSTED===name;
+  var ov=(window.__TP_BOSS_OV&&window.__TP_BOSS_OV[name.toLowerCase()])||null;
+  var place=ov&&ov.place?ov.place:null;
+  var pinned=pinnedBosses.indexOf(name)>=0;
+  var nm=name.replace(/'/g,"\\'");
+  var cat=bossCatBadge(name,true);
+  return '<div class="lev-card'+(boosted?' open':'')+'">'
+    +'<div class="lev-head" onclick="this.parentNode.classList.toggle(\'open\')">'+_tpPopbox(name,'m')
+      +'<div class="lev-main"><div class="lev-n">'+_bossEsc(name)+bossCatBadge(name)+(boosted?'<span class="lev-boost">⚔️ Boostado hoje</span>':'')+'</div>'
+      +'<div class="lev-sub">Boostável · ~20h de respawn'+(place?' · '+_bossEsc(place):'')+'</div></div>'
+      +'<span class="lev-chev">▾</span></div>'
+    +'<div class="lev-body">'
+      +'<div class="lev-info">'
+        +'<div class="box"><div class="k">Categoria</div><div class="v">'+(cat||'—')+'</div></div>'
+        +'<div class="box"><div class="k">Respawn</div><div class="v">~20h</div></div>'
+        +(place?'<div class="box"><div class="k">Local</div><div class="v">'+_bossEsc(place)+'</div></div>':'')
+      +'</div>'
+      +'<div class="lev-acts">'
+        +'<a class="lev-btn" href="https://tibia.fandom.com/wiki/'+encodeURIComponent(name.replace(/ /g,'_'))+'" target="_blank" rel="noopener">📖 Loot & localização (TibiaWiki)</a>'
+        +'<button class="lev-btn'+(pinned?' prim':'')+'" onclick="event.stopPropagation();tpLeverFollow(\''+nm+'\',this)">📌 '+(pinned?'Seguindo':'Seguir')+'</button>'
+        +'<button class="lev-btn" onclick="event.stopPropagation();tpOpenBoss(\''+nm+'\')">🔎 Detalhes</button>'
+      +'</div>'
+    +'</div></div>';
+}
 function renderLeverGrid() {
   const grid = document.getElementById('boss-lever-grid');
   if (!grid) return;
-  // Bosses de alavanca = boostable bosses que NÃO são Nemesis
   const data = leverBossData.length ? leverBossData
     : bossSpawnData.filter(b => !NEMESIS_NAMES.has(b.name));
   if (!data.length) {
     grid.style.display = 'block';
-    grid.innerHTML = '<p style="color:var(--muted);font-size:.85rem;padding:2rem;text-align:center">Nenhum boss encontrado. Clique em Chances de Spawn primeiro para carregar os dados.</p>';
+    grid.innerHTML = '<p style="color:var(--muted);font-size:.85rem;padding:2rem;text-align:center">Nenhum boss encontrado. Clique em Atividade dos Bosses primeiro para carregar os dados.</p>';
     return;
   }
-  const sorted = [...data].sort((a,b) => a.name.localeCompare(b.name));
-  grid.style.display = 'grid';
-  grid.innerHTML = sorted.map(b => {
-    const imgUrl = bossImgUrl(b.name);
-    return `
-    <div style="background:var(--white);border:1px solid var(--rule);border-radius:10px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;transition:transform .12s"
-         onmouseenter="this.style.transform='translateY(-1px)'" onmouseleave="this.style.transform='none'">
-      <div style="width:64px;height:64px;background:var(--paper);border:1px solid var(--rule);border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center">
-        <img loading="lazy" decoding="async" src="${imgUrl}" alt="${b.name}" style="width:100%;height:100%;object-fit:contain"
-             onerror="this.src='${creatureImgUrl(b.name)}';this.onerror=function(){this.parentNode.innerHTML='<span style=font-size:1.4rem>👹</span>'}">
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:600;font-size:.88rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.name}</div>
-        <div style="font-size:.72rem;color:var(--muted);margin-top:2px">~20h de respawn</div>
-      </div>
-    </div>`;
-  }).join('');
+  const boosted = window.__TP_BOOSTED || null;
+  const sorted = [...data].sort((a,b) => {
+    if(boosted){ if(a.name===boosted) return -1; if(b.name===boosted) return 1; }
+    return a.name.localeCompare(b.name);
+  });
+  grid.style.display = 'block';
+  grid.style.gridTemplateColumns = '';
+  var html='<div class="lev-wrap">';
+  if(boosted){
+    html+='<div class="lev-hero">'+_tpPopbox(boosted,'l')
+      +'<div><div style="font-size:.62rem;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--gold-light,#e0c060)">⭐ Boostado de hoje</div>'
+      +'<div style="font-size:1.35rem;font-weight:800;color:var(--ink);margin:.1rem 0 .4rem;letter-spacing:-.3px">'+_bossEsc(boosted)+'</div>'
+      +'<div style="display:flex;gap:.45rem;flex-wrap:wrap;align-items:center">'+bossCatBadge(boosted,true)+'<span class="lev-boost">⚔️ +drop e +spawn hoje</span></div></div></div>';
+  }
+  html+=sorted.map(_leverCard).join('');
+  html+='</div>';
+  grid.innerHTML=html;
 }
 
 function togglePin(name, btn) {
@@ -13771,6 +13828,7 @@ async function loadBossSpawn() {
   try {
     const bd = await tibiaFetch('/v4/boostablebosses');
     const all = bd?.boostable_bosses?.boostable_boss_list || bd?.boostable_bosses?.creatures || [];
+    try{ var _bt=bd&&bd.boostable_bosses&&bd.boostable_bosses.boosted; window.__TP_BOOSTED=_bt?_bt.name:(window.__TP_BOOSTED||null); }catch(_e){}
     leverBossData = all.filter(b => !NEMESIS_NAMES.has(b.name)).map(b => ({ name:b.name, img:bossImgUrl(b.name), chance:null }));
   } catch(e) { leverBossData = leverBossData || []; }
 
