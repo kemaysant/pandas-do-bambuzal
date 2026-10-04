@@ -11068,7 +11068,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-04boss2';
+window.TP_BUILD = '2026-10-04boss3';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -13249,8 +13249,7 @@ function filterBossSpawn(f, btn) {
 }
 
 function _tpPopbox(name,cls){
-  var fb=_bossImgFallback(name).replace(/'/g,"\\'");
-  return '<div class="tp-popbox '+(cls||'')+'"><img loading="lazy" decoding="async" src="'+bossImgUrl(name)+'" alt="'+_bossEsc(name)+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+fb+'\'}else{this.style.opacity=.2}"></div>';
+  return '<div class="tp-popbox '+(cls||'')+'"><img loading="lazy" decoding="async" data-bn="'+_bossEsc(name)+'" src="'+bossImgUrl(name)+'" alt="'+_bossEsc(name)+'" onerror="tpBossImgErr(this)"></div>';
 }
 window.tpLeverFollow=function(name,btn){
   var i=pinnedBosses.indexOf(name);
@@ -13267,7 +13266,7 @@ function _leverCard(b){
   var nm=name.replace(/'/g,"\\'");
   var cat=bossCatBadge(name,true);
   return '<div class="lev-card'+(boosted?' open':'')+'">'
-    +'<div class="lev-head" onclick="this.parentNode.classList.toggle(\'open\')">'+_tpPopbox(name,'m')
+    +'<div class="lev-head" onclick="this.parentNode.classList.toggle(\'open\')">'+_tpPopbox(name,'')
       +'<div class="lev-main"><div class="lev-n">'+_bossEsc(name)+bossCatBadge(name)+(boosted?'<span class="lev-boost">⚔️ Boostado hoje</span>':'')+'</div>'
       +'<div class="lev-sub">Boostável · ~20h de respawn'+(place?' · '+_bossEsc(place):'')+'</div></div>'
       +'<span class="lev-chev">▾</span></div>'
@@ -13621,7 +13620,7 @@ window.tpOpenBoss=async function(name){
   var _hpill2=_hwin2?'<span class="tp-boss-win '+_hwin2.cls+'">'+_hwin2.ic+' '+_hwin2.txt+'</span>':'';
   var b=(typeof bossSpawnData!=='undefined'?bossSpawnData:[]).filter(function(x){return x.name===name;})[0]||{name:name};
   var act=activityBadge(b.killedToday!=null?b.killedToday:null, b.killedWeek!=null?b.killedWeek:null)||'';
-  var img=bossImgUrl(name), fb=_bossImgFallback(name);
+  var img=bossImgUrl(name), fb=_bossImgFallback2(name);
   host.innerHTML='<div class="tp-boss"><button class="tp-boss-x" onclick="tpCloseBoss()">\u2715</button>'
     +'<div class="tp-boss-hd"><div class="tp-boss-av"><img loading="lazy" decoding="async" src="'+img+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+fb.replace(/'/g,"\\'")+'\'}else{this.parentNode.innerHTML=\'<span style=font-size:2rem>\uD83D\uDC7F</span>\'}"></div>'
     +'<div><div class="tp-boss-nm">'+_bossEsc(name)+'</div><div class="tp-boss-sub">'+(bossCatBadge(name,true)||'Boss')+' \u00b7 '+_bossEsc((typeof CONFIG!=='undefined'&&CONFIG.world)||'')+'</div><div style="margin-top:6px;display:flex;gap:.4rem;align-items:center;flex-wrap:wrap">'+_hpill2+act+'</div></div></div>'
@@ -13725,6 +13724,18 @@ function _bossImgFallback(name){
   var slug=(name||'').split(' ').map(function(w){return w.charAt(0).toUpperCase()+w.slice(1);}).join('-');
   return ('https://wsrv.nl/?url='+encodeURIComponent('https://cdn.tibiaroute.com/monsters/'+slug+'.gif')+'&n=-1').replace(/'/g,'%27');
 }
+function _bossImgFallback2(name){
+  // 2o nivel: TibiaWiki BR (Special:FilePath, GIF animado) — cobre bosses raros que a tibiaroute nao tem (Bone Overlord, Court Warlock...)
+  return 'https://www.tibiawiki.com.br/wiki/Special:FilePath/'+encodeURIComponent((name||'').replace(/ /g,'_'))+'.gif';
+}
+// onerror unico p/ sprites de boss: exevopan (primario) -> tibiaroute(animado) -> tibiawiki-br(animado) -> fade
+window.tpBossImgErr=function(img){
+  var name=img.getAttribute('data-bn')||img.alt||'';
+  var step=parseInt(img.dataset.step||'0',10); img.dataset.step=String(step+1);
+  if(step===0){ img.src=_bossImgFallback(name); }
+  else if(step===1){ img.src=_bossImgFallback2(name); }
+  else { img.style.opacity=.25; }
+};
 window.tpBossSetCat=function(cat,btn){ bossCatFilter=cat||'all'; document.querySelectorAll('#boss-catfilter .bcf').forEach(b=>b.classList.remove('on')); if(btn) btn.classList.add('on'); renderBossSpawnGrid(); };
 window.tpBossSetSort=function(s){ bossSort=s||'seen'; renderBossSpawnGrid(); };
 function renderBossSpawnGrid(){
@@ -13789,7 +13800,7 @@ function _bossCard(b){
   const fb=_bossImgFallback(b.name).replace(/'/g,"\\'");
   return '<div onclick="tpOpenBoss(\''+nm+'\')" class="bs-card2'+(w.cls==='on'?' inwin':'')+'">'
     +'<button onclick="event.stopPropagation();togglePin(\''+nm+'\',this)" title="'+(b.pinned?'Desafixar':'Fixar')+'" class="bs-pin2" style="opacity:'+(b.pinned?'1':'0.3')+'">📌</button>'
-    +'<div class="tp-popbox"><img loading="lazy" decoding="async" src="'+bossImgUrl(b.name)+'" alt="'+_bossEsc(b.name)+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+fb+'\'}else{this.style.opacity=.2}"></div>'
+    +_tpPopbox(b.name,'')
     +'<div style="flex:1;min-width:0;padding-top:1px">'
     +'<div style="font-weight:700;font-size:.86rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:1.1rem">'+_bossEsc(b.name)+'</div>'
     + chanceHtml
@@ -13921,7 +13932,7 @@ function loadBossTracker() {
     return `
     <div style="background:${isDone ? 'var(--bamboo-pale)' : 'var(--white)'};border:1px solid ${isDone ? 'rgba(90,158,68,.3)' : 'var(--rule)'};border-radius:8px;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem;cursor:pointer;transition:all .15s" onclick="toggleBoss('${b.id}',this)">
       <div style="width:22px;height:22px;border-radius:5px;border:2px solid ${isDone ? 'var(--bamboo)' : 'var(--rule)'};background:${isDone ? 'var(--bamboo)' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;color:white;transition:all .15s;flex-shrink:0">${isDone ? '✓' : ''}</div>
-      <img loading="lazy" decoding="async" src="${bossImgUrl(b.name)}" alt="${b.name}" style="width:40px;height:40px;object-fit:contain;flex-shrink:0;border-radius:4px;background:var(--paper);border:1px solid var(--rule);padding:2px" onerror="this.style.display='none'">
+      ${_tpPopbox(b.name,'')}
       <div style="flex:1;min-width:0">
         <div style="font-weight:500;font-size:.87rem;color:${isDone ? 'var(--bamboo)' : 'var(--ink)'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.name}</div>
         ${b.tipo ? `<div style="font-size:.7rem;color:var(--muted);font-weight:300">${b.tipo}</div>` : ''}
@@ -17395,8 +17406,8 @@ function ewEnsureTcInput() {
       +"#profile .pfb-gh .t{font-size:.62rem;font-weight:700;color:var(--muted);background:var(--bg-2);border:1px solid var(--rule);border-radius:20px;padding:1px 8px}"
       +"#profile .pfb-row{display:flex;align-items:center;gap:.8rem;background:var(--bg-2,#1b1a25);border:1px solid var(--rule);border-radius:12px;padding:.55rem .75rem;margin-bottom:.5rem}"
       +"#profile .pfb-row.hl{border-color:rgba(95,191,106,.4)}"
-      +"#profile .pfb-pop{position:relative;flex:none;width:46px;height:46px;border-radius:10px;background:linear-gradient(160deg,var(--bamboo-dim,#211a3d),#191527);border:1px solid var(--border-2,#37344a);display:flex;align-items:flex-end;justify-content:center;overflow:visible}"
-      +"#profile .pfb-pop img{width:52px;height:52px;object-fit:contain;position:relative;z-index:2;margin-bottom:-3px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}"
+      +"#profile .pfb-pop{position:relative;flex:none;width:50px;height:50px;border-radius:10px;background:linear-gradient(160deg,var(--bamboo-dim,#211a3d),#191527);border:1px solid var(--border-2,#37344a);display:flex;align-items:flex-end;justify-content:center;overflow:visible}"
+      +"#profile .pfb-pop img{width:56px;height:56px;object-fit:contain;position:relative;z-index:2;margin-bottom:-3px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.5))}"
       +"#profile .pfb-main{flex:1;min-width:0}"
       +"#profile .pfb-nm{font-weight:700;font-size:.88rem;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}"
       +"#profile .pfb-sub{font-size:.7rem;color:var(--muted);margin-top:.15rem}"
@@ -17423,7 +17434,7 @@ function ewEnsureTcInput() {
         :(b.boostable?'<span class="pfb-win off">Boostável</span>':'<span class="pfb-win '+w.cls+'">'+w.ic+' '+w.txt+'</span>');
       var sub=(b.iv!=null)?('respawn ~'+b.iv+'d'+(b.daysSince!=null?' · visto há '+b.daysSince+'d':'')):(b.boostable?'Boostável · ~20h':'');
       return '<div class="pfb-row'+(hl?' hl':'')+'">'
-        +'<div class="pfb-pop"><img loading="lazy" src="'+bossImgUrl(b.name)+'" alt="'+_bossEsc(b.name)+'" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src=\''+fb+'\'}else{this.style.opacity=.2}"></div>'
+        +'<div class="pfb-pop"><img loading="lazy" data-bn="'+_bossEsc(b.name)+'" src="'+bossImgUrl(b.name)+'" alt="'+_bossEsc(b.name)+'" onerror="tpBossImgErr(this)"></div>'
         +'<div class="pfb-main"><div class="pfb-nm">'+_bossEsc(b.name)+bossCatBadge(b.name)+'</div><div class="pfb-sub">'+sub+'</div></div>'
         +status
         +'<a class="pfb-ic" title="Ver boss" onclick="tpOpenBoss(\''+nm+'\')">🔎</a>'
