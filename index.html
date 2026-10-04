@@ -1753,7 +1753,7 @@ async function tibiaFetch(path) {
         <div class="tp-pop tp-dd" id="tp-dd-com">
           <a class="tp-lnk" data-page="agenda" data-init="tpAgendaLoad">Agenda</a>
           <a class="tp-lnk" data-page="creators" data-init="tpCreatorsLoad">Criadores</a>
-          <a class="tp-lnk" data-page="bazar" data-init="tpBazarInit">🛒 Bazar</a>
+          <a class="tp-lnk" data-page="bazar" data-init="tpBazarInit">Bazar</a>
         </div>
       </div>
     </nav>
@@ -1921,7 +1921,7 @@ async function tibiaFetch(path) {
       .hm-cat{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);display:flex;align-items:center;gap:10px;margin:0 0 14px}
       .hm-cat .l{flex:1;height:1px;background:var(--border)}
       .hm-see{font-size:.78rem;font-weight:700;color:var(--gold);white-space:nowrap;cursor:pointer;text-decoration:none}
-      .hm-quick{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:1.8rem}
+      .hm-quick{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:1.8rem}
       .hm-qbtn{display:flex;flex-direction:column;align-items:center;gap:9px;padding:17px 10px;border-radius:14px;background:var(--surface);border:1px solid var(--border);transition:.15s;cursor:pointer;text-align:center;font-family:inherit;color:var(--ink)}
       .hm-qbtn:hover{transform:translateY(-3px);border-color:var(--bamboo);box-shadow:0 12px 30px -10px rgba(139,92,246,.4)}
       .hm-qbtn.pri{background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(201,168,64,.08));border-color:var(--bamboo)}
@@ -1954,6 +1954,12 @@ async function tibiaFetch(path) {
       @media(max-width:720px){.hm-quick,.hm-shelf{grid-template-columns:repeat(2,1fr)}.hm-acct .acts{margin-left:0;width:100%}}
     </style>
 
+    <!-- Conta / progresso — adapta a logado/deslogado -->
+    <div class="reveal">
+      <div class="hm-cat">Progresso &amp; conta <span class="l"></span></div>
+      <div id="home-account"></div>
+    </div>
+
     <!-- ACESSO RÁPIDO -->
     <div class="reveal">
       <div class="hm-cat">Acesso rápido <span class="l"></span></div>
@@ -1963,6 +1969,7 @@ async function tibiaFetch(path) {
         <button class="hm-qbtn" onclick="showPage('bosses',document.querySelector('[onclick*=bosses]'))"><div class="hm-qi"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3c-4 0-7 2.9-7 6.8 0 2 .9 3.6 2 4.6v2.1c0 .8.6 1.4 1.4 1.4h7.2c.8 0 1.4-.6 1.4-1.4v-2.1c1.1-1 2-2.6 2-4.6C19 5.9 16 3 12 3z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.5"/><circle cx="9.1" cy="10.6" r="1.5" fill="currentColor"/><circle cx="14.9" cy="10.6" r="1.5" fill="currentColor"/><path d="M10.4 15.6h3.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="hm-qn">Bosses</div><div class="hm-qs">do servidor</div></button>
         <button class="hm-qbtn" onclick="showPage('imbuements',document.querySelector('[onclick*=imbuements]'))"><div class="hm-qi"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l1.9 4.4L18 9.1l-4.1 1.7L12 15l-1.9-4.2L6 9.1l4.1-1.7L12 3z" fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M17.6 13.6l.7 1.7 1.7.7-1.7.7-.7 1.7-.7-1.7-1.7-.7 1.7-.7.7-1.7z" fill="currentColor"/></svg></div><div class="hm-qn">Imbuements</div><div class="hm-qs">custo real</div></button>
         <button class="hm-qbtn" onclick="showPage('dmgcalc',document.querySelector('.nav-btn[onclick*=dmgcalc]'));if(window.tpDmgInit)tpDmgInit()"><div class="hm-qi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M13 3l-1.8 6.5H16L10 21l1.8-7.5H7L13 3z" fill="currentColor" fill-opacity=".2"/></svg></div><div class="hm-qn">Calc. de Dano</div><div class="hm-qs">simulador</div></button>
+        <button class="hm-qbtn" onclick="showPage('bazar',document.querySelector('[onclick*=bazar]'));if(window.tpBazarInit)tpBazarInit()"><div class="hm-qi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16l-1.2 10a2 2 0 01-2 1.8H7.2a2 2 0 01-2-1.8L4 7z" fill="currentColor" fill-opacity=".16"/><path d="M8.5 7a3.5 3.5 0 017 0"/></svg></div><div class="hm-qn">Bazar</div><div class="hm-qs">comprar e vender</div></button>
       </div>
     </div>
 
@@ -2004,9 +2011,6 @@ async function tibiaFetch(path) {
         <div class="tp-tool hm-tool soon"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 4h7l9 9-7 7-9-9V4z" fill="currentColor" fill-opacity=".12"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/></svg></div><div><div class="tn">Bazar <span class="tp-tag soon">Em breve</span></div><div class="td">Filtro do char bazaar oficial: level, skills, preço.</div></div></div>
       </div>
 
-      <!-- Conta / progresso — adapta a logado/deslogado -->
-      <div class="hm-cat">Progresso &amp; conta <span class="l"></span></div>
-      <div id="home-account"></div>
     </div>
 
     <script>
@@ -11182,7 +11186,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar3';
+window.TP_BUILD = '2026-10-05bazar4';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
