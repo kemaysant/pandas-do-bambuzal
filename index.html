@@ -8921,6 +8921,14 @@ function creatureImgUrl(creature) {
   return `https://wsrv.nl/?url=${encodeURIComponent('https://cdn.tibiaroute.com/monsters/' + slug + '.gif')}&output=png`.replace(/'/g, '%27');
 }
 
+// Versao ANIMADA (GIF com frames) da miniatura de criatura/boss. &n=-1 preserva
+// todos os frames (ao contrario de &output=png, que achata para 1 quadro estatico).
+// Usada nos cards do widget "Hoje no Tibia"; onerror cai no creatureImgUrl estatico.
+function creatureImgUrlAnim(creature) {
+  const slug = (creature || '').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
+  return `https://wsrv.nl/?url=${encodeURIComponent('https://cdn.tibiaroute.com/monsters/' + slug + '.gif')}&n=-1`.replace(/'/g, '%27');
+}
+
 // GIF animado do boss via CDN do exevopan
 // Formato: https://assets.service-exevopan.com/public/sprites/bosses/{Nome}.gif
 function bossImgUrl(name) {
@@ -11201,7 +11209,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar7';
+window.TP_BUILD = '2026-10-05bazar8';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -13256,8 +13264,8 @@ function renderHomeBoosted(creature, boss) {
       +'<div class="tdy-badges">'+badge+'<span class="tdy-b boost">'+boostTxt+'</span></div></div></div>';
   }
   var html='';
-  if(creature) html+=card(creature.name, creatureImgUrl(creature.name), 'Criatura boostada', '<span class="tdy-b cre">🐾 Criatura</span>', '⚔️ +drop e +spawn hoje');
-  if(boss) html+=card(boss.name, creatureImgUrl(boss.name), 'Boss boostado', catBadge(boss.name), _bossBoostTxt(boss.name));
+  if(creature) html+=card(creature.name, creatureImgUrlAnim(creature.name), 'Criatura boostada', '<span class="tdy-b cre">🐾 Criatura</span>', '⚔️ +drop e +spawn hoje');
+  if(boss) html+=card(boss.name, creatureImgUrlAnim(boss.name), 'Boss boostado', catBadge(boss.name), _bossBoostTxt(boss.name));
   if(!html){ el.innerHTML='<p style="font-size:.82rem;color:var(--muted);font-weight:300;padding:.5rem 0">Dados não disponíveis no momento.</p>'; return; }
   el.innerHTML=html;
 }
@@ -13487,7 +13495,7 @@ function bossCategory(name){ if(!name) return null; var k=String(name).toLowerCa
 function bossCatBadge(name,big){ var c=bossCategory(name); if(!c) return ''; var m=BOSS_CATS[c];
   return '<span title="Categoria do Bosstiary" style="display:inline-flex;align-items:center;gap:4px;font-size:'+(big?'.72rem':'.6rem')+';font-weight:800;color:'+m.color+';background:'+m.color+'1f;border:1px solid '+m.color+'55;border-radius:20px;padding:'+(big?'2px 9px':'1px 6px')+'">'+m.sym+' '+m.label+'</span>'; }
 // boss de alavanca (lever = boostable nao-nemesis) so ganha boost de drop; boss/criatura que spawna ganha drop + spawn
-function _bossBoostTxt(name){ try{ if(typeof NEMESIS_NAMES!=='undefined' && !NEMESIS_NAMES.has(name)) return '⚔️ +drop de equipamento hoje'; }catch(e){} return '⚔️ +drop e +spawn hoje'; }
+function _bossBoostTxt(name){ try{ if(typeof NEMESIS_NAMES!=='undefined' && !NEMESIS_NAMES.has(name)) return '⚔️ +drop de equipamento e bestiary dobrado'; }catch(e){} return '⚔️ +drop e +spawn hoje'; }
 window.tpCloseBoss=function(){ var m=document.getElementById('tp-boss-modal'); if(m) m.style.display='none'; };
 window.TP_BOSS_EXTRA = window.TP_BOSS_EXTRA || {
   // Overrides curados (dados reais). Qualquer boss fora daqui busca ao vivo na TibiaWiki (Fandom).
