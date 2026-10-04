@@ -3410,6 +3410,13 @@ async function tibiaFetch(path) {
       </div>
       <div id="mod-cmt-body"><div class="api-loading"><div class="spinner"></div> Carregando…</div></div>
     </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+        <div class="tool-title" style="font-size:1.05rem">🛒 Anúncios denunciados no Bazar <span id="mod-bz-count" style="color:var(--muted);font-weight:400"></span></div>
+        <button class="hs-like" onclick="if(window.tpBazarModLoad)tpBazarModLoad()">↻ Atualizar</button>
+      </div>
+      <div id="mod-bz-body"><div class="api-loading"><div class="spinner"></div> Carregando…</div></div>
+    </div>
   </section>
 
   <!-- ─── BAZAR DA PANDA ─── -->
@@ -11174,7 +11181,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar1';
+window.TP_BUILD = '2026-10-05bazar2';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -20345,7 +20352,7 @@ window.tpLoadJornada=async function(){
   function renderNotifBadge(){ var nb=document.getElementById('tp-notif-unread'); if(!nb) return;
     nb.textContent=notifUnread>9?'9+':notifUnread; nb.style.display=notifUnread>0?'':'none'; }
   function notifName(a){ if(!a) return 'Alguém'; return a.display_name||(a.handle?('@'+a.handle):null)||a.main_char||'Alguém'; }
-  function notifIcon(t){ return (t==='friend_request'||t==='friend_accept')?'👤':(t==='testimonial'||t==='mention')?'💬':t==='event_reminder'?'⏰':t==='event_update'?'✏️':'🔔'; }
+  function notifIcon(t){ return (t==='friend_request'||t==='friend_accept')?'👤':(t==='testimonial'||t==='mention')?'💬':t==='event_reminder'?'⏰':t==='event_update'?'✏️':t==='bazar_match'?'🛒':'🔔'; }
   function notifText(n){ var nm='<b>'+esc(notifName(n.actor))+'</b>';
     if(n.type==='friend_request') return nm+' te enviou um pedido de amizade.';
     if(n.type==='friend_accept')  return nm+' aceitou seu pedido de amizade.';
@@ -20354,6 +20361,7 @@ window.tpLoadJornada=async function(){
     if(n.type==='mention')        return nm+' te mencionou no chat de um evento.';
     if(n.type==='event_reminder') return '⏰ Lembrete: um evento que você confirmou está chegando.';
     if(n.type==='event_update')   return nm+' atualizou um evento que você vai participar.';
+    if(n.type==='bazar_match')    return nm+' publicou um anúncio no Bazar que combina com o seu alerta. 🛒';
     return 'Nova notificação.'; }
   function notifAvatar(n){ var a=n.actor;
     if(n.type!=='pass_reward' && a && a.outfit && a.outfit.outfit_id!=null){ SOC_OUT['nf:'+n.id]=a.outfit;
@@ -20383,6 +20391,7 @@ window.tpLoadJornada=async function(){
     else if(n.type==='pass_reward'){ tpGoPass(); }
     else if((n.type==='friend_accept'||n.type==='testimonial') && n.actor_id){ if(window.tpOpenProfile) window.tpOpenProfile(n.actor_id); }
     else if((n.type==='mention'||n.type==='event_reminder'||n.type==='event_update') && n.ref){ try{ location.hash='#event='+n.ref; }catch(e){} if(window.tpEventPageOpen) tpEventPageOpen(n.ref); }
+    else if(n.type==='bazar_match' && n.ref){ if(window.showPage){ var bb=document.querySelector('.nav-btn[onclick*="bazar"]'); showPage('bazar',bb); } setTimeout(function(){ if(window.tpBzOpen) window.tpBzOpen(n.ref); },80); }
     else if(window.tpGoFriends){ tpGoFriends(); } };
   function tpGoPass(){ if(typeof showPage==='function'){ var b=document.querySelector('.nav-btn[onclick*="profile"]'); showPage('profile',b); }
     var t=document.querySelector('#profile .pf-tab[data-tab=prog]'); if(t) t.click();
@@ -20980,6 +20989,7 @@ window.tpLoadJornada=async function(){
     var A=auth(), host=document.getElementById('mod-panel-body'), cnt=document.getElementById('mod-panel-count'); if(!host) return;
     if(!A||!A.user){ host.innerHTML='<div class="hs-map-none">Entre na sua conta.</div>'; return; }
     if(window.tpModCommentsLoad) tpModCommentsLoad();
+    if(window.tpBazarModLoad) tpBazarModLoad();
     host.innerHTML='<div class="hs-loading">Carregando…</div>';
     af()(SBURL()+'/rest/v1/house_photos?select=*&status=eq.pending&order=created_at.asc',{headers:{Accept:'application/json'}})
       .then(function(r){ return r.json(); }).then(function(rows){
@@ -21013,6 +21023,39 @@ window.tpLoadJornada=async function(){
       if(!rows.length){ host.innerHTML='<div class="hs-map-none">Nenhum comentário pendente. Tudo em dia! ✨</div>'; return; }
       host.innerHTML=rows.map(cmtRow).join('');
     }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar os comentários. (Você precisa ser moderador.)</div>'; });
+  };
+  window.tpBazarModLoad=function(){
+    var A=auth(), host=document.getElementById('mod-bz-body'), cnt=document.getElementById('mod-bz-count'); if(!host) return;
+    if(!A||!A.user){ host.innerHTML='<div class="hs-map-none">Entre na sua conta.</div>'; return; }
+    host.innerHTML='<div class="hs-loading">Carregando…</div>';
+    af()(SBURL()+'/rest/v1/rpc/tp_bazar_mod_queue',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:'{}'})
+      .then(function(r){return r.ok?r.json():Promise.reject(r);}).then(function(rows){
+        rows=Array.isArray(rows)?rows:[];
+        if(cnt) cnt.textContent='('+rows.length+')';
+        if(!rows.length){ host.innerHTML='<div class="hs-map-none">Nenhum anúncio denunciado. Tudo em dia! ✨</div>'; return; }
+        host.innerHTML=rows.map(bzModRow).join('');
+      }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar a fila. (Você precisa ser moderador.)</div>'; });
+  };
+  function bzModRow(a){
+    var price=(a.currency==='combinar'||a.price==null)?'A combinar':((a.price||0).toLocaleString('pt-BR')+(a.currency==='tc'?' TC':' gp'));
+    return '<div class="hs-mq-row" id="bzm-'+a.ad_id+'" style="align-items:flex-start">'
+      +'<div style="width:36px;height:36px;border-radius:50%;background:var(--bamboo-dim,#211a3d);color:#e0c060;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none">🚩</div>'
+      +'<div class="hs-mq-info"><div class="h">'+esc(a.title||'—')+' <span style="color:var(--red,#e87070);font-weight:800">· '+(a.reports||0)+' denúncia(s)</span></div>'
+      +'<div class="m">'+esc(a.author_name||'—')+' · '+esc(a.world||'—')+' · '+esc(a.kind||'')+' · '+price+(a.status!=='active'?(' · <b>'+esc(a.status)+'</b>'):'')+'</div>'
+      +(a.last_reason?('<div class="m" style="color:var(--ink,#eae8f2);margin-top:3px">motivo: "'+esc(a.last_reason)+'"</div>'):'')+'</div>'
+      +'<div class="hs-mq-actions"><button class="hs-reject" onclick="tpBazarModAct(\''+a.ad_id+'\',\'remove\')">🗑 Remover</button><button class="hs-approve" onclick="tpBazarModAct(\''+a.ad_id+'\',\'keep\')">Manter</button></div></div>';
+  }
+  window.tpBazarModAct=async function(ad,action){
+    var A=auth(); if(!A||!A.user) return;
+    try{
+      var r=await af()(SBURL()+'/rest/v1/rpc/tp_bazar_mod_act',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({p_ad:ad,p_action:action})});
+      if(!r.ok) throw new Error('rpc '+r.status);
+      var row=document.getElementById('bzm-'+ad); if(row) row.remove();
+      toast(action==='remove'?'Anúncio removido.':'Denúncia dispensada (anúncio mantido).',action==='remove'?'success':'info');
+      if(window.refreshModBadge) refreshModBadge();
+      var pb=document.getElementById('mod-bz-body'), pc=document.getElementById('mod-bz-count');
+      if(pb){ var left=pb.querySelectorAll('.hs-mq-row').length; if(pc) pc.textContent='('+left+')'; if(!left) pb.innerHTML='<div class="hs-map-none">Nenhum anúncio denunciado. Tudo em dia! ✨</div>'; }
+    }catch(e){ toast('Não consegui atualizar.','error'); }
   };
   window.tpModCommentAct=async function(id,action,tbl){
     var A=auth(); if(!A||!A.user) return; tbl=tbl||'comentarios_hunt';
