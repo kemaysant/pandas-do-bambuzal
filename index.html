@@ -11218,7 +11218,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar18';
+window.TP_BUILD = '2026-10-05bazar19';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -22984,7 +22984,17 @@ window.tpLoadJornada=async function(){
   /* ─── DETALHE ─── */
   function attrsHtml(a){
     var at=a.attrs; if(typeof at==='string'){ try{at=JSON.parse(at);}catch(e){at=[];} } if(!Array.isArray(at)) at=[];
-    var chips=at.map(function(x){ if(x&&typeof x==='object'){ var k=x.k||x.key||'', v=x.v||x.val||x.value||''; return '<span class="bz-attr"><b>'+esc(k)+'</b> '+esc(v)+'</span>'; } return '<span class="bz-attr">'+esc(x)+'</span>'; }).join('');
+    var chips=at.filter(function(x){ return !(x&&typeof x==='object'&&((x.k||x.key)==='look')); }).map(function(x){ if(x&&typeof x==='object'){ var k=x.k||x.key||'', v=x.v||x.val||x.value||''; return '<span class="bz-attr"><b>'+esc(k)+'</b> '+esc(v)+'</span>'; } return '<span class="bz-attr">'+esc(x)+'</span>'; }).join('');
+  }
+  function bzLookOf(a){
+    try{ var at=a.attrs; if(typeof at==='string') at=JSON.parse(at); if(!Array.isArray(at)) return null;
+      for(var i=0;i<at.length;i++){ var x=at[i]; if(x&&typeof x==='object'&&((x.k||x.key)==='look')) return x.v||x.val||x.value||null; }
+    }catch(e){} return null;
+  }
+  function lookBox(txt){
+    return '<div style="margin:.65rem 0;border:1px solid rgba(123,179,106,.35);background:linear-gradient(180deg,rgba(123,179,106,.09),rgba(123,179,106,.02)),var(--bg-1,#14131c);border-radius:12px;padding:10px 13px">'
+      +'<div style="font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#8fe09a;margin-bottom:6px">🔍 Look do item</div>'
+      +'<div style="font-family:\'JetBrains Mono\',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem;line-height:1.55;color:#bfe6b0;white-space:pre-wrap;word-break:break-word">'+esc(txt)+'</div></div>';
     return chips?('<div class="bz-attrs">'+chips+'</div>'):'';
   }
   function renderDetail(a){
@@ -22999,6 +23009,7 @@ window.tpLoadJornada=async function(){
       +'<div class="bz-det-price">'+fmtPrice(a)+'</div></div></div>';
     h+='<div class="bz-det-meta"><span>'+(KIND_EMO[a.kind]||'')+' '+esc(KIND_LBL[a.kind]||a.kind)+'</span><span>🌍 '+esc(a.world||'—')+'</span><span>🕒 há '+rel(a.created_at)+'</span></div>';
     h+=attrsHtml(a);
+    var _lk=bzLookOf(a); if(_lk) h+=lookBox(_lk);
     if(a.descr) h+='<div class="bz-descr">'+esc(a.descr).replace(/\n/g,'<br>')+'</div>';
     h+=market;
     h+='</div>';
@@ -23073,7 +23084,7 @@ window.tpLoadJornada=async function(){
   function renderNew(){
     if(!me()){ host().innerHTML='<div class="bz-empty">🐼 <b>Entre na sua conta</b> pra anunciar no bazar.</div>'; return; }
     var w=myWorld();
-    var d=BZ.draft=BZ.draft||{intent:'wts',kind:'item',title:'',item_name:'',tier:'',price:'',currency:'gp',descr:''};
+    var d=BZ.draft=BZ.draft||{intent:'wts',kind:'item',title:'',item_name:'',tier:'',price:'',currency:'gp',descr:'',look:''};
     var h='<button class="bz-back" onclick="tpBzBack()">← Voltar ao feed</button>';
     h+='<div class="bz-new"><div class="bz-new-form">';
     h+='<h3 class="bz-new-h">➕ Novo anúncio</h3>';
@@ -23092,7 +23103,9 @@ window.tpLoadJornada=async function(){
     if(d.kind==='item'){
       h+='<div class="bz-row"><div style="flex:2"><label class="bz-lbl">Nome do item (busque na lista)</label><input class="bz-in" list="bz-item-dl" autocomplete="off" value="'+esc(d.item_name)+'" oninput="tpBzDraft(\'item_name\',this.value)" placeholder="Ex.: Magic Sword"></div>'
         +'<div style="flex:1"><label class="bz-lbl">Tier</label><input class="bz-in" type="number" min="0" max="10" value="'+esc(d.tier)+'" oninput="tpBzDraft(\'tier\',this.value)" placeholder="—"></div></div>'
-        +'<datalist id="bz-item-dl"></datalist>';
+        +'<datalist id="bz-item-dl"></datalist>'
+        +'<label class="bz-lbl">Look do item <span style="color:var(--muted);font-weight:400">(opcional — cole o “You see…” do jogo)</span></label>'
+        +'<textarea class="bz-in bz-ta" maxlength="2000" oninput="tpBzDraft(\'look\',this.value)" placeholder="You see an amber kusarigama (Atk:46, Def:20, fist fighting +5, magic level +1). ...">'+esc(d.look||'')+'</textarea>';
     }
     h+='<div class="bz-row"><div style="flex:2"><label class="bz-lbl">Preço</label><input class="bz-in" type="number" min="0" value="'+esc(d.price)+'" oninput="tpBzDraft(\'price\',this.value)" placeholder="'+(d.currency==='combinar'?'a combinar':'0')+'"'+(d.currency==='combinar'?' disabled':'')+'></div>'
       +'<div style="flex:1"><label class="bz-lbl">Moeda</label><select class="bz-sel" onchange="tpBzDraft(\'currency\',this.value)"><option value="gp"'+(d.currency==='gp'?' selected':'')+'>gp</option><option value="tc"'+(d.currency==='tc'?' selected':'')+'>TC</option><option value="combinar"'+(d.currency==='combinar'?' selected':'')+'>A combinar</option></select></div></div>';
@@ -23204,7 +23217,7 @@ window.tpLoadJornada=async function(){
   window.tpBzPublish=function(){
     var d=BZ.draft||{}; if(!(d.title||'').trim()){ toast('Dá um título pro anúncio.','info'); return; }
     var btn=document.getElementById('bz-pub'); if(btn){ btn.disabled=true; btn.textContent='Publicando...'; }
-    rpc('tp_bazar_post',{p_intent:d.intent||'wts',p_kind:d.kind||'item',p_title:d.title,p_price:(d.currency==='combinar'||d.price===''?null:+d.price),p_currency:d.currency||'gp',p_descr:d.descr||null,p_item_name:(d.kind==='item'?(d.item_name||null):null),p_tier:(d.kind==='item'&&d.tier!==''?+d.tier:null),p_attrs:[],p_photo_url:null,p_char:null})
+    rpc('tp_bazar_post',{p_intent:d.intent||'wts',p_kind:d.kind||'item',p_title:d.title,p_price:(d.currency==='combinar'||d.price===''?null:+d.price),p_currency:d.currency||'gp',p_descr:d.descr||null,p_item_name:(d.kind==='item'?(d.item_name||null):null),p_tier:(d.kind==='item'&&d.tier!==''?+d.tier:null),p_attrs:((d.kind==='item'&&d.look&&d.look.trim())?[{k:'look',v:d.look.trim()}]:[]),p_photo_url:null,p_char:null})
     .then(function(){ toast('Anúncio publicado! 🐼','success'); BZ.draft=null; window.tpBzBack(); loadFeed(); })
     .catch(function(e){ var m=String(e&&e.message||''); var msg='Não consegui publicar.';
       if(/no_verified_char/.test(m)) msg='Verifique um personagem no seu perfil primeiro.';
