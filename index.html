@@ -4371,7 +4371,7 @@ PlayerName (Leader)
   <!-- ─── RANKINGS ─── -->
   <section class="page-section" id="rankings">
     <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.958a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.367 2.446a1 1 0 00-.364 1.118l1.287 3.958c.3.922-.755 1.688-1.54 1.118l-3.366-2.446a1 1 0 00-1.175 0l-3.367 2.446c-.784.57-1.838-.196-1.539-1.118l1.287-3.958a1 1 0 00-.364-1.118L2.98 9.385c-.783-.57-.38-1.81.588-1.81h4.162a1 1 0 00.95-.69l1.286-3.958z"/></svg> Rankings da comunidade</h2>
-    <p class="sec-sub">O placar do Tibia Panda. XP de hunt (hoje, semana e mês), profit e XP da comunidade — global ou entre seus amigos. Salve hunts no Loot Split pra aparecer.</p>
+    <p class="sec-sub">O placar do Tibia Panda: a <b>XP da comunidade</b> (pontos que você ganha usando o site) e o <b>Highscore oficial do Tibia</b> no seu mundo.</p>
     <style>
       #rk-gate{display:none}
       #rankings.gated > #rk-content{display:none}
@@ -4392,11 +4392,8 @@ PlayerName (Leader)
       <div class="card">
         <div class="rk-bar">
           <div class="rk-metrics">
-            <button class="rk-mbtn on" data-metric="xpweek" onclick="tpRankMetric('xpweek',this)">⚔️ XP semana</button>
-            <button class="rk-mbtn" data-metric="xpday" onclick="tpRankMetric('xpday',this)">🌅 XP hoje</button>
-            <button class="rk-mbtn" data-metric="xpmonth" onclick="tpRankMetric('xpmonth',this)">🌙 XP mês</button>
-            <button class="rk-mbtn" data-metric="profit_week" onclick="tpRankMetric('profit_week',this)">💰 Profit (semana)</button>
-            <button class="rk-mbtn" data-metric="xp" onclick="tpRankMetric('xp',this)">🐼 XP comunidade</button>
+            <button class="rk-mbtn on" data-metric="xp" onclick="tpRankMetric('xp',this)">🐼 Ranking Panda</button>
+            <button class="rk-mbtn" data-metric="tibia" onclick="tpRankMetric('tibia',this)">🏆 Highscore Tibia</button>
           </div>
           <div class="rk-scope">
             <button class="rk-sbtn on" data-scope="global" onclick="tpRankScope('global',this)">🌎 Global</button>
@@ -5480,11 +5477,8 @@ PlayerName (Leader)
         <div style="font-size:.78rem;color:var(--muted);margin-bottom:.8rem">Placar do Tibia Panda. Escolha a métrica e veja o ranking geral ou só entre seus amigos.</div>
         <div class="rk-bar">
           <div class="rk-metrics">
-            <button class="rk-mbtn on" data-metric="profit_week" onclick="tpRankMetric('profit_week',this)">💰 Profit (semana)</button>
-            <button class="rk-mbtn" data-metric="xpday" onclick="tpRankMetric('xpday',this)">🌅 XP hoje</button>
-            <button class="rk-mbtn" data-metric="xpweek" onclick="tpRankMetric('xpweek',this)">⚔️ XP semana</button>
-            <button class="rk-mbtn" data-metric="xpmonth" onclick="tpRankMetric('xpmonth',this)">🌙 XP mês</button>
-            <button class="rk-mbtn" data-metric="xp" onclick="tpRankMetric('xp',this)">🐼 XP comunidade</button>
+            <button class="rk-mbtn on" data-metric="xp" onclick="tpRankMetric('xp',this)">🐼 Ranking Panda</button>
+            <button class="rk-mbtn" data-metric="tibia" onclick="tpRankMetric('tibia',this)">🏆 Highscore Tibia</button>
           </div>
           <div class="rk-scope">
             <button class="rk-sbtn on" data-scope="global" onclick="tpRankScope('global',this)">🌎 Global</button>
@@ -11224,7 +11218,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar24';
+window.TP_BUILD = '2026-10-05bazar25';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -13005,7 +12999,7 @@ function showPage(id, btn) {
     if(!(window.TP_AUTH && window.TP_AUTH.user)){ if(_rsec) _rsec.classList.add('gated'); }
     else {
       if(_rsec) _rsec.classList.remove('gated');
-      window.__RK_ROOT='#rankings'; window.__RK_METRIC='xpweek'; window.__RK_SCOPE='global';
+      window.__RK_ROOT='#rankings'; window.__RK_METRIC='xp'; window.__RK_SCOPE='global';
       document.querySelectorAll('#rankings .rk-mbtn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-metric')==='xpweek'); });
       document.querySelectorAll('#rankings .rk-sbtn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-scope')==='global'); });
       if(window.tpLoadRankings) tpLoadRankings();
@@ -17534,7 +17528,7 @@ function ewEnsureTcInput() {
     if(name==='prog') tpLoadGamify();
     if(name==='inventario' && window.tpLoadInventory) tpLoadInventory();
     if(name==='amigos' && window.tpFriendsLoad) tpFriendsLoad();
-    if(name==='rankings'){ window.__RK_ROOT='#profile'; window.__RK_METRIC='profit_week'; window.__RK_SCOPE='global';
+    if(name==='rankings'){ window.__RK_ROOT='#profile'; window.__RK_METRIC='xp'; window.__RK_SCOPE='global';
       document.querySelectorAll('#profile .rk-mbtn').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-metric')==='profit_week');});
       document.querySelectorAll('#profile .rk-sbtn').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-scope')==='global');});
       if(window.tpLoadRankings) tpLoadRankings();
@@ -19368,7 +19362,7 @@ window.tpToast=function(msg,type){
   }
 
   // ═══ Rankings / leaderboards ═══
-  window.__RK_METRIC='profit_week'; window.__RK_SCOPE='global'; window.__RK_ROOT='#profile';
+  window.__RK_METRIC='xp'; window.__RK_SCOPE='global'; window.__RK_ROOT='#profile';
   function rkFmt(metric,v){ v=+v||0;
     if(metric==='xp'){ return v.toLocaleString('pt-BR'); }
     if(metric==='bestiary'){ return v+' <span class="rk-unit">/822</span>'; }
@@ -19378,10 +19372,35 @@ window.tpToast=function(msg,type){
     var t=a>=1e9?(a/1e9).toFixed(1)+'kkk':a>=1e6?(a/1e6).toFixed(1)+'kk':a>=1e3?(a/1e3).toFixed(0)+'k':(''+a);
     return s+t; }
   function rkMetricLabel(m){ return m==='profit_week'?'Profit (7 dias)':m==='xpday'?'XP de hunt (hoje)':m==='xpweek'?'XP de hunt (7 dias)':m==='xpmonth'?'XP de hunt (30 dias)':m==='bestiary'?'Criaturas descobertas':m==='completas'?'Bestiary completos':m==='charm'?'Charm points ganhos':'XP da comunidade'; }
-  window.tpRankMetric=function(m,btn){ window.__RK_METRIC=m; document.querySelectorAll((window.__RK_ROOT||'#profile')+' .rk-mbtn').forEach(function(b){b.classList.toggle('on',b===btn);}); tpLoadRankings(); };
+  window.tpRankMetric=function(m,btn){ window.__RK_METRIC=m; document.querySelectorAll((window.__RK_ROOT||'#profile')+' .rk-mbtn').forEach(function(b){b.classList.toggle('on',b===btn);}); var _sc=document.querySelector((window.__RK_ROOT||'#profile')+' .rk-scope'); if(_sc) _sc.style.display=(m==='tibia'?'none':''); tpLoadRankings(); };
   window.tpRankScope=function(s,btn){ window.__RK_SCOPE=s; document.querySelectorAll((window.__RK_ROOT||'#profile')+' .rk-sbtn').forEach(function(b){b.classList.toggle('on',b===btn);}); tpLoadRankings(); };
+  async function tpLoadTibiaHS(host){
+    var world=(typeof CONFIG!=='undefined'&&CONFIG.world)?CONFIG.world:'Gentebra';
+    host.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando highscore de '+window.esc(world)+'...</div>';
+    var vemo={'Royal Paladin':'🏹','Paladin':'🏹','Elder Druid':'🌿','Druid':'🌿','Master Sorcerer':'🔮','Sorcerer':'🔮','Elite Knight':'⚔️','Knight':'⚔️','Exalted Monk':'🥋','Monk':'🥋'};
+    function medal(rk){ return rk===1?'🥇':rk===2?'🥈':rk===3?'🥉':('#'+rk); }
+    function fmt(n){ return (Number(n)||0).toLocaleString('pt-BR'); }
+    try{
+      var r=await fetch('https://api.tibiadata.com/v4/highscores/'+encodeURIComponent(world)+'/experience/all/1',{headers:{Accept:'application/json'}});
+      var d=await r.json();
+      if(window.__RK_METRIC!=='tibia') return;
+      var list=((d&&d.highscores&&d.highscores.highscore_list)||[]);
+      if(!list.length){ host.innerHTML='<div class="vit-empty">Não consegui o highscore de '+window.esc(world)+' agora.</div>'; return; }
+      var html='<div style="font-size:.74rem;color:var(--muted);margin-bottom:.7rem">🏆 Highscore <b>oficial do Tibia</b> — experiência no mundo <b>'+window.esc(world)+'</b> (via TibiaData · top 50). Troque o mundo no seletor do topo.</div>';
+      html+='<div class="rk-list">'+list.map(function(x){
+        return '<div class="rk-row rk-top'+(x.rank<=3?x.rank:'n')+'">'
+          +'<span class="rk-pos">'+medal(x.rank)+'</span>'
+          +'<span class="rk-av"><span class="rk-avfb">'+(vemo[x.vocation]||'🐾')+'</span></span>'
+          +'<div class="rk-info"><div class="rk-nm"><b>'+window.esc(x.name)+'</b> <span class="rk-lvl">nv '+x.level+'</span></div><span class="rk-sub">'+window.esc(x.vocation||'')+'</span></div>'
+          +'<span class="rk-val">'+fmt(x.value)+'</span></div>';
+      }).join('')+'</div>';
+      html+='<div class="rk-foot">Experiência · mundo '+window.esc(world)+' · top '+list.length+'</div>';
+      host.innerHTML=html;
+    }catch(e){ if(window.__RK_METRIC==='tibia') host.innerHTML='<div class="vit-empty">Não consegui o highscore agora. Tenta de novo.</div>'; }
+  }
   window.tpLoadRankings=async function(){
     var host=document.querySelector((window.__RK_ROOT||'#profile')+' .rk-body'); if(!host) return;
+    if(window.__RK_METRIC==='tibia'){ return tpLoadTibiaHS(host); }
     var A=window.TP_AUTH; if(!A||!A.user){ host.innerHTML='<div class="vit-empty">Entre na sua conta pra ver os rankings. 🐼</div>'; return; }
     host.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando ranking...</div>';
     var metric=window.__RK_METRIC, scope=window.__RK_SCOPE;
