@@ -3546,6 +3546,12 @@ async function tibiaFetch(path) {
     <h2 class="sec-title">Guia de Quests</h2>
     <p class="sec-sub">As 237 quests do Tibia organizadas por <b>faixa de nível</b> — recompensa, saga e nível mínimo de cada uma. Entre na conta pra marcar o que já concluiu e salvar o progresso. <span style="color:var(--ink-3)">Fonte: TibiaDraptor.</span></p>
 
+    <div onclick="showPage('profile');setTimeout(function(){var t=document.querySelector('#profile .pf-tab[data-tab=jornada]');if(t)t.click();},350)" style="cursor:pointer;margin-bottom:1.2rem;border:1px solid rgba(167,139,250,.38);background:linear-gradient(100deg,rgba(167,139,250,.15),rgba(167,139,250,.02)),var(--bg-1,#14131c);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="font-size:1.7rem;line-height:1">🗺️</div>
+      <div style="flex:1;min-width:210px"><div style="font-weight:800;color:var(--ink);font-size:1rem">Jornada personalizada por vocação</div><div style="font-size:.82rem;color:var(--muted);margin-top:2px;line-height:1.45">Em vez do guia geral, siga a rota do <b>seu personagem</b> — hunts, quests, progressão de item e recompensas em Panda Coins, do nível 8 ao end-game. Fica no seu perfil.</div></div>
+      <span style="background:var(--bamboo-light,#a78bfa);color:#1a1726;font-weight:800;font-size:.82rem;padding:9px 15px;border-radius:9px;white-space:nowrap">Ver minha Jornada →</span>
+    </div>
+
     <div id="jr-summary" style="margin-bottom:1rem"></div>
     <div id="jr-filters" style="display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem"></div>
     <div id="jr-body"><div class="api-loading"><div class="spinner"></div> Carregando guia...</div></div>
@@ -11218,7 +11224,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar22';
+window.TP_BUILD = '2026-10-05bazar23';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -23218,8 +23224,8 @@ window.tpLoadJornada=async function(){
   window.tpBzReport=function(id){ if(!me()){ toast('Entre na conta pra denunciar.','info'); return; }
     var why=prompt('Por que está denunciando este anúncio? (spam, golpe, fora do tema...)'); if(why===null) return;
     rpc('tp_bazar_report',{p_ad:id,p_reason:why}).then(function(){ toast('Denúncia enviada. Obrigado! 🐼','success'); }).catch(function(){ toast('Não consegui enviar a denúncia.','error'); }); };
-  window.tpBzMark=function(id,action){
-    if(action==='remove' && !confirm('Remover este anúncio?')) return;
+  window.tpBzMark=async function(id,action){
+    if(action==='remove'){ var _ok=window.tpConfirm?(await window.tpConfirm('Remover este anúncio?',{ok:'Remover'})):confirm('Remover este anúncio?'); if(!_ok) return; }
     rpc('tp_bazar_mark',{p_ad:id,p_action:action}).then(function(){
       toast(action==='sold'?'Marcado como vendido ✓':(action==='renew'?'Anúncio reativado (+30 dias) ↻':'Anúncio removido 🗑'),'success');
       if(BZ.view==='mine') renderMine(); else if(BZ.view==='detail'){ window.tpBzBack(); loadFeed(); } else loadFeed();
