@@ -2045,7 +2045,7 @@ async function tibiaFetch(path) {
       <div class="hm-cat">Mercado &amp; economia <span class="l"></span><span class="tp-tag new">2 novas</span></div>
       <div class="tp-toolgrid">
         <button class="tp-tool hm-tool" onclick="showPage('markettracker',document.querySelector('[onclick*=markettracker]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V4.5M4 20h16M7.3 15l3.2-3.5 2.3 1.9L18 7.5M14.4 7.5H18v3.4"/></svg></div><div><div class="tn">Market Tracker <span class="tp-tag new">Novo</span></div><div class="td">Preço do market ao vivo + histórico, por mundo.</div></div></button>
-        <button class="tp-tool hm-tool" onclick="showPage('bazar',document.querySelector('[onclick*=bazar]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16l-1.2 10a2 2 0 01-2 1.8H7.2a2 2 0 01-2-1.8L4 7z"/><path d="M8.5 7a3.5 3.5 0 017 0"/></svg></div><div><div class="tn">Bazar da Panda <span class="tp-tag new">Novo</span></div><div class="td">Compra e venda de itens e casas — por chars verificados.</div></div></button>
+        <button class="tp-tool hm-tool" onclick="showPage('bazar',document.querySelector('[onclick*=bazar]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16l-1.2 10a2 2 0 01-2 1.8H7.2a2 2 0 01-2-1.8L4 7z"/><path d="M8.5 7a3.5 3.5 0 017 0"/></svg></div><div><div class="tn">Bazar da Panda <span class="tp-tag new">Novo</span></div><div class="td">Compra e venda de itens e casas.</div></div></button>
         <button class="tp-tool hm-tool" onclick="showPage('servertransfer',document.querySelector('[onclick*=servertransfer]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5h13l-3.2-3.2M20 15.5H7l3.2 3.2"/></svg></div><div><div class="tn">Transferência <span class="tp-tag new">Novo</span></div><div class="td">Arbitragem de itens entre servidores.</div></div></button>
         <button class="tp-tool hm-tool" onclick="showPage('delivery',document.querySelector('[onclick*=delivery]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3l8 4.2v8.6L12 20l-8-4.2V7.2L12 3z" fill="currentColor" fill-opacity=".15"/><path d="M4 7.3l8 4.2 8-4.2M12 11.5V20"/><path d="M8.7 14.4l2 1.9 3.3-3.5" stroke-linecap="round"/></svg></div><div><div class="tn">Task Delivery</div><div class="td">Itens de entrega e preço de market ao vivo.</div></div></button>
         <div class="tp-tool hm-tool soon"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 4h7l9 9-7 7-9-9V4z" fill="currentColor" fill-opacity=".12"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/></svg></div><div><div class="tn">Bazar <span class="tp-tag soon">Em breve</span></div><div class="td">Filtro do char bazaar oficial: level, skills, preço.</div></div></div>
@@ -11226,7 +11226,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar28';
+window.TP_BUILD = '2026-10-05bazar29';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -23052,9 +23052,11 @@ window.tpLoadJornada=async function(){
     h+='<div class="bz-seller"><div class="bz-seller-h">'+(a.intent==='wtb'?'Procurado por':'Anunciado por')+'</div>'
       +'<div class="bz-seller-name">'+esc(a.author_name||'—')+'</div>'
       +'<div class="bz-seller-sub">🎽 '+esc(a.char_name||'—')+(a.karma!=null?(' · '+karmaChip(a.karma)):'')+'</div>';
+    h+='<button class="bz-btn ghost block" onclick="tpBzShare(\''+a.id+'\')">🔗 Compartilhar</button>';
     if(mine){
       h+='<div class="bz-owner-acts">'
-        +(a.status==='active'?'<button class="bz-btn" onclick="tpBzMark(\''+a.id+'\',\'sold\')">✓ Marcar vendido</button>':'')
+        +(a.status==='active'?'<button class="bz-btn" onclick="tpBzMark(\''+a.id+'\',\'sold\')">✓ Marcar '+(a.intent==='wtb'?'comprado':'vendido')+'</button>':'')
+        +(a.status==='active'?'<button class="bz-btn" onclick="tpBzEdit()">✏️ Editar</button>':'')
         +(a.status!=='active'?'<button class="bz-btn" onclick="tpBzMark(\''+a.id+'\',\'renew\')">↻ Reativar (+30d)</button>':'')
         +'<button class="bz-btn danger" onclick="tpBzMark(\''+a.id+'\',\'remove\')">🗑 Remover</button></div>'
         +'<div class="bz-owner-note">Status: <b>'+esc(a.status)+'</b> · expira '+(a.expires_at?('em '+rel(a.expires_at).replace('agora','breve')):'—')+'</div>';
@@ -23140,7 +23142,7 @@ window.tpLoadJornada=async function(){
     var d=BZ.draft=BZ.draft||{intent:'wts',kind:'item',title:'',item_name:'',tier:'',price:'',currency:'gp',descr:'',look:''};
     var h='<button class="bz-back" onclick="tpBzBack()">← Voltar ao feed</button>';
     h+='<div class="bz-new"><div class="bz-new-form">';
-    h+='<h3 class="bz-new-h">➕ Novo anúncio</h3>';
+    h+='<h3 class="bz-new-h">'+(BZ.editId?'✏️ Editar anúncio':'➕ Novo anúncio')+'</h3>';
     if(!w) h+='<div class="bz-warn">Verifique um personagem no seu perfil pra anunciar (o mundo do anúncio vem do seu char).</div>';
     h+='<label class="bz-lbl">Tipo de anúncio</label><div class="bz-segs wide">';
     [['wts','Vendo'],['wtb','Procuro']].forEach(function(s){ h+='<button class="bz-seg'+(d.intent===s[0]?' on':'')+'" onclick="tpBzDraft(\'intent\',\''+s[0]+'\')">'+s[1]+'</button>'; });
@@ -23168,7 +23170,7 @@ window.tpLoadJornada=async function(){
     h+='<label class="bz-lbl">Descrição</label><textarea class="bz-in bz-ta" maxlength="4000" oninput="tpBzDraft(\'descr\',this.value)" placeholder="Detalhes, atributos, forma de negociar...">'+esc(d.descr)+'</textarea>';
     h+='<div class="bz-new-meta">🌍 Mundo: <b>'+esc(w||'—')+'</b> · vem do seu personagem verificado</div>';
     h+='<div class="bz-new-meta" style="margin-top:-2px">⏳ Fica ativo por <b>30 dias</b>. Marque como <b>vendido</b> quando fechar (ou remova) pra não deixar oferta velha no ar.</div>';
-    h+='<button class="bz-btn gold block big" id="bz-pub" onclick="tpBzPublish()"'+(w?'':' disabled')+'>Publicar anúncio</button>';
+    h+='<button class="bz-btn gold block big" id="bz-pub" onclick="tpBzPublish()"'+(w?'':' disabled')+'>'+(BZ.editId?'Salvar alterações':'Publicar anúncio')+'</button>';
     h+='</div>';
     h+='<div class="bz-new-pv"><div class="bz-pv-lbl">Prévia</div><div id="bz-pv"></div></div>';
     h+='</div>';
@@ -23266,10 +23268,10 @@ window.tpLoadJornada=async function(){
   window.tpBzType=function(v){ BZ.f.kind=v; render(); loadFeed(); };
   window.tpBzSet=function(k,v){ BZ.f[k]=v; loadFeed(); };
   var _qt; window.tpBzQ=function(v){ BZ.f.q=v; clearTimeout(_qt); _qt=setTimeout(loadFeed,350); };
-  window.tpBzBack=function(){ BZ.view='feed'; BZ.detail=null; render(); if(!BZ.ads.length) loadFeed(); };
+  window.tpBzBack=function(){ BZ.editId=null; BZ.view='feed'; BZ.detail=null; render(); if(!BZ.ads.length) loadFeed(); };
   window.tpBzOpen=function(id){ BZ.view='detail'; host().innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando anúncio...</div>';
     rpc('tp_bazar_get',{p_id:id}).then(function(rows){ var a=Array.isArray(rows)?rows[0]:rows; if(!a){ toast('Anúncio não encontrado ou removido.','info'); window.tpBzBack(); return; } BZ.detail=a; renderDetail(a); }).catch(function(){ toast('Não consegui abrir o anúncio.','error'); window.tpBzBack(); }); };
-  window.tpBzNew=function(){ BZ.view='new'; render(); if(me()&&!myWorld()) ensureChars(function(){ if(BZ.view==='new') render(); }); };
+  window.tpBzNew=function(){ BZ.editId=null; BZ.draft=null; BZ.view='new'; render(); if(me()&&!myWorld()) ensureChars(function(){ if(BZ.view==='new') render(); }); };
   window.tpBzMine=function(){ BZ.view='mine'; render(); };
   window.tpBzAlerts=function(){ BZ.view='alerts'; render(); };
   window.tpBzDraft=function(k,v){ BZ.draft=BZ.draft||{}; BZ.draft[k]=v; if(k==='item_name') BZ.draft.title=v; if(k==='kind'){ BZ.draft.title=(v==='item'?(BZ.draft.item_name||''):(v==='casa'?(BZ.draft.house||''):'')); } if(k==='kind'||k==='currency'||k==='intent') render(); else paintPreview(); };
@@ -23283,12 +23285,19 @@ window.tpLoadJornada=async function(){
   window.tpBzMark=async function(id,action){
     if(action==='remove'){ var _ok=window.tpConfirm?(await window.tpConfirm('Remover este anúncio?',{ok:'Remover'})):confirm('Remover este anúncio?'); if(!_ok) return; }
     rpc('tp_bazar_mark',{p_ad:id,p_action:action}).then(function(){
-      toast(action==='sold'?'Marcado como vendido ✓':(action==='renew'?'Anúncio reativado (+30 dias) ↻':'Anúncio removido 🗑'),'success');
+      toast(action==='sold'?'Anúncio marcado como concluído ✓':(action==='renew'?'Anúncio reativado (+30 dias) ↻':'Anúncio removido 🗑'),'success');
       if(BZ.view==='mine') renderMine(); else if(BZ.view==='detail'){ window.tpBzBack(); loadFeed(); } else loadFeed();
     }).catch(function(){ toast('Não consegui atualizar o anúncio.','error'); }); };
   window.tpBzPublish=function(){
     var d=BZ.draft||{}; if(!(d.title||'').trim()){ toast('Dá um título pro anúncio.','info'); return; }
-    var btn=document.getElementById('bz-pub'); if(btn){ btn.disabled=true; btn.textContent='Publicando...'; }
+    var btn=document.getElementById('bz-pub'); if(btn){ btn.disabled=true; btn.textContent=BZ.editId?'Salvando...':'Publicando...'; }
+    if(BZ.editId){
+      var patch={intent:d.intent||'wts',title:d.title,price:(d.currency==='combinar'||d.price===''?null:+d.price),currency:d.currency||'gp',descr:(d.descr||'').trim()||null,item_name:(d.kind==='item'?(d.item_name||null):null),tier:(d.kind==='item'&&d.tier!==''?+d.tier:null),attrs:((d.kind==='item'&&d.look&&d.look.trim())?[{k:'look',v:d.look.trim()}]:[])};
+      af(SB+'/rest/v1/bazar_ads?id=eq.'+encodeURIComponent(BZ.editId),{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(patch)})
+        .then(function(r){ if(!r.ok) throw 0; toast('Anúncio atualizado! 🐼','success'); var id=BZ.editId; BZ.editId=null; BZ.draft=null; tpBzOpen(id); loadFeed(); })
+        .catch(function(){ toast('Não consegui salvar.','error'); var b=document.getElementById('bz-pub'); if(b){ b.disabled=false; b.textContent='Salvar alterações'; } });
+      return;
+    }
     rpc('tp_bazar_post',{p_intent:d.intent||'wts',p_kind:d.kind||'item',p_title:d.title,p_price:(d.currency==='combinar'||d.price===''?null:+d.price),p_currency:d.currency||'gp',p_descr:d.descr||null,p_item_name:(d.kind==='item'?(d.item_name||null):null),p_tier:(d.kind==='item'&&d.tier!==''?+d.tier:null),p_attrs:((d.kind==='item'&&d.look&&d.look.trim())?[{k:'look',v:d.look.trim()}]:[]),p_photo_url:null,p_char:(d.kind==='casa'?(d.char||null):null)})
     .then(function(){ toast('Anúncio publicado! 🐼','success'); BZ.draft=null; window.tpBzBack(); loadFeed(); })
     .catch(function(e){ var m=String(e&&e.message||''); var msg='Não consegui publicar.';
@@ -23307,6 +23316,11 @@ window.tpLoadJornada=async function(){
     .then(function(r){ if(!r.ok) throw 0; toast('Alerta removido.','success'); loadFilters(); }).catch(function(){ toast('Não consegui remover.','error'); }); };
 
   // re-render em login/logout se estiver na página
+  window.tpBzEdit=function(){ var a=BZ.detail; if(!a) return; BZ.editId=a.id; BZ.draft={intent:a.intent||'wts',kind:a.kind||'item',title:a.title||'',item_name:a.item_name||'',tier:(a.tier!=null?a.tier:''),price:(a.price!=null?a.price:''),currency:a.currency||'gp',descr:a.descr||'',look:(bzLookOf(a)||''),town:'',house:(a.kind==='casa'?(a.title||''):''),char:a.char_name||''}; BZ.view='new'; render(); };
+  window.tpBzShare=function(id){ try{ var url=location.origin+location.pathname+'#bz='+id; if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(url).then(function(){ toast('Link copiado! 🔗','success'); }).catch(function(){ window.prompt('Copie o link do anúncio:',url); }); } else { window.prompt('Copie o link do anúncio:',url); } }catch(e){} };
+  function _bzHash(){ var m=(location.hash||'').match(/^#bz=([0-9a-fA-F-]{8,})/); if(m){ if(window.showPage) showPage('bazar'); if(window.tpBazarInit) tpBazarInit(); setTimeout(function(){ if(window.tpBzOpen) tpBzOpen(m[1]); },350); } }
+  window.addEventListener('hashchange',_bzHash);
+  if(/^#bz=/.test(location.hash||'')){ if(document.readyState!=='loading') setTimeout(_bzHash,600); else document.addEventListener('DOMContentLoaded',function(){ setTimeout(_bzHash,600); }); }
   window.tpBazarOnAuth=function(){ _bzCharsFetched=false; ensureChars(); var s=document.getElementById('bazar'); if(s&&s.classList.contains('active')){ BZ.view='feed'; render(); loadFeed(); } };
 })();
 
