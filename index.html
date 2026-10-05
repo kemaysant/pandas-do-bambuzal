@@ -3578,6 +3578,49 @@ async function tibiaFetch(path) {
       .then(function(r){ if(!r.ok) throw 0; if(window.tpToast)tpToast('Report atualizado.','success'); tpAdminBugs(); })
       .catch(function(){ if(window.tpToast)tpToast('Erro ao salvar.','error'); btn.disabled=false; btn.textContent=t; });
   };
+
+  // ===== Jornada (editar capitulos) =====
+  window.tpAdminJornada=function(){
+    var host=g('adm-jornada'); if(!host) return;
+    host.innerHTML='<div class="adm-note">Carregando capítulos…</div>';
+    _af(_sb()+'/rest/v1/jornada_chapters?select=code,voc,sort,req_level,coins,label,req_ach&order=voc.asc,sort.asc&limit=500',{headers:_ah()})
+      .then(function(r){return r.ok?r.json():Promise.reject(r);}).then(function(rows){
+        rows=Array.isArray(rows)?rows:[];
+        if(!rows.length){ host.innerHTML='<div class="adm-note">Nenhum capítulo encontrado.</div>'; return; }
+        var VOCL={druid:'🌿 Druid',knight:'⚔️ Knight',paladin:'🏹 Paladin',sorcerer:'🔮 Sorcerer',monk:'🥋 Monk'};
+        var byVoc={}; rows.forEach(function(r){ (byVoc[r.voc]=byVoc[r.voc]||[]).push(r); });
+        var h='<div class="adm-note" style="margin-bottom:.8rem">Edite os requisitos da jornada por vocação. <b>Conquistas</b> separadas por vírgula (nome exato do Tibia); vazio = sem conquista. Salva por linha.</div>';
+        Object.keys(byVoc).forEach(function(voc){
+          h+='<div class="adm-sec-h" style="margin-top:1.1rem">'+(VOCL[voc]||voc)+' <span class="adm-note" style="font-weight:400">('+byVoc[voc].length+' capítulos)</span></div>';
+          h+='<div class="adm-tablewrap"><table class="adm-ftable"><thead><tr><th>Capítulo (título)</th><th>Lvl</th><th>🪙</th><th>Conquistas (vírgula)</th><th></th></tr></thead><tbody>';
+          h+=byVoc[voc].map(function(c){
+            return '<tr data-code="'+esc(c.code)+'">'
+              +'<td><input class="adm-in" data-f="label" value="'+esc(c.label||'')+'" style="min-width:220px"></td>'
+              +'<td><input class="adm-in num" data-f="req_level" type="number" value="'+(c.req_level!=null?c.req_level:'')+'" style="width:64px"></td>'
+              +'<td><input class="adm-in num" data-f="coins" type="number" value="'+(c.coins!=null?c.coins:'')+'" style="width:72px"></td>'
+              +'<td><input class="adm-in" data-f="req_ach" value="'+esc((c.req_ach||[]).join(', '))+'" placeholder="(nenhuma)" style="min-width:220px"></td>'
+              +'<td><button class="adm-save" onclick="tpAdminJornadaSave(this)">Salvar</button></td>'
+            +'</tr>';
+          }).join('');
+          h+='</tbody></table></div>';
+        });
+        host.innerHTML=h;
+      }).catch(function(){ host.innerHTML='<div class="adm-note" style="color:var(--red,#e87070)">Erro ao carregar (precisa ser admin).</div>'; });
+  };
+  window.tpAdminJornadaSave=function(btn){
+    var tr=btn.closest('tr'); if(!tr) return; var code=tr.getAttribute('data-code');
+    var body={};
+    tr.querySelectorAll('[data-f]').forEach(function(el){ var f=el.getAttribute('data-f');
+      if(f==='req_ach'){ body.req_ach=el.value.split(',').map(function(x){return x.trim();}).filter(Boolean); }
+      else if(el.type==='number'){ body[f]=(el.value===''?null:+el.value); }
+      else body[f]=el.value;
+    });
+    btn.disabled=true; var t=btn.textContent; btn.textContent='…';
+    _af(_sb()+'/rest/v1/jornada_chapters?code=eq.'+encodeURIComponent(code),{method:'PATCH',headers:Object.assign(_ah(true),{Prefer:'return=minimal'}),body:JSON.stringify(body)})
+      .then(function(r){ if(!r.ok) throw 0; if(window.tpToast)tpToast('Capítulo salvo ✓','success'); })
+      .catch(function(){ if(window.tpToast)tpToast('Erro ao salvar (precisa ser admin).','error'); })
+      .finally(function(){ btn.disabled=false; btn.textContent=t; });
+  };
 })();
 
 </script>
@@ -11452,7 +11495,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar35';
+window.TP_BUILD = '2026-10-05bazar36';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
