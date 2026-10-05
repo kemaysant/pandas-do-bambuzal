@@ -11218,7 +11218,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar19';
+window.TP_BUILD = '2026-10-05bazar20';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -22985,6 +22985,7 @@ window.tpLoadJornada=async function(){
   function attrsHtml(a){
     var at=a.attrs; if(typeof at==='string'){ try{at=JSON.parse(at);}catch(e){at=[];} } if(!Array.isArray(at)) at=[];
     var chips=at.filter(function(x){ return !(x&&typeof x==='object'&&((x.k||x.key)==='look')); }).map(function(x){ if(x&&typeof x==='object'){ var k=x.k||x.key||'', v=x.v||x.val||x.value||''; return '<span class="bz-attr"><b>'+esc(k)+'</b> '+esc(v)+'</span>'; } return '<span class="bz-attr">'+esc(x)+'</span>'; }).join('');
+    return chips?('<div class="bz-attrs">'+chips+'</div>'):'';
   }
   function bzLookOf(a){
     try{ var at=a.attrs; if(typeof at==='string') at=JSON.parse(at); if(!Array.isArray(at)) return null;
@@ -22995,7 +22996,6 @@ window.tpLoadJornada=async function(){
     return '<div style="margin:.65rem 0;border:1px solid rgba(123,179,106,.35);background:linear-gradient(180deg,rgba(123,179,106,.09),rgba(123,179,106,.02)),var(--bg-1,#14131c);border-radius:12px;padding:10px 13px">'
       +'<div style="font-size:.6rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#8fe09a;margin-bottom:6px">🔍 Look do item</div>'
       +'<div style="font-family:\'JetBrains Mono\',ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78rem;line-height:1.55;color:#bfe6b0;white-space:pre-wrap;word-break:break-word">'+esc(txt)+'</div></div>';
-    return chips?('<div class="bz-attrs">'+chips+'</div>'):'';
   }
   function renderDetail(a){
     var mine=(me()&&a.user_id===me());
