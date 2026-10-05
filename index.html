@@ -7544,7 +7544,7 @@ PlayerName (Leader)
       var row=null;
       try{ var r=await (window.tpAuthFetch||fetch)(_sbURL()+'/rest/v1/builds?select=*&id=eq.'+id,{headers:{Accept:'application/json'}}); var rows=await r.json(); row=Array.isArray(rows)&&rows[0]; }catch(e){}
       if(!row){ if(window.tpToast) tpToast('Não consegui carregar a build.','error'); return; }
-      window.__BE={ id:id, row:row, data:JSON.parse(JSON.stringify(row.data||{})), pick:null, pickW:false, pickR:false, shapeLi:null };
+      window.__BE={ id:id, row:row, data:JSON.parse(JSON.stringify(row.data||{})), pick:null, pickW:false, pickR:false, pickA:false, shapeLi:null }; _beNormAmmo();
       var bp=document.getElementById('builds'); if(bp) bp.classList.add('detail');
       await tpLoadItemCat();
       if(window.tpLoadCatalog) tpLoadCatalog();
@@ -7792,8 +7792,60 @@ PlayerName (Leader)
     }
     window.tpBEpickSlot=function(k){ tpBECapture(); window.__BE.pick=(window.__BE.pick===k?null:k); window.__BE.pickW=false; window.__BE.pickR=false; tpBERender(); };
     window.tpBEsetItem=function(slot,id){ tpBECapture(); var b=window.__BE.data.b; b.equip=b.equip||{}; if(id) b.equip[slot]=id; else delete b.equip[slot]; window.__BE.pick=null; tpBERender(); };
+    /* ===== Munição (bolts/flechas) — faltava no editor; sem munição o dano de distância sai subestimado ===== */
+    var AMMO_TP={
+      bolts:[
+        {"id":21,"name":"Spectral Bolt","attack":78,"hitChance":90,"aoe":false,"icon":"/Spectral_Bolt.gif"},
+        {"id":17,"name":"Infernal Bolt","attack":72,"hitChance":90,"aoe":false,"icon":"/Infernal_Bolt.gif"},
+        {"id":20,"name":"Prismatic Bolt","attack":66,"hitChance":90,"aoe":false,"icon":"/Prismatic_Bolt.gif"},
+        {"id":16,"name":"Drill Bolt","attack":56,"hitChance":90,"aoe":false,"icon":"/Drill_Bolt.gif"},
+        {"id":19,"name":"Power Bolt","attack":40,"hitChance":90,"aoe":false,"icon":"/Power_Bolt.gif"},
+        {"id":22,"name":"Vortex Bolt","attack":36,"hitChance":90,"aoe":false,"icon":"/Vortex_Bolt.gif"},
+        {"id":18,"name":"Piercing Bolt","attack":33,"hitChance":86,"aoe":false,"icon":"/Piercing_Bolt.gif"},
+        {"id":15,"name":"Bolt","attack":30,"hitChance":86,"aoe":false,"icon":"/Bolt.gif"}
+      ],
+      arrows:[
+        {"id":3,"name":"Crystalline Arrow","attack":65,"hitChance":95,"aoe":false,"icon":"/Crystalline_Arrow.gif"},
+        {"id":6,"name":"Envenomed Arrow","attack":54,"hitChance":92,"aoe":false,"icon":"/Envenomed_Arrow.gif"},
+        {"id":9,"name":"Onyx Arrow","attack":38,"hitChance":92,"aoe":false,"icon":"/Onyx_Arrow.gif"},
+        {"id":4,"name":"Diamond Arrow","attack":37,"hitChance":100,"aoe":true,"icon":"/Diamond_Arrow.gif"},
+        {"id":14,"name":"Tarsal Arrow","attack":33,"hitChance":94,"aoe":false,"icon":"/Tarsal_Arrow.gif"},
+        {"id":5,"name":"Earth Arrow","attack":28,"hitChance":90,"aoe":false,"icon":"/Earth_Arrow.gif"},
+        {"id":13,"name":"Sniper Arrow","attack":28,"hitChance":99,"aoe":false,"icon":"/Sniper_Arrow.gif"},
+        {"id":2,"name":"Burst Arrow","attack":27,"hitChance":100,"aoe":true,"icon":"/Burst_Arrow.gif"},
+        {"id":1,"name":"Arrow","attack":25,"hitChance":90,"aoe":false,"icon":"/Arrow.gif"},
+        {"id":12,"name":"Simple Arrow","attack":20,"hitChance":90,"aoe":false,"icon":"/Simple_Arrow.gif"}
+      ]
+    };
+    function _beAmmoList(kind){ return AMMO_TP[kind]||[]; }
+    function _beDefAmmo(kind){ var l=_beAmmoList(kind); return l.length?JSON.parse(JSON.stringify(l[0])):null; }
+    function _beNormAmmo(force){
+      var BE=window.__BE; if(!BE) return; var b=BE.data.b||(BE.data.b={}); var w=b.weapon||{};
+      var kind=(w.skill==='distance'&&(w.ammo==='bolts'||w.ammo==='arrows'))?w.ammo:null;
+      if(!kind){ if(b.ammo) b.ammo=null; return; }
+      var cur=b.ammo, inKind=cur&&_beAmmoList(kind).some(function(a){return a.name===cur.name;});
+      if(force || !cur || !inKind){ b.ammo=_beDefAmmo(kind); }
+    }
+    function _beAmmoHtml(){
+      var BE=window.__BE, b=BE.data.b, w=b.weapon||{}, E=esc, DCE=_beDCE();
+      var kind=(w.skill==='distance'&&(w.ammo==='bolts'||w.ammo==='arrows'))?w.ammo:null;
+      if(!kind) return '';
+      var IC=DCE.icons||{}, cur=b.ammo||null, lbl=(kind==='bolts'?'Bolts':'Flechas');
+      var curIcd=cur&&IC[cur.icon];
+      var head='<div class="be2wcur">'+(curIcd?'<img src="'+curIcd+'">':'<span class="be2wemoji">\U0001F3AF</span>')
+        +'<div class="be2wtxt"><b>'+(cur?E(cur.name):'— sem munição —')+'</b>'+(cur?'<small>ataque '+cur.attack+' · acerto '+cur.hitChance+'%</small>':'<small>escolha a munição pra o dano sair certo</small>')+'</div>'
+        +'<button type="button" class="be2cancel" onclick="tpBEpickAmmo()">'+(BE.pickA?'Fechar':'Trocar munição')+'</button></div>';
+      var pick='';
+      if(BE.pickA){
+        var rows=_beAmmoList(kind).map(function(a){ var i2=IC[a.icon]; return '<div class="be2pi" data-name="'+E(a.name)+'" onclick="tpBEsetAmmo(\''+E(a.name)+'\')">'+(i2?'<img src="'+i2+'">':'<span class="be2piemoji">\U0001F3AF</span>')+'<span class="be2piname">'+E(a.name)+'</span><span class="be2pimeta">atk '+a.attack+(a.aoe?' · área':'')+'</span></div>'; }).join('');
+        pick='<div class="be2picker"><div class="be2phead">Escolher '+lbl+' <button type="button" class="be2cancel" onclick="tpBEpickAmmo()">Fechar</button></div><input class="be2psearch" placeholder="buscar munição…" oninput="tpBEfilterList(\'be2-apl\',this.value)"><div class="be2pilist" id="be2-apl">'+rows+'</div></div>';
+      }
+      return '<div class="be2sec"><h4>\U0001F3AF Munição <span class="be2hint">— '+lbl+' do paladino; entra direto no dano de distância</span></h4>'+head+pick+'</div>';
+    }
+    window.tpBEpickAmmo=function(){ tpBECapture(); window.__BE.pickA=!window.__BE.pickA; window.__BE.pick=null; window.__BE.pickW=false; window.__BE.pickR=false; tpBERender(); };
+    window.tpBEsetAmmo=function(name){ tpBECapture(); var BE=window.__BE, b=BE.data.b, w=b.weapon||{}; var kind=(w.ammo==='bolts'||w.ammo==='arrows')?w.ammo:null; if(kind){ var hit=_beAmmoList(kind).filter(function(a){return a.name===name;})[0]; if(hit) b.ammo=JSON.parse(JSON.stringify(hit)); } BE.pickA=false; tpBERender(); };
     window.tpBEpickWeapon=function(){ tpBECapture(); window.__BE.pickW=!window.__BE.pickW; window.__BE.pick=null; window.__BE.pickR=false; tpBERender(); };
-    window.tpBEsetWeapon=function(id){ tpBECapture(); var wm=(window.__DCE&&window.__DCE.weapons&&window.__DCE.weapons[id]); if(!wm)return; var b=window.__BE.data.b; b.weapon=JSON.parse(JSON.stringify(wm)); /* embute o data-URI do ícone: o catálogo público só tem armas usadas, então guarda-se o ícone real na build pra não quebrar no display/lista */ var _ic=(window.__DCE.icons&&window.__DCE.icons[wm.icon])||null; if(_ic) b.weapon.icd=_ic; b.wprof={}; b.shapes={}; window.__BE.pickW=false; tpBERender(); };
+    window.tpBEsetWeapon=function(id){ tpBECapture(); var wm=(window.__DCE&&window.__DCE.weapons&&window.__DCE.weapons[id]); if(!wm)return; var b=window.__BE.data.b; b.weapon=JSON.parse(JSON.stringify(wm)); /* embute o data-URI do ícone: o catálogo público só tem armas usadas, então guarda-se o ícone real na build pra não quebrar no display/lista */ var _ic=(window.__DCE.icons&&window.__DCE.icons[wm.icon])||null; if(_ic) b.weapon.icd=_ic; b.wprof={}; b.shapes={}; window.__BE.pickW=false; window.__BE.pickA=false; _beNormAmmo(true); tpBERender(); };
     window.tpBEshapeOpen=function(li){ tpBECapture(); window.__BE.shapeLi=(window.__BE.shapeLi===li?null:li); tpBERender(); };
     window.tpBEshapeSet=function(li){ var os=document.getElementById('be2-shopt'), rs=document.getElementById('be2-shrank'); if(!os)return; tpBECapture(); var b=window.__BE.data.b; b.shapes=b.shapes||{}; if(os.value===''){ delete b.shapes[li]; window.__BE.shapeLi=null; tpBERender(); return; } var voc=window.__BE.row.vocation; var SO=((window.__DCE||{}).shapeOpts||[]).filter(function(o){return o.voc===voc||o.voc==='all';}); var opt=SO[+os.value]; if(!opt)return; var existing=b.shapes[li]&&b.shapes[li].n; if(!existing && Object.keys(b.shapes).filter(function(k){return b.shapes[k]&&b.shapes[k].n;}).length>=2){ if(window.tpToast)tpToast('Máximo de 2 shapes.','info'); return; } b.shapes[li]={n:opt.n,voc:opt.voc,rank:+rs.value}; window.__BE.shapeLi=null; tpBERender(); };
     window.tpBEshapeClear=function(li){ tpBECapture(); var b=window.__BE.data.b; if(b.shapes) delete b.shapes[li]; tpBERender(); };
@@ -7843,7 +7895,7 @@ PlayerName (Leader)
         +F('Rotação — passos em texto (1/linha)',TA('be2-rotation',guide.rotation,4))+F('Insights (1/linha)',TA('be2-insights',guide.insights,4))
         +'</div>';
       var host=document.getElementById('bld-detail'); if(!host) return;
-      host.innerHTML='<div class="be2">'+bar+meta+_beModsHtml()+_beWeaponHtml3()+_beProfHtml3()+_beSetHtml()+_beWheelHtml()+_beStanceHtml()+_beRotHtml()+gsec+'</div>';
+      host.innerHTML='<div class="be2">'+bar+meta+_beModsHtml()+_beWeaponHtml3()+_beAmmoHtml()+_beProfHtml3()+_beSetHtml()+_beWheelHtml()+_beStanceHtml()+_beRotHtml()+gsec+'</div>';
     };
     window.tpBEprof=function(li,oi){ tpBECapture(); var b=window.__BE.data.b; b.wprof=b.wprof||{}; if(+b.wprof[li]===oi) delete b.wprof[li]; else b.wprof[li]=oi; tpBERender(); };
     /* ===== Fatia 3 — Editor da Roda do Destino (pontos + gemas) + troca de arma ===== */
@@ -11495,7 +11547,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar37';
+window.TP_BUILD = '2026-10-05bazar38';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
