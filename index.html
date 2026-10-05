@@ -3429,8 +3429,8 @@ async function tibiaFetch(path) {
   function badges(uid){ var r=_rolesMap[uid]||{}, uc=_userCats[uid]||{}; var b=''; if(r.admin)b+='<span style="background:#8b5cf6;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">ADMIN</span>'; if(r.moderator)b+='<span style="background:#2a7a44;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">MOD</span>'; _catsAll.forEach(function(c){ if(uc[c.key]) b+='<span style="background:#b2742a;color:#fff;border-radius:999px;padding:1px 7px;font-size:.6rem;font-weight:800;margin-left:4px">'+(c.icon||'')+' Editor: '+esc(c.label)+'</span>'; }); return b; }
   function roleBtns(uid){
     var r=_rolesMap[uid]||{}, uc=_userCats[uid]||{};
-    function btn(role,label){ var has=!!r[role]; return '<button class="'+(has?'adm-del':'adm-save')+'" onclick="tpAdminRole('+JSON.stringify(uid)+','+JSON.stringify(role)+','+(has?'false':'true')+')">'+(has?('− '+label):('+ '+label))+'</button>'; }
-    var cats=_catsAll.map(function(c){ var has=!!uc[c.key]; return '<span onclick="tpAdminUserCat('+JSON.stringify(uid)+','+JSON.stringify(c.key)+','+(has?'false':'true')+')" title="Editor de '+esc(c.label)+'" style="display:inline-flex;align-items:center;gap:.2rem;background:'+(has?'rgba(178,116,42,.25)':'var(--bg-3,#23212f)')+';border:1px solid '+(has?'#b2742a':'var(--rule)')+';color:'+(has?'#f0b870':'var(--ink,#e8e6f0)')+';border-radius:8px;padding:.3rem .55rem;font-size:.72rem;cursor:pointer;margin-left:.3rem;white-space:nowrap">'+(has?'✓ ':'')+(c.icon||'')+' '+esc(c.label)+'</span>'; }).join('');
+    function btn(role,label){ var has=!!r[role]; return '<button class="'+(has?'adm-del':'adm-save')+'" onclick="tpAdminRole(\''+uid+'\',\''+role+'\','+(has?'false':'true')+')">'+(has?('− '+label):('+ '+label))+'</button>'; }
+    var cats=_catsAll.map(function(c){ var has=!!uc[c.key]; return '<span onclick="tpAdminUserCat(\''+uid+'\',\''+c.key+'\','+(has?'false':'true')+')" title="Editor de '+esc(c.label)+'" style="display:inline-flex;align-items:center;gap:.2rem;background:'+(has?'rgba(178,116,42,.25)':'var(--bg-3,#23212f)')+';border:1px solid '+(has?'#b2742a':'var(--rule)')+';color:'+(has?'#f0b870':'var(--ink,#e8e6f0)')+';border-radius:8px;padding:.3rem .55rem;font-size:.72rem;cursor:pointer;margin-left:.3rem;white-space:nowrap">'+(has?'✓ ':'')+(c.icon||'')+' '+esc(c.label)+'</span>'; }).join('');
     return btn('admin','admin')+' '+btn('moderator','mod')+'<br><span class="adm-note" style="margin:.3rem .2rem 0;display:inline-block">editor:</span>'+cats;
   }
 
@@ -11495,7 +11495,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar36';
+window.TP_BUILD = '2026-10-05bazar37';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
