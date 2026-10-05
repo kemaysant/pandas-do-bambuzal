@@ -2038,7 +2038,7 @@ async function tibiaFetch(path) {
       <div class="hm-cat">Mercado &amp; economia <span class="l"></span><span class="tp-tag new">2 novas</span></div>
       <div class="tp-toolgrid">
         <button class="tp-tool hm-tool" onclick="showPage('markettracker',document.querySelector('[onclick*=markettracker]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V4.5M4 20h16M7.3 15l3.2-3.5 2.3 1.9L18 7.5M14.4 7.5H18v3.4"/></svg></div><div><div class="tn">Market Tracker <span class="tp-tag new">Novo</span></div><div class="td">Preço do market ao vivo + histórico, por mundo.</div></div></button>
-        <button class="tp-tool hm-tool" onclick="showPage('bazar',document.querySelector('[onclick*=bazar]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16l-1.2 10a2 2 0 01-2 1.8H7.2a2 2 0 01-2-1.8L4 7z"/><path d="M8.5 7a3.5 3.5 0 017 0"/></svg></div><div><div class="tn">Bazar da Panda <span class="tp-tag new">Novo</span></div><div class="td">Compra e venda de itens, casas e serviços — por chars verificados.</div></div></button>
+        <button class="tp-tool hm-tool" onclick="showPage('bazar',document.querySelector('[onclick*=bazar]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16l-1.2 10a2 2 0 01-2 1.8H7.2a2 2 0 01-2-1.8L4 7z"/><path d="M8.5 7a3.5 3.5 0 017 0"/></svg></div><div><div class="tn">Bazar da Panda <span class="tp-tag new">Novo</span></div><div class="td">Compra e venda de itens e casas — por chars verificados.</div></div></button>
         <button class="tp-tool hm-tool" onclick="showPage('servertransfer',document.querySelector('[onclick*=servertransfer]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5h13l-3.2-3.2M20 15.5H7l3.2 3.2"/></svg></div><div><div class="tn">Transferência <span class="tp-tag new">Novo</span></div><div class="td">Arbitragem de itens entre servidores.</div></div></button>
         <button class="tp-tool hm-tool" onclick="showPage('delivery',document.querySelector('[onclick*=delivery]'))"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3l8 4.2v8.6L12 20l-8-4.2V7.2L12 3z" fill="currentColor" fill-opacity=".15"/><path d="M4 7.3l8 4.2 8-4.2M12 11.5V20"/><path d="M8.7 14.4l2 1.9 3.3-3.5" stroke-linecap="round"/></svg></div><div><div class="tn">Task Delivery</div><div class="td">Itens de entrega e preço de market ao vivo.</div></div></button>
         <div class="tp-tool hm-tool soon"><div class="ti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 4h7l9 9-7 7-9-9V4z" fill="currentColor" fill-opacity=".12"/><circle cx="8" cy="8" r="1.4" fill="currentColor"/></svg></div><div><div class="tn">Bazar <span class="tp-tag soon">Em breve</span></div><div class="td">Filtro do char bazaar oficial: level, skills, preço.</div></div></div>
@@ -3537,7 +3537,7 @@ async function tibiaFetch(path) {
 @media(max-width:720px){#bazar .bz-det,#bazar .bz-new{grid-template-columns:1fr}#bazar .bz-actions{margin-left:0;width:100%}}
 </style>
     <h2 class="sec-title">🛒 Bazar da Panda</h2>
-    <p class="sec-sub">Classificados da comunidade — itens, casas e serviços. Cada anúncio vem de um personagem verificado, com karma à vista. A negociação é sempre dentro do jogo.</p>
+    <p class="sec-sub">Classificados da comunidade — itens e casas. Cada anúncio vem de um personagem verificado, com karma à vista. A negociação é sempre dentro do jogo. Cada anúncio fica ativo por 30 dias.</p>
     <div id="bz-root"><div class="api-loading"><div class="spinner"></div> Carregando bazar...</div></div>
   </section>
 
@@ -11218,7 +11218,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar20';
+window.TP_BUILD = '2026-10-05bazar21';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -22912,6 +22912,7 @@ window.tpLoadJornada=async function(){
     return '<div class="'+cls+'"><span class="bz-emo">'+(KIND_EMO[a.kind]||'📦')+'</span></div>';
   }
   function rel(iso){ try{ var d=(Date.now()-new Date(iso).getTime())/1000; if(d<60) return 'agora'; if(d<3600) return Math.floor(d/60)+'min'; if(d<86400) return Math.floor(d/3600)+'h'; return Math.floor(d/86400)+'d'; }catch(e){ return ''; } }
+  function _expLbl(iso){ try{ var dias=Math.ceil((new Date(iso).getTime()-Date.now())/86400000); if(dias<=0) return 'expira hoje'; if(dias===1) return 'expira amanhã'; return 'expira em '+dias+'d'; }catch(e){ return ''; } }
 
   /* ─── FEED ─── */
   function cardHtml(a){
@@ -22939,7 +22940,7 @@ window.tpLoadJornada=async function(){
     [['all','Tudo'],['wts','Vendo'],['wtb','Procuro']].forEach(function(s){ h+='<button class="bz-seg'+(f.intent===s[0]?' on':'')+'" onclick="tpBzSeg(\''+s[0]+'\')">'+s[1]+'</button>'; });
     h+='</div>';
     h+='<div class="bz-chips">';
-    [['all','Todos'],['item','📦 Itens'],['casa','🏠 Casas'],['servico','🛠️ Serviços']].forEach(function(s){ h+='<button class="bz-chip'+(f.kind===s[0]?' on':'')+'" onclick="tpBzType(\''+s[0]+'\')">'+s[1]+'</button>'; });
+    [['all','Todos'],['item','📦 Itens'],['casa','🏠 Casas']].forEach(function(s){ h+='<button class="bz-chip'+(f.kind===s[0]?' on':'')+'" onclick="tpBzType(\''+s[0]+'\')">'+s[1]+'</button>'; });
     h+='</div>';
     h+='<div class="bz-actions">';
     h+='<button class="bz-btn ghost" onclick="tpBzAlerts()">🔔 Alertas</button>';
@@ -23007,7 +23008,7 @@ window.tpLoadJornada=async function(){
       +'<div><span class="bz-intent '+(a.intent==='wtb'?'wtb':'wts')+'">'+(a.intent==='wtb'?'Procuro':'Vendo')+'</span> '+tierGem(a.tier)
       +'<h3 class="bz-det-title">'+esc(a.title)+'</h3>'
       +'<div class="bz-det-price">'+fmtPrice(a)+'</div></div></div>';
-    h+='<div class="bz-det-meta"><span>'+(KIND_EMO[a.kind]||'')+' '+esc(KIND_LBL[a.kind]||a.kind)+'</span><span>🌍 '+esc(a.world||'—')+'</span><span>🕒 há '+rel(a.created_at)+'</span></div>';
+    h+='<div class="bz-det-meta"><span>'+(KIND_EMO[a.kind]||'')+' '+esc(KIND_LBL[a.kind]||a.kind)+'</span><span>🌍 '+esc(a.world||'—')+'</span><span>🕒 há '+rel(a.created_at)+'</span>'+(a.expires_at?'<span>⏳ '+_expLbl(a.expires_at)+'</span>':'')+'</div>';
     h+=attrsHtml(a);
     var _lk=bzLookOf(a); if(_lk) h+=lookBox(_lk);
     if(a.descr) h+='<div class="bz-descr">'+esc(a.descr).replace(/\n/g,'<br>')+'</div>';
@@ -23093,7 +23094,7 @@ window.tpLoadJornada=async function(){
     [['wts','Vendo (WTS)'],['wtb','Procuro (WTB)']].forEach(function(s){ h+='<button class="bz-seg'+(d.intent===s[0]?' on':'')+'" onclick="tpBzDraft(\'intent\',\''+s[0]+'\')">'+s[1]+'</button>'; });
     h+='</div>';
     h+='<label class="bz-lbl">Categoria</label><div class="bz-chips wide">';
-    [['item','📦 Item'],['casa','🏠 Casa'],['servico','🛠️ Serviço']].forEach(function(s){ h+='<button class="bz-chip'+(d.kind===s[0]?' on':'')+'" onclick="tpBzDraft(\'kind\',\''+s[0]+'\')">'+s[1]+'</button>'; });
+    [['item','📦 Item'],['casa','🏠 Casa']].forEach(function(s){ h+='<button class="bz-chip'+(d.kind===s[0]?' on':'')+'" onclick="tpBzDraft(\'kind\',\''+s[0]+'\')">'+s[1]+'</button>'; });
     h+='</div>';
     if(d.kind==='casa'){
       h+='<label class="bz-lbl">Cidade</label><select class="bz-sel" onchange="tpBzHouseTown(this.value)"><option value="">Escolha a cidade…</option>'+BZ_TOWNS.map(function(t){ return '<option value="'+esc(t)+'"'+((d.town===t)?' selected':'')+'>'+esc(t)+'</option>'; }).join('')+'</select>';
@@ -23111,6 +23112,7 @@ window.tpLoadJornada=async function(){
       +'<div style="flex:1"><label class="bz-lbl">Moeda</label><select class="bz-sel" onchange="tpBzDraft(\'currency\',this.value)"><option value="gp"'+(d.currency==='gp'?' selected':'')+'>gp</option><option value="tc"'+(d.currency==='tc'?' selected':'')+'>TC</option><option value="combinar"'+(d.currency==='combinar'?' selected':'')+'>A combinar</option></select></div></div>';
     h+='<label class="bz-lbl">Descrição</label><textarea class="bz-in bz-ta" maxlength="4000" oninput="tpBzDraft(\'descr\',this.value)" placeholder="Detalhes, atributos, forma de negociar...">'+esc(d.descr)+'</textarea>';
     h+='<div class="bz-new-meta">🌍 Mundo: <b>'+esc(w||'—')+'</b> · vem do seu personagem verificado</div>';
+    h+='<div class="bz-new-meta" style="margin-top:-2px">⏳ Fica ativo por <b>30 dias</b>. Marque como <b>vendido</b> quando fechar (ou remova) pra não deixar oferta velha no ar.</div>';
     h+='<button class="bz-btn gold block big" id="bz-pub" onclick="tpBzPublish()"'+(w?'':' disabled')+'>Publicar anúncio</button>';
     h+='</div>';
     h+='<div class="bz-new-pv"><div class="bz-pv-lbl">Prévia</div><div id="bz-pv"></div></div>';
