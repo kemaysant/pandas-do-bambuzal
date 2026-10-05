@@ -3085,18 +3085,40 @@ async function tibiaFetch(path) {
     #admin .adm-dd .dd-item:last-child{border-bottom:0}
     #admin .adm-dd .dd-item:hover{background:var(--bg-3,#23212f)}
     #admin .adm-dd .dd-sub{color:var(--muted);font-size:.72rem;white-space:nowrap}
+    #admin .adm-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.8rem}
+    #admin .adm-tile{position:relative;overflow:hidden;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:13px;padding:1rem;cursor:pointer;transition:border-color .12s}
+    #admin .adm-tile:hover{border-color:var(--bamboo,#8b5cf6)}
+    #admin .adm-tile .st{position:absolute;left:0;top:0;bottom:0;width:4px}
+    #admin .adm-tile .k{font-size:.74rem;color:var(--muted);font-weight:700}
+    #admin .adm-tile .v{font-size:1.9rem;font-weight:800;line-height:1;margin-top:.15rem;color:var(--ink,#e8e6f0)}
+    #admin .adm-tile .f{font-size:.72rem;color:var(--muted);margin-top:.35rem}
+    #admin .adm-sec-h{font-weight:800;color:var(--ink,#e8e6f0);font-size:.98rem;margin:.2rem 0 .7rem}
+    #admin .adm-appr{display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:11px;padding:.7rem .85rem;margin-bottom:.55rem}
+    #admin .adm-appr .ai{min-width:0}
+    #admin .adm-appr .aa{display:flex;gap:.45rem;flex-wrap:wrap}
+    #admin .adm-bugf{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.9rem}
+    #admin .adm-bugc{background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:12px;padding:.85rem;margin-bottom:.65rem}
+    #admin .adm-bugc .top{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.35rem}
   </style>
   <h2 class="sec-title">🛠️ Painel Admin</h2>
   <p class="sec-sub">Gerencie o site sem passar pelo chat. Acesso restrito a administradores.</p>
   <div id="admin-gate" class="card" style="display:none;color:var(--muted)">🔒 Acesso restrito a administradores.</div>
   <div id="admin-wrap" style="display:none">
     <div class="adm-tabs">
-      <button class="adm-tab on" data-atab="fundos" onclick="tpAdminTab('fundos',this)">🖼️ Fundos</button>
-      <button class="adm-tab" data-atab="bosses" onclick="tpAdminTab('bosses',this)">🐉 Bosses</button>
+      <button class="adm-tab on" data-atab="overview" onclick="tpAdminTab('overview',this)">📊 Visão geral</button>
+      <button class="adm-tab" data-atab="approve" onclick="tpAdminTab('approve',this)">✅ Aprovações</button>
+      <button class="adm-tab" data-atab="bugs" onclick="tpAdminTab('bugs',this)">🐞 Bugs</button>
       <button class="adm-tab" data-atab="users" onclick="tpAdminTab('users',this)">👤 Usuários</button>
+      <button class="adm-tab" data-atab="jornada" onclick="tpAdminTab('jornada',this)">🗺️ Jornada</button>
+      <button class="adm-tab" data-atab="bosses" onclick="tpAdminTab('bosses',this)">🐉 Bosses</button>
+      <button class="adm-tab" data-atab="fundos" onclick="tpAdminTab('fundos',this)">🖼️ Fundos</button>
       <button class="adm-tab" data-atab="gami" onclick="tpAdminTab('gami',this)">🎁 Gamificação</button>
     </div>
-    <div id="adm-fundos" class="adm-panel"></div>
+    <div id="adm-overview" class="adm-panel"></div>
+    <div id="adm-approve" class="adm-panel" style="display:none"></div>
+    <div id="adm-bugs" class="adm-panel" style="display:none"></div>
+    <div id="adm-jornada" class="adm-panel" style="display:none"></div>
+    <div id="adm-fundos" class="adm-panel" style="display:none"></div>
     <div id="adm-bosses" class="adm-panel" style="display:none"><div class="adm-newcard" style="grid-template-columns:1fr"><div class="adm-fld" style="font-weight:800;color:var(--ink,#e8e6f0)">✏️ Override de boss</div><div class="adm-note" style="margin:0">Preencha só o que quer sobrescrever. Respawn (dias) alimenta a Chance e o card. Vazio = usa o padrão/Fandom.</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem"><div class="adm-fld"><label>Boss (nome exato)</label><input id="adm-boss-name" class="adm-in" list="adm-boss-list" placeholder="Ex: The Pale Count"></div><div class="adm-fld"><label>Respawn (dias)</label><input id="adm-boss-iv" type="number" class="adm-in"></div><div class="adm-fld"><label>Local</label><input id="adm-boss-place" class="adm-in" placeholder="Ex: Drefia"></div><div class="adm-fld"><label>X</label><input id="adm-boss-x" type="number" class="adm-in"></div><div class="adm-fld"><label>Y</label><input id="adm-boss-y" type="number" class="adm-in"></div><div class="adm-fld"><label>Z (andar)</label><input id="adm-boss-z" type="number" class="adm-in"></div></div><datalist id="adm-boss-list"></datalist><div class="adm-fld"><label>Mensagens de raid (uma por linha)</label><textarea id="adm-boss-raid" class="adm-in" rows="3" placeholder="The Pale Count has risen..."></textarea></div><div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="adm-save" onclick="tpAdminBossLoadCurrent()">↺ Carregar atual</button><button class="adm-save" onclick="tpAdminBossSave()">Salvar override</button><span id="adm-boss-status" style="font-size:.76rem;color:var(--muted);align-self:center"></span></div></div><div id="adm-boss-list-host"></div></div>
     <div id="adm-users" class="adm-panel" style="display:none"><div class="adm-newcard" style="grid-template-columns:1fr"><div class="adm-fld" style="font-weight:800;color:var(--ink,#e8e6f0)">🔎 Buscar usuário</div><div class="adm-note" style="margin:0">Busque por apelido, @handle ou personagem; conceda/remova <b>admin</b> ou <b>moderador</b>.</div><div style="position:relative;display:flex;gap:.5rem;flex-wrap:wrap"><input id="adm-user-q" class="adm-in" style="flex:1;min-width:160px" autocomplete="off" placeholder="Digite apelido, @handle ou personagem…" oninput="tpAdminUserLive(this.value)" onkeydown="if(event.key==='Enter')tpAdminUserSearch()"><button class="adm-save" onclick="tpAdminUserSearch()">Buscar</button><div id="adm-user-dd" class="adm-dd" style="display:none"></div></div><div id="adm-user-res" style="margin-top:.6rem"></div></div><div id="adm-users-host"></div></div>
     <div id="adm-gami" class="adm-panel" style="display:none"><div class="card" style="color:var(--muted)">🎁 Gamificação — próxima fase.</div></div>
@@ -3128,13 +3150,17 @@ async function tibiaFetch(path) {
 
   window.tpAdminInit=function(){
     var gate=g('admin-gate'), wrap=g('admin-wrap');
-    var show=function(){ var ok=!!window.TP_IS_ADMIN; if(gate)gate.style.display=ok?'none':''; if(wrap)wrap.style.display=ok?'':'none'; if(ok) tpAdminFundosLoad(); };
+    var show=function(){ var ok=!!window.TP_IS_ADMIN; if(gate)gate.style.display=ok?'none':''; if(wrap)wrap.style.display=ok?'':'none'; if(ok) tpAdminOverview(); };
     if(window.__tpAdminChecked){ show(); }
     else { if(window.tpCheckBuildAdmin) try{ tpCheckBuildAdmin(); }catch(e){} setTimeout(show,700); }
   };
   window.tpAdminTab=function(t,btn){
-    ['fundos','bosses','users','gami'].forEach(function(k){ var p=g('adm-'+k); if(p)p.style.display=(k===t)?'':'none'; });
+    ['overview','approve','bugs','users','jornada','bosses','fundos','gami'].forEach(function(k){ var p=g('adm-'+k); if(p)p.style.display=(k===t)?'':'none'; });
     document.querySelectorAll('#admin .adm-tab').forEach(function(b){ b.classList.toggle('on',b===btn); });
+    if(t==='overview') tpAdminOverview();
+    if(t==='approve') tpAdminApprove();
+    if(t==='bugs') tpAdminBugs();
+    if(t==='jornada'&&window.tpAdminJornada) tpAdminJornada();
     if(t==='fundos') tpAdminFundosLoad();
     if(t==='bosses'&&window.tpAdminBossLoad) tpAdminBossLoad();
     if(t==='users'&&window.tpAdminUsersLoad) tpAdminUsersLoad();
@@ -3452,6 +3478,105 @@ async function tibiaFetch(path) {
       return;
     }
     go();
+  };
+
+  // ===== headers com auth (RLS precisa do JWT) =====
+  function _ah(json){ var h={apikey:_key(),Authorization:'Bearer '+_tok(),Accept:'application/json'}; if(json) h['Content-Type']='application/json'; return h; }
+  function _count(path){ return _af(_sb()+'/rest/v1/'+path,{headers:Object.assign(_ah(),{Prefer:'count=exact',Range:'0-0'})}).then(function(r){ var cr=r.headers.get('content-range'); return cr?parseInt(cr.split('/')[1],10):0; }).catch(function(){ return 0; }); }
+  window.tpAdminGo=function(tab){ var b=document.querySelector('#admin .adm-tab[data-atab="'+tab+'"]'); if(b) b.click(); };
+
+  // ===== Visao geral =====
+  window.tpAdminOverview=function(){
+    var host=g('adm-overview'); if(!host) return;
+    host.innerHTML='<div class="adm-note">Carregando…</div>';
+    Promise.all([
+      _count('bug_reports?status=eq.aberto&select=id'),
+      _count('builds?status=eq.pending&select=id'),
+      _count('house_photos?status=eq.pending&select=id'),
+      _count('comentarios_hunt?status=eq.pending&select=id'),
+      _count('comentarios_build?status=eq.pending&select=id'),
+      loadRoles().then(function(){ var seen={}; Object.keys(_rolesMap).forEach(function(u){var r=_rolesMap[u];if(r.admin||r.moderator)seen[u]=1;}); Object.keys(_userCats).forEach(function(u){seen[u]=1;}); return Object.keys(seen).length; }).catch(function(){return 0;})
+    ]).then(function(a){
+      var bugs=a[0],builds=a[1],photos=a[2],cmt=a[3]+a[4],staff=a[5];
+      function tile(k,v,color,foot,onclk){ return '<div class="adm-tile" onclick="'+onclk+'"><span class="st" style="background:'+color+'"></span><div class="k">'+k+'</div><div class="v">'+v+'</div><div class="f">'+foot+'</div></div>'; }
+      host.innerHTML='<div class="adm-tiles">'
+        +tile('🐞 Bugs abertos',bugs,'#e8a54a','ver e triar','tpAdminGo(\'bugs\')')
+        +tile('✅ Aprovações',(builds+photos),'#8b5cf6',builds+' builds · '+photos+' fotos','tpAdminGo(\'approve\')')
+        +tile('💬 Comentários',cmt,'#5b8def','pendentes · ver na Moderação','showPage(\'moderation\')')
+        +tile('👥 Staff',staff,'#2fb36a','admins, mods & editores','tpAdminGo(\'users\')')
+        +'</div>'
+        +'<div class="adm-note" style="margin-top:1rem">Dica: clique num card pra ir direto. Moderação de comentários e denúncias do Bazar ficam na página <a href="#" onclick="showPage(\'moderation\');return false;" style="color:var(--bamboo,#8b5cf6)">Moderação</a>.</div>';
+    });
+  };
+
+  // ===== Aprovacoes (builds + fotos) =====
+  window.tpAdminApprove=function(){
+    var host=g('adm-approve'); if(!host) return;
+    host.innerHTML='<div class="adm-note">Carregando…</div>';
+    Promise.all([
+      _af(_sb()+'/rest/v1/builds?status=eq.pending&select=id,name,vocation,author_name,created_at&order=created_at.desc&limit=100',{headers:_ah()}).then(function(r){return r.ok?r.json():[];}).catch(function(){return [];}),
+      _af(_sb()+'/rest/v1/house_photos?status=eq.pending&select=id,house_name,character,world,created_at&order=created_at.asc&limit=100',{headers:_ah()}).then(function(r){return r.ok?r.json():[];}).catch(function(){return [];})
+    ]).then(function(res){
+      var builds=Array.isArray(res[0])?res[0]:[], photos=Array.isArray(res[1])?res[1]:[];
+      var h='<div class="adm-sec-h">⚔️ Builds pendentes ('+builds.length+')</div>';
+      h+= builds.length ? builds.map(function(b){ return '<div class="adm-appr" id="apb-'+b.id+'"><div class="ai"><b>'+esc(b.name||'—')+'</b> <span class="adm-note">'+esc(b.vocation||'')+' · por '+esc(b.author_name||'—')+'</span></div><div class="aa"><button class="adm-save" onclick="tpAdminBuildAct(\''+b.id+'\',\'approved\')">✓ Aprovar</button><button class="adm-del" onclick="tpAdminBuildAct(\''+b.id+'\',\'hidden\')">Recusar</button></div></div>'; }).join('') : '<div class="adm-note">Nenhuma build pendente. ✨</div>';
+      h+='<div class="adm-sec-h" style="margin-top:1.2rem">📸 Fotos de house pendentes ('+photos.length+')</div>';
+      h+= photos.length ? photos.map(function(p){ return '<div class="adm-appr" id="aph-'+p.id+'"><div class="ai"><b>'+esc(p.house_name||'—')+'</b> <span class="adm-note">'+esc(p.character||'')+(p.world?' · '+esc(p.world):'')+'</span></div><div class="aa"><button class="adm-save" onclick="tpAdminPhotoAct(\''+p.id+'\',\'approved\')">✓ Aprovar</button><button class="adm-del" onclick="tpAdminPhotoAct(\''+p.id+'\',\'rejected\')">Recusar</button></div></div>'; }).join('') : '<div class="adm-note">Nenhuma foto pendente. ✨</div>';
+      host.innerHTML=h;
+    });
+  };
+  window.tpAdminBuildAct=function(id,st){
+    _af(_sb()+'/rest/v1/builds?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:Object.assign(_ah(true),{Prefer:'return=minimal'}),body:JSON.stringify({status:st})})
+      .then(function(r){ if(!r.ok) throw 0; if(window.tpToast)tpToast(st==='approved'?'Build aprovada ✓':'Build recusada.',st==='approved'?'success':'info'); var el=g('apb-'+id); if(el) el.remove(); })
+      .catch(function(){ if(window.tpToast)tpToast('Erro (precisa ser admin).','error'); });
+  };
+  window.tpAdminPhotoAct=function(id,st){
+    _af(_sb()+'/rest/v1/house_photos?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:Object.assign(_ah(true),{Prefer:'return=minimal'}),body:JSON.stringify({status:st})})
+      .then(function(r){ if(!r.ok) throw 0; if(window.tpToast)tpToast(st==='approved'?'Foto aprovada ✓':'Foto recusada.',st==='approved'?'success':'info'); var el=g('aph-'+id); if(el) el.remove(); })
+      .catch(function(){ if(window.tpToast)tpToast('Erro (precisa ser admin/mod).','error'); });
+  };
+
+  // ===== Bugs (triagem no Admin) =====
+  var ADM_BUG_ST=[['aberto','Aberto'],['andamento','Em andamento'],['resolvido','Resolvido'],['rejeitado','Rejeitado']];
+  var _admBugF='aberto';
+  function admBugStLabel(x){ for(var i=0;i<ADM_BUG_ST.length;i++) if(ADM_BUG_ST[i][0]===x) return ADM_BUG_ST[i][1]; return x; }
+  function admBugCard(b){
+    var when=''; try{ when=new Date(b.created_at).toLocaleString('pt-BR'); }catch(e){}
+    var sevc=({critica:'var(--red,#e87070)',alta:'#e8a54a',normal:'var(--muted)',baixa:'var(--muted)'})[b.severity]||'var(--muted)';
+    var stc=({aberto:'#e8a54a',andamento:'#5b8def',resolvido:'#2fb36a',rejeitado:'#5a5668'})[b.status]||'#777';
+    var opt=ADM_BUG_ST.map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===b.status?' selected':'')+'>'+o[1]+'</option>'; }).join('');
+    return '<div class="adm-bugc" id="admbug-'+b.id+'">'
+      +'<div class="top"><span style="font-weight:800;color:var(--ink,#e8e6f0)">'+esc(b.title)+'</span>'
+        +'<span style="background:'+stc+';color:#120f1a;border-radius:999px;padding:1px 8px;font-size:.6rem;font-weight:800">'+admBugStLabel(b.status).toUpperCase()+'</span>'
+        +'<span style="border:1px solid '+sevc+';color:'+sevc+';border-radius:999px;padding:0 7px;font-size:.58rem;font-weight:700">'+esc(b.severity||'normal')+'</span>'
+        +(b.area?'<span class="adm-note">📍 '+esc(b.area)+'</span>':'')+'</div>'
+      +(b.descr?'<div style="font-size:.84rem;color:var(--ink,#e8e6f0);white-space:pre-wrap;margin:.1rem 0 .4rem">'+esc(b.descr)+'</div>':'')
+      +'<div class="adm-note" style="margin:.1rem 0 .4rem">por '+esc(b.author_name||'—')+' · '+when+(b.url?(' · <a href="'+esc(b.url)+'" target="_blank" rel="noopener" style="color:var(--bamboo,#8b5cf6)">abrir página</a>'):'')+'</div>'
+      +'<textarea class="adm-in admbug-notes" rows="2" placeholder="Notas internas (só staff)">'+esc(b.admin_notes||'')+'</textarea>'
+      +'<div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-top:.4rem"><select class="adm-in admbug-status" style="width:auto">'+opt+'</select><button class="adm-save" onclick="tpAdminBugSave(\''+b.id+'\',this)">Salvar</button></div>'
+      +'</div>';
+  }
+  window.tpAdminBugFilter=function(f){ _admBugF=f; tpAdminBugs(); };
+  window.tpAdminBugs=function(){
+    var host=g('adm-bugs'); if(!host) return;
+    var chips='<div class="adm-bugf">'+[['todos','Todos']].concat(ADM_BUG_ST).map(function(o){ return '<button class="adm-tab'+(_admBugF===o[0]?' on':'')+'" style="font-size:.76rem;padding:.35rem .7rem" onclick="tpAdminBugFilter(\''+o[0]+'\')">'+o[1]+'</button>'; }).join('')+'</div>';
+    host.innerHTML=chips+'<div id="adm-bugs-body"><div class="adm-note">Carregando…</div></div>';
+    var q='select=*&order=created_at.desc&limit=200'; if(_admBugF!=='todos') q+='&status=eq.'+encodeURIComponent(_admBugF);
+    _af(_sb()+'/rest/v1/bug_reports?'+q,{headers:_ah()}).then(function(r){return r.ok?r.json():Promise.reject(r);}).then(function(rows){
+      var b=g('adm-bugs-body'); if(!b) return; rows=Array.isArray(rows)?rows:[];
+      if(!rows.length){ b.innerHTML='<div class="adm-note">Nenhum report'+(_admBugF!=='todos'?' ('+admBugStLabel(_admBugF)+')':'')+'. ✨</div>'; return; }
+      b.innerHTML=rows.map(admBugCard).join('');
+    }).catch(function(){ var b=g('adm-bugs-body'); if(b) b.innerHTML='<div class="adm-note" style="color:var(--red,#e87070)">Erro ao carregar (precisa ser admin/mod).</div>'; });
+  };
+  window.tpAdminBugSave=function(id,btn){
+    var card=g('admbug-'+id); if(!card) return;
+    var st=card.querySelector('.admbug-status').value, notes=card.querySelector('.admbug-notes').value;
+    var body={status:st,admin_notes:(notes||null),updated_at:new Date().toISOString()};
+    body.resolved_at=(st==='resolvido'||st==='rejeitado')?new Date().toISOString():null;
+    btn.disabled=true; var t=btn.textContent; btn.textContent='…';
+    _af(_sb()+'/rest/v1/bug_reports?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:Object.assign(_ah(true),{Prefer:'return=minimal'}),body:JSON.stringify(body)})
+      .then(function(r){ if(!r.ok) throw 0; if(window.tpToast)tpToast('Report atualizado.','success'); tpAdminBugs(); })
+      .catch(function(){ if(window.tpToast)tpToast('Erro ao salvar.','error'); btn.disabled=false; btn.textContent=t; });
   };
 })();
 
@@ -11327,7 +11452,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar34';
+window.TP_BUILD = '2026-10-05bazar35';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
