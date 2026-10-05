@@ -11218,7 +11218,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar21';
+window.TP_BUILD = '2026-10-05bazar22';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -23054,16 +23054,23 @@ window.tpLoadJornada=async function(){
   }
   var BZ_TOWNS=["Ab'Dendriel","Ankrahmun","Carlin","Darashia","Edron","Farmine","Gray Beach","Issavi","Kazordoon","Liberty Bay","Port Hope","Rathleton","Svargrond","Thais","Venore","Yalahar"];
   var BZ_HOUSE_CACHE={};
-  function bzFillHouseDL(){
-    var dl=document.getElementById('bz-house-dl'); if(!dl) return;
-    var world=myWorld(), town=(BZ.draft&&BZ.draft.town)||'';
-    if(!world||!town){ dl.innerHTML=''; return; }
-    var key=world+'|'+town;
-    if(BZ_HOUSE_CACHE[key]){ dl.innerHTML=BZ_HOUSE_CACHE[key].map(function(n){ return '<option value="'+esc(n)+'">'; }).join(''); return; }
+  function bzHouseSelect(d){
+    var world=myWorld(), town=d.town||'';
+    if(!town) return '<select class="bz-sel" disabled><option>Escolha a cidade primeiro</option></select>';
+    var cache=BZ_HOUSE_CACHE[world+'|'+town];
+    if(!cache||cache==='loading') return '<select class="bz-sel" disabled><option>Carregando casas de '+esc(town)+'…</option></select>';
+    if(!cache.length) return '<select class="bz-sel" disabled><option>Nenhuma casa encontrada</option></select>';
+    var opts='<option value="">Escolha a casa…</option>'+cache.map(function(x){ return '<option value="'+esc(x.name)+'"'+((d.house===x.name)?' selected':'')+'>'+esc(x.name)+'</option>'; }).join('');
+    return '<select class="bz-sel" id="bz-house-sel" onchange="tpBzHousePick(this.value)">'+opts+'</select>';
+  }
+  function bzEnsureHouses(){
+    var world=myWorld(), town=(BZ.draft&&BZ.draft.town)||''; if(!world||!town) return;
+    var key=world+'|'+town; if(BZ_HOUSE_CACHE[key]) return;
+    BZ_HOUSE_CACHE[key]='loading';
     fetch('https://api.tibiadata.com/v4/houses/'+encodeURIComponent(world)+'/'+encodeURIComponent(town),{headers:{Accept:'application/json'}})
       .then(function(r){ return r.json(); })
-      .then(function(d){ var hh=(d&&d.houses)||{}; var arr=(Array.isArray(hh.house_list)?hh.house_list:[]).map(function(x){ return x.name; }).filter(Boolean).sort(); BZ_HOUSE_CACHE[key]=arr; var dl2=document.getElementById('bz-house-dl'); if(dl2) dl2.innerHTML=arr.map(function(n){ return '<option value="'+esc(n)+'">'; }).join(''); })
-      .catch(function(){});
+      .then(function(d){ var hh=(d&&d.houses)||{}; var arr=(Array.isArray(hh.house_list)?hh.house_list:[]).map(function(x){ return {name:x.name, houseid:x.houseid, owner:((x.status&&x.status.rental&&x.status.rental.owner)||null)}; }).filter(function(x){return x.name;}).sort(function(a,b){ return a.name.localeCompare(b.name); }); BZ_HOUSE_CACHE[key]=arr; if(BZ.view==='new') render(); })
+      .catch(function(){ BZ_HOUSE_CACHE[key]=[]; if(BZ.view==='new') render(); });
   }
 
   /* ─── chars verificados: carrega sozinho (nao depende de abrir o perfil) ─── */
@@ -23097,10 +23104,10 @@ window.tpLoadJornada=async function(){
     [['item','📦 Item'],['casa','🏠 Casa']].forEach(function(s){ h+='<button class="bz-chip'+(d.kind===s[0]?' on':'')+'" onclick="tpBzDraft(\'kind\',\''+s[0]+'\')">'+s[1]+'</button>'; });
     h+='</div>';
     if(d.kind==='casa'){
-      h+='<label class="bz-lbl">Cidade</label><select class="bz-sel" onchange="tpBzHouseTown(this.value)"><option value="">Escolha a cidade…</option>'+BZ_TOWNS.map(function(t){ return '<option value="'+esc(t)+'"'+((d.town===t)?' selected':'')+'>'+esc(t)+'</option>'; }).join('')+'</select>';
+      h+='<div class="bz-row"><div style="flex:1"><label class="bz-lbl">Cidade</label><select class="bz-sel" onchange="tpBzHouseTown(this.value)"><option value="">Escolha a cidade…</option>'+BZ_TOWNS.map(function(t){ return '<option value="'+esc(t)+'"'+((d.town===t)?' selected':'')+'>'+esc(t)+'</option>'; }).join('')+'</select></div>'
+        +'<div style="flex:2"><label class="bz-lbl">Casa</label>'+bzHouseSelect(d)+'</div></div>';
     }
-    h+='<label class="bz-lbl">Título *</label><input class="bz-in" '+(d.kind==='casa'?'list="bz-house-dl" autocomplete="off" ':'')+'maxlength="120" value="'+esc(d.title)+'" oninput="tpBzDraft(\'title\',this.value)" placeholder="'+(d.kind==='casa'?'Selecione a cidade e escolha a casa da lista':(d.kind==='servico'?'Ex.: Power gaming / quests':'Ex.: Magic Sword Tier 3'))+'">';
-    if(d.kind==='casa') h+='<datalist id="bz-house-dl"></datalist>';
+    h+='<label class="bz-lbl">Título *</label><input class="bz-in" maxlength="120" value="'+esc(d.title)+'" oninput="tpBzDraft(\'title\',this.value)" placeholder="'+(d.kind==='casa'?'Preenchido pela casa escolhida (pode editar)':(d.kind==='servico'?'Ex.: Power gaming / quests':'Ex.: Magic Sword Tier 3'))+'">';
     if(d.kind==='item'){
       h+='<div class="bz-row"><div style="flex:2"><label class="bz-lbl">Nome do item (busque na lista)</label><input class="bz-in" list="bz-item-dl" autocomplete="off" value="'+esc(d.item_name)+'" oninput="tpBzDraft(\'item_name\',this.value)" placeholder="Ex.: Magic Sword"></div>'
         +'<div style="flex:1"><label class="bz-lbl">Tier</label><input class="bz-in" type="number" min="0" max="10" value="'+esc(d.tier)+'" oninput="tpBzDraft(\'tier\',this.value)" placeholder="—"></div></div>'
@@ -23120,7 +23127,7 @@ window.tpLoadJornada=async function(){
     host().innerHTML=h;
     paintPreview();
     if(d.kind==='item') bzFillItemDL();
-    if(d.kind==='casa') bzFillHouseDL();
+    if(d.kind==='casa') bzEnsureHouses();
   }
   function paintPreview(){
     var pv=document.getElementById('bz-pv'); if(!pv) return; var d=BZ.draft;
@@ -23204,7 +23211,8 @@ window.tpLoadJornada=async function(){
   window.tpBzMine=function(){ BZ.view='mine'; render(); };
   window.tpBzAlerts=function(){ BZ.view='alerts'; render(); };
   window.tpBzDraft=function(k,v){ BZ.draft=BZ.draft||{}; BZ.draft[k]=v; if(k==='kind'||k==='currency'||k==='intent') render(); else paintPreview(); };
-  window.tpBzHouseTown=function(town){ BZ.draft=BZ.draft||{}; BZ.draft.town=town; bzFillHouseDL(); };
+  window.tpBzHouseTown=function(town){ BZ.draft=BZ.draft||{}; BZ.draft.town=town; BZ.draft.house=''; BZ.draft.houseid=null; render(); bzEnsureHouses(); };
+  window.tpBzHousePick=function(name){ BZ.draft=BZ.draft||{}; BZ.draft.house=name; var world=myWorld(), town=BZ.draft.town||''; var cache=BZ_HOUSE_CACHE[world+'|'+town]; var ho=(Array.isArray(cache)?cache.filter(function(x){return x.name===name;})[0]:null); BZ.draft.houseid=ho?ho.houseid:null; BZ.draft.houseowner=ho?ho.owner:null; if(name) BZ.draft.title=name; render(); };
   window.tpBzMarket=function(name){ try{ if(window.showPage) showPage('markettracker'); if(window.tpMarketInit) tpMarketInit(); setTimeout(function(){ var i=document.querySelector('#markettracker input[type=text],#markettracker input:not([type])'); if(i){ i.value=name; i.dispatchEvent(new Event('input',{bubbles:true})); } },300); }catch(e){} };
   window.tpBzContato=function(uid){ if(!me()){ toast('Entre na conta pra conversar.','info'); return; } if(window.tpOpenChat){ tpOpenChat(uid); toast('Abra o chat e mande sua proposta 🐼','info'); } else { toast('Chat indisponível agora.','error'); } };
   window.tpBzReport=function(id){ if(!me()){ toast('Entre na conta pra denunciar.','info'); return; }
