@@ -11218,7 +11218,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar25';
+window.TP_BUILD = '2026-10-05bazar26';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -23077,6 +23077,13 @@ window.tpLoadJornada=async function(){
       dl.innerHTML=items.map(function(it){ return '<option value="'+esc(it.n)+'">'; }).join('');
     });
   }
+  function bzFillAlertDL(){
+    if(!document.getElementById('bz-alert-dl')) return;
+    bzLoadItems().then(function(items){
+      var dl=document.getElementById('bz-alert-dl'); if(!dl) return;
+      dl.innerHTML=items.map(function(it){ return '<option value="'+esc(it.n)+'">'; }).join('');
+    });
+  }
   var BZ_TOWNS=["Ab'Dendriel","Ankrahmun","Carlin","Darashia","Edron","Farmine","Gray Beach","Issavi","Kazordoon","Liberty Bay","Port Hope","Rathleton","Svargrond","Thais","Venore","Yalahar"];
   var BZ_HOUSE_CACHE={};
   function bzHouseSelect(d){
@@ -23194,14 +23201,28 @@ window.tpLoadJornada=async function(){
   /* ─── ALERTAS (filtros salvos) ─── */
   function renderAlerts(){
     if(!me()){ host().innerHTML='<div class="bz-empty">Entre na conta pra criar alertas.</div>'; return; }
-    var f=BZ.f;
+    var af2=BZ.af=BZ.af||{intent:'all',kind:'item',q:''};
     var h='<button class="bz-back" onclick="tpBzBack()">← Voltar ao feed</button><h3 class="bz-new-h">🔔 Meus alertas</h3>';
-    h+='<p class="bz-sub">Receba um aviso no sino 🔔 quando aparecer um anúncio novo que casa com o filtro.</p>';
-    h+='<div class="bz-savecur card"><b>Salvar o filtro atual como alerta</b><div class="bz-cur-desc" id="bz-cur-desc"></div>'
-      +'<input class="bz-in" id="bz-alert-label" placeholder="Nome do alerta (opcional)"><button class="bz-btn gold" onclick="tpBzSaveFilter()">🔔 Criar alerta</button></div>';
+    h+='<p class="bz-sub">Monte um alerta e receba um aviso no sino 🔔 quando aparecer um anúncio novo que combina.</p>';
+    h+='<div class="bz-new"><div class="bz-new-form">';
+    h+='<label class="bz-lbl">Tipo</label><div class="bz-segs wide">';
+    [['all','Tudo'],['wts','Vendo'],['wtb','Procuro']].forEach(function(seg){ h+='<button class="bz-seg'+(af2.intent===seg[0]?' on':'')+'" onclick="tpBzAfSet(\'intent\',\''+seg[0]+'\')">'+seg[1]+'</button>'; });
+    h+='</div>';
+    h+='<label class="bz-lbl">Categoria</label><div class="bz-chips wide">';
+    [['item','📦 Item'],['casa','🏠 Casa']].forEach(function(c){ h+='<button class="bz-chip'+(af2.kind===c[0]?' on':'')+'" onclick="tpBzAfSet(\'kind\',\''+c[0]+'\')">'+c[1]+'</button>'; });
+    h+='</div>';
+    if(af2.kind==='item'){
+      h+='<label class="bz-lbl">Item <span style="color:var(--muted);font-weight:400">(opcional — vazio = qualquer item)</span></label><input class="bz-in" list="bz-alert-dl" autocomplete="off" value="'+esc(af2.q||'')+'" oninput="tpBzAfSet(\'q\',this.value)" placeholder="Ex.: Magic Sword"><datalist id="bz-alert-dl"></datalist>';
+    } else {
+      h+='<label class="bz-lbl">Busca <span style="color:var(--muted);font-weight:400">(opcional)</span></label><input class="bz-in" value="'+esc(af2.q||'')+'" oninput="tpBzAfSet(\'q\',this.value)" placeholder="Ex.: Thais, 5 sqm">';
+    }
+    h+='<label class="bz-lbl">Nome do alerta <span style="color:var(--muted);font-weight:400">(opcional)</span></label><input class="bz-in" id="bz-alert-label" placeholder="Ex.: Magic Sword barata">';
+    h+='<button class="bz-btn gold block big" onclick="tpBzSaveFilter()">🔔 Criar alerta</button>';
+    h+='</div></div>';
+    h+='<h3 class="bz-new-h" style="margin-top:1.4rem;font-size:1rem">Alertas ativos</h3>';
     h+='<div id="bz-alerts-body"><div class="api-loading"><div class="spinner"></div> Carregando...</div></div>';
     host().innerHTML=h;
-    var cd=document.getElementById('bz-cur-desc'); if(cd) cd.innerHTML=filterDesc(f);
+    if(af2.kind==='item') bzFillAlertDL();
     loadFilters();
   }
   function filterDesc(f){
@@ -23268,9 +23289,10 @@ window.tpLoadJornada=async function(){
       else if(/too_many_ads/.test(m)) msg='Você atingiu o limite de 30 anúncios ativos.';
       else if(/empty_title/.test(m)) msg='O título não pode ficar vazio.';
       toast(msg,'error'); var b=document.getElementById('bz-pub'); if(b){ b.disabled=false; b.textContent='Publicar anúncio'; } }); };
+  window.tpBzAfSet=function(k,v){ BZ.af=BZ.af||{}; BZ.af[k]=v; if(k==='kind'||k==='intent') renderAlerts(); };
   window.tpBzSaveFilter=function(){
-    var f=BZ.f, lbl=(document.getElementById('bz-alert-label')||{}).value||null;
-    var row={user_id:me(),label:lbl||null,intent:f.intent==='all'?null:f.intent,kind:f.kind==='all'?null:f.kind,world:f.world==='all'?null:f.world,currency:f.currency==='all'?null:f.currency,q:f.q||null,active:true};
+    var af2=BZ.af||{intent:'all',kind:'item',q:''}, lbl=(document.getElementById('bz-alert-label')||{}).value||null;
+    var row={user_id:me(),label:lbl||null,intent:af2.intent==='all'?null:af2.intent,kind:af2.kind==='all'?null:(af2.kind||null),world:null,currency:null,q:(af2.q&&af2.q.trim())?af2.q.trim():null,active:true};
     af(SB+'/rest/v1/bazar_saved_filters',{method:'POST',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(row)})
     .then(function(r){ if(!r.ok) throw 0; toast('Alerta criado! Você será avisado no sino. 🔔','success'); loadFilters(); }).catch(function(){ toast('Não consegui criar o alerta.','error'); }); };
   window.tpBzDelFilter=function(id){
