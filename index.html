@@ -3431,6 +3431,8 @@ async function tibiaFetch(path) {
   <section class="page-section" id="moderation">
     <h2 class="sec-title"><svg class="sec-ico" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10 1.5l6.5 2.5v5c0 4-2.8 7.5-6.5 9-3.7-1.5-6.5-5-6.5-9v-5L10 1.5zm-1 11l4.5-4.5-1.4-1.4L9 9.7 7.9 8.6 6.5 10 9 12.5z"/></svg> Painel de Moderação</h2>
     <p class="sec-sub">Aprove ou recuse o conteúdo enviado pela comunidade. Aprove só o que é do tema Tibia; recuse conteúdo fora do tema, ofensivo, spam ou de baixa qualidade.</p>
+    <div id="mod-gate" class="card" style="display:none;color:var(--muted)">🔒 Acesso restrito à equipe de moderação.</div>
+    <div id="mod-wrap" style="display:none">
     <div class="card" style="margin-bottom:1rem">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
         <div class="tool-title" style="font-size:1.05rem">📸 Fotos de houses pendentes <span id="mod-panel-count" style="color:var(--muted);font-weight:400"></span></div>
@@ -3459,6 +3461,7 @@ async function tibiaFetch(path) {
       </div>
       <div id="mod-bug-filters" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem"></div>
       <div id="mod-bug-body"><div class="api-loading"><div class="spinner"></div> Carregando…</div></div>
+    </div>
     </div>
   </section>
 
@@ -11296,7 +11299,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar31';
+window.TP_BUILD = '2026-10-05bazar32';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -21161,8 +21164,13 @@ window.tpLoadJornada=async function(){
       }).catch(function(){ body.innerHTML='<div class="hs-map-none">Não consegui carregar a fila.</div>'; });
   };
   window.tpModPanelLoad=function(){
-    var A=auth(), host=document.getElementById('mod-panel-body'), cnt=document.getElementById('mod-panel-count'); if(!host) return;
-    if(!A||!A.user){ host.innerHTML='<div class="hs-map-none">Entre na sua conta.</div>'; return; }
+    var A=auth(), gate=document.getElementById('mod-gate'), wrap=document.getElementById('mod-wrap');
+    var applyGate=function(){ var ok=!!window.TP_IS_MOD; if(gate){ gate.style.display=ok?'none':''; gate.innerHTML='🔒 Acesso restrito à equipe de moderação.'; } if(wrap) wrap.style.display=ok?'':'none'; return ok; };
+    if(!A||!A.user){ if(gate){ gate.style.display=''; gate.innerHTML='🔒 Entre com uma conta de moderador pra acessar este painel.'; } if(wrap) wrap.style.display='none'; return; }
+    checkMod().then(function(ism){ window.TP_IS_MOD=!!ism; if(!applyGate()) return; tpModRunQueues(); }).catch(function(){ applyGate(); });
+  };
+  function tpModRunQueues(){
+    var host=document.getElementById('mod-panel-body'), cnt=document.getElementById('mod-panel-count'); if(!host) return;
     if(window.tpModCommentsLoad) tpModCommentsLoad();
     if(window.tpBazarModLoad) tpBazarModLoad();
     if(window.tpBugsModLoad) tpBugsModLoad();
