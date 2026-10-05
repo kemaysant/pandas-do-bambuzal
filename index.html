@@ -4383,6 +4383,12 @@ PlayerName (Leader)
       #rk-gate{display:none}
       #rankings.gated > #rk-content{display:none}
       #rankings.gated > #rk-gate{display:block}
+      .hs-filters{display:flex;flex-direction:column;gap:.45rem;margin:.1rem 0 .4rem}
+      .hs-chiprow{display:flex;flex-wrap:wrap;gap:.4rem}
+      .hs-chip{background:var(--bg-2,#1b1a25);border:1px solid var(--rule);color:var(--ink,#eae8f2);border-radius:999px;padding:.32rem .72rem;font-size:.78rem;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s}
+      .hs-chip.sm{font-size:.72rem;padding:.26rem .62rem}
+      .hs-chip:hover{border-color:var(--bamboo,#8b5cf6)}
+      .hs-chip.on{background:var(--bamboo,#8b5cf6);border-color:var(--bamboo,#8b5cf6);color:#fff}
     </style>
     <div id="rk-gate">
       <div class="card pth-gate-card">
@@ -11226,7 +11232,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar29';
+window.TP_BUILD = '2026-10-05bazar30';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -13004,11 +13010,18 @@ function showPage(id, btn) {
   }
   if (id === 'rankings') {
     const _rsec=document.getElementById('rankings');
-    if(!(window.TP_AUTH && window.TP_AUTH.user)){ if(_rsec) _rsec.classList.add('gated'); }
+    if(!(window.TP_AUTH && window.TP_AUTH.user)){
+      if(_rsec) _rsec.classList.remove('gated');
+      window.__RK_ROOT='#rankings'; window.__RK_METRIC='tibia'; window.__RK_SCOPE='global';
+      document.querySelectorAll('#rankings .rk-mbtn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-metric')==='tibia'); });
+      var _rsc=document.querySelector('#rankings .rk-scope'); if(_rsc) _rsc.style.display='none';
+      if(window.tpLoadRankings) tpLoadRankings();
+    }
     else {
       if(_rsec) _rsec.classList.remove('gated');
+      var _rsc2=document.querySelector('#rankings .rk-scope'); if(_rsc2) _rsc2.style.display='';
       window.__RK_ROOT='#rankings'; window.__RK_METRIC='xp'; window.__RK_SCOPE='global';
-      document.querySelectorAll('#rankings .rk-mbtn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-metric')==='xpweek'); });
+      document.querySelectorAll('#rankings .rk-mbtn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-metric')==='xp'); });
       document.querySelectorAll('#rankings .rk-sbtn').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-scope')==='global'); });
       if(window.tpLoadRankings) tpLoadRankings();
     }
@@ -16832,6 +16845,8 @@ function ewEnsureTcInput() {
     try{ if(window.tpHomeBosses) window.tpHomeBosses(); }catch(e){}
     const agp=g('agenda'); if(agp && agp.classList.contains('active') && window.tpAgendaLoad){ try{ window.tpAgendaLoad(); }catch(e){} }
     try{ if(window.tpMarketOnWorld) window.tpMarketOnWorld(); }catch(e){}
+    try{ var _rkp=g('rankings'); if(_rkp && _rkp.classList.contains('active') && window.__RK_METRIC==='tibia' && window.tpLoadRankings){ tpLoadRankings(); } }catch(e){}
+    try{ var _bzp=g('bazar'); if(_bzp && _bzp.classList.contains('active') && window.tpBzOnWorld){ tpBzOnWorld(); } }catch(e){}
     render('');
   };
   async function loadList(){
@@ -17485,7 +17500,7 @@ function ewEnsureTcInput() {
     (async function(){
       try{
         const r=await tpAuthFetch(SB+'/rest/v1/profiles?select=*&id=eq.'+a.user.id);
-        const p=await r.json(); if(Array.isArray(p)&&p[0]){ a.profile=p[0]; saveAuth(a); if(window.tpLoadGamify){ try{ tpLoadGamify(); }catch(e){} } }
+        const p=await r.json(); if(Array.isArray(p)&&p[0]){ a.profile=p[0]; saveAuth(a); if(window.tpLoadGamify){ try{ tpLoadGamify(); }catch(e){} } try{ var _pp=document.getElementById('profile'); if(_pp&&_pp.classList.contains('active')&&window.tpLoadChars) tpLoadChars(); }catch(e){} }
       }catch(e){}
       if(window.__tpPendingHandle){
         var _wanted=window.__tpPendingHandle; window.__tpPendingHandle=null;
@@ -19382,34 +19397,70 @@ window.tpToast=function(msg,type){
   function rkMetricLabel(m){ return m==='profit_week'?'Profit (7 dias)':m==='xpday'?'XP de hunt (hoje)':m==='xpweek'?'XP de hunt (7 dias)':m==='xpmonth'?'XP de hunt (30 dias)':m==='bestiary'?'Criaturas descobertas':m==='completas'?'Bestiary completos':m==='charm'?'Charm points ganhos':'XP da comunidade'; }
   window.tpRankMetric=function(m,btn){ window.__RK_METRIC=m; document.querySelectorAll((window.__RK_ROOT||'#profile')+' .rk-mbtn').forEach(function(b){b.classList.toggle('on',b===btn);}); var _sc=document.querySelector((window.__RK_ROOT||'#profile')+' .rk-scope'); if(_sc) _sc.style.display=(m==='tibia'?'none':''); tpLoadRankings(); };
   window.tpRankScope=function(s,btn){ window.__RK_SCOPE=s; document.querySelectorAll((window.__RK_ROOT||'#profile')+' .rk-sbtn').forEach(function(b){b.classList.toggle('on',b===btn);}); tpLoadRankings(); };
-  async function tpLoadTibiaHS(host){
-    var world=(typeof CONFIG!=='undefined'&&CONFIG.world)?CONFIG.world:'Gentebra';
-    host.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando highscore de '+window.esc(world)+'...</div>';
-    var vemo={'Royal Paladin':'🏹','Paladin':'🏹','Elder Druid':'🌿','Druid':'🌿','Master Sorcerer':'🔮','Sorcerer':'🔮','Elite Knight':'⚔️','Knight':'⚔️','Exalted Monk':'🥋','Monk':'🥋'};
-    function medal(rk){ return rk===1?'🥇':rk===2?'🥈':rk===3?'🥉':('#'+rk); }
-    function fmt(n){ return (Number(n)||0).toLocaleString('pt-BR'); }
+  var HS_CATS=[['experience','Experiência'],['magiclevel','Magic'],['sword','Sword'],['axe','Axe'],['club','Club'],['distance','Distance'],['shielding','Shield'],['fist','Fist'],['fishing','Fishing'],['achievements','Conquistas']];
+  var HS_VOCS=[['all','Todas'],['knight','Knight'],['paladin','Paladin'],['druid','Druid'],['sorcerer','Sorcerer'],['monk','Monk']];
+  function _hsVemo(v){ var m={'Royal Paladin':'🏹','Paladin':'🏹','Elder Druid':'🌿','Druid':'🌿','Master Sorcerer':'🔮','Sorcerer':'🔮','Elite Knight':'⚔️','Knight':'⚔️','Exalted Monk':'🥋','Monk':'🥋'}; return m[v]||'🐾'; }
+  function _hsMedal(rk){ return rk===1?'🥇':rk===2?'🥈':rk===3?'🥉':('#'+rk); }
+  function _hsFmt(n){ return (Number(n)||0).toLocaleString('pt-BR'); }
+  function _hsCatLabel(c){ for(var i=0;i<HS_CATS.length;i++) if(HS_CATS[i][0]===c) return HS_CATS[i][1]; return c; }
+  function _hsRender(loading){
+    var host=window.__hsHost; if(!host) return;
+    var HS=window.__HS; var world=HS.world;
+    var chips='<div class="hs-filters">'
+      +'<div class="hs-chiprow">'+HS_CATS.map(function(c){ return '<button class="hs-chip'+(HS.cat===c[0]?' on':'')+'" onclick="tpHsSetCat(\''+c[0]+'\')">'+c[1]+'</button>'; }).join('')+'</div>'
+      +'<div class="hs-chiprow">'+HS_VOCS.map(function(v){ return '<button class="hs-chip sm'+(HS.voc===v[0]?' on':'')+'" onclick="tpHsSetVoc(\''+v[0]+'\')">'+v[1]+'</button>'; }).join('')+'</div>'
+      +'</div>';
+    var note='<div style="font-size:.74rem;color:var(--muted);margin:.2rem 0 .7rem">🏆 Highscore <b>oficial do Tibia</b> — '+_hsCatLabel(HS.cat)+' no mundo <b>'+window.esc(world)+'</b> <span style="opacity:.7">(via TibiaData). Troque o mundo no seletor do topo.</span></div>';
+    var body;
+    if(loading && !HS.rows.length){ body='<div class="api-loading"><div class="spinner"></div> Carregando '+_hsCatLabel(HS.cat)+' de '+window.esc(world)+'...</div>'; }
+    else {
+      var rows=HS.rows;
+      if(HS.voc!=='all'){ rows=rows.filter(function(x){ return (x.vocation||'').toLowerCase().indexOf(HS.voc)>=0; }); }
+      if(!rows.length){ body='<div class="vit-empty">'+(HS.rows.length?'Nenhum personagem desse filtro nessa página. Tente <b>Carregar mais</b> ou troque a vocação.':'Não consegui o highscore de '+window.esc(world)+' agora.')+'</div>'; }
+      else {
+        body='<div class="rk-list">'+rows.map(function(x){
+          return '<div class="rk-row rk-top'+(x.rank<=3?x.rank:'n')+'">'
+            +'<span class="rk-pos">'+_hsMedal(x.rank)+'</span>'
+            +'<span class="rk-av"><span class="rk-avfb">'+_hsVemo(x.vocation)+'</span></span>'
+            +'<div class="rk-info"><div class="rk-nm"><b>'+window.esc(x.name)+'</b> <span class="rk-lvl">nv '+x.level+'</span></div><span class="rk-sub">'+window.esc(x.vocation||'')+'</span></div>'
+            +'<span class="rk-val">'+_hsFmt(x.value)+'</span></div>';
+        }).join('')+'</div>';
+        if(HS.page<HS.pages){ body+='<div style="text-align:center;margin-top:.8rem"><button onclick="tpHsMore()" style="background:var(--bg-2,#1b1a25);border:1px solid var(--rule);color:var(--ink,#eae8f2);border-radius:8px;padding:.5rem 1.1rem;font-size:.82rem;font-weight:600;cursor:pointer">⬇️ Carregar mais (pág. '+(HS.page+1)+'/'+HS.pages+')</button></div>'; }
+        body+='<div class="rk-foot">'+_hsCatLabel(HS.cat)+' · mundo '+window.esc(world)+' · '+HS.rows.length+' no ranking (pág. '+HS.page+'/'+HS.pages+')</div>';
+      }
+    }
+    host.innerHTML=chips+note+body;
+  }
+  async function _hsLoad(append){
+    var HS=window.__HS; if(!HS) return;
+    if(window.__RK_METRIC!=='tibia') return;
+    _hsRender(true);
     try{
-      var r=await fetch('https://api.tibiadata.com/v4/highscores/'+encodeURIComponent(world)+'/experience/all/1',{headers:{Accept:'application/json'}});
+      var url='https://api.tibiadata.com/v4/highscores/'+encodeURIComponent(HS.world)+'/'+HS.cat+'/all/'+HS.page;
+      var r=await fetch(url,{headers:{Accept:'application/json'}});
       var d=await r.json();
       if(window.__RK_METRIC!=='tibia') return;
-      var list=((d&&d.highscores&&d.highscores.highscore_list)||[]);
-      if(!list.length){ host.innerHTML='<div class="vit-empty">Não consegui o highscore de '+window.esc(world)+' agora.</div>'; return; }
-      var html='<div style="font-size:.74rem;color:var(--muted);margin-bottom:.7rem">🏆 Highscore <b>oficial do Tibia</b> — experiência no mundo <b>'+window.esc(world)+'</b> (via TibiaData · top 50). Troque o mundo no seletor do topo.</div>';
-      html+='<div class="rk-list">'+list.map(function(x){
-        return '<div class="rk-row rk-top'+(x.rank<=3?x.rank:'n')+'">'
-          +'<span class="rk-pos">'+medal(x.rank)+'</span>'
-          +'<span class="rk-av"><span class="rk-avfb">'+(vemo[x.vocation]||'🐾')+'</span></span>'
-          +'<div class="rk-info"><div class="rk-nm"><b>'+window.esc(x.name)+'</b> <span class="rk-lvl">nv '+x.level+'</span></div><span class="rk-sub">'+window.esc(x.vocation||'')+'</span></div>'
-          +'<span class="rk-val">'+fmt(x.value)+'</span></div>';
-      }).join('')+'</div>';
-      html+='<div class="rk-foot">Experiência · mundo '+window.esc(world)+' · top '+list.length+'</div>';
-      host.innerHTML=html;
-    }catch(e){ if(window.__RK_METRIC==='tibia') host.innerHTML='<div class="vit-empty">Não consegui o highscore agora. Tenta de novo.</div>'; }
+      var hs=(d&&d.highscores)||{};
+      var list=hs.highscore_list||[];
+      HS.pages=(hs.highscore_page&&hs.highscore_page.total_pages)||1;
+      HS.rows=append?HS.rows.concat(list):list;
+      _hsRender(false);
+    }catch(e){ if(window.__RK_METRIC==='tibia') _hsRender(false); }
+  }
+  window.tpHsSetCat=function(c){ var HS=window.__HS; if(!HS) return; HS.cat=c; HS.page=1; HS.rows=[]; _hsLoad(false); };
+  window.tpHsSetVoc=function(v){ var HS=window.__HS; if(!HS) return; HS.voc=v; _hsRender(false); };
+  window.tpHsMore=function(){ var HS=window.__HS; if(!HS||HS.page>=HS.pages) return; HS.page++; _hsLoad(true); };
+  async function tpLoadTibiaHS(host){
+    var world=(typeof CONFIG!=='undefined'&&CONFIG.world)?CONFIG.world:'Gentebra';
+    window.__hsHost=host;
+    var HS=window.__HS=window.__HS||{cat:'experience',voc:'all',page:1,pages:1,rows:[],world:world};
+    HS.world=world; HS.page=1; HS.rows=[];
+    _hsLoad(false);
   }
   window.tpLoadRankings=async function(){
     var host=document.querySelector((window.__RK_ROOT||'#profile')+' .rk-body'); if(!host) return;
     if(window.__RK_METRIC==='tibia'){ return tpLoadTibiaHS(host); }
-    var A=window.TP_AUTH; if(!A||!A.user){ host.innerHTML='<div class="vit-empty">Entre na sua conta pra ver os rankings. 🐼</div>'; return; }
+    var A=window.TP_AUTH; if(!A||!A.user){ host.innerHTML='<div class="vit-empty">🐼 O <b>Ranking Panda</b> é da comunidade do site — entre pra ver e aparecer.<div style="margin-top:.7rem;display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap"><button class="tp-btn-primary" onclick="tpOpenAuth(\'signup\')">Criar conta grátis</button><button class="tp-btn-ghost" onclick="tpOpenAuth(\'login\')">Entrar</button></div><div style="margin-top:.6rem;font-size:.75rem">Ou veja o <b>Highscore oficial do Tibia</b> na aba acima. 🏆</div></div>'; return; }
     host.innerHTML='<div class="api-loading"><div class="spinner"></div> Carregando ranking...</div>';
     var metric=window.__RK_METRIC, scope=window.__RK_SCOPE;
     var d=null; try{ var r=await af(SB+'/rest/v1/rpc/tp_leaderboard',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({p_metric:metric,p_scope:scope})}); if(r.ok) d=await r.json(); }catch(e){}
@@ -22962,7 +23013,8 @@ window.tpLoadJornada=async function(){
       +'</div></div>';
   }
   function worldOptions(sel){
-    var ws=BZ.worlds||[]; var o='<option value="all">Todos os mundos</option>';
+    var ws=(BZ.worlds||[]).slice(); if(sel&&sel!=='all'&&ws.indexOf(sel)<0) ws.unshift(sel);
+    var o='<option value="all">Todos os mundos</option>';
     ws.forEach(function(w){ o+='<option value="'+esc(w)+'"'+(sel===w?' selected':'')+'>'+esc(w)+'</option>'; });
     return o;
   }
@@ -23263,7 +23315,8 @@ window.tpLoadJornada=async function(){
   }
 
   /* ─── AÇÕES ─── */
-  window.tpBazarInit=function(){ BZ.view='feed'; render(); loadFeed(); ensureChars(); };
+  window.tpBazarInit=function(){ try{ BZ.f.world=(typeof CONFIG!=='undefined'&&CONFIG.world)?CONFIG.world:BZ.f.world; }catch(e){} BZ.view='feed'; render(); loadFeed(); ensureChars(); };
+  window.tpBzOnWorld=function(){ try{ BZ.f.world=(typeof CONFIG!=='undefined'&&CONFIG.world)?CONFIG.world:BZ.f.world; if(BZ.view==='feed') render(); loadFeed(); }catch(e){} };
   window.tpBzSeg=function(v){ BZ.f.intent=v; render(); loadFeed(); };
   window.tpBzType=function(v){ BZ.f.kind=v; render(); loadFeed(); };
   window.tpBzSet=function(k,v){ BZ.f[k]=v; loadFeed(); };
