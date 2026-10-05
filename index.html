@@ -11224,7 +11224,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar23';
+window.TP_BUILD = '2026-10-05bazar24';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -23069,6 +23069,11 @@ window.tpLoadJornada=async function(){
     var opts='<option value="">Escolha a casa…</option>'+cache.map(function(x){ return '<option value="'+esc(x.name)+'"'+((d.house===x.name)?' selected':'')+'>'+esc(x.name)+'</option>'; }).join('');
     return '<select class="bz-sel" id="bz-house-sel" onchange="tpBzHousePick(this.value)">'+opts+'</select>';
   }
+  function bzCharSelect(d,chars){
+    chars=chars||(window.__tpChars||[]).filter(function(c){ return c.verified && c.world===myWorld(); });
+    if(!chars.length) return '<select class="bz-sel" disabled><option>—</option></select>';
+    return '<select class="bz-sel" onchange="tpBzDraft(\'char\',this.value)">'+chars.map(function(c){ return '<option value="'+esc(c.name)+'"'+((d.char===c.name)?' selected':'')+'>'+esc(c.name)+(c.level?(' · Lv '+c.level):'')+'</option>'; }).join('')+'</select>';
+  }
   function bzEnsureHouses(){
     var world=myWorld(), town=(BZ.draft&&BZ.draft.town)||''; if(!world||!town) return;
     var key=world+'|'+town; if(BZ_HOUSE_CACHE[key]) return;
@@ -23112,6 +23117,10 @@ window.tpLoadJornada=async function(){
     if(d.kind==='casa'){
       h+='<div class="bz-row"><div style="flex:1"><label class="bz-lbl">Cidade</label><select class="bz-sel" onchange="tpBzHouseTown(this.value)"><option value="">Escolha a cidade…</option>'+BZ_TOWNS.map(function(t){ return '<option value="'+esc(t)+'"'+((d.town===t)?' selected':'')+'>'+esc(t)+'</option>'; }).join('')+'</select></div>'
         +'<div style="flex:2"><label class="bz-lbl">Casa</label>'+bzHouseSelect(d)+'</div></div>';
+      var _vch=(window.__tpChars||[]).filter(function(c){ return c.verified && c.world===myWorld(); });
+      if(_vch.length && !d.char){ var _own=String(d.houseowner||'').toLowerCase(); var _m=_vch.filter(function(c){ return c.name.toLowerCase()===_own; })[0]; d.char=_m?_m.name:_vch[0].name; }
+      h+='<label class="bz-lbl">Seu personagem (quem anuncia)</label>'+bzCharSelect(d,_vch);
+      if(d.intent==='wts') h+='<div style="font-size:.72rem;color:var(--gold,#e0c060);margin-top:5px;line-height:1.45">⚠️ Pra <b>vender</b> uma casa você precisa ser o <b>dono dela no jogo</b> com esse personagem. A negociação e a transferência são feitas dentro do Tibia.</div>';
     }
     h+='<label class="bz-lbl">Título *</label><input class="bz-in" maxlength="120" value="'+esc(d.title)+'" oninput="tpBzDraft(\'title\',this.value)" placeholder="'+(d.kind==='casa'?'Preenchido pela casa escolhida (pode editar)':(d.kind==='servico'?'Ex.: Power gaming / quests':'Ex.: Magic Sword Tier 3'))+'">';
     if(d.kind==='item'){
@@ -23218,7 +23227,7 @@ window.tpLoadJornada=async function(){
   window.tpBzAlerts=function(){ BZ.view='alerts'; render(); };
   window.tpBzDraft=function(k,v){ BZ.draft=BZ.draft||{}; BZ.draft[k]=v; if(k==='kind'||k==='currency'||k==='intent') render(); else paintPreview(); };
   window.tpBzHouseTown=function(town){ BZ.draft=BZ.draft||{}; BZ.draft.town=town; BZ.draft.house=''; BZ.draft.houseid=null; render(); bzEnsureHouses(); };
-  window.tpBzHousePick=function(name){ BZ.draft=BZ.draft||{}; BZ.draft.house=name; var world=myWorld(), town=BZ.draft.town||''; var cache=BZ_HOUSE_CACHE[world+'|'+town]; var ho=(Array.isArray(cache)?cache.filter(function(x){return x.name===name;})[0]:null); BZ.draft.houseid=ho?ho.houseid:null; BZ.draft.houseowner=ho?ho.owner:null; if(name) BZ.draft.title=name; render(); };
+  window.tpBzHousePick=function(name){ BZ.draft=BZ.draft||{}; BZ.draft.house=name; var world=myWorld(), town=BZ.draft.town||''; var cache=BZ_HOUSE_CACHE[world+'|'+town]; var ho=(Array.isArray(cache)?cache.filter(function(x){return x.name===name;})[0]:null); BZ.draft.houseid=ho?ho.houseid:null; BZ.draft.houseowner=ho?ho.owner:null; if(name) BZ.draft.title=name; var _own2=String(ho&&ho.owner||'').toLowerCase(); var _m2=(window.__tpChars||[]).filter(function(c){return c.verified&&c.name.toLowerCase()===_own2;})[0]; if(_m2) BZ.draft.char=_m2.name; render(); };
   window.tpBzMarket=function(name){ try{ if(window.showPage) showPage('markettracker'); if(window.tpMarketInit) tpMarketInit(); setTimeout(function(){ var i=document.querySelector('#markettracker input[type=text],#markettracker input:not([type])'); if(i){ i.value=name; i.dispatchEvent(new Event('input',{bubbles:true})); } },300); }catch(e){} };
   window.tpBzContato=function(uid){ if(!me()){ toast('Entre na conta pra conversar.','info'); return; } if(window.tpOpenChat){ tpOpenChat(uid); toast('Abra o chat e mande sua proposta 🐼','info'); } else { toast('Chat indisponível agora.','error'); } };
   window.tpBzReport=function(id){ if(!me()){ toast('Entre na conta pra denunciar.','info'); return; }
@@ -23233,7 +23242,7 @@ window.tpLoadJornada=async function(){
   window.tpBzPublish=function(){
     var d=BZ.draft||{}; if(!(d.title||'').trim()){ toast('Dá um título pro anúncio.','info'); return; }
     var btn=document.getElementById('bz-pub'); if(btn){ btn.disabled=true; btn.textContent='Publicando...'; }
-    rpc('tp_bazar_post',{p_intent:d.intent||'wts',p_kind:d.kind||'item',p_title:d.title,p_price:(d.currency==='combinar'||d.price===''?null:+d.price),p_currency:d.currency||'gp',p_descr:d.descr||null,p_item_name:(d.kind==='item'?(d.item_name||null):null),p_tier:(d.kind==='item'&&d.tier!==''?+d.tier:null),p_attrs:((d.kind==='item'&&d.look&&d.look.trim())?[{k:'look',v:d.look.trim()}]:[]),p_photo_url:null,p_char:null})
+    rpc('tp_bazar_post',{p_intent:d.intent||'wts',p_kind:d.kind||'item',p_title:d.title,p_price:(d.currency==='combinar'||d.price===''?null:+d.price),p_currency:d.currency||'gp',p_descr:d.descr||null,p_item_name:(d.kind==='item'?(d.item_name||null):null),p_tier:(d.kind==='item'&&d.tier!==''?+d.tier:null),p_attrs:((d.kind==='item'&&d.look&&d.look.trim())?[{k:'look',v:d.look.trim()}]:[]),p_photo_url:null,p_char:(d.kind==='casa'?(d.char||null):null)})
     .then(function(){ toast('Anúncio publicado! 🐼','success'); BZ.draft=null; window.tpBzBack(); loadFeed(); })
     .catch(function(e){ var m=String(e&&e.message||''); var msg='Não consegui publicar.';
       if(/no_verified_char/.test(m)) msg='Verifique um personagem no seu perfil primeiro.';
