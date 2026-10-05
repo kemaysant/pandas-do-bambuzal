@@ -3452,6 +3452,14 @@ async function tibiaFetch(path) {
       </div>
       <div id="mod-bz-body"><div class="api-loading"><div class="spinner"></div> Carregando…</div></div>
     </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+        <div class="tool-title" style="font-size:1.05rem">🐞 Reports de bug <span id="mod-bug-count" style="color:var(--muted);font-weight:400"></span></div>
+        <button class="hs-like" onclick="if(window.tpBugsModLoad)tpBugsModLoad()">↻ Atualizar</button>
+      </div>
+      <div id="mod-bug-filters" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem"></div>
+      <div id="mod-bug-body"><div class="api-loading"><div class="spinner"></div> Carregando…</div></div>
+    </div>
   </section>
 
   <!-- ─── BAZAR DA PANDA ─── -->
@@ -8053,7 +8061,8 @@ PlayerName (Leader)
       <a href="#" onclick="tpFooterApoie();return false;">Apoie o projeto</a><span class="sep">·</span>
       <a href="#" onclick="showPage('privacy');return false;">Privacidade</a><span class="sep">·</span>
       <a href="#" onclick="showPage('terms');return false;">Termos de Uso</a><span class="sep">·</span>
-      <a href="#" onclick="showPage('cookies');return false;">Cookies</a>
+      <a href="#" onclick="showPage('cookies');return false;">Cookies</a><span class="sep">·</span>
+      <a href="#" onclick="tpBugOpen();return false;">🐞 Reportar bug</a>
     </div>
     <div class="foot-brand"><strong>Tibia<span style="color:var(--gold)">Panda</span></strong> &nbsp;·&nbsp; Ferramentas de Tibia para a comunidade &nbsp;·&nbsp; Não afiliado à CipSoft. Dados via TibiaData &amp; TibiaWiki. &nbsp;·&nbsp; <span style="opacity:.6">build 2026-08-31dp</span></div>
   </footer>
@@ -8061,6 +8070,61 @@ PlayerName (Leader)
   // rodapé → "Apoie o projeto" abre a página Sobre e rola até a seção #apoie
   function tpFooterApoie(){ try{ showPage('about'); setTimeout(function(){ var el=document.getElementById('apoie'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }, 140); }catch(e){} }
   window.tpFooterApoie=tpFooterApoie;
+  </script>
+  <style>
+  #tp-bug-modal .bug-lbl{display:block;font-size:.74rem;font-weight:700;color:var(--muted);margin:.7rem 0 .3rem}
+  #tp-bug-modal .bug-in{width:100%;box-sizing:border-box;background:var(--bg-3,#23212f);border:1px solid var(--rule);color:var(--ink,#eae8f2);border-radius:8px;padding:.5rem .6rem;font:inherit;font-size:.85rem}
+  #tp-bug-modal textarea.bug-in{resize:vertical}
+  #tp-bug-modal .bug-submit{margin-top:1rem;width:100%;background:var(--bamboo,#8b5cf6);border:none;color:#fff;border-radius:9px;padding:.65rem;font-weight:800;font-size:.9rem;cursor:pointer}
+  #tp-bug-modal .bug-note{font-size:.72rem;color:var(--muted);margin-top:.6rem;text-align:center}
+  </style>
+  <div id="tp-bug-modal" class="tp-modal" onclick="if(event.target===this)tpBugClose()">
+    <div class="tp-modal-card" style="max-width:520px;max-height:90vh;overflow:auto">
+      <button class="tp-modal-close" onclick="tpBugClose()">✕</button>
+      <div style="font-weight:800;font-size:1.05rem;color:var(--ink,#eae8f2);margin-bottom:.15rem">🐞 Reportar um bug</div>
+      <p style="font-size:.78rem;color:var(--muted);margin:.1rem 0 1rem">Achou algo quebrado ou estranho? Conta pra gente — quanto mais detalhe, mais rápido resolvemos.</p>
+      <label class="bug-lbl">Onde aconteceu?</label>
+      <select id="bug-area" class="bug-in"></select>
+      <label class="bug-lbl">Resumo *</label>
+      <input id="bug-title" class="bug-in" maxlength="120" placeholder="Ex.: Bazar não filtra por mundo">
+      <label class="bug-lbl">O que aconteceu? <span style="color:var(--muted);font-weight:400">(passos, o que você esperava)</span></label>
+      <textarea id="bug-descr" class="bug-in" rows="4" maxlength="2000" placeholder="Descreva o que rolou…"></textarea>
+      <label class="bug-lbl">Gravidade</label>
+      <select id="bug-sev" class="bug-in"><option value="baixa">Baixa</option><option value="normal" selected>Normal</option><option value="alta">Alta</option><option value="critica">Crítica</option></select>
+      <button class="bug-submit" id="bug-submit" onclick="tpBugSubmit()">Enviar report</button>
+      <div class="bug-note">Enviado como <b id="bug-who">você</b>. A gente pode te responder pelo perfil.</div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    function _sb(){ return (window.PANDA_SB_URL||(typeof PANDA_SB_URL!=='undefined'?PANDA_SB_URL:'')); }
+    function _key(){ return (window.PANDA_SB_ANON||(typeof PANDA_SB_ANON!=='undefined'?PANDA_SB_ANON:'')); }
+    function _tok(){ var A=window.TP_AUTH; return (A&&A.access_token)||_key(); }
+    function g(id){ return document.getElementById(id); }
+    var AREAS=['Home','Bazar','Builds','Rankings','Perfil','Jornada','Guia de Quests','Ferramentas','Loja','Eventos','Outro'];
+    function curArea(){ try{ var sec=document.querySelector('.page-section.active'); var id=sec&&sec.id; var map={bazar:'Bazar',builds:'Builds',rankings:'Rankings',profile:'Perfil',userprofile:'Perfil',quests:'Guia de Quests',store:'Loja',events:'Eventos',dashboard:'Home',huntfinder:'Ferramentas',markettracker:'Ferramentas',delivery:'Ferramentas',lootsplit:'Ferramentas',dmgcalc:'Ferramentas',exercisecalc:'Ferramentas',imbuements:'Ferramentas',bosses:'Ferramentas',houses:'Ferramentas'}; return map[id]||'Outro'; }catch(e){ return 'Outro'; } }
+    window.tpBugOpen=function(){
+      if(!window.TP_AUTH||!window.TP_AUTH.user){ if(window.tpToast)tpToast('Entre na sua conta pra reportar um bug 🐼','info'); if(window.tpOpenAuth)tpOpenAuth('login'); return; }
+      var sel=g('bug-area'); if(sel){ if(!sel.options.length) sel.innerHTML=AREAS.map(function(a){return '<option>'+a+'</option>';}).join(''); var ca=curArea(); for(var i=0;i<sel.options.length;i++){ if(sel.options[i].value===ca){ sel.selectedIndex=i; break; } } }
+      var who=g('bug-who'); if(who){ var p=(window.TP_AUTH&&window.TP_AUTH.profile)||{}; who.textContent=p.display_name||p.handle||p.main_char||'você'; }
+      var m=g('tp-bug-modal'); if(m) m.classList.add('open');
+    };
+    window.tpBugClose=function(){ var m=g('tp-bug-modal'); if(m) m.classList.remove('open'); };
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ var m=g('tp-bug-modal'); if(m&&m.classList.contains('open')) tpBugClose(); } });
+    window.tpBugSubmit=function(){
+      var A=window.TP_AUTH; if(!A||!A.user){ if(window.tpOpenAuth)tpOpenAuth('login'); return; }
+      var title=((g('bug-title').value)||'').trim(); if(!title){ if(window.tpToast)tpToast('Escreve um resumo rápido do bug.','info'); return; }
+      var p=A.profile||{};
+      var row={ user_id:A.user.id, author_name:(p.display_name||p.handle||p.main_char||A.user.email||'—'),
+        area:((g('bug-area').value)||null), title:title, descr:(((g('bug-descr').value)||'').trim()||null),
+        severity:((g('bug-sev').value)||'normal'), url:location.href, user_agent:((navigator.userAgent)||'').slice(0,300) };
+      var btn=g('bug-submit'); if(btn){ btn.disabled=true; btn.textContent='Enviando…'; }
+      (window.tpAuthFetch||fetch)(_sb()+'/rest/v1/bug_reports',{method:'POST',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(row)})
+        .then(function(r){ if(!r.ok) throw new Error(r.status); if(window.tpToast)tpToast('Valeu! Report enviado 🐞 A gente vai olhar.','success'); g('bug-title').value=''; g('bug-descr').value=''; tpBugClose(); })
+        .catch(function(){ if(window.tpToast)tpToast('Não consegui enviar agora. Tenta de novo.','error'); })
+        .finally(function(){ if(btn){ btn.disabled=false; btn.textContent='Enviar report'; } });
+    };
+  })();
   </script>
 </div><!-- /.page-wrapper -->
 
@@ -11232,7 +11296,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar30';
+window.TP_BUILD = '2026-10-05bazar31';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -21101,6 +21165,7 @@ window.tpLoadJornada=async function(){
     if(!A||!A.user){ host.innerHTML='<div class="hs-map-none">Entre na sua conta.</div>'; return; }
     if(window.tpModCommentsLoad) tpModCommentsLoad();
     if(window.tpBazarModLoad) tpBazarModLoad();
+    if(window.tpBugsModLoad) tpBugsModLoad();
     host.innerHTML='<div class="hs-loading">Carregando…</div>';
     af()(SBURL()+'/rest/v1/house_photos?select=*&status=eq.pending&order=created_at.asc',{headers:{Accept:'application/json'}})
       .then(function(r){ return r.json(); }).then(function(rows){
@@ -21109,6 +21174,51 @@ window.tpLoadJornada=async function(){
         if(!rows.length){ host.innerHTML='<div class="hs-map-none">Nenhuma foto pendente. Tudo em dia! ✨</div>'; return; }
         host.innerHTML=rows.map(modRow).join('');
       }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar a fila. (Você precisa ser moderador.)</div>'; });
+  };
+  var BUG_ST=[['aberto','Aberto'],['andamento','Em andamento'],['resolvido','Resolvido'],['rejeitado','Rejeitado']];
+  var _bugFilter='aberto';
+  function bugStLabel(x){ for(var i=0;i<BUG_ST.length;i++) if(BUG_ST[i][0]===x) return BUG_ST[i][1]; return x; }
+  function bugModCard(b){
+    var when=''; try{ when=new Date(b.created_at).toLocaleString('pt-BR'); }catch(e){}
+    var sevc=({critica:'var(--red,#e87070)',alta:'#e8a54a',normal:'var(--muted)',baixa:'var(--muted)'})[b.severity]||'var(--muted)';
+    var stc=({aberto:'#e8a54a',andamento:'#5b8def',resolvido:'#2fb36a',rejeitado:'#5a5668'})[b.status]||'#777';
+    var opt=BUG_ST.map(function(o){ return '<option value="'+o[0]+'"'+(o[0]===b.status?' selected':'')+'>'+o[1]+'</option>'; }).join('');
+    return '<div class="hs-mq-row" id="bug-'+b.id+'" style="align-items:flex-start;flex-direction:column;gap:.5rem">'
+      +'<div style="display:flex;align-items:center;gap:.45rem;flex-wrap:wrap;width:100%">'
+        +'<span style="font-weight:800;color:var(--ink,#eae8f2)">'+esc(b.title)+'</span>'
+        +'<span style="background:'+stc+';color:#120f1a;border-radius:999px;padding:1px 8px;font-size:.6rem;font-weight:800">'+bugStLabel(b.status).toUpperCase()+'</span>'
+        +'<span style="border:1px solid '+sevc+';color:'+sevc+';border-radius:999px;padding:0 7px;font-size:.58rem;font-weight:700">'+esc(b.severity||'normal')+'</span>'
+        +(b.area?'<span style="font-size:.72rem;color:var(--muted)">📍 '+esc(b.area)+'</span>':'')+'</div>'
+      +(b.descr?'<div style="font-size:.84rem;color:var(--ink,#eae8f2);white-space:pre-wrap">'+esc(b.descr)+'</div>':'')
+      +'<div style="font-size:.72rem;color:var(--muted)">por '+esc(b.author_name||'—')+' · '+when+(b.url?(' · <a href="'+esc(b.url)+'" target="_blank" rel="noopener" style="color:var(--bamboo-light,#a78bfa)">abrir página</a>'):'')+'</div>'
+      +'<textarea class="bug-notes" rows="2" placeholder="Notas internas (só staff)" style="width:100%;box-sizing:border-box;background:var(--bg-3,#23212f);border:1px solid var(--rule);color:var(--ink,#eae8f2);border-radius:8px;padding:.45rem .55rem;font:inherit;font-size:.82rem;resize:vertical">'+esc(b.admin_notes||'')+'</textarea>'
+      +'<div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap"><select class="bug-status" style="background:var(--bg-3,#23212f);border:1px solid var(--rule);color:var(--ink,#eae8f2);border-radius:8px;padding:.4rem .5rem;font:inherit">'+opt+'</select><button class="hs-approve" onclick="tpBugSave(\''+b.id+'\',this)">Salvar</button></div>'
+      +'</div>';
+  }
+  window.tpBugFilter=function(f){ _bugFilter=f; tpBugsModLoad(); };
+  window.tpBugSave=function(id,btn){
+    var row=document.getElementById('bug-'+id); if(!row) return;
+    var st=row.querySelector('.bug-status').value, notes=row.querySelector('.bug-notes').value;
+    var body={status:st,admin_notes:(notes||null),updated_at:new Date().toISOString()};
+    body.resolved_at=(st==='resolvido'||st==='rejeitado')?new Date().toISOString():null;
+    btn.disabled=true; var t=btn.textContent; btn.textContent='…';
+    af()(SBURL()+'/rest/v1/bug_reports?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(body)})
+      .then(function(r){ if(!r.ok) throw new Error(r.status); toast('Report atualizado.','success'); tpBugsModLoad(); })
+      .catch(function(){ toast('Não consegui salvar (precisa ser moderador).','error'); btn.disabled=false; btn.textContent=t; });
+  };
+  window.tpBugsModLoad=function(){
+    var A=auth(), host=document.getElementById('mod-bug-body'), cnt=document.getElementById('mod-bug-count'), fh=document.getElementById('mod-bug-filters'); if(!host) return;
+    if(!A||!A.user){ host.innerHTML='<div class="hs-map-none">Entre na sua conta.</div>'; return; }
+    if(fh){ fh.innerHTML=[['todos','Todos']].concat(BUG_ST).map(function(o){ var on=(_bugFilter===o[0]); return '<button class="hs-like" style="'+(on?'background:var(--bamboo,#8b5cf6);color:#fff;border-color:var(--bamboo,#8b5cf6)':'')+'" onclick="tpBugFilter(\''+o[0]+'\')">'+o[1]+'</button>'; }).join(''); }
+    host.innerHTML='<div class="hs-loading">Carregando…</div>';
+    var q='select=*&order=created_at.desc&limit=200'; if(_bugFilter!=='todos') q+='&status=eq.'+encodeURIComponent(_bugFilter);
+    af()(SBURL()+'/rest/v1/bug_reports?'+q,{headers:{Accept:'application/json'}})
+      .then(function(r){ return r.ok?r.json():Promise.reject(r); }).then(function(rows){
+        rows=Array.isArray(rows)?rows:[];
+        if(cnt) cnt.textContent='('+rows.length+')';
+        if(!rows.length){ host.innerHTML='<div class="hs-map-none">Nenhum report'+(_bugFilter!=='todos'?' ('+bugStLabel(_bugFilter)+')':'')+'. ✨</div>'; return; }
+        host.innerHTML=rows.map(bugModCard).join('');
+      }).catch(function(){ host.innerHTML='<div class="hs-map-none">Não consegui carregar os reports. (Você precisa ser moderador.)</div>'; });
   };
   function cmtRow(c){
     var isB=(c._tbl==='comentarios_build');
