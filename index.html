@@ -3079,6 +3079,11 @@ async function tibiaFetch(path) {
     #admin .adm-fld label{display:block;font-size:.7rem;color:var(--muted);margin-bottom:.25rem;font-weight:700}
     #admin .adm-note{font-size:.76rem;color:var(--muted);margin:.3rem 0 .9rem}
     #admin .adm-tablewrap{overflow-x:auto}
+    #admin .adm-dd{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:40;background:var(--bg-2,#1c1b26);border:1px solid var(--rule);border-radius:10px;max-height:300px;overflow:auto;box-shadow:0 14px 34px rgba(0,0,0,.45)}
+    #admin .adm-dd .dd-item{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.55rem .7rem;cursor:pointer;border-bottom:1px solid var(--rule);font-size:.85rem}
+    #admin .adm-dd .dd-item:last-child{border-bottom:0}
+    #admin .adm-dd .dd-item:hover{background:var(--bg-3,#23212f)}
+    #admin .adm-dd .dd-sub{color:var(--muted);font-size:.72rem;white-space:nowrap}
   </style>
   <h2 class="sec-title">🛠️ Painel Admin</h2>
   <p class="sec-sub">Gerencie o site sem passar pelo chat. Acesso restrito a administradores.</p>
@@ -3092,7 +3097,7 @@ async function tibiaFetch(path) {
     </div>
     <div id="adm-fundos" class="adm-panel"></div>
     <div id="adm-bosses" class="adm-panel" style="display:none"><div class="adm-newcard" style="grid-template-columns:1fr"><div class="adm-fld" style="font-weight:800;color:var(--ink,#e8e6f0)">✏️ Override de boss</div><div class="adm-note" style="margin:0">Preencha só o que quer sobrescrever. Respawn (dias) alimenta a Chance e o card. Vazio = usa o padrão/Fandom.</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem"><div class="adm-fld"><label>Boss (nome exato)</label><input id="adm-boss-name" class="adm-in" list="adm-boss-list" placeholder="Ex: The Pale Count"></div><div class="adm-fld"><label>Respawn (dias)</label><input id="adm-boss-iv" type="number" class="adm-in"></div><div class="adm-fld"><label>Local</label><input id="adm-boss-place" class="adm-in" placeholder="Ex: Drefia"></div><div class="adm-fld"><label>X</label><input id="adm-boss-x" type="number" class="adm-in"></div><div class="adm-fld"><label>Y</label><input id="adm-boss-y" type="number" class="adm-in"></div><div class="adm-fld"><label>Z (andar)</label><input id="adm-boss-z" type="number" class="adm-in"></div></div><datalist id="adm-boss-list"></datalist><div class="adm-fld"><label>Mensagens de raid (uma por linha)</label><textarea id="adm-boss-raid" class="adm-in" rows="3" placeholder="The Pale Count has risen..."></textarea></div><div style="display:flex;gap:.5rem;flex-wrap:wrap"><button class="adm-save" onclick="tpAdminBossLoadCurrent()">↺ Carregar atual</button><button class="adm-save" onclick="tpAdminBossSave()">Salvar override</button><span id="adm-boss-status" style="font-size:.76rem;color:var(--muted);align-self:center"></span></div></div><div id="adm-boss-list-host"></div></div>
-    <div id="adm-users" class="adm-panel" style="display:none"><div class="adm-newcard" style="grid-template-columns:1fr"><div class="adm-fld" style="font-weight:800;color:var(--ink,#e8e6f0)">🔎 Buscar usuário</div><div class="adm-note" style="margin:0">Busque por apelido, @handle ou personagem; conceda/remova <b>admin</b> ou <b>moderador</b>.</div><div style="display:flex;gap:.5rem;flex-wrap:wrap"><input id="adm-user-q" class="adm-in" style="flex:1;min-width:160px" placeholder="apelido / handle / char" onkeydown="if(event.key==='Enter')tpAdminUserSearch()"><button class="adm-save" onclick="tpAdminUserSearch()">Buscar</button></div><div id="adm-user-res"></div></div><div id="adm-users-host"></div></div>
+    <div id="adm-users" class="adm-panel" style="display:none"><div class="adm-newcard" style="grid-template-columns:1fr"><div class="adm-fld" style="font-weight:800;color:var(--ink,#e8e6f0)">🔎 Buscar usuário</div><div class="adm-note" style="margin:0">Busque por apelido, @handle ou personagem; conceda/remova <b>admin</b> ou <b>moderador</b>.</div><div style="position:relative;display:flex;gap:.5rem;flex-wrap:wrap"><input id="adm-user-q" class="adm-in" style="flex:1;min-width:160px" autocomplete="off" placeholder="Digite apelido, @handle ou personagem…" oninput="tpAdminUserLive(this.value)" onkeydown="if(event.key==='Enter')tpAdminUserSearch()"><button class="adm-save" onclick="tpAdminUserSearch()">Buscar</button><div id="adm-user-dd" class="adm-dd" style="display:none"></div></div><div id="adm-user-res" style="margin-top:.6rem"></div></div><div id="adm-users-host"></div></div>
     <div id="adm-gami" class="adm-panel" style="display:none"><div class="card" style="color:var(--muted)">🎁 Gamificação — próxima fase.</div></div>
   </div>
 </section>
@@ -3364,10 +3369,35 @@ async function tibiaFetch(path) {
   };
   function fetchProfiles(ids){
     if(!ids.length) return Promise.resolve([]);
-    var inq='('+ids.map(function(i){return '"'+i+'"';}).join(',')+')';
-    return _af(_sb()+'/rest/v1/profiles?select=id,display_name,handle,main_char&id=in.'+encodeURIComponent(inq),{headers:{apikey:_key()}})
-      .then(function(r){return r.json();}).then(function(rows){return Array.isArray(rows)?rows:[];});
+    return _af(_sb()+'/rest/v1/rpc/tp_admin_profiles_by_ids',{method:'POST',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),'Content-Type':'application/json'},body:JSON.stringify({p_ids:ids})})
+      .then(function(r){return r.ok?r.json():[];}).then(function(rows){return Array.isArray(rows)?rows:[];});
   }
+  var _userMatches={}, _ddTimer=null;
+  function admFindUsers(q){
+    return _af(_sb()+'/rest/v1/rpc/tp_admin_find_users',{method:'POST',headers:{apikey:_key(),Authorization:'Bearer '+_tok(),'Content-Type':'application/json'},body:JSON.stringify({p_q:q})})
+      .then(function(r){ return r.ok?r.json():[]; }).then(function(rows){ return Array.isArray(rows)?rows:[]; });
+  }
+  function userRow(p){ return '<tr><td>'+who(p)+badges(p.id)+'</td><td style="font-size:.7rem;color:var(--muted)">'+esc(p.main_char||'')+'</td><td style="white-space:nowrap">'+roleBtns(p.id)+'</td></tr>'; }
+  function userTable(rows){ return '<div class="adm-tablewrap"><table class="adm-ftable"><thead><tr><th>Usuário</th><th>Char</th><th>Papéis & categorias</th></tr></thead><tbody>'+rows.map(userRow).join('')+'</tbody></table></div>'; }
+  window.tpAdminUserLive=function(v){
+    var q=(v||'').trim(); var dd=g('adm-user-dd'); if(!dd) return;
+    clearTimeout(_ddTimer);
+    if(q.length<2){ dd.style.display='none'; dd.innerHTML=''; return; }
+    _ddTimer=setTimeout(function(){
+      loadRoles().then(function(){ return admFindUsers(q); }).then(function(rows){
+        rows.forEach(function(p){ _userMatches[p.id]=p; });
+        if(!rows.length){ dd.innerHTML='<div class="dd-item" style="cursor:default;color:var(--muted)">Nada encontrado.</div>'; dd.style.display='block'; return; }
+        dd.innerHTML=rows.map(function(p){ return '<div class="dd-item" onclick="tpAdminUserPick(\''+p.id+'\')"><span>'+who(p)+badges(p.id)+'</span>'+(p.main_char?'<span class="dd-sub">🎽 '+esc(p.main_char)+'</span>':'')+'</div>'; }).join('');
+        dd.style.display='block';
+      }).catch(function(){ dd.innerHTML='<div class="dd-item" style="cursor:default;color:var(--red,#e87070)">Erro na busca (precisa ser admin/mod).</div>'; dd.style.display='block'; });
+    },250);
+  };
+  window.tpAdminUserPick=function(id){
+    var p=_userMatches[id]||{id:id}; var dd=g('adm-user-dd'); if(dd) dd.style.display='none';
+    var res=g('adm-user-res'); if(!res) return; var q=g('adm-user-q'); if(q) q.value=(p.display_name||p.handle||p.main_char||'');
+    loadRoles().then(function(){ res.innerHTML=userTable([p]); });
+  };
+  document.addEventListener('click',function(e){ var dd=g('adm-user-dd'); if(dd&&dd.style.display!=='none'&&!e.target.closest('#adm-user-dd')&&e.target.id!=='adm-user-q'){ dd.style.display='none'; } });
   function who(p){ return esc(p.display_name||p.handle||p.main_char||p.id); }
   function badges(uid){ var r=_rolesMap[uid]||{}, uc=_userCats[uid]||{}; var b=''; if(r.admin)b+='<span style="background:#8b5cf6;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">ADMIN</span>'; if(r.moderator)b+='<span style="background:#2a7a44;color:#fff;border-radius:999px;padding:1px 7px;font-size:.62rem;font-weight:800;margin-left:4px">MOD</span>'; _catsAll.forEach(function(c){ if(uc[c.key]) b+='<span style="background:#b2742a;color:#fff;border-radius:999px;padding:1px 7px;font-size:.6rem;font-weight:800;margin-left:4px">'+(c.icon||'')+' Editor: '+esc(c.label)+'</span>'; }); return b; }
   function roleBtns(uid){
@@ -3392,19 +3422,16 @@ async function tibiaFetch(path) {
   };
 
   window.tpAdminUserSearch=function(){
-    var q=(g('adm-user-q').value||'').trim(); var res=g('adm-user-res');
+    var q=(g('adm-user-q').value||'').trim(); var res=g('adm-user-res'); var dd=g('adm-user-dd'); if(dd) dd.style.display='none';
     if(q.length<2){ res.innerHTML='<div class="adm-note">Digite ao menos 2 letras.</div>'; return; }
     res.innerHTML='<div class="adm-note">Buscando…</div>';
-    var like='*'+q.replace(/[(),]/g,'')+'*';
-    var url=_sb()+'/rest/v1/profiles?select=id,display_name,handle,main_char&or=(display_name.ilike.'+encodeURIComponent(like)+',handle.ilike.'+encodeURIComponent(like)+',main_char.ilike.'+encodeURIComponent(like)+')&limit=20';
-    loadRoles().then(function(){ return _af(url,{headers:{apikey:_key()}}); })
-      .then(function(r){return r.json();})
-      .then(function(rows){ if(!Array.isArray(rows))rows=[];
+    loadRoles().then(function(){ return admFindUsers(q); })
+      .then(function(rows){
         if(!rows.length){ res.innerHTML='<div class="adm-note">Nada encontrado.</div>'; return; }
-        var body=rows.map(function(p){ return '<tr><td>'+who(p)+badges(p.id)+'</td><td style="font-size:.7rem;color:var(--muted)">'+esc(p.main_char||'')+'</td><td style="white-space:nowrap">'+roleBtns(p.id)+'</td></tr>'; }).join('');
-        res.innerHTML='<div class="adm-tablewrap"><table class="adm-ftable"><thead><tr><th>Usuário</th><th>Char</th><th>Papéis</th></tr></thead><tbody>'+body+'</tbody></table></div>';
+        rows.forEach(function(p){ _userMatches[p.id]=p; });
+        res.innerHTML=userTable(rows);
       })
-      .catch(function(){ res.innerHTML='<div class="adm-note" style="color:var(--red,#e87070)">Erro na busca.</div>'; });
+      .catch(function(){ res.innerHTML='<div class="adm-note" style="color:var(--red,#e87070)">Erro na busca (precisa ser admin/mod).</div>'; });
   };
 
   window.tpAdminRole=function(uid,role,add){
@@ -11299,7 +11326,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar32';
+window.TP_BUILD = '2026-10-05bazar33';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
