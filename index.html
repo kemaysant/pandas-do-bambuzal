@@ -166,6 +166,13 @@ body{background-color:var(--bg-0);background-image:radial-gradient(1000px circle
 .tp-scroll::-webkit-scrollbar-track{background:transparent}
 .tp-scroll::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:4px}
 .tp-scroll::-webkit-scrollbar-thumb:hover{background:var(--bamboo)}
+/* scrollbar global padronizada (todo o site) */
+html{scrollbar-width:thin;scrollbar-color:var(--border-2,#3a3850) transparent}
+*::-webkit-scrollbar{width:10px;height:10px}
+*::-webkit-scrollbar-track{background:transparent}
+*::-webkit-scrollbar-thumb{background:var(--border-2,#3a3850);border-radius:8px;border:2px solid transparent;background-clip:content-box}
+*::-webkit-scrollbar-thumb:hover{background:var(--bamboo,#7bb36a);background-clip:content-box}
+*::-webkit-scrollbar-corner{background:transparent}
 
 .sidebar-brand {
   padding: 1.25rem 1rem 1rem;
@@ -11218,7 +11225,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar26';
+window.TP_BUILD = '2026-10-05bazar27';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -23135,7 +23142,7 @@ window.tpLoadJornada=async function(){
     h+='<h3 class="bz-new-h">➕ Novo anúncio</h3>';
     if(!w) h+='<div class="bz-warn">Verifique um personagem no seu perfil pra anunciar (o mundo do anúncio vem do seu char).</div>';
     h+='<label class="bz-lbl">Tipo de anúncio</label><div class="bz-segs wide">';
-    [['wts','Vendo (WTS)'],['wtb','Procuro (WTB)']].forEach(function(s){ h+='<button class="bz-seg'+(d.intent===s[0]?' on':'')+'" onclick="tpBzDraft(\'intent\',\''+s[0]+'\')">'+s[1]+'</button>'; });
+    [['wts','Vendo'],['wtb','Procuro']].forEach(function(s){ h+='<button class="bz-seg'+(d.intent===s[0]?' on':'')+'" onclick="tpBzDraft(\'intent\',\''+s[0]+'\')">'+s[1]+'</button>'; });
     h+='</div>';
     h+='<label class="bz-lbl">Categoria</label><div class="bz-chips wide">';
     [['item','📦 Item'],['casa','🏠 Casa']].forEach(function(s){ h+='<button class="bz-chip'+(d.kind===s[0]?' on':'')+'" onclick="tpBzDraft(\'kind\',\''+s[0]+'\')">'+s[1]+'</button>'; });
@@ -23148,9 +23155,8 @@ window.tpLoadJornada=async function(){
       h+='<label class="bz-lbl">Seu personagem (quem anuncia)</label>'+bzCharSelect(d,_vch);
       if(d.intent==='wts') h+='<div style="font-size:.72rem;color:var(--gold,#e0c060);margin-top:5px;line-height:1.45">⚠️ Pra <b>vender</b> uma casa você precisa ser o <b>dono dela no jogo</b> com esse personagem. A negociação e a transferência são feitas dentro do Tibia.</div>';
     }
-    h+='<label class="bz-lbl">Título *</label><input class="bz-in" maxlength="120" value="'+esc(d.title)+'" oninput="tpBzDraft(\'title\',this.value)" placeholder="'+(d.kind==='casa'?'Preenchido pela casa escolhida (pode editar)':(d.kind==='servico'?'Ex.: Power gaming / quests':'Ex.: Magic Sword Tier 3'))+'">';
     if(d.kind==='item'){
-      h+='<div class="bz-row"><div style="flex:2"><label class="bz-lbl">Nome do item (busque na lista)</label><input class="bz-in" list="bz-item-dl" autocomplete="off" value="'+esc(d.item_name)+'" oninput="tpBzDraft(\'item_name\',this.value)" placeholder="Ex.: Magic Sword"></div>'
+      h+='<div class="bz-row"><div style="flex:2"><label class="bz-lbl">Item * <span style="color:var(--muted);font-weight:400">(vira o título do anúncio)</span></label><input class="bz-in" list="bz-item-dl" autocomplete="off" value="'+esc(d.item_name)+'" oninput="tpBzDraft(\'item_name\',this.value)" placeholder="Ex.: Magic Sword"></div>'
         +'<div style="flex:1"><label class="bz-lbl">Tier</label><input class="bz-in" type="number" min="0" max="10" value="'+esc(d.tier)+'" oninput="tpBzDraft(\'tier\',this.value)" placeholder="—"></div></div>'
         +'<datalist id="bz-item-dl"></datalist>'
         +'<label class="bz-lbl">Look do item <span style="color:var(--muted);font-weight:400">(opcional — cole o “You see…” do jogo)</span></label>'
@@ -23265,7 +23271,7 @@ window.tpLoadJornada=async function(){
   window.tpBzNew=function(){ BZ.view='new'; render(); if(me()&&!myWorld()) ensureChars(function(){ if(BZ.view==='new') render(); }); };
   window.tpBzMine=function(){ BZ.view='mine'; render(); };
   window.tpBzAlerts=function(){ BZ.view='alerts'; render(); };
-  window.tpBzDraft=function(k,v){ BZ.draft=BZ.draft||{}; BZ.draft[k]=v; if(k==='kind'||k==='currency'||k==='intent') render(); else paintPreview(); };
+  window.tpBzDraft=function(k,v){ BZ.draft=BZ.draft||{}; BZ.draft[k]=v; if(k==='item_name') BZ.draft.title=v; if(k==='kind'){ BZ.draft.title=(v==='item'?(BZ.draft.item_name||''):(v==='casa'?(BZ.draft.house||''):'')); } if(k==='kind'||k==='currency'||k==='intent') render(); else paintPreview(); };
   window.tpBzHouseTown=function(town){ BZ.draft=BZ.draft||{}; BZ.draft.town=town; BZ.draft.house=''; BZ.draft.houseid=null; render(); bzEnsureHouses(); };
   window.tpBzHousePick=function(name){ BZ.draft=BZ.draft||{}; BZ.draft.house=name; var world=myWorld(), town=BZ.draft.town||''; var cache=BZ_HOUSE_CACHE[world+'|'+town]; var ho=(Array.isArray(cache)?cache.filter(function(x){return x.name===name;})[0]:null); BZ.draft.houseid=ho?ho.houseid:null; BZ.draft.houseowner=ho?ho.owner:null; if(name) BZ.draft.title=name; var _own2=String(ho&&ho.owner||'').toLowerCase(); var _m2=(window.__tpChars||[]).filter(function(c){return c.verified&&c.name.toLowerCase()===_own2;})[0]; if(_m2) BZ.draft.char=_m2.name; render(); };
   window.tpBzMarket=function(name){ try{ if(window.showPage) showPage('markettracker'); if(window.tpMarketInit) tpMarketInit(); setTimeout(function(){ var i=document.querySelector('#markettracker input[type=text],#markettracker input:not([type])'); if(i){ i.value=name; i.dispatchEvent(new Event('input',{bubbles:true})); } },300); }catch(e){} };
