@@ -1,6 +1,6 @@
 # Tibia Panda — Produto · Status & Backlog
 
-_Atualizado: 2026-10-04_
+_Atualizado: 2026-10-06_
 
 Objetivo: ser o hub do Tibia BR — ferramentas de alto padrão **e** comunidade. Regra permanente: **dados reais, nunca inventados**. O produto cresceu além das builds: hoje tem bosses, eventos/agenda, hunt analyser, economia (Panda Coins)/store e conta social. Esta primeira parte é o **roadmap atual por área**; a parte detalhada de **Builds & Ferramentas** segue preservada mais abaixo.
 
@@ -18,6 +18,13 @@ Objetivo: ser o hub do Tibia BR — ferramentas de alto padrão **e** comunidade
 - **Página de Bosses**: ordenar por chance (default), filtros em pills; herói da home com "caçados hoje" + Boostados + Rashid do dia ("Hoje no Tibia").
 - **Eventos/Agenda**: editar na página do evento; anfitrião apaga qualquer comentário e remove jogador (RPC `SECURITY DEFINER`); confirmação no estilo do site (`tpConfirm`); refresh visual (card/kanban/vocações, sem serifa); cabeçalho capa-ready + contagem regressiva.
 - **UX geral (review)**: menos topo em todas as páginas, header mobile ok, gates padronizados, estados vazios convidativos, espaçamentos.
+
+### 🟢 Entregue recentemente — Admin, Builds & Calculadora (06/10)
+- **Painel Admin virou console (bz29–bz37)** — abas: **Visão geral** (dashboard de pendências), **Aprovações** (builds + fotos), **Bugs** (triagem), **Usuários** (busca com autocomplete + atribuir cargos Admin/Editor/Moderador e categorias de editor), **Jornada** (editar capítulos: título, nível, coins, conquistas por vocação), além de Bosses/Fundos/Gamificação. Gate server-side: ninguém vê o Admin nem a Moderação sem permissão (re-check via `tpCheckBuildAdmin`/`checkMod`, mesmo forçando flags no cliente).
+- **Server-side (LIVE):** `jornada_chapters` com RLS (era buraco: anon tinha INSERT/UPDATE/DELETE → qualquer um mexia nos requisitos da jornada) — leitura pública, escrita só admin; tabela `bug_reports`; RPCs `tp_admin_find_users` + `tp_admin_profiles_by_ids` (SECURITY DEFINER, checam admin/mod) pra busca de usuários funcionar com RLS.
+- **Editor de builds — seletor de Munição (bz38)** — faltava no editor: toda build de distância saía com `ammo:null` e o **dano saía subestimado** (a besta atirava "pelada", só atk 10). Agora tem o seletor (bolts/flechas), assume uma munição padrão quando falta, e recalcula ao salvar. (bz39: corrigido o emoji 🎯 da seção, que vazava como texto `U0001F3AF` e empurrava os nomes.)
+- **Calculadora — modelo de dano/turno corrigido** — `dano/turno` agora conta o **auto-attack cheio todo turno + 1 spell por turno** (média ponderada pelo ratio), em vez de diluir o auto na média. Alinha com o modelo da **tibiatools.io** (mesma engine/fork do exivabuild; validado spell-a-spell: auto/barrage/sudden death batem 1:1). Só afeta vocações com auto na rotação (**knight/paladin/monk**); **sorcerer/druid ficam idênticos** (rotação só de spells). Recalculadas as **31 builds** afetadas no banco (ex.: paladino de besta 891→1781; pico Monk 1050pts = 7610). _Obs.: motor commitado, vale no ar após o push; a lista de builds já lê o dano novo do banco._
+- **Descrições de build padronizadas** — guia dividido nos campos certos (summary / 🎯 prioridades / insights-chave) em vez de um parágrafo só; spells viram ícone automaticamente via `gmd()`. Liga com o item 1 (padronizar builds).
 
 ### A. 👥 Comunidade & Guilds — NOVO (foco estratégico)
 **Objetivo:** virar o hub social do Tibia BR, não só ferramentas — guildas e comunidades por servidor, integradas a acessos, soul cores e bosses.
@@ -135,7 +142,7 @@ O Kemay achou o tibiadozero.com.br e quer elevar as nossas ferramentas ao mesmo 
   - _Menor:_ itens-moeda (Crystal/Tibia Coin) não estão no índice do market (não são tradeáveis no market); sem toggle de período no gráfico (hoje = últimos ~13 snapshots do mês).
 - ✅ **Transferência de servidor / arbitragem entre mundos (01/10)** — ferramenta nova (`servertransfer`, no menu Ferramentas). Compara o **/market_values real** de dois mundos (api.tibiamarket.top, 1 request por mundo = market inteiro) e lista os itens com **lucro**: compra barato na origem, transfere o personagem (que leva o inventário/depot junto) e vende caro no destino. **3 estratégias** fiéis ao tibiadozero: _sem risco_ (compra+venda instantânea), _moderado_ (compra instantânea + oferta de venda), _alto_ (oferta nas duas pontas). Filtra por **volume ≥ 10/mês nas duas pontas** (liquidez real), dimensiona a **quantidade** pelo orçamento em **Tibia Coins** (convertido pela cotação da TC na origem) e pela liquidez mensal. Tabela **ordenável** (lucro/un, ROI, qtd, lucro total, volume), 96 mundos, troca origem↔destino, miniatura real do item. Validado Gentebra→Antica (224 oport. sem risco, 1154 risco alto — números reais). Ref: https://tibiadozero.com.br/ferramentas/transferencia-servidor
   - _Menor:_ a API só expõe a melhor oferta (não o livro ±15% que o tibiadozero cita); usamos best-offer, honesto e padrão. Custo fixo da transferência (750 TC) é citado na nota, não descontado por item.
-- **Timers** (nova; ainda não temos) — criador de cronômetros personalizados pra cooldowns, respawns e eventos. Campos: Nome (opcional), Tempo (mm:ss), Auto-replay, Som de alerta, Falar nome ao completar (TTS); timers com sprites de monstro/item. Saída: contagem regressiva ativa + alerta sonoro/TTS ao zerar. Ideia nossa: presets úteis (respawn de hunt, janela de boss, server save, cooldown de exercise) + sprites via tibiawiki. _Kemay pediu pra colocar no backlog (01/10)._ Ref: https://tibiadozero.com.br/ferramentas/timers
+- **Timers** (nova; ainda não temos) — criador de cronômetros personalizados pra cooldowns, respawns e eventos. Campos: Nome (opcional), Tempo (mm:ss), Auto-replay, Som de alerta, Falar nome ao completar (TTS); timers com sprites de monstro/item. Saída: contagem regressiva ativa + alerta sonoro/TTS ao zerar. Ideia nossa: presets úteis (respawn de hunt, janela de boss, server save, cooldown de exercise) + sprites via tibiawiki. _Kemay pediu pra colocar no backlog (01/10)._ Ref: https://tibiadozero.com.br/ferramentas/timers · Outra referência (hunt timers): https://tibiawatch.com/dashboard?tool=hunt-timers (Kemay, 06/10)
 - **Calculadora de charms** (nossa: charm calc) — **backlog** (o próprio Kemay marcou). Ref: https://tibiadozero.com.br/ferramentas/calculadora-charms
 
 ### 1. Refinar o conteúdo das builds — EM FOCO (você)
@@ -219,6 +226,7 @@ Auditoria de 30/09: RLS ligado nas 41 tabelas, políticas da `builds` corretas (
 ## 🔗 Ferramentas de referência (inspiração)
 - **Simulador de revelar gemas** (Tibia do Zero): https://tibiadozero.com.br/ferramentas/simulador-revelar-gemas — referência forte pro sistema de gemas / Atelier (item 2d).
 - **Atelier de Gemas** (TibiaBR): https://www.tibiabr.com/23347/atelier-de-gemas/ — mecânica oficial dos mods básicos/supremos.
+- **Hunt Timers** (TibiaWatch): https://tibiawatch.com/dashboard?tool=hunt-timers — referência pro item **Timers** (cronômetros de respawn/boss/cooldown). _Kemay apontou (06/10)._
 
 ## Notas técnicas
 - Regra permanente: **sempre recalcular o dano** com o equipamento escolhido ao criar/editar (salvo em `builds.dano`).
