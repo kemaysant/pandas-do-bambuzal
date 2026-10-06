@@ -7832,15 +7832,15 @@ PlayerName (Leader)
       if(!kind) return '';
       var IC=DCE.icons||{}, cur=b.ammo||null, lbl=(kind==='bolts'?'Bolts':'Flechas');
       var curIcd=cur&&IC[cur.icon];
-      var head='<div class="be2wcur">'+(curIcd?'<img src="'+curIcd+'">':'<span class="be2wemoji">\U0001F3AF</span>')
+      var head='<div class="be2wcur">'+(curIcd?'<img src="'+curIcd+'">':'<span class="be2wemoji">🎯</span>')
         +'<div class="be2wtxt"><b>'+(cur?E(cur.name):'— sem munição —')+'</b>'+(cur?'<small>ataque '+cur.attack+' · acerto '+cur.hitChance+'%</small>':'<small>escolha a munição pra o dano sair certo</small>')+'</div>'
         +'<button type="button" class="be2cancel" onclick="tpBEpickAmmo()">'+(BE.pickA?'Fechar':'Trocar munição')+'</button></div>';
       var pick='';
       if(BE.pickA){
-        var rows=_beAmmoList(kind).map(function(a){ var i2=IC[a.icon]; return '<div class="be2pi" data-name="'+E(a.name)+'" onclick="tpBEsetAmmo(\''+E(a.name)+'\')">'+(i2?'<img src="'+i2+'">':'<span class="be2piemoji">\U0001F3AF</span>')+'<span class="be2piname">'+E(a.name)+'</span><span class="be2pimeta">atk '+a.attack+(a.aoe?' · área':'')+'</span></div>'; }).join('');
+        var rows=_beAmmoList(kind).map(function(a){ var i2=IC[a.icon]; return '<div class="be2pi" data-name="'+E(a.name)+'" onclick="tpBEsetAmmo(\''+E(a.name)+'\')">'+(i2?'<img src="'+i2+'">':'<span class="be2piemoji">🎯</span>')+'<span class="be2piname">'+E(a.name)+'</span><span class="be2pimeta">atk '+a.attack+(a.aoe?' · área':'')+'</span></div>'; }).join('');
         pick='<div class="be2picker"><div class="be2phead">Escolher '+lbl+' <button type="button" class="be2cancel" onclick="tpBEpickAmmo()">Fechar</button></div><input class="be2psearch" placeholder="buscar munição…" oninput="tpBEfilterList(\'be2-apl\',this.value)"><div class="be2pilist" id="be2-apl">'+rows+'</div></div>';
       }
-      return '<div class="be2sec"><h4>\U0001F3AF Munição <span class="be2hint">— '+lbl+' do paladino; entra direto no dano de distância</span></h4>'+head+pick+'</div>';
+      return '<div class="be2sec"><h4>🎯 Munição <span class="be2hint">— '+lbl+' do paladino; entra direto no dano de distância</span></h4>'+head+pick+'</div>';
     }
     window.tpBEpickAmmo=function(){ tpBECapture(); window.__BE.pickA=!window.__BE.pickA; window.__BE.pick=null; window.__BE.pickW=false; window.__BE.pickR=false; tpBERender(); };
     window.tpBEsetAmmo=function(name){ tpBECapture(); var BE=window.__BE, b=BE.data.b, w=b.weapon||{}; var kind=(w.ammo==='bolts'||w.ammo==='arrows')?w.ammo:null; if(kind){ var hit=_beAmmoList(kind).filter(function(a){return a.name===name;})[0]; if(hit) b.ammo=JSON.parse(JSON.stringify(hit)); } BE.pickA=false; tpBERender(); };
@@ -11547,7 +11547,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar38';
+window.TP_BUILD = '2026-10-05bazar39';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
