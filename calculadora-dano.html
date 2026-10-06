@@ -1773,27 +1773,45 @@ window.DC_CREATURES = /*CREA*/[{"n":"A Weak Spot","hp":435000,"res":[100,100,100
     c=c||ctxNow();
     var lines=[], charm=totalCharmTurn();
     if(!state.rotation.length){ if(charm>0)lines.push({name:'Charms / turno',tag:'',val:charm,charm:true}); return {turn: charm, hit:0, onlyCharm:true, lines:lines}; }
-    var totalRatio=state.rotation.reduce(function(a,r){return a+(+r.ratio||0);},0)||1;
-    var perTurn=0, perHitNum=0, perHitDen=0;
     var beamStage=(WHEEL.beam)?wheelStage(wheelDomPtsEff()[3]):0;
     var XLAT={1:.25,2:.4,3:.7};
+    /* Auto-attack acontece TODO turno (conta 1x, cheio) + 1 spell por turno (media ponderada pelo ratio). Alinha com o modelo da tibiatools. */
+    var autoTurn=0, hasAuto=false, autoName='Auto-attack', autoEl=null;
+    var spellItems=[], spellRatioTot=0;
     state.rotation.forEach(function(r){
       var sp=D.spells.find(function(s){return s.id===r.id;}); if(!sp)return;
-      var esp=activeBurst(sp), rc2=resolve(esp,c), cav=calc(esp,c,rc2).avg; if(cav==null)return;   // auto-ataque pendente: não soma
+      var esp=activeBurst(sp), rc2=resolve(esp,c), cav=calc(esp,c,rc2).avg; if(cav==null)return;
       var em=effMult(c,esp.spellType,rc2), res=resFactorFor(sp.element);
       var effBase=isAutoAttack(esp)?autoEff(c):cav*em;
-      var dmg=effBase*res, frac=(+r.ratio||0)/totalRatio, tN=(+r.targets||1), nm=(sp.displayName||sp.name), el=sp.element;
-      if(isBeamSpell(sp)){
+      var dmg=effBase*res, tN=(+r.targets||1), nm=(sp.displayName||sp.name), el=sp.element, ratio=(+r.ratio||0);
+      if(isAutoAttack(esp)){
+        var va=dmg*tN;
+        if(!hasAuto||va>autoTurn){ autoTurn=va; autoName=nm+' (todo turno'+(tN>1?' x'+tN:'')+')'; autoEl=el; }
+        hasAuto=true;
+      } else if(isBeamSpell(sp)){
         var latN=(+r.lat||0), side=(beamStage>0&&SIDE[sp.scope])?SIDE[sp.scope][beamStage]:null;
         var dmgSide=side?calc(side,c,resolve(side,c)).avg*em*res:0;
-        var vC=frac*dmg*tN; perTurn+=vC;
-        lines.push({name:nm+' (Central)', tag:'×'+tN+'·p'+(r.ratio), val:vC, el:el});
-        if(dmgSide>0&&latN>0){ var vL=frac*dmgSide*latN; perTurn+=vL; lines.push({name:nm+' (Laterais ×'+XLAT[beamStage]+')', tag:'×'+latN+'·↳', val:vL, el:el}); }
-      } else { var v=frac*dmg*tN; perTurn+=v; lines.push({name:nm, tag:'×'+tN+'·p'+(r.ratio), val:v, el:el}); }
-      perHitNum += frac*dmg; perHitDen += frac;
+        var parts=[{name:nm+' (Central)', tag:'x'+tN+'·p'+(r.ratio), dmg:dmg*tN, el:el}];
+        if(dmgSide>0&&latN>0) parts.push({name:nm+' (Laterais x'+XLAT[beamStage]+')', tag:'x'+latN+'·L', dmg:dmgSide*latN, el:el});
+        var tot=parts.reduce(function(a,p){return a+p.dmg;},0);
+        spellItems.push({ratio:ratio, dmg:tot, parts:parts}); spellRatioTot+=ratio;
+      } else {
+        var p={name:nm, tag:'x'+tN+'·p'+(r.ratio), dmg:dmg*tN, el:el};
+        spellItems.push({ratio:ratio, dmg:p.dmg, parts:[p]}); spellRatioTot+=ratio;
+      }
     });
+    if(hasAuto) lines.push({name:autoName, tag:'todo turno', val:autoTurn, el:autoEl});
+    var spellAvg=0;
+    if(spellRatioTot>0){
+      spellItems.forEach(function(it){
+        var share=it.ratio/spellRatioTot;
+        it.parts.forEach(function(p){ var v=share*p.dmg; spellAvg+=v; lines.push({name:p.name, tag:p.tag, val:v, el:p.el}); });
+      });
+    }
     if(charm>0)lines.push({name:'Charms / turno',tag:'',val:charm,charm:true});
-    return {turn: perTurn + charm, hit: perHitDen?perHitNum/perHitDen:0, onlyCharm:false, lines:lines};
+    var actions=(hasAuto?1:0)+(spellRatioTot>0?1:0); if(actions<1)actions=1;
+    var turn=autoTurn+spellAvg+charm;
+    return {turn: turn, hit: turn/actions, onlyCharm:false, lines:lines};
   }
   function renderRot(c, keep){
     var host=g('rotlist');
