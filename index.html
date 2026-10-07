@@ -5553,6 +5553,14 @@ PlayerName (Leader)
       <button class="pf-tab" data-tab="bosses" onclick="tpProfTab('bosses',this)">🎯 Bosses</button>
       <span class="pf-tabdiv" aria-hidden="true"></span>
       <button class="pf-tab" data-tab="dados" onclick="tpProfTab('dados',this)">👤 Meus dados</button>
+      <button class="pf-tab" data-tab="reports" id="pf-reports-tab" onclick="tpProfTab('reports',this)" style="display:none">🐞 Meus reports</button>
+    </div>
+
+    <div class="pf-panel" data-panel="reports" style="display:none">
+      <div class="card"><h3 class="sec-title" style="margin-top:0">🐞 Meus reports</h3>
+        <p class="sec-sub" style="margin-top:-.3rem">Acompanhe os bugs que você enviou e o status de cada um.</p>
+        <div id="pf-reports-body"><div class="ag-loading">Carregando…</div></div>
+      </div>
     </div>
 
     <!-- BOSSES (tracker no perfil) -->
@@ -11547,7 +11555,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-07bazar40';
+window.TP_BUILD = '2026-10-07bazar41';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -17876,6 +17884,7 @@ function ewEnsureTcInput() {
     if(name==='eventos' && window.tpProfEvents) tpProfEvents();
     if(name==='dados' && window.tpLoadHandle) tpLoadHandle();
     if(name==='bosses' && window.tpProfBosses) tpProfBosses();
+    if(name==='reports' && window.tpMyReportsLoad) tpMyReportsLoad();
   };
   window.tpProfUnpin=function(name){ try{ var i=pinnedBosses.indexOf(name); if(i>=0){ pinnedBosses.splice(i,1); localStorage.setItem('panda-pinned',JSON.stringify(pinnedBosses)); } }catch(e){} if(window.tpProfBosses) tpProfBosses(); if(typeof renderBossSpawnGrid==='function'){ try{renderBossSpawnGrid();}catch(e){} } };
   window.tpProfBossAlert=function(k,el){ var p={}; try{ p=JSON.parse(localStorage.getItem('panda-boss-alerts')||'{}'); }catch(e){} p[k]=!p[k]; try{ localStorage.setItem('panda-boss-alerts',JSON.stringify(p)); }catch(e){} if(el) el.classList.toggle('on',!!p[k]); };
@@ -18194,6 +18203,7 @@ function ewEnsureTcInput() {
     var uname=feat?feat.name:((AUTH.user.email||'').split('@')[0]);
     if(feat) tpSyncDisplayName(feat.name);
     var un=g('pf-username'); if(un) un.textContent=uname;
+    if(window.tpMyReportsPeek) tpMyReportsPeek();
     var mc=g('pf-mainchar');
     if(mc){ mc.innerHTML = feat
       ? ([feat.vocation,(feat.level?('Lvl '+feat.level):null),feat.world].filter(Boolean).join(' · '))
@@ -20778,8 +20788,9 @@ window.tpLoadJornada=async function(){
   function renderNotifBadge(){ var nb=document.getElementById('tp-notif-unread'); if(!nb) return;
     nb.textContent=notifUnread>9?'9+':notifUnread; nb.style.display=notifUnread>0?'':'none'; }
   function notifName(a){ if(!a) return 'Alguém'; return a.display_name||(a.handle?('@'+a.handle):null)||a.main_char||'Alguém'; }
-  function notifIcon(t){ return (t==='friend_request'||t==='friend_accept')?'👤':(t==='testimonial'||t==='mention')?'💬':t==='event_reminder'?'⏰':t==='event_update'?'✏️':t==='bazar_match'?'🛒':'🔔'; }
+  function notifIcon(t){ if(t&&t.indexOf('bug_')===0) return '🐞'; return (t==='friend_request'||t==='friend_accept')?'👤':(t==='testimonial'||t==='mention')?'💬':t==='event_reminder'?'⏰':t==='event_update'?'✏️':t==='bazar_match'?'🛒':'🔔'; }
   function notifText(n){ var nm='<b>'+esc(notifName(n.actor))+'</b>';
+    if(n.type&&n.type.indexOf('bug_')===0){ var _bs=n.type.slice(4); var _bm={resolvido:'Seu report de bug foi <b>resolvido</b> ✅',andamento:'Seu report de bug está <b>em andamento</b> 👀 — já estamos cuidando dele.',rejeitado:'Seu report de bug foi avaliado e <b>encerrado</b>.',aberto:'Seu report de bug foi <b>reaberto</b>.'}; return _bm[_bs]||'Seu report de bug teve uma atualização.'; }
     if(n.type==='friend_request') return nm+' te enviou um pedido de amizade.';
     if(n.type==='friend_accept')  return nm+' aceitou seu pedido de amizade.';
     if(n.type==='testimonial')    return nm+' deixou um depoimento no seu perfil.';
@@ -20818,7 +20829,23 @@ window.tpLoadJornada=async function(){
     else if((n.type==='friend_accept'||n.type==='testimonial') && n.actor_id){ if(window.tpOpenProfile) window.tpOpenProfile(n.actor_id); }
     else if((n.type==='mention'||n.type==='event_reminder'||n.type==='event_update') && n.ref){ try{ location.hash='#event='+n.ref; }catch(e){} if(window.tpEventPageOpen) tpEventPageOpen(n.ref); }
     else if(n.type==='bazar_match' && n.ref){ if(window.showPage){ var bb=document.querySelector('.nav-btn[onclick*="bazar"]'); showPage('bazar',bb); } setTimeout(function(){ if(window.tpBzOpen) window.tpBzOpen(n.ref); },80); }
+    else if(n.type&&n.type.indexOf('bug_')===0){ if(typeof showPage==='function'){ var _pb=document.querySelector('.nav-btn[onclick*="profile"]'); showPage('profile',_pb); } setTimeout(function(){ var _t=document.querySelector('#profile .pf-tab[data-tab=reports]'); if(_t) _t.click(); },250); }
     else if(window.tpGoFriends){ tpGoFriends(); } };
+  window.tpMyReportsPeek=function(){ try{ rpc('tp_my_bug_reports').then(function(d){ var tab=document.getElementById('pf-reports-tab'); if(tab) tab.style.display=(d&&d.ok&&d.rows&&d.rows.length)?'':'none'; }); }catch(e){} };
+  window.tpMyReportsLoad=function(){ var host=document.getElementById('pf-reports-body'); if(!host) return; host.innerHTML='<div class="ag-loading">Carregando…</div>';
+    rpc('tp_my_bug_reports').then(function(d){ if(!d||!d.ok){ host.innerHTML='<div class="adm-note" style="color:var(--red,#e87070)">Não consegui carregar seus reports.</div>'; return; }
+      var rows=d.rows||[]; var tab=document.getElementById('pf-reports-tab'); if(tab) tab.style.display=rows.length?'':'none';
+      if(!rows.length){ host.innerHTML='<div class="vit-empty" style="padding:1.4rem">Você ainda não enviou nenhum report. Quando mandar um bug pelo rodapé, ele aparece aqui.</div>'; return; }
+      var ST={aberto:['Aberto','#e8a54a'],andamento:['Em andamento','#5b8def'],resolvido:['Resolvido','#2fb36a'],rejeitado:['Encerrado','#5a5668']};
+      host.innerHTML=rows.map(function(b){ var sx=ST[b.status]||[b.status,'#777'];
+        return '<div style="border:1px solid var(--rule);border-radius:12px;padding:.8rem .9rem;margin-bottom:.7rem;background:var(--bg-2,#1c1b26)">'
+          +'<div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap"><b style="color:var(--ink,#e8e6f0)">'+esc(b.title||'(sem título)')+'</b>'
+          +'<span style="font-size:.7rem;font-weight:800;color:#fff;background:'+sx[1]+';border-radius:999px;padding:.12rem .5rem">'+sx[0]+'</span>'
+          +(b.area?'<span style="font-size:.72rem;color:var(--muted)">📍 '+esc(b.area)+'</span>':'')+'</div>'
+          +(b.descr?'<div style="font-size:.82rem;color:var(--ink-2,#bfbccb);margin-top:.35rem;white-space:pre-wrap">'+esc(b.descr)+'</div>':'')
+          +'<div style="font-size:.7rem;color:var(--muted);margin-top:.45rem">Enviado em '+new Date(b.created_at).toLocaleDateString('pt-BR')+(b.resolved_at?(' · '+(b.status==='rejeitado'?'encerrado':'resolvido')+' em '+new Date(b.resolved_at).toLocaleDateString('pt-BR')):'')+'</div>'
+        +'</div>'; }).join('');
+    }).catch(function(){ host.innerHTML='<div class="adm-note" style="color:var(--red,#e87070)">Erro ao carregar.</div>'; }); };
   function tpGoPass(){ if(typeof showPage==='function'){ var b=document.querySelector('.nav-btn[onclick*="profile"]'); showPage('profile',b); }
     var t=document.querySelector('#profile .pf-tab[data-tab=prog]'); if(t) t.click();
     setTimeout(function(){ var el=document.querySelector('#profile .pass-track,#profile .pass-feature,#profile [class*="pass"]'); if(el&&el.scrollIntoView) el.scrollIntoView({behavior:'smooth',block:'center'}); },250); }
