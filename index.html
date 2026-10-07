@@ -11547,7 +11547,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-05bazar39';
+window.TP_BUILD = '2026-10-07bazar40';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -22071,13 +22071,15 @@ window.tpLoadJornada=async function(){
     var patch={ title:title, type:gv('agm-type'), description:gv('agm-desc'), location:gv('agm-loc')||null, starts_at:new Date(startLocal).toISOString(), ends_at:gv('agm-end')?new Date(gv('agm-end')).toISOString():null, capacity:gv('agm-cap')||null, requirements:gv('agm-req')||null, quests_access:gv('agm-quests')||null, difficulty:gv('agm-diff')||'normal', rules:(rulesOn&&rulesTxt)?rulesTxt:null, rules_show:!!(rulesOn&&rulesTxt), updated_at:new Date().toISOString() };
     var btn=document.getElementById('agm-submit'); if(btn){ btn.disabled=true; btn.textContent='Salvando…'; }
     try{
-      var r=await af()(SB()+'/rest/v1/events?id=eq.'+id,{method:'PATCH',headers:{'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(patch)});
+      var r=await af()(SB()+'/rest/v1/events?id=eq.'+id,{method:'PATCH',headers:{'Content-Type':'application/json',Accept:'application/json',Prefer:'return=representation'},body:JSON.stringify(patch)});
       if(!r.ok) throw new Error('patch');
+      var _saved=await r.json().catch(function(){return null;});
+      if(!Array.isArray(_saved)||!_saved.length) throw new Error('norows');
       toast('Evento atualizado! ✅','success'); document.getElementById('agm-modal').classList.remove('open'); tpAgendaLoad(); if(window.tpHomeEvents) tpHomeEvents();
       var onEvp=window.__EVP&&window.__EVP.id===id&&document.getElementById('eventpage')&&document.getElementById('eventpage').classList.contains('active');
       if(onEvp&&window.tpEventPageOpen){ tpEventPageOpen(id,true); }
       else if(window.__AG_FOCUS&&window.__AG_FOCUS.id===id&&window.tpAgendaFocus) setTimeout(function(){ tpAgendaFocus(id); },300);
-    }catch(e){ toast('Não consegui salvar as alterações.','error'); if(btn){ btn.disabled=false; btn.textContent='Salvar alterações'; } }
+    }catch(e){ var _m=(e&&e.message==='norows')?'Não salvou — sua sessão pode ter expirado. Saia, entre de novo e tente outra vez (precisa ser o dono do evento ou moderador).':'Não consegui salvar as alterações.'; toast(_m,'error'); if(btn){ btn.disabled=false; btn.textContent='Salvar alterações'; } }
   };
   window.tpAgendaNew=function(){
     agmTitle('📅 Criar evento');
