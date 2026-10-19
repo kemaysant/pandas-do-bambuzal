@@ -11555,7 +11555,7 @@ const OUTFIT_BASE = 'outfits-pack';
 const FLOOR_BASE = 'floors';
 // Versão do build: usada pra "furar" o cache do manifest quando você atualiza.
 // Bumpe isto (e o build do rodapé) a cada deploy que mexe no manifest/outfits.
-window.TP_BUILD = '2026-10-07bazar41';
+window.TP_BUILD = '2026-10-19bazar42';
 
 // Comentários por hunt — exigem LOGIN na conta do site (window.TP_AUTH) + >=1 personagem verificado.
 // Leitura é pública; publicação vai pela RPC tp_hunt_comment_add (SECURITY DEFINER, checa verificação).
@@ -20695,7 +20695,7 @@ window.tpLoadJornada=async function(){
   function popOpen(){ var p=document.getElementById('tp-social-pop'); return p&&p.classList.contains('open'); }
 
   var _liveBound=false, _lastPoll=0;
-  function tpPollNow(){ if(!me()) return; var t=Date.now(); if(t-_lastPoll<800) return; _lastPoll=t; try{ pollChats(); }catch(e){} try{ refreshInbox(); }catch(e){} try{ refreshNotifs(); }catch(e){} }
+  function tpPollNow(){ if(!me()||document.hidden) return; var t=Date.now(); if(t-_lastPoll<1500) return; _lastPoll=t; try{ pollChats(); }catch(e){} try{ refreshInbox(); }catch(e){} try{ refreshNotifs(); }catch(e){} }
   window.tpPollNow=tpPollNow;
   function bindLive(){
     if(_liveBound) return; _liveBound=true;
@@ -20708,11 +20708,11 @@ window.tpLoadJornada=async function(){
   function startSocial(){ if(started||!me()) return; started=true;
     var dock=document.getElementById('tp-social'); if(dock) dock.style.display='';
     bindLive();
-    rpc('tp_touch_presence'); tPres=setInterval(function(){ rpc('tp_touch_presence'); },60000);
-    refreshFriends(); tFr=setInterval(refreshFriends,45000);
-    refreshInbox(); tIn=setInterval(refreshInbox,8000);
-    tChat=setInterval(pollChats,2500);
-    refreshNotifs(); tNotif=setInterval(refreshNotifs,30000);
+    rpc('tp_touch_presence'); tPres=setInterval(function(){ if(!document.hidden) rpc('tp_touch_presence'); },60000);
+    refreshFriends(); tFr=setInterval(function(){ if(!document.hidden) refreshFriends(); },90000);
+    refreshInbox(); tIn=setInterval(function(){ if(!document.hidden) refreshInbox(); },20000);
+    tChat=setInterval(function(){ if(!document.hidden) pollChats(); },5000);
+    refreshNotifs(); tNotif=setInterval(function(){ if(!document.hidden) refreshNotifs(); },60000);
   }
   function stopSocial(){ started=false; [tPres,tFr,tIn,tChat,tNotif].forEach(function(x){ if(x) clearInterval(x); }); tPres=tFr=tIn=tChat=tNotif=null;
     NOTIFS=[];notifUnread=0; var nb=document.getElementById('tp-notif-unread'); if(nb) nb.style.display='none';
